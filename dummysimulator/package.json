@@ -1,0 +1,11 @@
+{
+  "name": "dummysimulator",
+  "version": "1.0.0",
+  "author": "Deep",
+  "license": "ISC",
+  "description": "An example of making Node.js API server",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
+  }
+}

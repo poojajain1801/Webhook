@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="postgresql"/>
+
+    <changeSet author="sumit.das" id="201612261256">
+        <createTable tableName="pack_policy">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="packs" type="TEXT"/>
+        </createTable>
+        <createIndex tableName="pack_policy" indexName="pack_policy_id" unique="true">
+            <column name="id"/>
+            <column name="type"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="sumit.das" id="201612260156">
+        <modifyDataType columnName="id" newDataType="VARCHAR(255)" tableName="pack_policy"/>
+    </changeSet>
+
+
+    <changeSet author="tanmay.p" id="201701091530" >
+        <createTable tableName="USER_DETAILS">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+        <addUniqueConstraint columnNames="user_name" constraintName="unique_constraints" deferrable="true"
+             tableName="user_details"/>
+        <createIndex tableName="USER_DETAILS" indexName="user_details_id" unique="true">
+            <column name="id"/>
+            <column name="user_name"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201701082344" >
+        <addColumn tableName="user_details">
+            <column name="user_status" type="varchar(255)"/>
+            <column name="activation_code" type="varchar(255)"/>
+
+        </addColumn>
+    </changeSet>
+
+    <!-- Table for device management-->
+    <changeSet author="tanmay.p" id="201701121500" >
+        <createTable tableName="DEVICE_INFO">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="OS_NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OS_VERSION" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SERIAL_NUMBER" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FORM_FACTOR" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STORAGE_TECHNOLOGY" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NFC_CAPABLE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IMEI" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MSISDN" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+        <addUniqueConstraint columnNames="IMEI" constraintName="device_unique_constraints" deferrable="true"
+                             tableName="DEVICE_INFO"/>
+        <createIndex tableName="DEVICE_INFO" indexName="device_info_id" unique="true">
+            <column name="id"/>
+            <column name="IMEI"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Table for Card management-->
+    <changeSet author="tanmay.p" id="201701311500" >
+        <createTable tableName="CARD_DETAILS">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="USER_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN_REFERENCE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PAN_REFERENCE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN_INFO" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+
+        </createTable>
+        <addUniqueConstraint columnNames="TOKEN_REFERENCE" constraintName="card_unique_constraints" deferrable="true"
+                             tableName="CARD_DETAILS"/>
+        <createIndex tableName="CARD_DETAILS" indexName="card_info_id" unique="true">
+            <column name="id"/>
+            <column name="TOKEN_REFERENCE"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201702022344" >
+        <createTable tableName="SERVICE_DATA">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="true" primaryKey="true"/>
+            </column>
+            <column name="service_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="request" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="response" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="service_id" constraintName="service_unique_constraints" deferrable="true"
+                             tableName="SERVICE_DATA"/>
+        <createIndex tableName="SERVICE_DATA" indexName="service_id" unique="true">
+            <column name="id"/>
+            <column name="service_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
+

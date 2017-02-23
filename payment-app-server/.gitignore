@@ -1,0 +1,16 @@
+.DS_Store
+.idea
+*.iml
+rebel.xml
+target/
+*.log
+*.log.*
+*.tmp
+.settings/
+.classpath
+.project
+.sonar
+**/generated/**/*.css*
+**/generated/**/*.js*
+**/source/**/*
+sonar-project.properties

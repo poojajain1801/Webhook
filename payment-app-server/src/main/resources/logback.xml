@@ -1,0 +1,41 @@
+<!-- Read http://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-logback-for-logging for more info-->
+<configuration scan="true">
+
+    <property resource="application.properties"/>
+    <property scope="context" name="node.name" value="%property{mfs.node.name}"/>
+    <property name="defaultPattern"
+              value="%d ${HOSTNAME} ${mfs.component.id} ${node.name:-unknown_node} %X{mfs.flowId:-?} %thread %-5level %logger{25}.%M - %msg%n"/>
+
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-./logs}/startup.log}"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}</file>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}-%d.%i.log.gz</fileNamePattern>
+            <maxHistory>${logging.file.maxHistory}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${logging.file.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <root level="${logging.level:-INFO}">
+        <appender-ref ref="FILE_LOG"/>
+        <appender-ref ref="CONSOLE"/>
+        <if condition='property("java.class.path").contains("IntelliJ")
+        || property("java.class.path").contains("test-classes") || property("spring.profiles.active").contains("dev")'>
+            <then>
+                <appender-ref ref="CONSOLE"/>
+            </then>
+        </if>
+    </root>
+</configuration>
