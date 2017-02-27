@@ -4,7 +4,7 @@ exports.mockmdesres = {
 "responseId" : "123456", 
 "eligibilityReceipt" : { 
 "value" : "f9f027e5-629d-11e3-949a-0800200c9a66", 
-"validForMinutes" : 30 
+"validForMinutes" :  30 
 }, 
 "termsAndConditionsAssetId" : "a9f027e5-629d-11e3-949a-0800200c9a66", 
 "applicableCardInfo" : { 
