@@ -52,8 +52,8 @@ public class ConstantErrorCodes {
         errorCodes.put(INTERNAL_SERVICE_FAILURE, "Internal Service Failure");
         errorCodes.put(DUPLICATE_REQUEST, "Duplicate Request");
         errorCodes.put(INVALID_TASK_ID, "Invalid Task Id");
-        errorCodes.put(INVALID_TOKEN_UNIQUE_REFERENCE, "Invalid SessionInfo Unique Reference");
-        errorCodes.put(INVALID_TOKEN_STATUS, "Invalid SessionInfo status");
+        errorCodes.put(INVALID_TOKEN_UNIQUE_REFERENCE, "Invalid Token Unique Reference");
+        errorCodes.put(INVALID_TOKEN_STATUS, "Invalid Token status");
         errorCodes.put(MAX_NUM_TRANSACTION_CREDENTIALS_REACHED, "Max number of Transaction Credentials reached");
         errorCodes.put(RNS_UNAVAILABLE, "RNS Unavailable");
         errorCodes.put(DEVICE_UNREACHABLE, "Device Unreachable");

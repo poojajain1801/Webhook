@@ -1,7 +1,7 @@
 package com.comviva.mfs.promotion.modules.mobilepaymentapi.controller;
 
+import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RmResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RemoteManagementReqMpa;
-import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.ProvisionResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSession;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSessionResp;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.service.contract.ProvisionServiceMobPayApi;
@@ -23,20 +23,26 @@ public class MobilePaymentApiController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/requestSession", method = RequestMethod.POST)
+    public RequestSessionResp requestSession(@RequestBody RequestSession requestSession) {
+        return provisionService.requestSession(requestSession);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/provision", method = RequestMethod.POST)
-    public ProvisionResponseMpa provision(@RequestBody RemoteManagementReqMpa remoteManagementReqMpa) {
+    public RmResponseMpa provision(@RequestBody RemoteManagementReqMpa remoteManagementReqMpa) {
         return provisionService.provision(remoteManagementReqMpa);
     }
 
     @ResponseBody
     @RequestMapping(value = "/notifyProvisioningResult", method = RequestMethod.POST)
-    public ProvisionResponseMpa notifyProvisionResult(@RequestBody RemoteManagementReqMpa remoteManagementReqMpa) {
+    public RmResponseMpa notifyProvisionResult(@RequestBody RemoteManagementReqMpa remoteManagementReqMpa) {
         return provisionService.notifyProvisioningResult(remoteManagementReqMpa);
     }
 
     @ResponseBody
-    @RequestMapping(value = "/requestSession", method = RequestMethod.POST)
-    public RequestSessionResp requestSession(@RequestBody RequestSession requestSession) {
-        return provisionService.requestSession(requestSession);
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public RmResponseMpa deleteToken(@RequestBody RemoteManagementReqMpa remoteManagementReqMpa) {
+        return provisionService.deleteToken(remoteManagementReqMpa);
     }
 }

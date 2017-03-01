@@ -8,8 +8,8 @@ import com.comviva.mfs.promotion.modules.common.sessionmanagement.model.ProcessS
 import com.comviva.mfs.promotion.modules.common.sessionmanagement.repository.SessionInfoRepository;
 import com.comviva.mfs.promotion.modules.common.tokens.domain.Token;
 import com.comviva.mfs.promotion.modules.common.tokens.repository.TokenRepository;
+import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RmResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RemoteManagementReqMpa;
-import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.ProvisionResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSession;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSessionResp;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.rns.RemoteManagementUtil;
@@ -24,6 +24,7 @@ import com.comviva.mfs.promotion.util.rns.fcm.RemoteNotificationService;
 import com.comviva.mfs.promotion.util.rns.fcm.RnsFactory;
 import com.comviva.mfs.promotion.util.rns.fcm.RnsResponse;
 import flexjson.JSONSerializer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +64,7 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
      * @param iccKek      ICC Key
      * @return Response
      */
-    private ProvisionResponseMpa prepareProvisionResponseMpa(JSONObject cardProfile, String iccKek) {
+    private RmResponseMpa prepareProvisionResponseMpa(JSONObject cardProfile, String iccKek) {
         // Prepare Response
         JSONObject response = new JSONObject();
         response.put("responseId", "3000000001");
@@ -72,13 +73,8 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
         response.put("iccKek", iccKek);
 
         // Encrypt response prepared
-        byte[] bEncData = null;
-        try {
-            bEncData = AESUtil.cipherCcm(response.toString().getBytes(), Constants.AES_KEY, Constants.CCM_NONCE, true);
-        } catch (GeneralSecurityException e) {
-            // Log exception
-        }
-        return new ProvisionResponseMpa(ArrayUtil.getHexString(bEncData),
+        String encryptedData = remoteManagementUtil.encryptResponse(response);
+        return new RmResponseMpa(encryptedData,
                 Integer.toString(ConstantErrorCodes.SC_OK),
                 "Card Profile Sent Successfully");
     }
@@ -89,20 +85,20 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
      * @param reasonCode Error Code
      * @return Response
      */
-    private ProvisionResponseMpa prepareProvisionResponseMpaError(final int reasonCode) {
+    private RmResponseMpa prepareProvisionResponseMpaError(final int reasonCode) {
         // Prepare Response
         JSONObject response = new JSONObject();
         response.put("responseId", "3000000001");
         response.put("responseHost", Constants.RESPONSE_HOST);
 
         // Encrypt response prepared
-        byte[] bEncData = null;
-        try {
-            bEncData = AESUtil.cipherCcm(response.toString().getBytes(), Constants.AES_KEY, Constants.CCM_NONCE, true);
-        } catch (GeneralSecurityException e) {
-            // Log exception
+        String encryptedData;
+        if(remoteManagementUtil.isSessionInitialized()) {
+            encryptedData = remoteManagementUtil.encryptResponse(response);
+        } else {
+            encryptedData = "";
         }
-        return new ProvisionResponseMpa(ArrayUtil.getHexString(bEncData),
+        return new RmResponseMpa(encryptedData,
                 Integer.toString(reasonCode),
                 ConstantErrorCodes.errorCodes.get(reasonCode));
     }
@@ -114,16 +110,20 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
      * @param reasonDescription Error Description
      * @return Response
      */
-    private ProvisionResponseMpa prepareProvisionResponseMpaError(final int reasonCode, final String reasonDescription) {
+    private RmResponseMpa prepareProvisionResponseMpaError(final int reasonCode, final String reasonDescription) {
         // Prepare Response
         JSONObject response = new JSONObject();
         response.put("responseId", "3000000001");
         response.put("responseHost", Constants.RESPONSE_HOST);
 
         // Encrypt response prepared
-        String encryptedData = remoteManagementUtil.encryptResponse(response);
-        remoteManagementUtil.reset();
-        return new ProvisionResponseMpa(encryptedData, Integer.toString(reasonCode), reasonDescription);
+        String encryptedData;
+        if(remoteManagementUtil.isSessionInitialized()) {
+            encryptedData = remoteManagementUtil.encryptResponse(response);
+        } else {
+            encryptedData = "";
+        }
+        return new RmResponseMpa(encryptedData, Integer.toString(reasonCode), reasonDescription);
     }
 
     /**
@@ -201,104 +201,6 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
     }
 
     @Override
-    @Transactional
-    public ProvisionResponseMpa provision(RemoteManagementReqMpa remoteManagementReqMpa) {
-        ProcessSessionResponse processSessionResponse = remoteManagementUtil.processRMRequest(remoteManagementReqMpa.getMobileKeysetId(),
-                remoteManagementReqMpa.getAuthenticationCode(),
-                remoteManagementReqMpa.getEncryptedData());
-
-        switch (processSessionResponse.getSessionValidationResult()) {
-            case SESSION_EXPIRED:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.SESSION_EXPIRED);
-
-            case INCORRECT_DATE_FORMAT:
-            case INCORRECT_REQUEST_DATA:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT);
-
-            case SESSION_NOT_FOUND:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_SESSION);
-
-            case MAC_ERROR:
-            case CRYPTO_ERROR:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
-
-            case INVALID_MOBILE_KEYSET_ID:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE);
-        }
-
-        JSONObject provisionReqData = processSessionResponse.getJsonRequest();
-        String tokenUniqueReference = provisionReqData.getString("tokenUniqueReference");
-
-        // Validate tokenUniqueReference received
-        Optional<Token> tokenInfo = tokenRepository.findByTokenUniqueReference(tokenUniqueReference);
-        if (!tokenInfo.isPresent()) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
-        }
-
-        Token token = tokenInfo.get();
-        byte[] encIccKek = ArrayUtil.getByteArray(token.getIccKek());
-        byte[] kek = Constants.AES_KEY;
-        byte[] iccKek;
-        try {
-            iccKek = AESUtil.cipherECB(encIccKek, kek, AESUtil.Padding.ISO7816_4, false);
-        } catch (GeneralSecurityException e) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
-        }
-
-        // Prepare Response
-        return prepareProvisionResponseMpa(new JSONObject(token.getCardProfile()), ArrayUtil.getHexString(iccKek));
-    }
-
-    @Override
-    public ProvisionResponseMpa notifyProvisioningResult(RemoteManagementReqMpa remoteManagementReqMpa) {
-        ProcessSessionResponse processSessionResponse = remoteManagementUtil.processRMRequest(remoteManagementReqMpa.getMobileKeysetId(),
-                remoteManagementReqMpa.getAuthenticationCode(),
-                remoteManagementReqMpa.getEncryptedData());
-
-        switch (processSessionResponse.getSessionValidationResult()) {
-            case SESSION_EXPIRED:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.SESSION_EXPIRED);
-
-            case INCORRECT_DATE_FORMAT:
-            case INCORRECT_REQUEST_DATA:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT);
-
-            case SESSION_NOT_FOUND:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_SESSION);
-
-            case MAC_ERROR:
-            case CRYPTO_ERROR:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
-
-            case INVALID_MOBILE_KEYSET_ID:
-                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE);
-        }
-
-        JSONObject provisionReqData = processSessionResponse.getJsonRequest();
-        String tokenUniqueReference = provisionReqData.getString("tokenUniqueReference");
-
-        // Validate tokenUniqueReference
-        Optional<Token> tokenInfo = tokenRepository.findByTokenUniqueReference(tokenUniqueReference);
-        if (!tokenInfo.isPresent()) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
-        }
-
-        Token token = tokenInfo.get();
-        if (!token.getState().equalsIgnoreCase(TokenState.NEW.name())) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
-        }
-
-        // If result = SUCCESS then change the state of the corresponding SessionInfo
-        if (provisionReqData.getString("result").equalsIgnoreCase("SUCCESS")) {
-            token.setState(TokenState.DIGITIZED.name());
-            tokenRepository.save(token);
-        }
-
-        // Return response
-        return prepareProvisionResponseMpaError(ConstantErrorCodes.SC_OK, "Card Digitized successfully");
-    }
-
-    @Override
     public RequestSessionResp requestSession(RequestSession requestSession) {
         // Validate paymentAppInstanceId
         Optional<ApplicationInstanceInfo> applicationInstanceInfo = appInstInfoRepository.findByPaymentAppInstId(requestSession.getPaymentAppInstanceId());
@@ -317,6 +219,12 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
         if (!appInstanceInfo.getPaymentAppId().equalsIgnoreCase(requestSession.getPaymentAppProviderId())) {
             return new RequestSessionResp(Integer.toString(ConstantErrorCodes.INVALID_PAYMENT_APP_PROVIDER_ID),
                     ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.INVALID_PAYMENT_APP_PROVIDER_ID));
+        }
+
+        // If there is already a session existing then delete previous and create new one
+        Optional<SessionInfo> sessionInfoOpt = sessionInfoRepository.findByPaymentAppInstanceId(appInstanceInfo.getPaymentAppInstId());
+        if(sessionInfoOpt.isPresent()) {
+            sessionInfoRepository.delete(sessionInfoOpt.get());
         }
 
         // Create Remote Notification Data
@@ -358,11 +266,170 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
         sessionInfo.setAuthenticationCode(ArrayUtil.getHexString(authenticationCode));
         sessionInfo.setMobileSessionKeyConf(mobSessionConfKey);
         sessionInfo.setMobileSessionKeyMac(mobSessionMacKey);
-        sessionInfo.setM2cCounter(1);
+        sessionInfo.setM2cCounter(0);
         sessionInfo.setC2mCounter(0);
         sessionInfoRepository.save(sessionInfo);
 
         return new RequestSessionResp(Integer.toString(ConstantErrorCodes.SC_OK), "Session Created Successfully");
     }
 
+    @Override
+    @Transactional
+    public RmResponseMpa provision(RemoteManagementReqMpa remoteManagementReqMpa) {
+        ProcessSessionResponse processSessionResponse = remoteManagementUtil.processRMRequest(remoteManagementReqMpa.getMobileKeysetId(),
+                remoteManagementReqMpa.getAuthenticationCode(),
+                remoteManagementReqMpa.getEncryptedData());
+
+        switch (processSessionResponse.getSessionValidationResult()) {
+            case SESSION_EXPIRED:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.SESSION_EXPIRED);
+
+            case INCORRECT_DATE_FORMAT:
+            case INCORRECT_REQUEST_DATA:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT);
+
+            case SESSION_NOT_FOUND:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_SESSION);
+
+            case MAC_ERROR:
+            case CRYPTO_ERROR:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
+
+            case INVALID_MOBILE_KEYSET_ID:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "Invalid MobileKeysetId");
+        }
+
+        JSONObject provisionReqData = processSessionResponse.getJsonRequest();
+        String tokenUniqueReference = provisionReqData.getString("tokenUniqueReference");
+
+        // Validate tokenUniqueReference received
+        Optional<Token> tokenInfo = tokenRepository.findByTokenUniqueReference(tokenUniqueReference);
+        if (!tokenInfo.isPresent()) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
+        }
+
+        Token token = tokenInfo.get();
+        byte[] encIccKek = ArrayUtil.getByteArray(token.getIccKek());
+        byte[] kek = Constants.AES_KEY;
+        byte[] iccKek;
+        try {
+            iccKek = AESUtil.cipherECB(encIccKek, kek, AESUtil.Padding.ISO7816_4, false);
+        } catch (GeneralSecurityException e) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
+        }
+
+        // Prepare Response
+        return prepareProvisionResponseMpa(new JSONObject(token.getCardProfile()), ArrayUtil.getHexString(iccKek));
+    }
+
+    @Override
+    public RmResponseMpa notifyProvisioningResult(RemoteManagementReqMpa remoteManagementReqMpa) {
+        ProcessSessionResponse processSessionResponse = remoteManagementUtil.processRMRequest(remoteManagementReqMpa.getMobileKeysetId(),
+                remoteManagementReqMpa.getAuthenticationCode(),
+                remoteManagementReqMpa.getEncryptedData());
+
+        switch (processSessionResponse.getSessionValidationResult()) {
+            case SESSION_EXPIRED:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.SESSION_EXPIRED);
+
+            case INCORRECT_DATE_FORMAT:
+            case INCORRECT_REQUEST_DATA:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT);
+
+            case SESSION_NOT_FOUND:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_SESSION);
+
+            case MAC_ERROR:
+            case CRYPTO_ERROR:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
+
+            case INVALID_MOBILE_KEYSET_ID:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "Invalid MobileKeysetId");
+        }
+
+        JSONObject provisionReqData = processSessionResponse.getJsonRequest();
+        String tokenUniqueReference = provisionReqData.getString("tokenUniqueReference");
+
+        // Validate tokenUniqueReference
+        Optional<Token> tokenInfo = tokenRepository.findByTokenUniqueReference(tokenUniqueReference);
+        if (!tokenInfo.isPresent()) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
+        }
+
+        Token token = tokenInfo.get();
+        if (!(token.getState().equalsIgnoreCase(TokenState.NEW.name()) ||
+                token.getState().equalsIgnoreCase(TokenState.DELETED.name()))) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
+        }
+
+        // If result = SUCCESS then change the state of the corresponding SessionInfo
+        if (provisionReqData.getString("result").equalsIgnoreCase("SUCCESS")) {
+            token.setState(TokenState.DIGITIZED.name());
+            tokenRepository.save(token);
+        }
+
+        // Return response
+        return prepareProvisionResponseMpaError(ConstantErrorCodes.SC_OK, "Card Digitized successfully");
+    }
+
+    @Override
+    public RmResponseMpa deleteToken(RemoteManagementReqMpa remoteManagementReqMpa) {
+        ProcessSessionResponse processSessionResponse = remoteManagementUtil.processRMRequest(remoteManagementReqMpa.getMobileKeysetId(),
+                remoteManagementReqMpa.getAuthenticationCode(),
+                remoteManagementReqMpa.getEncryptedData());
+
+        switch (processSessionResponse.getSessionValidationResult()) {
+            case SESSION_EXPIRED:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.SESSION_EXPIRED);
+
+            case INCORRECT_DATE_FORMAT:
+            case INCORRECT_REQUEST_DATA:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT);
+
+            case SESSION_NOT_FOUND:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_SESSION);
+
+            case MAC_ERROR:
+            case CRYPTO_ERROR:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
+
+            case INVALID_MOBILE_KEYSET_ID:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "Invalid MobileKeysetId");
+        }
+
+        JSONObject deleteReqData = processSessionResponse.getJsonRequest();
+        String tokenUniqueReference = deleteReqData.getString("tokenUniqueReference");
+
+        // Validate tokenUniqueReference
+        if(!deleteReqData.has("tokenUniqueReference") || !deleteReqData.has("transactionCredentialsStatus")) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.MISSING_REQUIRED_FIELD);
+        }
+
+        // Validate tokenUniqueReference
+        Optional<Token> tokenInfo = tokenRepository.findByTokenUniqueReference(tokenUniqueReference);
+        if (!tokenInfo.isPresent()) {
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_UNIQUE_REFERENCE);
+        }
+
+        Token token = tokenInfo.get();
+        TokenState tokenState= TokenState.valueOf(token.getState());
+        switch (tokenState) {
+            case NEW:
+                // If token is just added and not activated then transactionCredentialsStatus must be empty
+                JSONArray transactionCredentialsStatus = deleteReqData.getJSONArray("transactionCredentialsStatus");
+                if(transactionCredentialsStatus.length() != 0) {
+                    return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE);
+                }
+                break;
+
+            // Check if token is in DELETED state
+            case DELETED:
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TOKEN_STATUS);
+        }
+
+        // Set token status to DELETED
+        token.setState(TokenState.DELETED.name());
+        tokenRepository.save(token);
+        return prepareProvisionResponseMpaError(ConstantErrorCodes.SC_OK, "Token Deleted Successfully");
+    }
 }

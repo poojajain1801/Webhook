@@ -4,8 +4,6 @@ package com.comviva.mfs.promotion.util.aes;
 import com.comviva.mfs.promotion.constants.Constants;
 import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.comviva.mfs.promotion.util.cpadapter.CardProfile;
-import flexjson.JSONDeserializer;
-import flexjson.JSONSerializer;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.json.JSONObject;
 
@@ -186,11 +184,11 @@ public class AESUtil {
     }
 
     public static void main(String[] args) {
-        //encTokenCredentials();
+        encTokenCredentials();
         //encProvisionMPAReq();
         //encMobPin();
 
-        JSONObject jsonObject = new JSONObject();
+        /*JSONObject jsonObject = new JSONObject();
         jsonObject.put("var1", "val1");
         jsonObject.put("var2", "val2");
 
@@ -201,7 +199,7 @@ public class AESUtil {
 
         JSONDeserializer<MyJson> deserializer = new JSONDeserializer<>();
         myJson = deserializer.deserialize( serializedObj );
-        System.out.print("Wow");
+        System.out.print("Wow");*/
 
 
 

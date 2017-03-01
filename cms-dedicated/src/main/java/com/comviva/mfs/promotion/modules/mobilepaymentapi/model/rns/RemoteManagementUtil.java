@@ -35,13 +35,21 @@ public class RemoteManagementUtil {
     private int m2c;
     private int c2m;
 
-    /*
-        '00' || M2C || Z, for messages received from the Mobile Payment Application
-        '01' || C2M || Z, for messages sent to the Mobile Payment Application
-        where Z is 12 bytes of hexadecimal zeros
+    private boolean isSessionInitialized;
+
+    /**
+     * Prepare SV (Starting Value/Initial Value) for encryption/decryption. <br/>
+     *  '00' || M2C || Z, for messages received from the Mobile Payment Application <br/>
+     *  '01' || C2M || Z, for messages sent to the Mobile Payment Application <br/>
+     *      where Z is 12 bytes of hexadecimal zeros
+     *
+     * @param counter   Counter value m2c or c2m
+     * @param m2c       <code>true </code>m2c Counter <br/>
+     *                  <code>false </code>c2m Counter
+     * @return 16 bytes SV value
      */
     private byte[] prepareSv(int counter, boolean m2c) {
-        return ArrayUtil.getByteArray(m2c?"00":"01" + String.format("%06X", counter) + "000000000000000000000000");
+        return ArrayUtil.getByteArray((m2c?"00":"01") + String.format("%06X", counter) + "000000000000000000000000");
     }
 
     public RemoteManagementUtil(SessionInfoRepository sessionInfoRepository,
@@ -50,21 +58,32 @@ public class RemoteManagementUtil {
         this.appInstInfoRepository = appInstInfoRepository;
     }
 
-    public void reset() {
-        Arrays.fill(mobSessionKeyConf, (byte)0x00);
-        Arrays.fill(mobSessionKeyMac, (byte)0x00);
-        mobSessionKeyConf = null;
-        mobSessionKeyMac = null;
-        sessionInfo = null;
+    private void resetSession(boolean deleteSessionInfo) {
+        if(deleteSessionInfo) {
+            sessionInfoRepository.delete(sessionInfo);
+        }
+
+        if(null != mobSessionKeyConf) {
+            Arrays.fill(mobSessionKeyConf, (byte) 0x00);
+            Arrays.fill(mobSessionKeyMac, (byte) 0x00);
+            mobSessionKeyConf = null;
+            mobSessionKeyMac = null;
+        }
         m2c = 0;
         c2m = 0;
+        sessionInfo = null;
     }
 
-    public void init(byte[] mobSessionKeyConf, byte[] mobSessionKeyMac, int m2c, int c2m) {
+    private void initSession(byte[] mobSessionKeyConf, byte[] mobSessionKeyMac, int m2c, int c2m) {
         this.mobSessionKeyConf = mobSessionKeyConf;
         this.mobSessionKeyMac = mobSessionKeyMac;
         this.m2c = m2c;
         this.c2m = c2m;
+        isSessionInitialized = true;
+    }
+
+    public boolean isSessionInitialized() {
+        return isSessionInitialized;
     }
 
     /**
@@ -73,21 +92,21 @@ public class RemoteManagementUtil {
      * @return Result of session Validation
      */
     public ProcessSessionResponse processRMRequest(String mobileKeysetId, String authCode, String encryptedData) {
+        isSessionInitialized = false;
         ProcessSessionResponse response = new ProcessSessionResponse();
         Optional<SessionInfo> sessionInfoOptional = sessionInfoRepository.findByAuthenticationCode(authCode);
+
+        // Reset if any session exist
+        if(null != sessionInfo) {
+            resetSession(false);
+        }
 
         // Invalid session
         if(!sessionInfoOptional.isPresent()) {
             response.setSessionValidationResult(SessionValidationResult.SESSION_NOT_FOUND);
             return response;
         }
-        SessionInfo sessionInfo = sessionInfoOptional.get();
-        if(null == mobSessionKeyConf) {
-            init(ArrayUtil.getByteArray(sessionInfo.getMobileSessionKeyConf()),
-                    ArrayUtil.getByteArray(sessionInfo.getMobileSessionKeyMac()),
-                    sessionInfo.getM2cCounter(),
-                    sessionInfo.getC2mCounter());
-        }
+        sessionInfo = sessionInfoOptional.get();
 
         // Validate mobileKeysetId
         ApplicationInstanceInfo appInstInfo = appInstInfoRepository.findByPaymentAppInstId(sessionInfo.getPaymentAppInstanceId()).get();
@@ -96,11 +115,23 @@ public class RemoteManagementUtil {
             return response;
         }
 
+        initSession(ArrayUtil.getByteArray(sessionInfo.getMobileSessionKeyConf()),
+                ArrayUtil.getByteArray(sessionInfo.getMobileSessionKeyMac()),
+                sessionInfo.getM2cCounter(),
+                sessionInfo.getC2mCounter());
+
+        m2c++;
+        byte[] svM2c = prepareSv(m2c, true);
+        sessionInfo.setM2cCounter(m2c);
+        sessionInfoRepository.save(sessionInfo);
+        sessionInfo = sessionInfoRepository.findByAuthenticationCode(authCode).get();
+
         try {
             // Session Expired
             Calendar sessionExpDate = DateFormatISO8601.toCalendar(sessionInfo.getExpiryTimeStamp());
             if(sessionExpDate.getTime().before(Calendar.getInstance().getTime())) {
                 response.setSessionValidationResult(SessionValidationResult.SESSION_EXPIRED);
+                resetSession(true);
                 return response;
             }
         } catch (ParseException e) {
@@ -122,6 +153,7 @@ public class RemoteManagementUtil {
                 long sessionDuration = (Calendar.getInstance().getTimeInMillis() - sessionStartTime.getTimeInMillis())/1000;
                 if(sessionDuration > sessionInfo.getValidForSeconds()) {
                     response.setSessionValidationResult(SessionValidationResult.SESSION_EXPIRED);
+                    resetSession(true);
                     return response;
                 }
             } catch (ParseException e) {
@@ -141,11 +173,6 @@ public class RemoteManagementUtil {
                 response.setSessionValidationResult(SessionValidationResult.MAC_ERROR);
                 return response;
             }
-
-            m2c++;
-            byte[] svM2c = prepareSv(m2c, true);
-            sessionInfo.setM2cCounter(m2c);
-            sessionInfoRepository.save(sessionInfo);
 
             decData = new String(AESUtil.cipherCcm(encData, mobSessionKeyConf, svM2c,false));
             JSONObject reqData = new JSONObject(decData);

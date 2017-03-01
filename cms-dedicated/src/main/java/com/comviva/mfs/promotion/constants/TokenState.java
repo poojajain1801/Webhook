@@ -9,6 +9,8 @@ public enum TokenState {
     NEW,
     // CMS-d send card profile to MPA and received notification
     DIGITIZED,
-    // SessionInfo is activated
-    ACTIVATED
+    // Token is activated
+    ACTIVATED,
+    // Deleted
+    DELETED
 }
