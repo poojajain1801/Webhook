@@ -1,11 +1,14 @@
 package com.comviva.mfs.promotion.modules.card_management.service;
 
 import com.comviva.mfs.promotion.constants.ServerConfig;
+import com.comviva.mfs.promotion.modules.card_management.domain.CardDetails;
 import com.comviva.mfs.promotion.modules.card_management.domain.converter.ServiceData;
 import com.comviva.mfs.promotion.modules.card_management.model.*;
 import com.comviva.mfs.promotion.modules.card_management.repository.CardDetailRepository;
 import com.comviva.mfs.promotion.modules.card_management.repository.ServiceDataRepository;
 import com.comviva.mfs.promotion.modules.card_management.service.contract.CardDetailService;
+import com.comviva.mfs.promotion.modules.device_management.domain.DeviceInfo;
+import com.comviva.mfs.promotion.modules.device_management.repository.DeviceDetailRepository;
 import com.comviva.mfs.promotion.modules.user_management.service.contract.UserDetailService;
 import com.comviva.mfs.promotion.util.HttpRestHandlerImplUtils;
 import com.comviva.mfs.promotion.util.HttpRestHandlerUtils;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -36,6 +40,8 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     //Repository for the service data
     private final ServiceDataRepository serviceDataRepository;
+
+    private final DeviceDetailRepository deviceDetailRepository;
 
     ServiceData serviceData;
 
@@ -92,10 +98,14 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     @Autowired
-    public CardDetailServiceImpl(CardDetailRepository cardDetailRepository, UserDetailService userDetailService, ServiceDataRepository serviceDataRepository) {
+    public CardDetailServiceImpl(CardDetailRepository cardDetailRepository,
+                                 UserDetailService userDetailService,
+                                 ServiceDataRepository serviceDataRepository,
+                                 DeviceDetailRepository deviceDetailRepository) {
         this.cardDetailRepository = cardDetailRepository;
         this.userDetailService = userDetailService;
         this.serviceDataRepository = serviceDataRepository;
+        this.deviceDetailRepository = deviceDetailRepository;
     }
 
     /**
@@ -106,6 +116,11 @@ public class CardDetailServiceImpl implements CardDetailService {
      */
     public AddCardResponse checkDeviceEligibility(AddCardParm addCardParam) {
         try {
+            Optional<DeviceInfo> deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(addCardParam.getPaymentAppInstanceId());
+            if(!deviceInfoOptional.isPresent()) {
+                return prepareDigitizeResponse(220, "Invalid Payment App Instance Id");
+            }
+
             // Only token type CLOUD is supported
             if (!addCardParam.getTokenType().equalsIgnoreCase("CLOUD")) {
                 return prepareDigitizeResponse(211, "Token type is not supported");
@@ -132,7 +147,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             if (jsonResponse.has("eligibilityReceipt")) {
                 // Store the request and response in the DB for future use
                 String serviceId = Long.toString(new Random().nextLong());
-                serviceData = serviceDataRepository.save(new ServiceData(null, serviceId, requestJson.toString(), response));
+
+                String userName = deviceInfoOptional.get().getUserName();
+                serviceData = serviceDataRepository.save(new ServiceData(null, userName, serviceId, requestJson.toString(), response));
 
                 //Build response
                 Map mapResponse = new ImmutableMap.Builder()
@@ -158,6 +175,11 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public AddCardResponse addCard(DigitizationParam digitizationParam) {
+        Optional<DeviceInfo> deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(digitizationParam.getPaymentAppInstanceId());
+        if(!deviceInfoOptional.isPresent()) {
+            return prepareDigitizeResponse(220, "Invalid Payment App Instance Id");
+        }
+
         if (!serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).isPresent()) {
             return prepareDigitizeResponse(220, "Card is not eligible for the digitization service");
         }
@@ -196,6 +218,15 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/addCard", digitizeReq);
         JSONObject provisionRespMdes = new JSONObject(response);
         if (Integer.valueOf(provisionRespMdes.getString("reasonCode")) == 200) {
+            //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
+            CardDetails cardDetails = new CardDetails();
+            cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
+            cardDetails.setPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId"));
+            cardDetails.setTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
+            cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
+            cardDetails.setTokenInfo(provisionRespMdes.getJSONObject("tokenInfo").toString());
+            cardDetails.setTokenStatus("NEW");
+            cardDetailRepository.save(cardDetails);
             return prepareDigitizeResponse();
         } else {
             return prepareDigitizeResponse(Integer.valueOf(provisionRespMdes.getString("reasonCode")), provisionRespMdes.getString("reasonDescription"));
@@ -224,7 +255,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 type = assetComponent.getString("type");
 
                 if (type.equalsIgnoreCase("text")) {
-                    listOfAssets.add(ImmutableMap.of("type", type, "data", assetComponent.getString("type")));
+                    listOfAssets.add(ImmutableMap.of("type", type, "data", assetComponent.getString("data")));
                 } else if (type.contains("image")) {
                     listOfAssets.add(ImmutableMap.of("type", type, "height", assetComponent.getString("height"), "width", assetComponent.getString("width"), "data", assetComponent.getString("type")));
                 }

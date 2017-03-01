@@ -23,8 +23,8 @@ public class DeviceRegistrationController {
     }
     @ResponseBody
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
-    public DeviceRegistrationResponse registerDeviece(@RequestBody RegDeviceParam regDeviceParam) {
-        return deviceDetailService.registerDeviece(regDeviceParam);
+    public DeviceRegistrationResponse registerDevice(@RequestBody RegDeviceParam regDeviceParam) {
+        return deviceDetailService.registerDevice(regDeviceParam);
     }
 
 }

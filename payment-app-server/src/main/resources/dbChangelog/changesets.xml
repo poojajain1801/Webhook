@@ -60,6 +60,12 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="payment_app_instance_id" type="TEXT">
+                <constraints nullable="false"  unique="true"/>
+            </column>
             <column name="OS_NAME" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
@@ -93,6 +99,7 @@
                              tableName="DEVICE_INFO"/>
         <createIndex tableName="DEVICE_INFO" indexName="device_info_id" unique="true">
             <column name="id"/>
+            <column name="user_name"/>
             <column name="IMEI"/>
         </createIndex>
     </changeSet>
@@ -103,13 +110,16 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="USER_ID" type="VARCHAR(255)">
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="payment_app_instance_id" type="TEXT">
+                <constraints nullable="false"  unique="true"/>
+            </column>
+            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="TOKEN_REFERENCE" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PAN_REFERENCE" type="VARCHAR(255)">
+            <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="TOKEN_INFO" type="VARCHAR(255)">
@@ -118,14 +128,14 @@
             <column name="TOKEN_STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-
-
         </createTable>
-        <addUniqueConstraint columnNames="TOKEN_REFERENCE" constraintName="card_unique_constraints" deferrable="true"
+        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="card_unique_constraints" deferrable="true"
                              tableName="CARD_DETAILS"/>
         <createIndex tableName="CARD_DETAILS" indexName="card_info_id" unique="true">
             <column name="id"/>
-            <column name="TOKEN_REFERENCE"/>
+            <column name="user_name"/>
+            <column name="payment_app_instance_id"/>
+            <column name="TOKEN_UNIQUE_REFERENCE"/>
         </createIndex>
     </changeSet>
 
@@ -133,6 +143,9 @@
         <createTable tableName="SERVICE_DATA">
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="true" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="service_id" type="VARCHAR(255)">
                 <constraints nullable="true"/>

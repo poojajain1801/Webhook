@@ -2,6 +2,7 @@ package com.comviva.mfs.promotion.modules.device_management.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Getter
+@Setter
 @Table(name = "DEVICE_INFO")
 @ToString
 @EqualsAndHashCode
@@ -22,6 +24,11 @@ public class DeviceInfo {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private final String id;
 
+    @Column(name = "user_name")
+    private String userName;
+
+    @Column(name = "payment_app_instance_id")
+    private String paymentAppInstanceId;
 
     @Column(name = "OS_NAME")
     private final String osName;
@@ -50,7 +57,7 @@ public class DeviceInfo {
     @Column(name = "DEVICE_NAME")
     private final String deviceName;
 
-    public DeviceInfo(String id, String osName, String osVersion, String serialNumber, String formFactor, String storageTechnology, String nfcCapable, String imei, String msisdn, String devieceName) {
+    public DeviceInfo(String id, String userName, String paymentAppInstanceId, String osName, String osVersion, String serialNumber, String formFactor, String storageTechnology, String nfcCapable, String imei, String msisdn, String devieceName) {
         this.id = id;
         this.osName = osName;
         this.osVersion = osVersion;
@@ -61,9 +68,11 @@ public class DeviceInfo {
         this.imei = imei;
         this.msisdn = msisdn;
         this.deviceName = devieceName;
+        this.userName = userName;
+        this.paymentAppInstanceId = paymentAppInstanceId;
     }
 
     public DeviceInfo() {
-        this(null, null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 }

@@ -12,6 +12,6 @@ import java.util.Optional;
  */
 @Repository
 public interface CardDetailRepository extends JpaRepository<CardDetails, String>{
-    Optional<CardDetails> findByTokenReference(String tokenReference);
+    Optional<CardDetails> findByTokenUniqueReference(String tokenUniqueReference);
 
 }

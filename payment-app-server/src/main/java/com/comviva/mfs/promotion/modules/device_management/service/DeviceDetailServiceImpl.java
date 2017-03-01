@@ -1,5 +1,7 @@
 package com.comviva.mfs.promotion.modules.device_management.service;
 
+import com.comviva.mfs.promotion.constants.ServerConfig;
+import com.comviva.mfs.promotion.modules.device_management.domain.DeviceInfo;
 import com.comviva.mfs.promotion.modules.device_management.model.DeviceRegistrationResponse;
 
 import com.comviva.mfs.promotion.modules.device_management.model.RegDeviceParam;
@@ -45,7 +47,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
      */
     @Override
     @Transactional
-    public DeviceRegistrationResponse registerDeviece(RegDeviceParam regDeviceParam) {
+    public DeviceRegistrationResponse registerDevice(RegDeviceParam regDeviceParam) {
         // Check User is existing
 
         if ((!userDetailService.checkIfUserExistInDb(regDeviceParam.getUserId()))) {
@@ -79,6 +81,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         if (responseCode.equalsIgnoreCase("200")) {
 
             // Save Device Detail
+            DeviceInfo deviceInfo = regDeviceParam.getDeviceInfo();
+            deviceInfo.setUserName(regDeviceParam.getUserId());
+            deviceInfo.setPaymentAppInstanceId(regDeviceParam.getPaymentAppInstanceId());
             deviceDetailRepository.save(regDeviceParam.getDeviceInfo());
 
             JSONObject jsonMobKeys = jsonResponse.getJSONObject("mobileKeys");
@@ -113,7 +118,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         map.add("tokenType", "CLOUD");
         map.add("paymentAppId", "Walletapp");
         map.add("deviceInfo", regDeviceParam.getDeviceInfo().toString());
-        String response = httpRestHandeler.restfulServieceConsumer("http://172.19.2.24:3000/mdes", map);
+        String response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
         System.out.println("Response = " + response);
         JSONObject jsonResponse = new JSONObject(response);
         if (jsonResponse.has("eligibilityReceipt"))
@@ -156,7 +161,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         rnsInfo.put("rnsRegistrationId", regDeviceParam.getGcmRegistrationId());
         jsonRegDevice.put("rnsInfo", rnsInfo);
         //Tarak ip 172.19.3.79
-        String response = httpClint.postHttpRequest(jsonRegDevice.toString().getBytes(), "http://172.19.2.24:9099/mdes/mpamanagement/1/0/register");
+        String response = httpClint.postHttpRequest(jsonRegDevice.toString().getBytes(),
+                ServerConfig.CMSD_IP + ":" + ServerConfig.CMSD_PORT + "/mdes/mpamanagement/1/0/register");
         return response;
     }
 

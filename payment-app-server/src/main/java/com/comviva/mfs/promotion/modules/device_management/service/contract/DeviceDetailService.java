@@ -12,7 +12,7 @@ public interface DeviceDetailService {
      * @param regDeviceParam
      * @return
      */
-    DeviceRegistrationResponse registerDeviece(RegDeviceParam regDeviceParam);
+    DeviceRegistrationResponse registerDevice(RegDeviceParam regDeviceParam);
 
     /**
      * @param regDeviceParam

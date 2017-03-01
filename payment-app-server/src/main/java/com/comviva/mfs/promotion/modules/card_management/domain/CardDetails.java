@@ -2,6 +2,7 @@ package com.comviva.mfs.promotion.modules.card_management.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Getter
+@Setter
 @Table(name = "CARD_DETAILS")
 @ToString
 @EqualsAndHashCode
@@ -20,32 +22,36 @@ public class CardDetails {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private final String id;
+    private String id;
 
+    @Column(name = "user_name")
+    private String userName;
 
-    @Column(name = "USER_ID")
-    private final String userID;
+    @Column(name = "payment_app_instance_id")
+    private String paymentAppInstanceId;
 
-    @Column(name = "TOKEN_REFERENCE")
-    private final String tokenReference;
+    @Column(name = "TOKEN_UNIQUE_REFERENCE")
+    private String tokenUniqueReference;
 
-    @Column(name = "PAN_REFERENCE")
-    private final String panReference;
+    @Column(name = "PAN_UNIQUE_REFERENCE")
+    private String panUniqueReference;
 
     @Column(name = "TOKEN_INFO")
-    private final String tokenInfo;
+    private String tokenInfo;
 
     @Column(name = "TOKEN_STATUS")
-    private final String tokenStatus;
+    private String tokenStatus;
 
-    public CardDetails(String id, String userID, String tokenReference, String panReference, String tokenInfo, String tokenStatus) {
+    public CardDetails(String id, String userName, String paymentAppInstanceId, String tokenUniqueReference,
+                       String panUniqueReference, String tokenInfo, String tokenStatus) {
         this.id = id;
-        this.userID = userID;
-        this.tokenReference = tokenReference;
-        this.panReference = panReference;
+        this.userName = userName;
+        this.paymentAppInstanceId = paymentAppInstanceId;
+        this.tokenUniqueReference = tokenUniqueReference;
+        this.panUniqueReference = panUniqueReference;
         this.tokenInfo = tokenInfo;
         this.tokenStatus = tokenStatus;
     }
 
-    CardDetails(){this(null,null,null,null,null,null);}
+    public CardDetails(){this(null,null,null,null,null,null, null);}
 }

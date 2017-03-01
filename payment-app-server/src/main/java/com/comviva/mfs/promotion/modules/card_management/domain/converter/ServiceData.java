@@ -23,6 +23,8 @@ public class ServiceData {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private final String id;
 
+    @Column(name = "user_name")
+    private String userName;
 
     @Column(name = "service_id")
     private  String serviceId;
@@ -33,14 +35,15 @@ public class ServiceData {
     @Column(name = "response")
     private  String response;
 
-    public ServiceData(String id, String serviceId, String request, String response) {
+    public ServiceData(String id, String userName, String serviceId, String request, String response) {
         this.id = id;
+        this.userName = userName;
         this.serviceId = serviceId;
         this.request = request;
         this.response = response;
     }
 
-    public ServiceData() {this(null,null,null,null);
+    public ServiceData() {this(null,null,null,null,null);
     }
 
 
