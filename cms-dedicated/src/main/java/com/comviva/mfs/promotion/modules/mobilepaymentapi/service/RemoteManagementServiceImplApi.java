@@ -13,7 +13,7 @@ import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RemoteManagement
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSession;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSessionResp;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.rns.RemoteManagementUtil;
-import com.comviva.mfs.promotion.modules.mobilepaymentapi.service.contract.ProvisionServiceMobPayApi;
+import com.comviva.mfs.promotion.modules.mobilepaymentapi.service.contract.RemoteManagementServiceApi;
 import com.comviva.mfs.promotion.modules.mpamanagement.domain.ApplicationInstanceInfo;
 import com.comviva.mfs.promotion.modules.mpamanagement.repository.ApplicationInstanceInfoRepository;
 import com.comviva.mfs.promotion.util.ArrayUtil;
@@ -35,11 +35,11 @@ import java.security.SecureRandom;
 import java.util.*;
 
 /**
- * Implementation of ProvisionServiceMobPayApi.
+ * Implementation of RemoteManagementServiceApi.
  * Created by tarkeshwar.v on 2/1/2017.
  */
 @Service
-public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi {
+public class RemoteManagementServiceImplApi implements RemoteManagementServiceApi {
     private TokenRepository tokenRepository;
     private ApplicationInstanceInfoRepository appInstInfoRepository;
     private SessionInfoRepository sessionInfoRepository;
@@ -47,10 +47,10 @@ public class ProvisionServiceImplMobPayApi implements ProvisionServiceMobPayApi 
     private SessionInfo sessionInfo;
 
     @Autowired
-    public ProvisionServiceImplMobPayApi(TokenRepository tokenRepository,
-                                         ApplicationInstanceInfoRepository appInstInfoRepository,
-                                         SessionInfoRepository sessionInfoRepository,
-                                         RemoteManagementUtil remoteManagementUtil) {
+    public RemoteManagementServiceImplApi(TokenRepository tokenRepository,
+                                          ApplicationInstanceInfoRepository appInstInfoRepository,
+                                          SessionInfoRepository sessionInfoRepository,
+                                          RemoteManagementUtil remoteManagementUtil) {
         this.tokenRepository = tokenRepository;
         this.appInstInfoRepository = appInstInfoRepository;
         this.sessionInfoRepository = sessionInfoRepository;

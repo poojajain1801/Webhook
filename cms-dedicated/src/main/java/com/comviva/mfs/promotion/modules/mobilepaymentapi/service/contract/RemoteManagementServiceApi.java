@@ -9,7 +9,7 @@ import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSessionRe
  * Card Provisioning Service.
  * Created by tarkeshwar.v on 2/1/2017.
  */
-public interface ProvisionServiceMobPayApi {
+public interface RemoteManagementServiceApi {
     RequestSessionResp requestSession(RequestSession requestSession);
 
     /** Provisioning request from MP SDK. */
