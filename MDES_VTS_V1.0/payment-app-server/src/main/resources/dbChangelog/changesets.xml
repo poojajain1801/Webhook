@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="now()" dbms="postgresql"/>
+
+    <changeSet author="tanmay.p" id="201701091530">
+        <createTable tableName="USER_DETAILS">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_wallet_accountid" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="user_name" constraintName="unique_constraints"
+                             tableName="user_details" deferrable="false"/>
+        <createIndex tableName="USER_DETAILS" indexName="user_details_id" unique="true">
+            <column name="id"/>
+            <column name="user_name"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201701082344">
+        <addColumn tableName="user_details">
+            <column name="user_status" type="varchar(255)"/>
+            <column name="activation_code" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Table for device management-->
+    <changeSet author="tanmay.p" id="201701121500">
+        <createTable tableName="DEVICE_INFO">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
+                             references="USER_DETAILS(user_name)"/>
+            </column>
+            <column name="payment_app_instance_id" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="OS_NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OS_VERSION" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MSISDN" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FORM_FACTOR" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="SERIAL_NUMBER" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STORAGE_TECHNOLOGY" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="NFC_CAPABLE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IMEI" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DEVICE_NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <!-- VISA specific columns -->
+            <column name="CLIENT_DEVICE_ID" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="V_CLIENT_ID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DEVICE_TYPE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_NICK_NAME" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_MANUFACTURER" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_MODEL" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="HOST_DEVICE_ID" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="OS_BUILD_ID" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_ID_TYPE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="IMEI" constraintName="device_unique_constraints" deferrable="true"
+                             tableName="DEVICE_INFO"/>
+        <createIndex tableName="DEVICE_INFO" indexName="device_info_id" unique="true">
+            <column name="id"/>
+            <column name="user_name"/>
+            <column name="IMEI"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Table for Card management-->
+    <changeSet author="tanmay.p" id="201701311500">
+        <createTable tableName="CARD_DETAILS">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
+                             references="USER_DETAILS(user_name)"/>
+            </column>
+            <column name="payment_app_instance_id" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN_INFO" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN_STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="card_unique_constraints"
+                             deferrable="true"
+                             tableName="CARD_DETAILS"/>
+        <createIndex tableName="CARD_DETAILS" indexName="card_info_id" unique="true">
+            <column name="id"/>
+            <column name="user_name"/>
+            <column name="payment_app_instance_id"/>
+            <column name="TOKEN_UNIQUE_REFERENCE"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201702022344">
+        <createTable tableName="SERVICE_DATA">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="true" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
+                             references="USER_DETAILS(user_name)"/>
+            </column>
+            <column name="service_id" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="request" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="response" type="VARCHAR(1024)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="service_id" constraintName="service_unique_constraints" deferrable="true"
+                             tableName="SERVICE_DATA"/>
+        <createIndex tableName="SERVICE_DATA" indexName="service_id" unique="true">
+            <column name="id"/>
+            <column name="service_id"/>
+        </createIndex>
+    </changeSet>
+
+
+    <!-- Table for  visa Card management-->
+    <changeSet author="madan.amgoth" id="201701311511">
+        <createTable tableName="CARD_DETAILS_VISA">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="VARCHAR(255)">
+                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
+                             references="USER_DETAILS(user_name)"/>
+            </column>
+            <column name="cardnumberSuffix" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vpanenrollmentid" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATUS" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="vpanenrollmentid" constraintName="vpanenrollmentid_unique_constraints"
+                             deferrable="true"
+                             tableName="CARD_DETAILS_VISA"/>
+        <createIndex tableName="CARD_DETAILS_VISA" indexName="visa_card_info_id" unique="true">
+            <column name="id"/>
+            <column name="user_name"/>
+            <column name="vpanenrollmentid"/>
+            <column name="cardnumberSuffix"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
