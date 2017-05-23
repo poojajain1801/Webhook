@@ -21,6 +21,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +82,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
            }
         // VTS : Register with VTS
         // Prepare deviceInfo
-        EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
+       /* EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
         enrollDeviceVts.setEnv(env);
         enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
         ResponseEntity<EnrollDeviceResponse> vtsResp = enrollDeviceVts.register(vClientID);
@@ -90,30 +91,53 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             response.put("vtsResponseCode", vtsResp.getStatusCode().value());
             return response;
         }
-        EnrollDeviceResponse enrollDeviceResp = vtsResp.getBody();
+        EnrollDeviceResponse enrollDeviceResp = vtsResp.getBody();*/
         // TODO Save Device Detail
-        //DeviceInfoRequest deviceInfo = enrollDeviceRequest.getMdes().getDeviceInfo();
-       // deviceInfo.setUserName(regDeviceParam.getUserId());
-        //deviceInfo.setPaymentAppInstanceId(regDeviceParam.getPaymentAppInstanceId());
-        //deviceInfo.setClientDeviceId(enrollDeviceResp.getClientDeviceID());
-        //deviceInfo.setVClientId(enrollDeviceResp.getVClientID());
-        //deviceDetailRepository.save(enrollDeviceRequest.getMdes().getDeviceInfo());
+
+
+
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setUserName(enrollDeviceRequest.getUserId());
+        deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+        deviceInfo.setImei(enrollDeviceRequest.getMdes().getDeviceInfo().getImei());
+        deviceInfo.setOsName(enrollDeviceRequest.getMdes().getDeviceInfo().getOsName());
+        deviceInfo.setOsVersion(enrollDeviceRequest.getMdes().getDeviceInfo().getOsVersion());
+        deviceInfo.setNfcCapable(enrollDeviceRequest.getMdes().getDeviceInfo().getNfcCapable());
+        //Save the Visa details in the DB;
+        //TODO:Upadate ClintDeviceID field with actual value
+        deviceInfo.setClientDeviceId("walltet123");
+        deviceInfo.setVClientId(vClientID);
+        deviceInfo.setDeviceModel(enrollDeviceRequest.getVts().getDeviceInfo().getDeviceModel());
+        deviceInfo.setHostDeviceID(enrollDeviceRequest.getVts().getDeviceInfo().getHostDeviceID());
+        deviceDetailRepository.save(deviceInfo);
+
 
         // Append VTS response
        // Map respMap = devRegRespMdes.getResponse();
         // MDES response
-        Map mdesRespMap = ImmutableMap.builder().build();
-        mdesRespMap.put("mobileKeysetId", "");
-        mdesRespMap.put("responseHost", "site1.cmsd.com");
-        mdesRespMap.put("remoteManagementUrl", "");
-        Map mdesMobKeys = ImmutableMap.builder().build();
-        mdesMobKeys.put("transportKey", "");
-        mdesMobKeys.put("macKey", "");
-        mdesMobKeys.put("dataEncryptionKey", "");
-        mdesRespMap.put("mobKeys", mdesMobKeys);
 
+        Map mdesMobKeys = new ImmutableMap.Builder<String,Object>()
+                .put("transportKey", "qq")
+                .put("macKey", "aa")
+                .put("dataEncryptionKey", "aa").build();
+
+        Map <String,Object> mdesRespMap = new ImmutableMap.Builder<String ,Object>()
+                .put("mobileKeysetId", "1224")
+                .put("responseHost", "site1.cmsd.com")
+                .put("remoteManagementUrl", "rwerwe")
+                .put("mobKeys", mdesMobKeys).build();
+
+        /*
+        * response = new ImmutableMap.Builder<String, Object>()
+                    .put("responseHost", "site1.cmsd.com")
+                    .put("responseId", "123456")
+                    .put("mobileKeysetId", mobileKeySetId)
+                    .put("mobileKeys", mobKeys)
+                    .put("responseCode", "200")
+                    .put("message", "User has been successfully registered in the system")
+                    .put("remoteManagementUrl", REMOTE_MANAGEMENT_URL).build();*/
         // VTS Response
-        Map vtsRespMap = ImmutableMap.builder().build();
+        /*Map vtsRespMap = ImmutableMap.builder().build();
         vtsRespMap.put("clientDeviceID",enrollDeviceResp.getClientDeviceID());
         vtsRespMap.put("vClientID", enrollDeviceResp.getVClientID());
         vtsRespMap.put("deviceInitParams", enrollDeviceResp.getDeviceInitParams());
@@ -126,10 +150,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         vtsEncDevPersoDataMap.put("signCert", encDevicePersoData.getSignCert());		//VTS VerifyPubKey
         vtsEncDevPersoDataMap.put("signExpo", encDevicePersoData.getSignExpo());		//Dev SignPrKey
         vtsEncDevPersoDataMap.put("walletAccountId", encDevicePersoData.getWalletAccountId());
-        vtsRespMap.put("encDevicePersoData", vtsEncDevPersoDataMap);
+        vtsRespMap.put("encDevicePersoData", vtsEncDevPersoDataMap);*/
 
         response.put("mdes", mdesRespMap);
-        response.put("vts", vtsRespMap);
+       // response.put("vts", vtsRespMap);
         return response;
     }
     private Map<String,Object> validate(EnrollDeviceRequest enrollDeviceRequest) {

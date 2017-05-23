@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.util.common.messagedigest;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,5 +61,15 @@ public class MessageDigestUtil {
             e.printStackTrace();
         }
         return null;
+    }
+    public static String sha256Hasing(String inputData)
+            throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        inputData = ArrayUtil.asciiToHex(inputData);
+        byte[] arrTest = ArrayUtil.getByteArray(inputData);
+        md.update(arrTest);
+
+        byte hashData[] = md.digest();
+        return ArrayUtil.getHexString(hashData);
     }
 }

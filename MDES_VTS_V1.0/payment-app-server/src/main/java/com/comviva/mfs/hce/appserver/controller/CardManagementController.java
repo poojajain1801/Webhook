@@ -64,4 +64,33 @@ public class CardManagementController {
     public Map<String,Object>getPANData(@RequestBody GetPANDataRequest getPANDataRequest){
         return cardDetailService.getPANData(getPANDataRequest);
     }
+    @ResponseBody
+    @RequestMapping(value = "/delete",method = RequestMethod.POST)
+    public Map<String,Object>delete(@RequestBody LifeCycleManagementReq lifeCycleManagementReq){
+        return cardDetailService.deleteCard(lifeCycleManagementReq);
+    }
+    //Transction History APIS
+    @ResponseBody
+    @RequestMapping(value = "/notifyTransactionDetails", method = RequestMethod.POST)
+    public Map notifyTransactionDetails(@RequestBody NotifyTransactionDetailsReq notifyTransactionDetailsReq) {
+        return cardDetailService.notifyTransactionDetails(notifyTransactionDetailsReq);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/getRegistrationCode", method = RequestMethod.POST)
+    public Map getRegistrationCode(@RequestBody GetregCodeReq getregCodeReq) {
+        return cardDetailService.getRegistrationCode(getregCodeReq);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
+    public Map registerWithTDS(@RequestBody TDSRegistration tdsRegistration) {
+        return cardDetailService.registerWithTDS(tdsRegistration);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
+    public Map registerWithTDS(@RequestBody GetTransactionHistoryReq getTransactionHistoryReq) {
+        return cardDetailService.getTransctionHistory(getTransactionHistoryReq);
+    }
+
+
+
 }

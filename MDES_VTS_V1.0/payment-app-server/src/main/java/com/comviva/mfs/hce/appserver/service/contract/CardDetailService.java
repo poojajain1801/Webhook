@@ -18,4 +18,9 @@ public interface CardDetailService {
     Map<String,Object> getCardMetadata(GetCardMetadataRequest getCardMetadataRequest);
     Map<String,Object>getContent(GetContentRequest getContentRequest);
     Map<String,Object>getPANData(GetPANDataRequest getPANDataRequest);
+    Map notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq);
+    Map getRegistrationCode(GetregCodeReq getregCodeReq);
+    Map registerWithTDS(TDSRegistration tdsRegistration);
+    Map getTransctionHistory(GetTransactionHistoryReq getTransactionHistoryRea);
+    Map deleteCard(LifeCycleManagementReq lifeCycleManagementReq);
 }

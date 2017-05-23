@@ -54,26 +54,12 @@
             <column name="OS_VERSION" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="MSISDN" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="FORM_FACTOR" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="SERIAL_NUMBER" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="STORAGE_TECHNOLOGY" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
+
             <column name="NFC_CAPABLE" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="IMEI" type="VARCHAR(255)">
                 <constraints nullable="false"/>
-            </column>
-            <column name="DEVICE_NAME" type="VARCHAR(255)">
-                <constraints nullable="true"/>
             </column>
 
             <!-- VISA specific columns -->
@@ -83,27 +69,14 @@
             <column name="V_CLIENT_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="DEVICE_TYPE" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="DEVICE_NICK_NAME" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="DEVICE_MANUFACTURER" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
+
             <column name="DEVICE_MODEL" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="HOST_DEVICE_ID" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="OS_BUILD_ID" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="DEVICE_ID_TYPE" type="VARCHAR(255)">
-                <constraints nullable="true"/>
-            </column>
+
         </createTable>
         <addUniqueConstraint columnNames="IMEI" constraintName="device_unique_constraints" deferrable="true"
                              tableName="DEVICE_INFO"/>
@@ -207,6 +180,55 @@
             <column name="user_name"/>
             <column name="vpanenrollmentid"/>
             <column name="cardnumberSuffix"/>
+        </createIndex>
+    </changeSet>
+    <!--Transction details table-->
+    <changeSet author="tanmay.p" id="201701091543">
+    <createTable tableName="TRANSCTION_REG_DETAILS">
+        <column name="id" type="VARCHAR(255)">
+            <constraints nullable="false" primaryKey="true"/>
+        </column>
+        <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="REG_CODE_1" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="REG_CODE_2" type="VARCHAR(255)">
+            <constraints nullable="true"/>
+        </column>
+        <column name="AUTH_CODE" type="VARCHAR(255)">
+            <constraints nullable="true"/>
+        </column>
+        <column name="AUTH_CODE_EXPIRY" type="VARCHAR(255)">
+            <constraints nullable="true"/>
+        </column>
+    </createTable>
+    <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="tokenuniqueRef_unique_constraints"
+                         tableName="TRANSCTION_REG_DETAILS" deferrable="false"/>
+    <createIndex tableName="TRANSCTION_REG_DETAILS" indexName="TRANSCTION_REG_DETAILS_ID" unique="true">
+        <column name="id"/>
+        <column name="TOKEN_UNIQUE_REFERENCE"/>
+    </createIndex>
+</changeSet>
+    <changeSet author="tanmay.p" id="201701091545">
+        <createTable tableName="TRANSACTION_HISTORY">
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="TRANSACTION_DETAILS" type="CLOB">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="TDStokenuniqueRef_unique_constraints"
+                             tableName="TRANSACTION_HISTORY" deferrable="false"/>
+        <createIndex tableName="TRANSACTION_HISTORY" indexName="TRANSACTION_HISTORY_ID" unique="true">
+            <column name="id"/>
+            <column name="TOKEN_UNIQUE_REFERENCE"/>
         </createIndex>
     </changeSet>
 

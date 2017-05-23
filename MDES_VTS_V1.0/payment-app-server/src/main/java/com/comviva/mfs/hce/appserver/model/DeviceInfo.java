@@ -37,21 +37,6 @@ public class DeviceInfo {
     @Column(name = "OS_VERSION")
     private String osVersion;
 
-    // For VTS must be sent as phoneNumber
-    @Column(name = "MSISDN")
-    private String msisdn;
-
-    /**
-     * -- Device information specific to MDES
-     */
-    @Column(name = "FORM_FACTOR")
-    private String formFactor;
-
-    @Column(name = "SERIAL_NUMBER")
-    private String serialNumber;
-
-    @Column(name = "STORAGE_TECHNOLOGY")
-    private String storageTechnology;
 
     @Column(name = "NFC_CAPABLE")
     private String nfcCapable;
@@ -59,8 +44,7 @@ public class DeviceInfo {
     @Column(name = "IMEI")
     private String imei;
 
-    @Column(name = "DEVICE_NAME")
-    private String deviceName;
+
 
     /**
      * -- Device information specific to VTS
@@ -71,42 +55,14 @@ public class DeviceInfo {
     @Column(name = "V_CLIENT_ID")
     private String vClientId;
 
-    @Column(name = "DEVICE_TYPE")
-    private String deviceType;
-
-    /** For VTS this information must be sent as deviceName */
-    @Column(name = "DEVICE_NICK_NAME")
-    private String deviceNickName;
-
-    @Column(name = "DEVICE_MANUFACTURER")
-    private String deviceManufacturer;
-
     @Column(name = "DEVICE_MODEL")
     private String deviceModel;
 
     @Column(name = "HOST_DEVICE_ID")
     private String hostDeviceID;
 
-    @Column(name = "OS_BUILD_ID")
-    private String osBuildID;
 
-    @Column(name = "DEVICE_ID_TYPE")
-    private String deviceIDType;
 
-    /*public DeviceInfo(String id, String userName, String paymentAppInstanceId, String osName, String osVersion, String serialNumber, String formFactor, String storageTechnology, String nfcCapable, String imei, String msisdn, String devieceName) {
-        this.id = id;
-        this.osName = osName;
-        this.osVersion = osVersion;
-        this.serialNumber = serialNumber;
-        this.formFactor = formFactor;
-        this.storageTechnology = storageTechnology;
-        this.nfcCapable = nfcCapable;
-        this.imei = imei;
-        this.msisdn = msisdn;
-        this.deviceName = devieceName;
-        this.userName = userName;
-        this.paymentAppInstanceId = paymentAppInstanceId;
-    }*/
 
     public DeviceInfo() {
         //this(null, null, null, null, null, null, null, null, null, null, null, null);
@@ -115,7 +71,7 @@ public class DeviceInfo {
     /** Prepares device information in JSON format for MDES.
      * @return  Device Informtaion in JSON format
      */
-    public JSONObject getDeviceInfoForMdes() {
+  /*  public JSONObject getDeviceInfoForMdes() {
         JSONObject deviceInfo = new JSONObject();
         deviceInfo.put("osName", osName);
         deviceInfo.put("osVersion", osVersion);
@@ -130,10 +86,10 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
-    /**
+    *//**
      * Prepares device information in JSON format for VTS.
      * @return Device Informtaion in JSON format
-     */
+     *//*
     public JSONObject getDeviceInfoForVts() {
         JSONObject deviceInfo = new JSONObject();
         deviceInfo.put("osType", osName);
@@ -147,5 +103,19 @@ public class DeviceInfo {
         deviceInfo.put("osBuildID", osBuildID);
         deviceInfo.put("deviceIDType", deviceIDType);
         return deviceInfo;
+    }*/
+
+    public DeviceInfo(String id, String userName, String paymentAppInstanceId, String osName, String osVersion, String nfcCapable, String imei, String clientDeviceId, String vClientId, String deviceModel, String hostDeviceID) {
+        this.id = id;
+        this.userName = userName;
+        this.paymentAppInstanceId = paymentAppInstanceId;
+        this.osName = osName;
+        this.osVersion = osVersion;
+        this.nfcCapable = nfcCapable;
+        this.imei = imei;
+        this.clientDeviceId = clientDeviceId;
+        this.vClientId = vClientId;
+        this.deviceModel = deviceModel;
+        this.hostDeviceID = hostDeviceID;
     }
 }
