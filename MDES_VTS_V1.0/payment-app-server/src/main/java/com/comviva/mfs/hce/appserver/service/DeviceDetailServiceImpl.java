@@ -57,7 +57,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             return response;
         }
         // MDES : Check device eligibility from MDES api.
-        DeviceRegistrationMdes devRegMdes = new DeviceRegistrationMdes();
+       /* DeviceRegistrationMdes devRegMdes = new DeviceRegistrationMdes();
         devRegMdes.setEnrollDeviceRequest(enrollDeviceRequest);
         boolean isMdesDevElib = devRegMdes.checkDeviceEligibility();
         if (!isMdesDevElib) {
@@ -78,19 +78,21 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
                }
 
-           }
+           }*/
         // VTS : Register with VTS
         // Prepare deviceInfo
         EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
         enrollDeviceVts.setEnv(env);
         enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
-        ResponseEntity<EnrollDeviceResponse> vtsResp = enrollDeviceVts.register(vClientID);
-        if(!vtsResp.getStatusCode().is2xxSuccessful()) {
-            response.put("vtsMessage", vtsResp.getStatusCode().getReasonPhrase());
-            response.put("vtsResponseCode", vtsResp.getStatusCode().value());
+        //ResponseEntity<EnrollDeviceResponse> vtsResp = enrollDeviceVts.register(vClientID);
+        String output=enrollDeviceVts.register(vClientID);
+        JSONObject outputJson=new JSONObject(output);
+        if(!outputJson.get("ResponseCode").equals("200")) {
+            response.put("vtsMessage", outputJson.get("Message"));
+            response.put("vtsResponseCode", outputJson.get("ResponseCode"));
             return response;
         }
-        EnrollDeviceResponse enrollDeviceResp = vtsResp.getBody();
+        //EnrollDeviceResponse enrollDeviceResp = vtsResp.getBody();
         // TODO Save Device Detail
         //DeviceInfoRequest deviceInfo = enrollDeviceRequest.getMdes().getDeviceInfo();
        // deviceInfo.setUserName(regDeviceParam.getUserId());
@@ -114,9 +116,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
         // VTS Response
         Map vtsRespMap = ImmutableMap.builder().build();
-        vtsRespMap.put("clientDeviceID",enrollDeviceResp.getClientDeviceID());
-        vtsRespMap.put("vClientID", enrollDeviceResp.getVClientID());
-        vtsRespMap.put("deviceInitParams", enrollDeviceResp.getDeviceInitParams());
+        //vtsRespMap.put("clientDeviceID",enrollDeviceResp.getClientDeviceID());
+        //vtsRespMap.put("vClientID", enrollDeviceResp.getVClientID());
+        //vtsRespMap.put("deviceInitParams", enrollDeviceResp.getDeviceInitParams());
         Map vtsEncDevPersoDataMap = ImmutableMap.builder().build();
         EncDevicePersoData encDevicePersoData = enrollDeviceVts.getEncDevicePersoData();
         vtsEncDevPersoDataMap.put("deviceId", encDevicePersoData.getDeviceId());
