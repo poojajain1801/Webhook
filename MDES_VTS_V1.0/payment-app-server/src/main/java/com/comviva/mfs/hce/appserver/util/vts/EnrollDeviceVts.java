@@ -49,11 +49,13 @@ public class EnrollDeviceVts {
         return encDevicePersoData;
     }
 
-    public ResponseEntity<EnrollDeviceResponse> register(final String vClientID) {
+   // public ResponseEntity<EnrollDeviceResponse> register(final String vClientID) {
+     public String register(final String vClientID) {
         // Enroll device with VTS
         EnrollDevice enrollDevice = new EnrollDevice(env);
         enrollDevice.setVClientID(vClientID);
-        ResponseEntity<EnrollDeviceResponse> response = null;
+        //ResponseEntity<EnrollDeviceResponse> response = null;
+        String response="";
         try {
             response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo());
         } catch (IOException e) {
@@ -61,7 +63,7 @@ public class EnrollDeviceVts {
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-        EnrollDeviceResponse enrollDevResp = response.getBody();
+       // EnrollDeviceResponse enrollDevResp = response.getBody();
         encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(enrollDevice.getDevicePersoData());
 
         return response;
