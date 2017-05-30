@@ -1,0 +1,38 @@
+{
+  "userId":"1234567891",
+  "gcmRegistrationId":"fh7Mfm-fR0o:APA91bE-5kGMV6ghb2xhL7dchtUNSEuVlQ-mcKAGRJ_3oqJ_v0DqnsXl3OO9gqAKME_f3a8ahGOpACscBfEKrV3jiSB219w9xYmadueBVthcC6I5mt7SwQLtVH52d15SmWotP3Dct62-",
+
+  "mdes":{
+    "deviceInfo":{
+      "deviceName":"SM-G920I",
+      "formFactor":"PHONE",
+      "id":"7198e58f2d486b4f",
+      "imei":"7198e58f2d486b4f",
+      "msisdn":"zeroflte",
+      "nfcCapable":"true",
+      "osName":"ANDROID",
+      "osVersion":"7.0",
+      "serialNumber":"samsung\/zerofltedv\/zeroflte:7.0\/NRD90M\/G920IDVU3FQD1:user\/release-keys",
+      "storageTechnology":"DEVICE_MEMORY"
+    },
+    "paymentAppId":"ComvivaWallet",
+    "paymentAppInstanceId":"123456781",
+    "publicKeyFingerprint":"1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E",
+    "mobilePin":"152CCE3F3A4111E58C6FB84D1A6174D2",
+    "rgk":"5917D51B6019C4D5E6A3E4D0C14BFB60D16A66FC2C49187EBF9E1C6164CDA34304B5F3F35C0AB6E55B48F030431FEE7665B81783B474ECFEA76A04D9000632F1D52C903582509D572DCD898E7075335F782512F4C7DCD0DEB7CF54C1E175753903C97BAD4D9C468767972E5F3231776A9ACA5B72495FE2CF2E34FBA5E6F2797B"
+  },
+
+  "vts":{
+    "deviceInfo":{
+      "osType":"ANDROID",
+      "deviceType":"PHONE_TABLET",
+      "deviceName":"d1",
+      "osVersion":"7.0",
+      "osBuildID":"NRD90M",
+      "deviceIDType":"Derived",
+      "deviceManufacturer":"samsung",
+      "deviceBrand":"samsung",
+      "deviceModel":"SM-G920I"
+    }
+  }
+}

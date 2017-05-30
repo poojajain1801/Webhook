@@ -4,6 +4,7 @@ import com.comviva.mfs.hce.appserver.mapper.UserRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ public class UserRegistrationController {
     private UserDetailService userDetailService;
 
     @ResponseBody
-    @RequestMapping(value = "/userRegistration", method = RequestMethod.POST)
+    @RequestMapping(value = "/userRegistration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String,Object>registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
         return userDetailService.registerUser(registerUserRequest);
     }

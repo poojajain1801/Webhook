@@ -590,7 +590,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         //Call getTransctions Code API of the Master card
         ResponseEntity response = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + ServerConfig.TDS_PATH+"/"+paymentAppInstanceId+"/getTransactions", reqMap);
-        JSONObject responseJson = new JSONObject(String.valueOf(response.getBody()));//transactions
+        JSONObject responseJson = new JSONObject(String.valueOf(response.getBody()));
         TransactionHistory transactionHistory;
         if (response.getStatusCode().value()==200)
         {
