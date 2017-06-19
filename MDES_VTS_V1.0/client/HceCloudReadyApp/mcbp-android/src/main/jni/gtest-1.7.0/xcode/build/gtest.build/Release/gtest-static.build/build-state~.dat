@@ -1,0 +1,213 @@
+Tgtest-static
+v6
+r1
+cCheck dependencies
+cCompileC build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cCompileC build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
+cLibtool /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a normal i386
+cLibtool /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a normal x86_64
+cCreateUniversalBinary /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a normal i386\ x86_64
+cStrip /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+c00000000530295C100000000000000AA
+t1392678337
+s170
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/SDKSettings.plist
+c0000000053863BF8000000000000044C
+t1401306104
+s1100
+
+N/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/CoreServices/SystemVersion.plist
+c0000000053863BF800000000000001DE
+t1401306104
+s478
+
+N/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc
+c00000000523976EE0000000000000871
+t1379497710
+s2161
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+t1405725222
+s863464
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o
+t1405725222
+s382972
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest.LinkFileList
+c0000000053C9AA220000000000000071
+t1405725218
+s113
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a
+t1405725222
+s427104
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o
+t1405725222
+s392044
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest.LinkFileList
+c0000000053C9AA220000000000000073
+t1405725218
+s115
+
+N/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a
+t1405725222
+s436312
+
+CCheck dependencies
+r0
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection18"Check dependencies18"Check dependencies857dd3a2e179b941^3fe1d4a2e179b941^---0#1#1#--18"Check dependencies36"C15B017F-F4D1-447B-A7B6-E9615D717168-
+
+CCompileC build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s427418018.829932
+e427418022.310963
+r1
+xCompileC
+xbuild/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o
+x/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc
+xnormal
+xi386
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-internal.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-port.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-message.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-string.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-filepath.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-type-com.comviva.hceservice.util.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-death-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-death-test-internal.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-param-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-param-com.comviva.hceservice.util.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-linked_ptr.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-printers.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-param-com.comviva.hceservice.util-generated.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest_prod.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-test-part.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-typed-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest_pred_impl.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest.cc
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-spi.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-internal-inl.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-death-test.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-filepath.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-port.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-printers.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-test-part.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-typed-test.cc
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection54"Compile /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc208"[1mCompileC[0m build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o [1m/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc[0m normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler09a4d4a2e179b941^419c4fa6e179b941^---0#0#1#-19%DVTDocumentLocation2@53"file:///Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc0000000000000000^2697"[1mCompileC[0m build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o [1m/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc[0m normal i386 c++ com.apple.compilers.llvm.clang.1_0.compiler
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    export LANG=en_US.US-ASCII
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch i386 -fmessage-length=120 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fcolor-diagnostics -Wno-trigraphs -fpascal-strings -Os -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.4 -fvisibility=hidden -fvisibility-inlines-hidden -Wno-sign-conversion -iquote /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-generated-files.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-own-target-headers.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-all-target-headers.hmap -iquote /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-project-headers.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/Release/include -I.. -I../include -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/DerivedSources/i386 -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/DerivedSources -Wall -Werror -Wendif-labels -Wnewline-eof -Wno-sign-compare -Wshadow -F/Users/andrea/dev/gtest-1.7.0/xcode/build/Release -DNDEBUG=1 -Wno-unused-variable -MMD -MT dependencies -MF /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.d --serialize-diagnostics /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.dia -c /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc -o /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o
+36"9A234A39-4109-4303-AB6B-6A8CAC4CA7C8-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+
+CCompileC build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
+s427418018.830536
+e427418022.232807
+r1
+xCompileC
+xbuild/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o
+x/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc
+xnormal
+xx86_64
+xc++
+xcom.apple.compilers.llvm.clang.1_0.compiler
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-internal.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-port.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-message.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-string.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-filepath.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-type-com.comviva.hceservice.util.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-death-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-death-test-internal.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-param-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-param-com.comviva.hceservice.util.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-linked_ptr.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-printers.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/internal/gtest-param-com.comviva.hceservice.util-generated.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest_prod.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-test-part.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-typed-test.h
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest_pred_impl.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest.cc
+d/Users/andrea/dev/gtest-1.7.0/include/gtest/gtest-spi.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-internal-inl.h
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-death-test.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-filepath.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-port.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-printers.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-test-part.cc
+d/Users/andrea/dev/gtest-1.7.0/src/gtest-typed-test.cc
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection54"Compile /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc212"[1mCompileC[0m build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o [1m/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc[0m normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler62bad4a2e179b941^fa983ba6e179b941^---0#0#1#-19%DVTDocumentLocation2@53"file:///Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc0000000000000000^2711"[1mCompileC[0m build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o [1m/Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc[0m normal x86_64 c++ com.apple.compilers.llvm.clang.1_0.compiler
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    export LANG=en_US.US-ASCII
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c++ -arch x86_64 -fmessage-length=120 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit=0 -fcolor-diagnostics -Wno-trigraphs -fpascal-strings -Os -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-shorten-64-to-32 -Wno-newline-eof -Wno-c++11-extensions -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -fasm-blocks -fstrict-aliasing -Wdeprecated-declarations -Winvalid-offsetof -mmacosx-version-min=10.4 -fvisibility=hidden -fvisibility-inlines-hidden -Wno-sign-conversion -iquote /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-generated-files.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-own-target-headers.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-all-target-headers.hmap -iquote /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/gtest-project-headers.hmap -I/Users/andrea/dev/gtest-1.7.0/xcode/build/Release/include -I.. -I../include -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/DerivedSources/x86_64 -I/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/DerivedSources -Wall -Werror -Wendif-labels -Wnewline-eof -Wno-sign-compare -Wshadow -F/Users/andrea/dev/gtest-1.7.0/xcode/build/Release -DNDEBUG=1 -Wno-unused-variable -MMD -MT dependencies -MF /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.d --serialize-diagnostics /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.dia -c /Users/andrea/dev/gtest-1.7.0/src/gtest-all.cc -o /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o
+36"CB5A8534-EC7F-4810-A7CB-FA03C0E20D31-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+
+CCreateUniversalBinary /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a normal i386\ x86_64
+s427418022.321932
+e427418022.332218
+r1
+xCreateUniversalBinary
+x/Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+xnormal
+xi386 x86_64
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection84"Create universal binary /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a82"[1mCreateUniversalBinary[0m [1mbuild/Release/libgtest.a[0m normal i386\ x86_64e17c52a6e179b941^a20c55a6e179b941^---0#0#1#-19%DVTDocumentLocation2@67"file:///Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a00347c05ddffdf42^523"[1mCreateUniversalBinary[0m [1mbuild/Release/libgtest.a[0m normal i386\ x86_64
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a -o /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+36"627CA340-1934-4913-8D0F-74B9010210F9-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+
+CLibtool /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a normal i386
+s427418022.311559
+e427418022.321269
+r1
+xLibtool
+x/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a
+xnormal
+xi386
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection103"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a normal i386103"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a normal i3867cd44fa6e179b941^704152a6e179b941^---0#0#1#--719"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a normal i386
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    export MACOSX_DEPLOYMENT_TARGET=10.4
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only i386 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -L/Users/andrea/dev/gtest-1.7.0/xcode/build/Release -filelist /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest.LinkFileList -o /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a
+36"91BF021B-4C43-47DC-B6E6-863F0977350C-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+
+CLibtool /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a normal x86_64
+s427418022.311671
+e427418022.321430
+r1
+xLibtool
+x/Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a
+xnormal
+xx86_64
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection107"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a normal x86_64107"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a normal x86_6466d94fa6e179b941^e75052a6e179b941^---0#0#1#--729"[1mLibtool[0m build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a normal x86_64
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    export MACOSX_DEPLOYMENT_TARGET=10.4
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only x86_64 -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk -L/Users/andrea/dev/gtest-1.7.0/xcode/build/Release -filelist /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest.LinkFileList -o /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a
+36"1FE21CD7-956A-4CFE-ADC1-CD3B1BA8FC19-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+
+CStrip /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+s427418022.332568
+e427418022.389870
+r1
+xStrip
+x/Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+lSLF06#21%IDEActivityLogSection1@2#32"com.apple.dt.IDE.BuildLogSection46"[1mStrip[0m [1mbuild/Release/libgtest.a[0m46"[1mStrip[0m [1mbuild/Release/libgtest.a[0m1b2f55a6e179b941^5fcf63a6e179b941^---0#0#1#-19%DVTDocumentLocation2@67"file:///Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a0000000000000000^251"[1mStrip[0m [1mbuild/Release/libgtest.a[0m
+    cd /Users/andrea/dev/gtest-1.7.0/xcode
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -S /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+36"17877A57-FD2C-4D32-8A0D-3F0A5362E8CB-
+b269B0D97-922B-4747-AF8C-ABC748A6B75B
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/HceCloudReadyApp.iml" filepath="$PROJECT_DIR$/HceCloudReadyApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" filepath="$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mcbp/mcbp.iml" filepath="$PROJECT_DIR$/mcbp/mcbp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mcbp-android/mcbp-android.iml" filepath="$PROJECT_DIR$/mcbp-android/mcbp-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mcbp-android-api/mcbp-android-api.iml" filepath="$PROJECT_DIR$/mcbp-android-api/mcbp-android-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mcbp-android-api-mdes-debug/mcbp-android-api-mdes-debug.iml" filepath="$PROJECT_DIR$/mcbp-android-api-mdes-debug/mcbp-android-api-mdes-debug.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mobile-api-core/mobile-api-core.iml" filepath="$PROJECT_DIR$/mobile-api-core/mobile-api-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wallet-services/wallet-services.iml" filepath="$PROJECT_DIR$/wallet-services/wallet-services.iml" />
+    </modules>
+  </component>
+</project>

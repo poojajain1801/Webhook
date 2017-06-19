@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.comviva.mdesapp">
+
+    <!-- Permission to access internet - required -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Permission to vibrate for haptic feedback (when entering PIN) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Added extra permission to access MAC address -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Permission to access network state - required -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- This app has permission to receive GCM data message. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <!-- Permission to write in sdCard for log purposes only -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Permission to use NFC -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <uses-feature
+        android:name="android.hardware.nfc.hce"
+        android:required="false" />
+
+    <application
+        android:name=".MyHCEApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".activities.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.AddCardActivity" />
+        <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.RegisterUserActivity" />
+
+        <!-- Defining Services -->
+        <service android:name="com.comviva.hceservice.fcm.ComvivaFCMService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.comviva.hceservice.fcm.ComvivaFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".activities.ActivateUserActivity" />
+        <activity android:name=".activities.TnCActivity"></activity>
+    </application>
+
+</manifest>
