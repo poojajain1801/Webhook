@@ -20,6 +20,17 @@ public class MessageDigestUtil {
      * @return  SHA-256
      * @throws NoSuchAlgorithmException
      */
+    public static byte[] sha1(byte[] data) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        return md.digest(data);
+    }
+
+    /**
+     * Generates message digest of given data with SHA-256.
+     * @param data  Input data
+     * @return  SHA-256
+     * @throws NoSuchAlgorithmException
+     */
     public static byte[] sha256(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         return md.digest(data);

@@ -1,14 +1,16 @@
 package com.comviva.mfs.promotion.modules.mpamanagement.service;
 
+import com.comviva.mfs.promotion.constants.Constants;
 import com.comviva.mfs.promotion.modules.mpamanagement.domain.ApplicationInstanceInfo;
 import com.comviva.mfs.promotion.modules.mpamanagement.model.DeviceRegParam;
-
 import com.comviva.mfs.promotion.modules.mpamanagement.model.DeviceRegisterResp;
+import com.comviva.mfs.promotion.modules.mpamanagement.model.MobilePinUtil;
 import com.comviva.mfs.promotion.modules.mpamanagement.repository.ApplicationInstanceInfoRepository;
 import com.comviva.mfs.promotion.modules.mpamanagement.service.contract.RegisterDeviceService;
-
 import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.google.common.collect.ImmutableMap;
+import com.mastercard.mcbp.utils.exceptions.crypto.McbpCryptoException;
+import com.mastercard.mobile_api.bytes.ByteArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +25,8 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.spec.MGF1ParameterSpec;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -35,7 +34,9 @@ import java.util.Map;
 public class RegisterDeviceServiceImpl implements RegisterDeviceService {
     private ApplicationInstanceInfoRepository appInstInfoRepository;
 
-    private static final String REMOTE_MANAGEMENT_URL = "http://localhost:9099/cms-dedicated/api/device/register";
+    //private static final String REMOTE_MANAGEMENT_URL = "http://localhost:9099/cms-dedicated/api/device/register";
+    private static final String REMOTE_MANAGEMENT_URL = Constants.RESPONSE_HOST;
+    // mdes/paymentapp/1/0
 
     @Autowired
     public RegisterDeviceServiceImpl(ApplicationInstanceInfoRepository appInstInfoRepository) {
@@ -99,22 +100,14 @@ public class RegisterDeviceServiceImpl implements RegisterDeviceService {
 
             // Decrypt rgk
             rgk = cipher.doFinal(ArrayUtil.getByteArray(deviceRegParam.getRgk()));
-
-
-
-            // Decrypt rgk
-
         } catch (GeneralSecurityException e) {
             return ImmutableMap.of("responseCode", "211", "message", "Failed to recover rgk");
         }
 
         try {
             // 3. GenerateMobile keys and provide a unique id as mobileKeysetId
-            // MobileKeySetId is 32 byte long (27 bytes random + 5 bytes current time in ms)
-            SecureRandom secureRandom = new SecureRandom();
-            byte[] mobKeySetIdP1 = new byte[25];
-            secureRandom.nextBytes(mobKeySetIdP1);
-            mobileKeySetId = ArrayUtil.getHexString(mobKeySetIdP1) + String.format("%014X", Calendar.getInstance().getTimeInMillis());
+            // MobileKeySetId (length=64)
+            mobileKeySetId = ArrayUtil.randomAlphaNumeric(17) + "_" + String.format("%014X", Calendar.getInstance().getTimeInMillis());
 
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             keyGen.init(128);
@@ -123,21 +116,21 @@ public class RegisterDeviceServiceImpl implements RegisterDeviceService {
             objMacKey = keyGen.generateKey();
             objDataEncryptionKey = keyGen.generateKey();
 
-            // 4. Encrypt each key component with rgk
+            // 4. Decrypt each key component with rgk
             rgkCipher = Cipher.getInstance("AES/ECB/NoPadding");
             rgkKey = new SecretKeySpec(rgk, "AES");
+            rgkCipher.init(Cipher.DECRYPT_MODE, rgkKey);
 
             // 5. Recover Mobile Pin if present
             // Check if mobile pin is available then decrypt it with rgk
             if (null != deviceRegParam.getNewMobilePin()) {
-                rgkCipher.init(Cipher.DECRYPT_MODE, rgkKey);
-                byte[] bPinBlock = rgkCipher.doFinal(ArrayUtil.getByteArray(deviceRegParam.getNewMobilePin()));
-                mobilePin = ArrayUtil.getHexString(bPinBlock);
+                mobilePin = MobilePinUtil.decryptPinBlock(ByteArray.of(deviceRegParam.getNewMobilePin()),
+                        deviceRegParam.getPaymentAppInstanceId(), ByteArray.of(rgk)).toHexString();
 
                 // TODO verify that pin is in correct format (ISO PIN format 4)
                 //TODO: Encrypt the pin before storing
             }
-        } catch (GeneralSecurityException e) {
+        } catch (GeneralSecurityException | McbpCryptoException e) {
             return  ImmutableMap.of("responseCode", "211", "message", "Failed to recover mobile PIN");
         }
 
@@ -157,7 +150,8 @@ public class RegisterDeviceServiceImpl implements RegisterDeviceService {
                     deviceRegParam.getPaymentAppInstanceId(),
                     deviceRegParam.getDeviceFingerprint(),
                     mobilePin,
-                    pinTryCounter, mobileKeySetId,
+                    pinTryCounter,
+                    mobileKeySetId,
                     transportKey,
                     macKey,
                     dataEncryptionKey,

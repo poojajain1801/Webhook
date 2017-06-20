@@ -23,7 +23,8 @@ public class Constants {
     public static final int LEN_SESSION_CODE = 29;
     public static final int LEN_MAC = 8;
 
-    public static final String RESPONSE_HOST = "comviva.cmsd.com";
+    // http://172.19.4.107:9099/mdes
+    public static final String RESPONSE_HOST = "http://172.19.4.107:9099/mdes";
     public static final String SET_OR_CHANGE_MPIN_TASK_ID = "123456";//"setorchangemobilepin1234";
     public static final String  PAYMENT_APP_PROVIDER_ID = "comviva123";
     public static final int PIN_TRY_LIMIT = 3;

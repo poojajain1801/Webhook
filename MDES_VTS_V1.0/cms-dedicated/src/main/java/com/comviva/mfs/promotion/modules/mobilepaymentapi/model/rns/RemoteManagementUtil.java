@@ -10,6 +10,7 @@ import com.comviva.mfs.promotion.modules.mpamanagement.repository.ApplicationIns
 import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.comviva.mfs.promotion.util.DateFormatISO8601;
 import com.comviva.mfs.promotion.util.aes.AESUtil;
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -39,17 +40,17 @@ public class RemoteManagementUtil {
 
     /**
      * Prepare SV (Starting Value/Initial Value) for encryption/decryption. <br/>
-     *  '00' || M2C || Z, for messages received from the Mobile Payment Application <br/>
-     *  '01' || C2M || Z, for messages sent to the Mobile Payment Application <br/>
-     *      where Z is 12 bytes of hexadecimal zeros
+     * '00' || M2C || Z, for messages received from the Mobile Payment Application <br/>
+     * '01' || C2M || Z, for messages sent to the Mobile Payment Application <br/>
+     * where Z is 12 bytes of hexadecimal zeros
      *
-     * @param counter   Counter value m2c or c2m
-     * @param m2c       <code>true </code>m2c Counter <br/>
-     *                  <code>false </code>c2m Counter
+     * @param counter Counter value m2c or c2m
+     * @param m2c     <code>true </code>m2c Counter <br/>
+     *                <code>false </code>c2m Counter
      * @return 16 bytes SV value
      */
     private byte[] prepareSv(int counter, boolean m2c) {
-        return ArrayUtil.getByteArray((m2c?"00":"01") + String.format("%06X", counter) + "000000000000000000000000");
+        return ArrayUtil.getByteArray((m2c ? "00" : "01") + String.format("%06X", counter) + "000000000000000000000000");
     }
 
     public RemoteManagementUtil(SessionInfoRepository sessionInfoRepository,
@@ -59,11 +60,11 @@ public class RemoteManagementUtil {
     }
 
     private void resetSession(boolean deleteSessionInfo) {
-        if(deleteSessionInfo) {
+        if (deleteSessionInfo) {
             sessionInfoRepository.delete(sessionInfo);
         }
 
-        if(null != mobSessionKeyConf) {
+        if (null != mobSessionKeyConf) {
             Arrays.fill(mobSessionKeyConf, (byte) 0x00);
             Arrays.fill(mobSessionKeyMac, (byte) 0x00);
             mobSessionKeyConf = null;
@@ -88,7 +89,8 @@ public class RemoteManagementUtil {
 
     /**
      * Validates incoming session for a request from MPA.
-     * @param authCode  Authentication COde to validate
+     *
+     * @param authCode Authentication COde to validate
      * @return Result of session Validation
      */
     public ProcessSessionResponse processRMRequest(String mobileKeysetId, String authCode, String encryptedData) {
@@ -97,12 +99,12 @@ public class RemoteManagementUtil {
         Optional<SessionInfo> sessionInfoOptional = sessionInfoRepository.findByAuthenticationCode(authCode);
 
         // Reset if any session exist
-        if(null != sessionInfo) {
+        if (null != sessionInfo) {
             resetSession(false);
         }
 
         // Invalid session
-        if(!sessionInfoOptional.isPresent()) {
+        if (!sessionInfoOptional.isPresent()) {
             response.setSessionValidationResult(SessionValidationResult.SESSION_NOT_FOUND);
             return response;
         }
@@ -129,7 +131,7 @@ public class RemoteManagementUtil {
         try {
             // Session Expired
             Calendar sessionExpDate = DateFormatISO8601.toCalendar(sessionInfo.getExpiryTimeStamp());
-            if(sessionExpDate.getTime().before(Calendar.getInstance().getTime())) {
+            if (sessionExpDate.getTime().before(Calendar.getInstance().getTime())) {
                 response.setSessionValidationResult(SessionValidationResult.SESSION_EXPIRED);
                 resetSession(true);
                 return response;
@@ -143,15 +145,15 @@ public class RemoteManagementUtil {
         // Check session validity in seconds
         String sessionFirstUse = sessionInfo.getSessionFirstUse();
         // Session is being used for first time
-        if(null == sessionFirstUse) {
+        if (null == sessionFirstUse) {
             sessionInfo.setSessionFirstUse(DateFormatISO8601.now());
             sessionInfoRepository.save(sessionInfo);
         } else {
             // Session is being used for subsequent time so validate that session is still valid
             try {
                 Calendar sessionStartTime = DateFormatISO8601.toCalendar(sessionFirstUse);
-                long sessionDuration = (Calendar.getInstance().getTimeInMillis() - sessionStartTime.getTimeInMillis())/1000;
-                if(sessionDuration > sessionInfo.getValidForSeconds()) {
+                long sessionDuration = (Calendar.getInstance().getTimeInMillis() - sessionStartTime.getTimeInMillis()) / 1000;
+                if (sessionDuration > sessionInfo.getValidForSeconds()) {
                     response.setSessionValidationResult(SessionValidationResult.SESSION_EXPIRED);
                     resetSession(true);
                     return response;
@@ -163,19 +165,23 @@ public class RemoteManagementUtil {
         // Verify MAC and Decrypt encrypted data
         String decData;
         try {
-            byte[] bEncryptedData = ArrayUtil.getByteArray(encryptedData);
-            byte[] actMac = Arrays.copyOfRange(bEncryptedData, bEncryptedData.length-Constants.LEN_MAC, bEncryptedData.length);
-            byte[] encData = Arrays.copyOfRange(bEncryptedData, 0, bEncryptedData.length-Constants.LEN_MAC);
+            // This buffer contains [M2C counter(3 byte) + Encrypted Data + Mac (8 byte)]
+            byte[] baServiceReqData = Base64.decodeBase64(encryptedData.getBytes());
+
+            byte[] baM2CCounter = Arrays.copyOf(baServiceReqData, 3);
+            byte[] encData = Arrays.copyOfRange(baServiceReqData, 3, baServiceReqData.length - 8);
+            byte[] actMac = Arrays.copyOfRange(baServiceReqData, baServiceReqData.length - Constants.LEN_MAC, baServiceReqData.length);
 
             // Verify MAC
             byte[] expMac = AESUtil.aesMac(encData, mobSessionKeyMac);
-            if(!ArrayUtil.compare(actMac, 0, expMac, 0, Constants.LEN_MAC)) {
+            if (!ArrayUtil.compare(actMac, 0, expMac, 0, Constants.LEN_MAC)) {
                 response.setSessionValidationResult(SessionValidationResult.MAC_ERROR);
                 return response;
             }
 
-            decData = new String(AESUtil.cipherCcm(encData, mobSessionKeyConf, svM2c,false));
-            System.out.println("Decrypted Request Data ="+decData);
+            byte[] baDecData = AESUtil.cipherCcm(encData, mobSessionKeyConf, svM2c, false);
+            decData = new String(baDecData);
+            System.out.println("Decrypted Request Data =" + decData);
             JSONObject reqData = new JSONObject(decData);
             response.setJsonRequest(reqData);
         } catch (GeneralSecurityException e) {
@@ -191,24 +197,70 @@ public class RemoteManagementUtil {
 
     /**
      * Encrypts and calculate mac for response.
-     * @param response  CMS response data to be encrypte.
+     *
+     * @param response CMS response data to be encrypte.
      * @return Encrypted response
      */
     public String encryptResponse(JSONObject response) {
         byte[] bEncData;
         try {
+            // Encrypt Response data
+            // Prepare Data to send to MPA
+            //      C2M_CTR(3 byte) + EncData + Mac(8 byte)
+            // Encode with Base64
+            // Create String
             c2m++;
             byte[] svC2m = prepareSv(c2m, false);
             bEncData = AESUtil.cipherCcm(response.toString().getBytes(), mobSessionKeyConf, svC2m, true);
             byte[] mac = AESUtil.aesMac(bEncData, mobSessionKeyMac);
 
-            byte[] bEncryptedData = Arrays.copyOf(bEncData, bEncData.length + mac.length);
-            System.arraycopy(mac, 0, bEncryptedData, bEncData.length, mac.length);
+            int encDataLen = bEncData.length;
+            byte[] rmServiceRespData = new byte[3 + encDataLen + mac.length];
+            System.arraycopy(svC2m, 1, rmServiceRespData, 0, 3);
+            System.arraycopy(bEncData, 0, rmServiceRespData, 3, encDataLen);
+            System.arraycopy(mac, 0, rmServiceRespData, encDataLen + 3, mac.length);
+            String encodedServiceRespData = new String(Base64.encodeBase64(rmServiceRespData));
 
             sessionInfo.setC2mCounter(c2m);
             sessionInfoRepository.save(sessionInfo);
 
-            return ArrayUtil.getHexString(bEncryptedData);
+            return encodedServiceRespData;
+        } catch (GeneralSecurityException e) {
+            // Log exception
+        }
+        return null;
+    }
+
+    /**
+     * Encrypts and calculate mac for response.
+     *
+     * @param response CMS response data to be encrypte.
+     * @return Encrypted response
+     */
+    public String encryptResponse(String response) {
+        byte[] bEncData;
+        try {
+            // Encrypt Response data
+            // Prepare Data to send to MPA
+            //      C2M_CTR(3 byte) + EncData + Mac(8 byte)
+            // Encode with Base64
+            // Create String
+            c2m++;
+            byte[] svC2m = prepareSv(c2m, false);
+            bEncData = AESUtil.cipherCcm(response.getBytes(), mobSessionKeyConf, svC2m, true);
+            byte[] mac = AESUtil.aesMac(bEncData, mobSessionKeyMac);
+
+            int encDataLen = bEncData.length;
+            byte[] rmServiceRespData = new byte[3 + encDataLen + mac.length];
+            System.arraycopy(svC2m, 1, rmServiceRespData, 0, 3);
+            System.arraycopy(bEncData, 0, rmServiceRespData, 3, encDataLen);
+            System.arraycopy(mac, 0, rmServiceRespData, encDataLen + 3, mac.length);
+            String encodedServiceRespData = new String(Base64.encodeBase64(rmServiceRespData));
+
+            sessionInfo.setC2mCounter(c2m);
+            sessionInfoRepository.save(sessionInfo);
+
+            return encodedServiceRespData;
         } catch (GeneralSecurityException e) {
             // Log exception
         }
@@ -280,28 +332,29 @@ public class RemoteManagementUtil {
         return hex.toString();
 
     }
-    public String getMobilKeySetID(String paymentAppInstanceId)
-    {
-        return  appInstInfoRepository.findByPaymentAppInstId(paymentAppInstanceId).get().getMobileKeySetId();
+
+    public String getMobilKeySetID(String paymentAppInstanceId) {
+        return appInstInfoRepository.findByPaymentAppInstId(paymentAppInstanceId).get().getMobileKeySetId();
 
     }
-    public String getGetAuthCode(String paymentAppInstanceId)
-    {
+
+    public String getGetAuthCode(String paymentAppInstanceId) {
         return sessionInfoRepository.findByPaymentAppInstanceId(paymentAppInstanceId).get().getAuthenticationCode();
     }
-    public String getMacSessionKey(String paymentAppInstanceId)
-    {
+
+    public String getMacSessionKey(String paymentAppInstanceId) {
         return sessionInfoRepository.findByPaymentAppInstanceId(paymentAppInstanceId).get().getMobileSessionKeyMac();
     }
-    public String getConfSessionKey(String paymentAppInstanceId)
-    {
+
+    public String getConfSessionKey(String paymentAppInstanceId) {
         return sessionInfoRepository.findByPaymentAppInstanceId(paymentAppInstanceId).get().getMobileSessionKeyConf();
     }
-    public int getM2CCounter(String paymentAppInstanceId){
+
+    public int getM2CCounter(String paymentAppInstanceId) {
         return sessionInfoRepository.findByPaymentAppInstanceId(paymentAppInstanceId).get().getM2cCounter();
     }
-    public String getDataEncryptionKey(String mobileKeySetId)
-    {
+
+    public String getDataEncryptionKey(String mobileKeySetId) {
         return appInstInfoRepository.findByMobileKeySetId(mobileKeySetId).get().getDataEncryptionKey();
     }
     /*public String getGetTokenUniqueRef(String paymentAppInstanceId)

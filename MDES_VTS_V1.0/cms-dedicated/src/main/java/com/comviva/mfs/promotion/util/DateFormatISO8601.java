@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
  * Created by tarkeshwar.v on 2/20/2017.
  */
 public class DateFormatISO8601 {
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ";
     /**
      * Prepares date in ISO8601 format.
      * @param calendar  Calender instance.
@@ -18,8 +19,8 @@ public class DateFormatISO8601 {
      */
     public static String fromCalendar(final Calendar calendar) {
         Date date = calendar.getTime();
-        String formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
-        return formatted.substring(0, 22) + ":" + formatted.substring(22);
+        String formatted = new SimpleDateFormat(DATE_FORMAT).format(date);
+        return /*formatted.substring(0, 22) + ":" + formatted.substring(22)*/formatted;
     }
 
     /** Get current date and time formatted as ISO 8601 string. */
@@ -36,7 +37,7 @@ public class DateFormatISO8601 {
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("Invalid length", 0);
         }
-        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
+        Date date = new SimpleDateFormat(DATE_FORMAT).parse(s);
         calendar.setTime(date);
         return calendar;
     }

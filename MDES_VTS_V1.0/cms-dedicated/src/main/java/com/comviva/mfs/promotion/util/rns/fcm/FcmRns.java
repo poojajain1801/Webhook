@@ -45,12 +45,12 @@ public class FcmRns implements RemoteNotificationService{
             System.setProperty("http.proxyHost", "172.19.7.180");
             System.setProperty("http.proxyPort", "8080");
             System.setProperty("http.proxyUser", "tarkeshwar.v");
-            System.setProperty("http.proxyPassword", "dec.2016");
+            System.setProperty("http.proxyPassword", "may.2017");
 
             System.setProperty("https.proxyHost", "172.19.7.180");
             System.setProperty("https.proxyPort", "8080");
             System.setProperty("https.proxyUser", "tarkeshwar.v");
-            System.setProperty("https.proxyPassword", "dec.2016");
+            System.setProperty("https.proxyPassword", "may.2017");
 
             URL url = new URL(FCM_URL);
             HttpsURLConnection httpURLConnection = (HttpsURLConnection)url.openConnection();
@@ -63,6 +63,7 @@ public class FcmRns implements RemoteNotificationService{
             httpURLConnection.setUseCaches(false);
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
+            //httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
             httpURLConnection.setRequestProperty("Content-Length", Integer.toString(rnsPostData.length));
             httpURLConnection.setRequestProperty("Authorization", "key=" + SERVER_KEY);
 

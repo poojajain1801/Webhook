@@ -6,7 +6,7 @@ package com.comviva.mfs.promotion.util.rns.fcm;
  */
 public interface RemoteNotificationService {
     /** Server's registration key with RNS server */
-    String SERVER_KEY = "AAAAjxiVr-o:APA91bHPswyHutJAK1qBAYfjXctQu9n-Y8woGt_HTZZbbd8M0-yLVAVEyMMnqMu3_9WNCXrdV_HNG5ra0sEe6EYUMXj52RruhOb8PDwa_id5goRBKuGJSEktQ-CmNV3d4LdPfmcAiYpo";
+    String SERVER_KEY = "AAAAiK6Zc-I:APA91bHO5ou4YoEhJ4fYZBXA2OKVfq2vzhZ9wOYHLrsiQs2uy4IjVg2bjCls-OnmuMjivtb2cQBRzahhHvKS4gz7bNM3iH506Sfxos8502vFMwNmiT-AxE0MtJCjJn6DB1yyq38NRMpX";
 
     String VERSION = "1.0";
     /** Expiry duration for session code */
@@ -15,7 +15,14 @@ public interface RemoteNotificationService {
     int RNS_SESSION_VALIDITY_DURATION_IN_SECONDS = 3600;
 
     enum PENDING_ACTION {
-        PROVISION, RESET_MOBILE_PIN
+        REGISTER,
+        REQUEST_SESSION,
+        PROVISION,
+        NOTIFY_PROVISION_RESULT,
+        CHANGE_PIN,
+        DELETE,
+        REPLENISH,
+        GET_TASK_STATUS
     }
 
     /**

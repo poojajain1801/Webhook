@@ -9,10 +9,10 @@ import com.comviva.mfs.promotion.modules.common.sessionmanagement.model.ProcessS
 import com.comviva.mfs.promotion.modules.common.sessionmanagement.repository.SessionInfoRepository;
 import com.comviva.mfs.promotion.modules.common.tokens.domain.Token;
 import com.comviva.mfs.promotion.modules.common.tokens.repository.TokenRepository;
-import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RmResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RemoteManagementReqMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSession;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RequestSessionResp;
+import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.RmResponseMpa;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.rns.RemoteManagementUtil;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.model.rns.SetOrChangeMpinReq;
 import com.comviva.mfs.promotion.modules.mobilepaymentapi.service.contract.RemoteManagementServiceApi;
@@ -21,12 +21,22 @@ import com.comviva.mfs.promotion.modules.mpamanagement.repository.ApplicationIns
 import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.comviva.mfs.promotion.util.DateFormatISO8601;
 import com.comviva.mfs.promotion.util.aes.AESUtil;
+import com.comviva.mfs.promotion.util.cpadapter.CardProfile;
 import com.comviva.mfs.promotion.util.httpHandler.HttpRestHandeler;
 import com.comviva.mfs.promotion.util.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.promotion.util.rns.fcm.RemoteNotificationService;
 import com.comviva.mfs.promotion.util.rns.fcm.RnsFactory;
 import com.comviva.mfs.promotion.util.rns.fcm.RnsResponse;
+import com.mastercard.mcbp.remotemanagement.mdes.RnsMessage;
+import com.mastercard.mcbp.remotemanagement.mdes.credentials.TransactionCredential;
+import com.mastercard.mcbp.remotemanagement.mdes.models.CmsDProvisionResponse;
+import com.mastercard.mcbp.remotemanagement.mdes.models.CmsDReplenishResponse;
+import com.mastercard.mcbp.remotemanagement.mdes.models.RemoteManagementSessionData;
+import com.mastercard.mcbp.remotemanagement.mdes.profile.DigitizedCardProfileMdes;
+import com.mastercard.mobile_api.bytes.ByteArray;
+import com.mastercard.mobile_api.utils.json.ByteArrayTransformer;
 import flexjson.JSONSerializer;
+import flexjson.transformer.NumberTransformer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,20 +77,13 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
     /**
      * Prepare response in case of success.
      *
-     * @param cardProfile Card Profile Data
-     * @param iccKek      ICC Key
+     * @param cmsDProvisionResponse CMS-D Provision Response
+     * @param iccKek                ICC Key
      * @return Response
      */
-    private RmResponseMpa prepareProvisionResponseMpa(JSONObject cardProfile, String iccKek) {
-        // Prepare Response
-        JSONObject response = new JSONObject();
-        response.put("responseId", "3000000001");
-        response.put("responseHost", Constants.RESPONSE_HOST);
-        response.put("cardProfile", cardProfile);
-        response.put("iccKek", iccKek);
-
+    private RmResponseMpa prepareProvisionResponseMpa(String cmsDProvisionResponse, String iccKek) {
         // Encrypt response prepared
-        String encryptedData = remoteManagementUtil.encryptResponse(response);
+        String encryptedData = remoteManagementUtil.encryptResponse(cmsDProvisionResponse);
         return new RmResponseMpa(encryptedData,
                 Integer.toString(ConstantErrorCodes.SC_OK),
                 "Card Profile Sent Successfully");
@@ -100,7 +103,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
         // Encrypt response prepared
         String encryptedData;
-        if(remoteManagementUtil.isSessionInitialized()) {
+        if (remoteManagementUtil.isSessionInitialized()) {
             encryptedData = remoteManagementUtil.encryptResponse(response);
         } else {
             encryptedData = "";
@@ -125,7 +128,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
         // Encrypt response prepared
         String encryptedData;
-        if(remoteManagementUtil.isSessionInitialized()) {
+        if (remoteManagementUtil.isSessionInitialized()) {
             encryptedData = remoteManagementUtil.encryptResponse(response);
         } else {
             encryptedData = "";
@@ -147,6 +150,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
     /**
      * Prepares expiry date for Session Code.
+     *
      * @return ISO-8601 formatted date.
      */
     private String prepareSessionExpiryDate() {
@@ -167,19 +171,24 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
         // Generate Session Code
         // Prepare RemoteManagementSessionData Object
-        HashMap<String, String> remoteManagementSessionDataMap = new HashMap<>();
-        remoteManagementSessionDataMap.put("version", RemoteNotificationService.VERSION);
-        remoteManagementSessionDataMap.put("sessionCode", sessionInfo.getSessionCode());
-        remoteManagementSessionDataMap.put("expiryTimeStamp", sessionInfo.getExpiryTimeStamp());
-        remoteManagementSessionDataMap.put("validForSeconds", Integer.toString(sessionInfo.getValidForSeconds()));
+        RemoteManagementSessionData rmSessionDataObj = new RemoteManagementSessionData();
+        rmSessionDataObj.setVersion(RemoteNotificationService.VERSION);
+        rmSessionDataObj.setSessionCode(ByteArray.of(sessionInfo.getSessionCode()));
+        rmSessionDataObj.setExpiryTimestamp(sessionInfo.getExpiryTimeStamp());
+        rmSessionDataObj.setValidForSeconds(sessionInfo.getValidForSeconds());
         if (pendingAction != null) {
-            remoteManagementSessionDataMap.put("pendingAction", pendingAction.name());
-            remoteManagementSessionDataMap.put("tokenUniqueReference", tokenUniqueReference);
+            rmSessionDataObj.setPendingAction(pendingAction.name());
+            rmSessionDataObj.setTokenUniqueReference(tokenUniqueReference);
         }
-        JSONObject remoteManagementSessionData = new JSONObject(remoteManagementSessionDataMap);
+        JSONSerializer jsonSerializer = new JSONSerializer();
+        String remoteManagementSessionData = jsonSerializer.include("ByteArray.class")
+                .transform(new ByteArrayTransformer(), ByteArray.class).serialize(rmSessionDataObj);
 
         // ***** Encrypt RemoteManagementSessionData and generate MAC using mobile keys
-        byte[] baRemoteManagementSessionData = remoteManagementSessionData.toString().getBytes();
+        byte[] baRandomData = ArrayUtil.getRandom(16);
+        byte[] rmSessionData = remoteManagementSessionData.getBytes();
+        byte[] baRemoteManagementSessionData = Arrays.copyOf(baRandomData, baRandomData.length + rmSessionData.length);
+        System.arraycopy(rmSessionData, 0, baRemoteManagementSessionData, baRandomData.length, rmSessionData.length);
 
         byte[] encData = AESUtil.cipherCBC(baRemoteManagementSessionData,
                 ArrayUtil.getByteArray(appInstanceInfo.getTransportKey()),
@@ -191,17 +200,24 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         byte[] encMacData = Arrays.copyOf(encData, encData.length + mac.length);
         System.arraycopy(mac, 0, encMacData, encData.length, mac.length);
 
-        String encryptedData = new String(Base64.getEncoder().encode(encMacData));
+        String encryptedData = new String(org.apache.commons.codec.binary.Base64.encodeBase64(encMacData));
 
-        // Prepare Notification data
-        JSONObject jsonNotificationData = new JSONObject();
-        jsonNotificationData.put("responseHost", responseHost);
-        jsonNotificationData.put("mobileKeysetId", appInstanceInfo.getMobileKeySetId());
-        jsonNotificationData.put("encryptedData", encryptedData);
-        String notificationData = new JSONSerializer().serialize(jsonNotificationData);
+        RnsMessage rnsMessage = new RnsMessage();
+        rnsMessage.setResponseHost(responseHost);
+        rnsMessage.setMobileKeysetId(appInstanceInfo.getMobileKeySetId());
+        rnsMessage.setEncryptedData(encryptedData);
+
+        String notificationData = jsonSerializer.exclude("encryptedDataInByteArray").serialize(rnsMessage);
+
+        HashMap<String, String> dataMap = new HashMap<>();
+        dataMap.put("paymentAppProviderId", "547102052016");
+        dataMap.put("requestId", "123456");
+        dataMap.put("paymentAppInstanceId", sessionInfo.getPaymentAppInstanceId());
+        dataMap.put("notificationData", notificationData);
+        JSONObject data = new JSONObject(dataMap);
 
         JSONObject payloadObject = new JSONObject();
-        payloadObject.put("payload", notificationData);
+        payloadObject.put("data", data);
         payloadObject.put("to", appInstanceInfo.getRnsRegistrationId());
 
         return payloadObject.toString().getBytes();
@@ -234,7 +250,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
         // If there is already a session existing then delete previous and create new one
         Optional<SessionInfo> sessionInfoOpt = sessionInfoRepository.findByPaymentAppInstanceId(appInstanceInfo.getPaymentAppInstId());
-        if(sessionInfoOpt.isPresent()) {
+        if (sessionInfoOpt.isPresent()) {
             sessionInfoRepository.delete(sessionInfoOpt.get());
         }
 
@@ -247,7 +263,10 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         sessionInfo.setPaymentAppInstanceId(requestSession.getPaymentAppInstanceId());
         sessionInfo.setSessionCode(ArrayUtil.getHexString(sessionCode));
         try {
-            byte[] rnsPostData = prepareNotificationData(Constants.RESPONSE_HOST, null, null, appInstanceInfo);
+            byte[] rnsPostData = prepareNotificationData(Constants.RESPONSE_HOST,
+                    "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
+                    /*RemoteNotificationService.PENDING_ACTION.PROVISION*/ null,
+                    appInstanceInfo);
             RnsResponse response = rns.sendRns(rnsRegId, rnsPostData);
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return new RequestSessionResp(Integer.toString(ConstantErrorCodes.RNS_UNAVAILABLE),
@@ -259,9 +278,9 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         }
 
         // Calculation Authentication Code
-        byte[] authenticationCode = MessageDigestUtil.generateAuthenticationCode(ArrayUtil.getByteArray(appInstanceInfo.getMobileKeySetId()),
+        byte[] authenticationCode = MessageDigestUtil.generateAuthenticationCode(appInstanceInfo.getMobileKeySetId().getBytes(),
                 sessionCode, ArrayUtil.getByteArray(appInstanceInfo.getDeviceFingerprint()));
-        if(null == authenticationCode) {
+        if (null == authenticationCode) {
             return new RequestSessionResp(Integer.toString(ConstantErrorCodes.CRYPTOGRAPHY_ERROR),
                     ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.CRYPTOGRAPHY_ERROR));
         }
@@ -320,17 +339,49 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         }
 
         Token token = tokenInfo.get();
-        byte[] encIccKek = ArrayUtil.getByteArray(token.getIccKek());
+        /*byte[] encIccKek = ArrayUtil.getByteArray(token.getIccKek());
         byte[] kek = Constants.AES_KEY;
         byte[] iccKek;
         try {
             iccKek = AESUtil.cipherECB(encIccKek, kek, AESUtil.Padding.ISO7816_4, false);
         } catch (GeneralSecurityException e) {
             return prepareProvisionResponseMpaError(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
+        }*/
+
+        // Get Data Encryption Key
+        ApplicationInstanceInfo appInstInfo = appInstInfoRepository.findByPaymentAppInstId(token.getPaymentAppInstId()).get();
+        byte[] dataEncKey = ArrayUtil.getByteArray(appInstInfo.getDataEncryptionKey());
+
+        // Prepare Card Profile
+        final byte[] iccKek = Constants.AES_KEY;
+        String encIccKek = null;
+        try {
+            encIccKek = ArrayUtil.getHexString(AESUtil.cipherECB(iccKek, dataEncKey, AESUtil.Padding.ISO7816_4, true));
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
         }
 
+        CmsDProvisionResponse cmsDProvisionResponse = new CmsDProvisionResponse();
+        CardProfile cardProfile = new CardProfile();
+        DigitizedCardProfileMdes digitizedCardProfileMdes = cardProfile.getDigitizedCardProfileMdes(iccKek,
+                "5480981500100002",
+                "5480981500100002FFFF01150305163347");
+        cmsDProvisionResponse.setCardProfile(digitizedCardProfileMdes);
+        cmsDProvisionResponse.setIccKek(encIccKek);
+        cmsDProvisionResponse.setResponseHost(Constants.RESPONSE_HOST);
+        cmsDProvisionResponse.setResponseId("123456");
+
+        // For Error case only
+        // cmsDProvisionResponse.setErrorCode("200");
+        // cmsDProvisionResponse.setErrorDescription("Card Added Successfully");
+
+        JSONSerializer jsonSerializer = new JSONSerializer();
+        String strCmsDProvisionResponse = jsonSerializer.include("ByteArray.class").transform(new ByteArrayTransformer(), ByteArray.class)
+                .include("Integer.class").transform(new NumberTransformer(), Integer.class)
+                .deepSerialize(cmsDProvisionResponse);
+
         // Prepare Response
-        return prepareProvisionResponseMpa(new JSONObject(token.getCardProfile()), ArrayUtil.getHexString(iccKek));
+        return prepareProvisionResponseMpa(strCmsDProvisionResponse, ArrayUtil.getHexString(iccKek));
     }
 
     @Override
@@ -412,7 +463,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         String tokenUniqueReference = deleteReqData.getString("tokenUniqueReference");
 
         // Validate tokenUniqueReference
-        if(!deleteReqData.has("tokenUniqueReference") || !deleteReqData.has("transactionCredentialsStatus")) {
+        if (!deleteReqData.has("tokenUniqueReference") || !deleteReqData.has("transactionCredentialsStatus")) {
             return prepareProvisionResponseMpaError(ConstantErrorCodes.MISSING_REQUIRED_FIELD);
         }
 
@@ -423,12 +474,12 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         }
 
         Token token = tokenInfo.get();
-        TokenState tokenState= TokenState.valueOf(token.getState());
+        TokenState tokenState = TokenState.valueOf(token.getState());
         switch (tokenState) {
             case NEW:
                 // If token is just added and not activated then transactionCredentialsStatus must be empty
                 JSONArray transactionCredentialsStatus = deleteReqData.getJSONArray("transactionCredentialsStatus");
-                if(transactionCredentialsStatus.length() != 0) {
+                if (transactionCredentialsStatus.length() != 0) {
                     return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE);
                 }
                 break;
@@ -473,9 +524,11 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         JSONObject reqData = processSessionResponse.getJsonRequest();
 
         // Validate tokenUniqueReference
-        if(!reqData.has("tokenUniqueReference") || !reqData.has("transactionCredentialsStatus")) {
+        if (!reqData.has("tokenUniqueReference")) {
             return prepareProvisionResponseMpaError(ConstantErrorCodes.MISSING_REQUIRED_FIELD);
         }
+
+        // TODO Validate if it is not the first time replenishment then transactionCredentialsStatus must be present
 
         String tokenUniqueReference = reqData.getString("tokenUniqueReference");
 
@@ -487,40 +540,39 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
 
         //Call masterCard replenish API
         //Prepare request parameter for replenish
-        MultiValueMap<String,Object> requestMap = new LinkedMultiValueMap <String,Object>();
-        requestMap.add("responseHost",ServerConfig.responseHost);
-        requestMap.add("requestId",reqData.getString("requestId"));
-        requestMap.add("tokenUniqueReference",tokenUniqueReference);
+        MultiValueMap<String, Object> requestMap = new LinkedMultiValueMap<String, Object>();
+        requestMap.add("responseHost", ServerConfig.responseHost);
+        requestMap.add("requestId", reqData.getString("requestId"));
+        requestMap.add("tokenUniqueReference", tokenUniqueReference);
 
-        //String strTtransactionCredentialsStatus = reqData.get("transactionCredentialsStatus").toString();
-        JSONArray transactionCredentialsStatusList = reqData.getJSONArray("transactionCredentialsStatus");
-        MultiValueMap<String,Object> transactionCredentialsStatusMap = new LinkedMultiValueMap<String,Object>();
         int iValue = 0;
         String strValue = "";
-        for(int i=0;i<transactionCredentialsStatusList.length();i++)
-        {
-            JSONObject j = transactionCredentialsStatusList.getJSONObject(i);
-            Iterator<?> it = j.keys();
-            while (it.hasNext()) {
-                String key =  it.next().toString();
-                if(key.equalsIgnoreCase("atc")) {
-                    iValue = j.getInt(key);
-                    transactionCredentialsStatusMap.add(key,iValue);
-                }
-                else {
-                    strValue = j.getString(key);
-                    transactionCredentialsStatusMap.add(key,strValue);
-                }
+        if (reqData.has("transactionCredentialsStatus")) {
+            //String strTtransactionCredentialsStatus = reqData.get("transactionCredentialsStatus").toString();
+            JSONArray transactionCredentialsStatusList = reqData.getJSONArray("transactionCredentialsStatus");
+            MultiValueMap<String, Object> transactionCredentialsStatusMap = new LinkedMultiValueMap<String, Object>();
 
-
+            for (int i = 0; i < transactionCredentialsStatusList.length(); i++) {
+                JSONObject j = transactionCredentialsStatusList.getJSONObject(i);
+                Iterator<?> it = j.keys();
+                while (it.hasNext()) {
+                    String key = it.next().toString();
+                    if (key.equalsIgnoreCase("atc")) {
+                        iValue = j.getInt(key);
+                        transactionCredentialsStatusMap.add(key, iValue);
+                    } else {
+                        strValue = j.getString(key);
+                        transactionCredentialsStatusMap.add(key, strValue);
+                    }
+                }
             }
+            requestMap.add("transactionCredentialsStatus", transactionCredentialsStatusMap);
         }
-        requestMap.add("transactionCredentialsStatus",transactionCredentialsStatusMap);
         httpRestHandeler = new HttpRestHandeler();
         //Call MasterCard replinish API to get the raw transctional.
-        String response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/credentials/1/0/replenish",requestMap);
+        String response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/credentials/1/0/replenish", requestMap);
 
-       //Decrept the response data from mastercard
+        //Decrypt the response data from mastercard
         JSONObject jsonResponse = new JSONObject(response);
         // Fetch tokenCredential
         JSONObject tokenCredential = jsonResponse.getJSONObject("rawTransactionCredentials");
@@ -533,7 +585,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         String rawTransactionCredentialsData = null;
         try {
             rawTransactionCredentialsData = new String(AESUtil.cipherCcm(bEncData, ccmKey, bCcmNonce, false));
-            System.out.println("rawTransactionCredentialsData = "+rawTransactionCredentialsData);
+            System.out.println("rawTransactionCredentialsData = " + rawTransactionCredentialsData);
         } catch (GeneralSecurityException e) {
             //return prepareProvisionMdesResp(ConstantErrorCodes.CRYPTOGRAPHY_ERROR);
         }
@@ -541,99 +593,60 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         //Get the decrypted session keys from the response
         JSONObject jsonRawTransactionCredentialsData = new JSONObject(rawTransactionCredentialsData);
         JSONArray arrRawTransactionCredentials = jsonRawTransactionCredentialsData.getJSONObject("rawTransactionCredentialsData").getJSONArray("rawTransactionCredential");
-        //List listOfMap = new ArrayList();
-       JSONArray arrayDecRewTransctionalData = new JSONArray();
-        byte[]bValue;
 
-        for(int i=0;i<arrRawTransactionCredentials.length();i++)
-        {
-            JSONObject j = arrRawTransactionCredentials.getJSONObject(i);
-            Iterator<?> it = j.keys();
-            //Map mapRawTransactionCredentials =  new HashMap();
-            while (it.hasNext()) {
-                String key =  it.next().toString();
-                if(key.equalsIgnoreCase("atc"))
-                {
-                    iValue = j.getInt(key);
-                    j.put(key,iValue);
-
-                }
-                else
-                {
-                     strValue = j.getString(key);
-                    bValue = ArrayUtil.getByteArray(strValue);
-                    try {
-                        String value = ArrayUtil.getHexString(AESUtil.cipherECB(bValue, Constants.KEK_KEY, AESUtil.Padding.NoPadding, false));
-                        j.put(key,value);
-                    } catch (GeneralSecurityException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-
-            }
-            arrayDecRewTransctionalData.put(j);
-        }
+        int noOfTxnCredentials = arrRawTransactionCredentials.length();
+        TransactionCredential[] transactionCredentials = new TransactionCredential[noOfTxnCredentials];
 
         //Get the Pin block from DB and get pin from pin Block.
         String mPin = getMpin(tokenUniqueReference);
-        //Call generateSUK
-        JSONArray arrTransctionCredential = generateSUK(arrayDecRewTransctionalData,mPin);
+        JSONObject jsTxnCredential;
+        for (int i = 0; i < noOfTxnCredentials; i++) {
+            jsTxnCredential = arrRawTransactionCredentials.getJSONObject(i);
+
+            transactionCredentials[i] = new TransactionCredential();
+            transactionCredentials[i].atc = jsTxnCredential.getInt("atc");
+            transactionCredentials[i].idn = ByteArray.of(jsTxnCredential.getString("idn"));
+            transactionCredentials[i].contactlessMdSessionKey = ByteArray.of(jsTxnCredential.getString("contactlessMdSessionKey"));
+
+            // Create SUK and then set
+            String strSUK = remoteManagementUtil.generateSUK(jsTxnCredential.getString("contactlessUmdSessionKey"), mPin);
+            transactionCredentials[i].contactlessUmdSingleUseKey = ByteArray.of(strSUK);
+
+            if(jsTxnCredential.has("dsrpMdSessionKey")) {
+                transactionCredentials[i].dsrpMdSessionKey = ByteArray.of(jsTxnCredential.getString("dsrpMdSessionKey"));
+            }
+            if(jsTxnCredential.has("dsrpUmdSessionKey")) {
+                transactionCredentials[i].dsrpUmdSingleUseKey = ByteArray.of(jsTxnCredential.getString("dsrpUmdSessionKey"));
+            }
+        }
+
+        CmsDReplenishResponse replenishResp = new CmsDReplenishResponse();
+        replenishResp.setResponseHost("3000000001");
+        replenishResp.setResponseHost(Constants.RESPONSE_HOST);
+        replenishResp.setTransactionCredentials(transactionCredentials);
 
         //Prepare response and Send it to the
-        return prepareReplenishResponseMpa(arrTransctionCredential,200,"Success");
+        return prepareReplenishResponseMpa(replenishResp, 200, "Success");
     }
-    private JSONArray generateSUK(JSONArray arrRawTransactionCredentials,String mPin)
-    {
-        byte[]bValue;
-        String strValue = "";
-        String strSUK = "";
-        JSONArray arrTransactionCredentials = new JSONArray();
-        for(int i=0;i<arrRawTransactionCredentials.length();i++)
-        {
-            JSONObject j = arrRawTransactionCredentials.getJSONObject(i);
-            Iterator<?> it = j.keys();
-            //Map mapRawTransactionCredentials =  new HashMap();
-            while (it.hasNext()) {
-                String key =  it.next().toString();
-                if(key.equalsIgnoreCase("contactlessUmdSessionKey") || key.equalsIgnoreCase("dsrpUmdSessionKey"))
-                {
-                    strValue = j.getString(key);
-                    strSUK = remoteManagementUtil.generateSUK(strValue,mPin);
-                    j.put(key,strSUK);
 
-                }
-
-            }
-            arrTransactionCredentials.put(j);
-
-        }
-        //Generate and return SUK.
-        return arrTransactionCredentials;
-    }
-    private RmResponseMpa prepareReplenishResponseMpa(JSONArray arrTransactionCredentials, final int reasonCode, final String reasonDescription) {
+    private RmResponseMpa prepareReplenishResponseMpa(CmsDReplenishResponse cmsDReplenishResponse, final int reasonCode, final String reasonDescription) {
         // Prepare Response
-        JSONObject response = new JSONObject();
-        response.put("responseId", "3000000001");
-        response.put("responseHost", Constants.RESPONSE_HOST);
-        response.put("transactionCredentials",arrTransactionCredentials);
-        //Prepare Response
+        JSONSerializer jsonSerializer = new JSONSerializer();
+        String replenishResp = jsonSerializer.include("ByteArray.class")
+                .transform(new ByteArrayTransformer(), ByteArray.class).deepSerialize(cmsDReplenishResponse);
 
         // Encrypt response prepared
-        String encryptedData;
-        if(remoteManagementUtil.isSessionInitialized()) {
-            encryptedData = remoteManagementUtil.encryptResponse(response);
-        } else {
-            encryptedData = "";
-        }
+        String encryptedData = remoteManagementUtil.encryptResponse(replenishResp);
         return new RmResponseMpa(encryptedData, Integer.toString(reasonCode), reasonDescription);
     }
-    private String getMpin(String tokenUniqueReference)
-    {
+
+    private String getMpin(String tokenUniqueReference) {
         String paymentAppInstanceId = tokenRepository.findByTokenUniqueReference(tokenUniqueReference).get().getPaymentAppInstId();
 
         String mPinBlock = appInstInfoRepository.findByPaymentAppInstId(paymentAppInstanceId).get().getMobilePin();
         String mPin = getMpinfromMobilePinBlock(mPinBlock);
+
+
 
         return mPin;
     }
@@ -667,14 +680,13 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         //Var delearation
         int pinTryCounter = 0;
         //Validate request ID
-        if(!reqData.getString("taskId").equalsIgnoreCase(Constants.SET_OR_CHANGE_MPIN_TASK_ID))
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TASK_ID,"Invalid taskID");
-
+        if (!reqData.getString("taskId").equalsIgnoreCase(Constants.SET_OR_CHANGE_MPIN_TASK_ID))
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_TASK_ID, "Invalid taskID");
 
 
         //Check if newMobilePin is available in the request or not
         if (!reqData.has("newMobilePin"))
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT,"new Pin value is required");
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT, "new Pin value is required");
 
         Optional<ApplicationInstanceInfo> applicationInstanceInfo = appInstInfoRepository.findByMobileKeySetId(mobileKeySetId);
 
@@ -683,138 +695,129 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         //String mobilePinBlockDb = appInstInfoRepository.findByMobileKeySetId(mobileKeySetId).get().getMobilePin();
 
         //Check is current mobile pin is required or not
-        if(!(reqData.has("currentMobilePin"))&& (mobilePinBlockDb!=null)) // mobilePinBlockDb shuld be validate first
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT,"Current mobile Pin is required");
+        if (!(reqData.has("currentMobilePin")) && (mobilePinBlockDb != null)) // mobilePinBlockDb shuld be validate first
+            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_FORMAT, "Current mobile Pin is required");
 
         //Get Mobile data encryption key
 
-        byte [] bArrMobileDataEncKey = ArrayUtil.getByteArray(applicationInstanceInfo.get().getDataEncryptionKey());
+        byte[] bArrMobileDataEncKey = ArrayUtil.getByteArray(applicationInstanceInfo.get().getDataEncryptionKey());
         String strCurrentMobilePinBlock = "";
 
         //get the new mobile pin
         String newMpinBlock = reqData.getString("newMobilePin");
         byte[] bArrnewMpinBlock = ArrayUtil.getByteArray(newMpinBlock);
         try {
-            newMpinBlock = ArrayUtil.getHexString(AESUtil.cipherECB(bArrnewMpinBlock,bArrMobileDataEncKey, AESUtil.Padding.NoPadding,false));
+            newMpinBlock = ArrayUtil.getHexString(AESUtil.cipherECB(bArrnewMpinBlock, bArrMobileDataEncKey, AESUtil.Padding.NoPadding, false));
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
 
         //Check if old Mobile pin is present in the request
-        if (reqData.has("currentMobilePin")&& (mobilePinBlockDb != null))//Change Mobile Pin
+        if (reqData.has("currentMobilePin") && (mobilePinBlockDb != null))//Change Mobile Pin
         {
             //Get the Pin try counter from DB and verify if it is exceeding maximum Pin try limit.And notify MDES
-             pinTryCounter = applicationInstanceInfo.get().getPinTryCounter();
-            if(pinTryCounter>Constants.PIN_TRY_LIMIT) {
-                notifyMobilePinChangeResult(applicationInstanceInfo.get().getPaymentAppInstId(),"MOBILE_PIN_TRIES_EXCEEDED");
+            pinTryCounter = applicationInstanceInfo.get().getPinTryCounter();
+            if (pinTryCounter > Constants.PIN_TRY_LIMIT) {
+                notifyMobilePinChangeResult(applicationInstanceInfo.get().getPaymentAppInstId(), "MOBILE_PIN_TRIES_EXCEEDED");
                 return prepareProvisionResponseMpaError(ConstantErrorCodes.MAX_PIN_TRY_LIMIT_REACHED, "Max Pin trys ecceeded");
             }
 
 
-            byte [] bArrCurrentMpinBlock = ArrayUtil.getByteArray(reqData.getString("currentMobilePin"));
+            byte[] bArrCurrentMpinBlock = ArrayUtil.getByteArray(reqData.getString("currentMobilePin"));
             //Decrypt Mobile pin block
             try {
-                strCurrentMobilePinBlock = ArrayUtil.getHexString( AESUtil.cipherECB(bArrCurrentMpinBlock,bArrMobileDataEncKey, AESUtil.Padding.NoPadding,false));
+                strCurrentMobilePinBlock = ArrayUtil.getHexString(AESUtil.cipherECB(bArrCurrentMpinBlock, bArrMobileDataEncKey, AESUtil.Padding.NoPadding, false));
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             }
             String mPin = getMpinfromMobilePinBlock(strCurrentMobilePinBlock);
             String mPinDb = getMpinfromMobilePinBlock(mobilePinBlockDb);
             //Verify user provided mPin
-           if(!verifyMpin(mPin,mPinDb))
-            {
+            if (!verifyMpin(mPin, mPinDb)) {
                 //Increase Pin try counter
                 pinTryCounter++;
-                updatePinTryCounter(applicationInstanceInfo.get(),pinTryCounter);
+                updatePinTryCounter(applicationInstanceInfo.get(), pinTryCounter);
                 //return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_MOBILE_PIN, "Invalid Mobile Pin");
-               return prepareSetOrChangePinResp("INCORRECT_PIN",pinTryCounter,ConstantErrorCodes.INVALID_MOBILE_PIN,"Wrong Pin");
-            }
-            else
-            {
+                return prepareSetOrChangePinResp("INCORRECT_PIN", pinTryCounter, ConstantErrorCodes.INVALID_MOBILE_PIN, "Wrong Pin");
+            } else {
                 //TODO:Encrypt the mobile Pin before storing the mobile Pin and decrypt the mobile pin where we are getting the mobile pin from DB
                 //Save the newMobile Pin block in the DB
-                updateApplicationInstanceInfo(applicationInstanceInfo.get(),newMpinBlock);
+                updateApplicationInstanceInfo(applicationInstanceInfo.get(), newMpinBlock);
 
                 ////Call MDES Notify Mobile PIN Change Result API to notify about the pin change result.
-                notifyMobilePinChangeResult(applicationInstanceInfo.get().getPaymentAppInstId(),"SUCCESS");
+                notifyMobilePinChangeResult(applicationInstanceInfo.get().getPaymentAppInstId(), "SUCCESS");
 
                 //Prepare Respponse and Send
-                return prepareSetOrChangePinResp("SUCCESS",pinTryCounter,200,"Change pin successful");
+                return prepareSetOrChangePinResp("SUCCESS", pinTryCounter, 200, "Change pin successful");
 
             }
-        }
-        else //Set Mobile pin
+        } else //Set Mobile pin
         {
             //set Pin
-            updateApplicationInstanceInfo(applicationInstanceInfo.get(),newMpinBlock);
+            updateApplicationInstanceInfo(applicationInstanceInfo.get(), newMpinBlock);
 
             //Prepare Response And send.
-            return prepareSetOrChangePinResp("SUCCESS",pinTryCounter,200,"Set pin successful");
+            return prepareSetOrChangePinResp("SUCCESS", pinTryCounter, 200, "Set pin successful");
         }
 
 
     }
+
     @Transactional
-    private void updateApplicationInstanceInfo(ApplicationInstanceInfo applicationInstanceInfo, String dataToBeUpdated)
-    {
-       // ApplicationInstanceInfo applicationInstanceInfo1 = applicationInstanceInfo.get();
+    private void updateApplicationInstanceInfo(ApplicationInstanceInfo applicationInstanceInfo, String dataToBeUpdated) {
+        // ApplicationInstanceInfo applicationInstanceInfo1 = applicationInstanceInfo.get();
         applicationInstanceInfo.setMobilePin(dataToBeUpdated);
         appInstInfoRepository.save(applicationInstanceInfo);
 
     }
+
     @Transactional
-    private void updatePinTryCounter(ApplicationInstanceInfo applicationInstanceInfo,int pinTryCounter)
-    {
+    private void updatePinTryCounter(ApplicationInstanceInfo applicationInstanceInfo, int pinTryCounter) {
         applicationInstanceInfo.setPinTryCounter(pinTryCounter);
         appInstInfoRepository.save(applicationInstanceInfo);
     }
 
-
-    private String getMpinfromMobilePinBlock (String pinBlock)
-    {
-        int mPinLength = Integer.parseInt(pinBlock.substring(1,2));
-        String mPin = pinBlock.substring(2,2+mPinLength);
+    private String getMpinfromMobilePinBlock(String pinBlock) {
+        int mPinLength = Integer.parseInt(pinBlock.substring(1, 2));
+        String mPin = pinBlock.substring(2, 2 + mPinLength);
         return mPin;
     }
-    private boolean verifyMpin(String userGiveCurrentMpin, String currentMpin)
-    {
+
+    private boolean verifyMpin(String userGiveCurrentMpin, String currentMpin) {
         boolean pinVerificationResult = false;
         if (currentMpin.equalsIgnoreCase(userGiveCurrentMpin))
             pinVerificationResult = true;
         return pinVerificationResult;
     }
-    private void notifyMobilePinChangeResult(String paymentAppInstanceId ,String status)
-    {
 
-        MultiValueMap<String,Object> notifyMobilePinChangeResultReq = new  LinkedMultiValueMap<String,Object>();
-        notifyMobilePinChangeResultReq.add("responseHost",Constants.RESPONSE_HOST);
-        notifyMobilePinChangeResultReq.add("requestId","123456");
-        notifyMobilePinChangeResultReq.add("paymentAppInstanceId",paymentAppInstanceId);
-        notifyMobilePinChangeResultReq.add("result","SUCCESS");
+    private void notifyMobilePinChangeResult(String paymentAppInstanceId, String status) {
+
+        MultiValueMap<String, Object> notifyMobilePinChangeResultReq = new LinkedMultiValueMap<String, Object>();
+        notifyMobilePinChangeResultReq.add("responseHost", Constants.RESPONSE_HOST);
+        notifyMobilePinChangeResultReq.add("requestId", "123456");
+        notifyMobilePinChangeResultReq.add("paymentAppInstanceId", paymentAppInstanceId);
+        notifyMobilePinChangeResultReq.add("result", "SUCCESS");
         httpRestHandeler = new HttpRestHandeler();
-        httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/credentials/1/0/notifyPinChangeResult",notifyMobilePinChangeResultReq);
+        httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/credentials/1/0/notifyPinChangeResult", notifyMobilePinChangeResultReq);
     }
-    private RmResponseMpa prepareSetOrChangePinResp(String result,int mobilePinTriesRemaining, final int reasonCode, final String reasonDescription) {
+
+    private RmResponseMpa prepareSetOrChangePinResp(String result, int mobilePinTriesRemaining, final int reasonCode, final String reasonDescription) {
         // Prepare Response
         JSONObject response = new JSONObject();
         response.put("responseId", "3000000001");
         response.put("responseHost", Constants.RESPONSE_HOST);
-        response.put("result",result);
-        response.put("mobilePinTriesRemaining",mobilePinTriesRemaining);
+        response.put("result", result);
+        response.put("mobilePinTriesRemaining", mobilePinTriesRemaining);
         //Prepare Response
 
         // Encrypt response prepared
         String encryptedData;
-        if(remoteManagementUtil.isSessionInitialized()) {
+        if (remoteManagementUtil.isSessionInitialized()) {
             encryptedData = remoteManagementUtil.encryptResponse(response);
         } else {
             encryptedData = "";
         }
         return new RmResponseMpa(encryptedData, Integer.toString(reasonCode), reasonDescription);
     }
-
-
-
-
 
 }

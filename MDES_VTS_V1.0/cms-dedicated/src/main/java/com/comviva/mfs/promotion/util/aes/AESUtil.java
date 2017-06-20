@@ -262,7 +262,7 @@ public class AESUtil {
 
     public static void encTokenCredentials() {
         CardProfile cardProfile = new CardProfile();
-        JSONObject jsonCardProfile = cardProfile.getCardProfile();
+        JSONObject jsonCardProfile = /*cardProfile.getCardProfile()*/new JSONObject();
         JSONObject tokenCredentialData = new JSONObject();
         tokenCredentialData.put("iccKek", "5F70884B25739773B6E84EC6A43E7CD1E5F598B034449642A61884F593CFB9D3");
         tokenCredentialData.put("kekId", "222222");

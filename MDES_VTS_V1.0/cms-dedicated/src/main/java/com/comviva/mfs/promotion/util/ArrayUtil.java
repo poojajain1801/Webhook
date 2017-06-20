@@ -1,6 +1,10 @@
 package com.comviva.mfs.promotion.util;
 
+import java.security.SecureRandom;
+
 public class ArrayUtil {
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 	public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 
@@ -36,4 +40,20 @@ public class ArrayUtil {
 		}
 		return true;
 	}
+
+	public static byte[] getRandom(final int length) {
+		SecureRandom secureRandom = new SecureRandom();
+		byte[] random = new byte[length];
+		secureRandom.nextBytes(random);
+		return random;
+	}
+
+    public static String randomAlphaNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
+    }
 }
