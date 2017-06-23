@@ -320,14 +320,13 @@ public class CardDetailServiceImpl implements CardDetailService {
         // *************** EnrollPan request to VTS ***************
 
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("clientAppID", enrollPanRequest.getClientAppId());
-        map.add("clientWalletAccountID", enrollPanRequest.getClientWalletAccountId());
+        map.add("clientAppID",env.getProperty("clientAppID") );
+        map.add("clientWalletAccountID", "db");
         map.add("clientDeviceID", enrollPanRequest.getClientDeviceId());
         map.add("locale", enrollPanRequest.getLocale());
         map.add("panSource", enrollPanRequest.getPanSource());
-        map.add("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
         map.add("encPaymentInstrument", enrollPanRequest.getEncPaymentInstrument());
-        map.add("encryptionMetaData",enrollPanRequest.getEncryptionMetaData());
+        map.add("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
         map.add("platformType",enrollPanRequest.getPlatformType());
         map.add("channelSecurityContext",enrollPanRequest.getChannelSecurityContext());
         ObjectMapper objectMapper = new ObjectMapper();
