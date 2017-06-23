@@ -1,0 +1,1 @@
+include ':app', ':comviva-hce-service', ':wallet-services', ':mobile-api-core', ':mcbp-android-api', ':mcbp', ':mcbp-android', ':mcbp-android-api-mdes-debug'

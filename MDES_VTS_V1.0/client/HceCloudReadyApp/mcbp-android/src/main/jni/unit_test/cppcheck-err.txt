@@ -1,0 +1,52 @@
+[rapidxml.hpp:390]: (warning) Member variable 'memory_pool::m_static_memory' is not initialized in the constructor.
+[rapidxml.hpp:657]: (warning) Member variable 'xml_base::m_name_size' is not initialized in the constructor.
+[rapidxml.hpp:657]: (warning) Member variable 'xml_base::m_value_size' is not initialized in the constructor.
+[rapidxml.hpp:810]: (warning) Member variable 'xml_attribute::m_prev_attribute' is not initialized in the constructor.
+[rapidxml.hpp:810]: (warning) Member variable 'xml_attribute::m_next_attribute' is not initialized in the constructor.
+[rapidxml.hpp:901]: (warning) Member variable 'xml_node::m_last_node' is not initialized in the constructor.
+[rapidxml.hpp:901]: (warning) Member variable 'xml_node::m_last_attribute' is not initialized in the constructor.
+[rapidxml.hpp:901]: (warning) Member variable 'xml_node::m_prev_sibling' is not initialized in the constructor.
+[rapidxml.hpp:901]: (warning) Member variable 'xml_node::m_next_sibling' is not initialized in the constructor.
+[rapidxml.hpp:1725]: (style) Unused private function: 'xml_document::parse_bom'
+[rapidxml.hpp:2167]: (style) Unused private function: 'xml_document::parse_node_contents'
+[rapidxml.hpp:2237]: (style) Unused private function: 'xml_document::parse_node_attributes'
+[rapidxml.hpp:1725]: (performance, inconclusive) Technically the member function 'rapidxml::xml_document::parse_bom' can be static.
+[rapidxml.hpp:420]: (warning) Comparison of a boolean expression with an integer.
+[rapidxml.hpp:419]: (warning) Found calculation inside sizeof().
+[rapidxml.hpp:450]: (warning) Found calculation inside sizeof().
+[rapidxml.hpp:1140]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_first_node' can be const.
+[rapidxml.hpp:1155]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_last_node' can be const.
+[rapidxml.hpp:1188]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_all_nodes' can be const.
+[rapidxml.hpp:1260]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_first_attribute' can be const.
+[rapidxml.hpp:1277]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_last_attribute' can be const.
+[rapidxml.hpp:1309]: (style, inconclusive) Technically the member function 'rapidxml::xml_node::remove_all_attributes' can be const.
+[rapidxml.hpp:1323]: (performance) Function parameter 'xml_node' should be passed by reference.
+[crypto_factory_test_data.xml:8]: (error) syntax error
+[log.txt:59]: (error) syntax error
+[mcbp_card_test.cpp:200] -> [mcbp_card_test.cpp:209]: (performance) Variable 'bytes_read' is reassigned a value before the old one has been used.
+[mcbp_card_test.cpp:294]: (style) The scope of the variable 'input_file' can be reduced.
+[mcbp_card_test.cpp:164]: (style) Variable 'bytes_read' is assigned a value that is never used.
+[mcbp_card_test.cpp:209]: (style) Variable 'bytes_read' is assigned a value that is never used.
+[mcbp_card_test_data.xml:8]: (error) syntax error
+[rapidxml_iterators.hpp:77]: (style, inconclusive) Technically the member function 'rapidxml::node_iterator::operator==' can be const.
+[rapidxml_iterators.hpp:82]: (style, inconclusive) Technically the member function 'rapidxml::node_iterator::operator!=' can be const.
+[rapidxml_iterators.hpp:156]: (style, inconclusive) Technically the member function 'rapidxml::attribute_iterator::operator==' can be const.
+[rapidxml_iterators.hpp:161]: (style, inconclusive) Technically the member function 'rapidxml::attribute_iterator::operator!=' can be const.
+[tcp_server.cpp:43]: (warning) Member variable 'session::data_' is not initialized in the constructor.
+[crypto_factory_test.h:76]: (style) The function 'SetUp' is never used.
+[crypto_factory_test.cpp:334]: (style) The function 'SetUpTestCase' is never used.
+[crypto_factory_test.h:86]: (style) The function 'TearDown' is never used.
+[crypto_factory_test.cpp:342]: (style) The function 'TearDownTestCase' is never used.
+[rapidxml.hpp:476]: (style) The function 'allocate_string' is never used.
+[rapidxml.hpp:819]: (style) The function 'document' is never used.
+[mcbp_card_test.cpp:131]: (style) The function 'dsrp_server' is never used.
+[rapidxml.hpp:1239]: (style) The function 'insert_attribute' is never used.
+[rapidxml.hpp:1119]: (style) The function 'insert_node' is never used.
+[rapidxml.hpp:1045]: (style) The function 'last_attribute' is never used.
+[rapidxml.hpp:958]: (style) The function 'last_node' is never used.
+[rapidxml.hpp:1293]: (style) The function 'remove_attribute' is never used.
+[rapidxml.hpp:1171]: (style) The function 'remove_node' is never used.
+[rapidxml.hpp:552]: (style) The function 'set_allocator' is never used.
+[mcbp_card_test.cpp:178]: (style) The function 'terminal_simulator' is never used.
+[mcbp_card_test.cpp:383]: (style) The function 'tests_list' is never used.
+(information) Cppcheck cannot find all the include files (use --check-config for details)

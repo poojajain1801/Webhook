@@ -1,0 +1,29 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="hce.mahindracomviva.com.comviva_sample_app.AddCard">
+
+    <item
+        android:id="@+id/addCard"
+        android:orderInCategory="100"
+        android:title="Add Card" />
+
+    <item
+        android:id="@+id/setPin"
+        android:orderInCategory="100"
+        android:title="Set PIN" />
+
+    <item
+        android:id="@+id/suspendCard"
+        android:orderInCategory="100"
+        android:title="Suspend Card" />
+
+    <item
+        android:id="@+id/resumeCard"
+        android:orderInCategory="100"
+        android:title="Resume Card" />
+
+    <item
+        android:id="@+id/deleteCard"
+        android:orderInCategory="100"
+        android:title="Delete Card" />
+</menu>
