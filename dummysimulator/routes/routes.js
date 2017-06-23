@@ -47,7 +47,7 @@ jsonObject = JSON.stringify({
 	"responseHost" : "comviva.mdes",
     "requestId" : "123456",
     "paymentAppProviderId" : "547102052016",
-    "paymentAppInstanceId" : "123456789",
+    "paymentAppInstanceId" : "13403F4C0025E6A67C9FE31246D900000001497863284400",
     "tokenUniqueReference" : "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
     "tokenType" : "CLOUD",
     "taskId" : "3dacc64b-9703-4201-af40-02e636e3ff3b",
@@ -163,11 +163,55 @@ app.post("/mdes/credentials/1/0/notifyProvisioningResult", function(req, res) {
 	var notifyProvisioningRes = require('./var.js').mocknotifyprovisioningres;  
 	return res.json(notifyProvisioningRes);
 }); 
+app.post("/mdes/credentials/1/0/notifyPinChangeResult", function(req, res) {
+    var notifyProvisioningRes = require('./var.js').mocknotifChangePinres;  
+    return res.json(notifyProvisioningRes);
+});
+app.post("/mdes/credentials/1/0/replenish", function(req, res) {
+    var replinishmentResponse = require('./var.js').mockreplinishmentResponse;  
+    return res.json(replinishmentResponse);
+}); 
+app.post("/mdes/tds/1/0/123456781/getRegistrationCode", function(req, res) {
+    console.info('getRegistrationCode Invoked');
+    var getRegCodeRes = require('./var.js').mockGetRegistrationCodeResp;  
+    return res.json(getRegCodeRes);
+}); 
+app.post("/mdes/tds/1/0/123456781/register", function(req, res) {
+    console.info('getRegistrationCode Invoked');
+    var registerWithTDSResp = require('./var.js').mockRegisterwithTDSResp;  
+    return res.json(registerWithTDSResp);
+}); 
+app.post("/mdes/tds/1/0/123456781/getTransactions", function(req, res) {
+    console.info('getRegistration Invoked');
+    var getTransctionResp = require('./var.js').mockGetTransctions;  
+    return res.json(getTransctionResp);
+});
 
 app.post("/mdes/digitization/1/0/activate", function(req, res) {
 	console.info('Activate Invoked');
 	var activateRes = require('./var.js').mockactivateres;	
 	return res.json(activateRes);
+});
+
+app.post("/mdes/digitization/1/0/delete", function(req, res) {
+    console.info('Delete Card Invoked');
+    var deletecardResp = require('./var.js').mockDeleteCardResp; 
+    
+    return res.json(deletecardResp);
+});
+
+app.post("/mdes/digitization/1/0/suspend", function(req, res) {
+    console.info('Suspend Card Invoked');
+    var suspendCardResp = require('./var.js').mockSuspendCardResp; 
+    
+    return res.json(suspendCardResp);
+});
+
+app.post("/mdes/digitization/1/0/unsuspend", function(req, res) {
+    console.info('UnSuspend Card Invoked');
+    var unsuspendCardResp = require('./var.js').mockUnSuspendCardResp; 
+    
+    return res.json(unsuspendCardResp);
 });
 
 }
