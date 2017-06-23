@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import lombok.Setter;
+import org.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,8 +18,12 @@ public class HitVisaServices extends VtsRequest {
     }
 
     public String restfulServiceConsumerVisa(String url, String requestBody, Map parametersMap) {
-        prepareHeader(ArrayUtil.getHexString(ArrayUtil.getRandom(36)),
-                RequestId.ENROLL_DEVICE, queryString.toString(), requestBody);
+        JSONObject prepareHeaderRequest=new JSONObject();
+        prepareHeaderRequest.put("xRequestId","generateXrequestId");
+        prepareHeaderRequest.put("queryString","apiKey="+apiKey);
+        prepareHeaderRequest.put("resourcePath","");
+        prepareHeaderRequest.put("requestBody",requestBody);
+        prepareHeader(prepareHeaderRequest);
         HttpHeaders headers = new HttpHeaders();
         //headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Accept", "application/json");
@@ -29,8 +34,12 @@ public class HitVisaServices extends VtsRequest {
     }
 
     public String restfulServiceConsumerVisaGet(String url, String requestBody) {
-        prepareHeader(ArrayUtil.getHexString(ArrayUtil.getRandom(36)),
-                RequestId.ENROLL_DEVICE, queryString.toString(), requestBody);
+        JSONObject prepareHeaderRequest=new JSONObject();
+        prepareHeaderRequest.put("xRequestId","generateXrequestId()");
+        prepareHeaderRequest.put("queryString","apiKey="+apiKey);
+        prepareHeaderRequest.put("resourcePath","vts/clients/");
+        prepareHeaderRequest.put("requestBody",requestBody);
+        prepareHeader(prepareHeaderRequest);
         HttpHeaders headers = new HttpHeaders();
         //headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Accept", "application/json");

@@ -28,46 +28,51 @@ public class DeviceRegistrationControllerTest {
     private WebApplicationContext webApplicationContext;
     String userID = "";
     String paymentAppInstanceId = "";
+    String activationCode="";
 
 
     @Before
     public void Setup(){
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
-        ServiceUtils.serviceInit("/api/");
+       // ServiceUtils.serviceInit("/api/device/");
 
-    }//
+    }
     @Test
     public void registerUser() throws Exception {
-
+        ServiceUtils.serviceInit("/api/user/");
         Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
         userID = DefaultTemplateUtils.randomString(8);
         request.put("userId",userID);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(regDeviceReaponse, "200");
+        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
+        activationCode= (String) registerUserResponse.get("activationCode");
+        assertResponse(registerUserResponse, "200");
     }
     @Test
     public void activateUser() throws Exception {
         registerUser();
         Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
         request.put("userId",userID);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("user/activateUser",request);
-        assertResponse(regDeviceReaponse, "200");
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "200");
 
     }
     @Test
     public void registerDevice() throws Exception {
         activateUser();
+        ServiceUtils.serviceInit("/api/device/");
         Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
         paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
         request.put("userId",userID);
+
         Map mdes = (Map) request.get("mdes");
         Map deviceInfo = (Map) mdes.get("deviceInfo");
         deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
         mdes.put("deviceInfo",deviceInfo);
         mdes.put("paymentAppInstanceId",paymentAppInstanceId);
         request.put("mdes",mdes);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("deviceRegistration",request);
         assertResponse(regDeviceReaponse, "200");
 
     }

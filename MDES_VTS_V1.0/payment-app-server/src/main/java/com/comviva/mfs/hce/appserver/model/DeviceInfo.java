@@ -61,51 +61,29 @@ public class DeviceInfo {
     @Column(name = "HOST_DEVICE_ID")
     private String hostDeviceID;
 
+    @Column (name = "VISA_ENABLED")
+    private String visaEnabled;
 
+    @Column (name = "MASTERCARD_ENABLED")
+    private String mastercardEnabled;
+
+    @Column (name = "VISA_MESSAGE")
+    private String visaMessage;
+
+    @Column (name = "MASTERCARD_MESSAGE")
+    private String mastercardMessage;
+
+    @Column (name = "DEVICE_STATUS")
+    private String deviceStatus;
 
 
     public DeviceInfo() {
         //this(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    /** Prepares device information in JSON format for MDES.
-     * @return  Device Informtaion in JSON format
-     */
-  /*  public JSONObject getDeviceInfoForMdes() {
-        JSONObject deviceInfo = new JSONObject();
-        deviceInfo.put("osName", osName);
-        deviceInfo.put("osVersion", osVersion);
-        deviceInfo.put("formFactor", formFactor);
-        deviceInfo.put("deviceName", deviceName);
-        deviceInfo.put("id", serialNumber);
-        deviceInfo.put("imei", imei);
-        deviceInfo.put("msisdn", msisdn);
-        deviceInfo.put("nfcCapable", nfcCapable);
-        deviceInfo.put("serialNumber", serialNumber);
-        deviceInfo.put("storageTechnology", storageTechnology);
-        return deviceInfo;
-    }
-
-    *//**
-     * Prepares device information in JSON format for VTS.
-     * @return Device Informtaion in JSON format
-     *//*
-    public JSONObject getDeviceInfoForVts() {
-        JSONObject deviceInfo = new JSONObject();
-        deviceInfo.put("osType", osName);
-        deviceInfo.put("osVersion", osVersion);
-        deviceInfo.put("deviceType", deviceType);
-        deviceInfo.put("deviceName", deviceNickName);
-        deviceInfo.put("deviceManufacturer", deviceManufacturer);
-        deviceInfo.put("deviceModel", deviceModel);
-        deviceInfo.put("hostDeviceID", hostDeviceID);
-        deviceInfo.put("phoneNumber", msisdn);
-        deviceInfo.put("osBuildID", osBuildID);
-        deviceInfo.put("deviceIDType", deviceIDType);
-        return deviceInfo;
-    }*/
-
-    public DeviceInfo(String id, String userName, String paymentAppInstanceId, String osName, String osVersion, String nfcCapable, String imei, String clientDeviceId, String vClientId, String deviceModel, String hostDeviceID) {
+    public DeviceInfo(String id, String userName, String paymentAppInstanceId, String osName, String osVersion, String nfcCapable,
+                      String imei, String clientDeviceId, String vClientId, String deviceModel,
+                      String hostDeviceID,String visaEnabled,String mastercardEnabled,String visaMessage,String mastercardMessage,String deviceStatus) {
         this.id = id;
         this.userName = userName;
         this.paymentAppInstanceId = paymentAppInstanceId;
@@ -117,5 +95,10 @@ public class DeviceInfo {
         this.vClientId = vClientId;
         this.deviceModel = deviceModel;
         this.hostDeviceID = hostDeviceID;
+        this.visaEnabled=visaEnabled;
+        this.mastercardEnabled=mastercardEnabled;
+        this.visaMessage=visaMessage;
+        this.mastercardMessage=mastercardMessage;
+        this.deviceStatus=deviceStatus;
     }
 }

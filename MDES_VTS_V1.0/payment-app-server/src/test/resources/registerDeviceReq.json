@@ -1,7 +1,7 @@
 {
   "userId":"1234567891",
   "gcmRegistrationId":"fh7Mfm-fR0o:APA91bE-5kGMV6ghb2xhL7dchtUNSEuVlQ-mcKAGRJ_3oqJ_v0DqnsXl3OO9gqAKME_f3a8ahGOpACscBfEKrV3jiSB219w9xYmadueBVthcC6I5mt7SwQLtVH52d15SmWotP3Dct62-",
-
+  "clientDeviceID":"clientDeviceID",
   "mdes":{
     "deviceInfo":{
       "deviceName":"SM-G920I",

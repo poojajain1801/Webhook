@@ -19,6 +19,9 @@
             <column name="client_wallet_accountid" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="client_device_id" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
         </createTable>
         <addUniqueConstraint columnNames="user_name" constraintName="unique_constraints"
                              tableName="user_details" deferrable="false"/>
@@ -76,7 +79,23 @@
             <column name="HOST_DEVICE_ID" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-
+            <!-- added madan-->
+            <column name="VISA_ENABLED" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MASTERCARD_ENABLED" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="VISA_MESSAGE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MASTERCARD_MESSAGE" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DEVICE_STATUS" type="VARCHAR(255)">
+               <constraints nullable="true"/>
+            </column>
+            <!--addmadan-->
         </createTable>
         <addUniqueConstraint columnNames="IMEI" constraintName="device_unique_constraints" deferrable="true"
                              tableName="DEVICE_INFO"/>

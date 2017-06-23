@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by Tanmay.Patel on 1/8/2017.
  */
 @RestController
-@RequestMapping("/api/device")
+@RequestMapping("/api/device/")
 public class DeviceRegistrationController {
 
     @Autowired

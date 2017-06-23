@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.model;
 
+import com.querydsl.sql.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.persistence.Column;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -36,17 +38,19 @@ public class UserDetail {
     @Column(name = "client_wallet_accountid")
     private /*final*/ String clientWalletAccountid;
 
-    public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid) {
+    @Column(name = "client_device_id")
+    private String clientDeviceId;
+
+    public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid, String clientDeviceId) {
         this.id = id;
         this.userName = userName;
         this.activationCode = activationCode;
         this.userstatus = userstatus;
         this.clientWalletAccountid=clientWalletAccountid;
+        this.clientDeviceId=clientDeviceId;
     }
 
     public UserDetail() {
-        this(null, null,null, null,null);
+        this(null, null,null, null,null,null);
     }
-
-
 }

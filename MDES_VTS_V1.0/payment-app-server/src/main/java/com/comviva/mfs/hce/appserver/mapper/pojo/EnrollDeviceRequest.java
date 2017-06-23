@@ -13,6 +13,7 @@ public class EnrollDeviceRequest {
 
        private String userId;
        private String gcmRegistrationId;
+       private String clientDeviceID;
        private MdesDeviceRequest mdes;
        private VtsDeviceRequest vts;
 

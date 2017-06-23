@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 /**
@@ -29,7 +30,7 @@ public class UserRegistrationControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
     String userID = "";
-
+    String activationCode="";
 
     @Before
     public void Setup(){
@@ -39,23 +40,70 @@ public class UserRegistrationControllerTest {
 
     }
     @Test
-    public void registerUser() throws Exception {
-
+    public void registerUserSuccess() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
         userID = DefaultTemplateUtils.randomString(8);
         request.put("userId",userID);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
-        assertResponse(regDeviceReaponse, "200");
+        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
+        activationCode= (String) registerUserResponse.get("activationCode");
+        assertResponse(registerUserResponse, "200");
     }
 
     @Test
-    public void activateUser() throws Exception {
-        registerUser();
+    public void registerUserFailedForMissingField() throws Exception{
+        Map request=DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
+        userID="";
+        request.put("userId",userID);
+        Map registerUseResponse=ServiceUtils.servicePOSTResponse("userRegistration",request);
+        assertResponse(registerUseResponse,"300");
+    }
+    @Test
+    public void activateUserSuccess() throws Exception {
+        registerUserSuccess();
         Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
         request.put("userId",userID);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("activateUser",request);
-        assertResponse(regDeviceReaponse, "200");
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "200");
 
     }
-
+    @Test
+    public void activateUserFailedForMissingField() throws Exception{
+        registerUserSuccess();
+         Map request=DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+         userID="";
+         request.put("userId",userID);
+         request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "300");
+    }
+    @Test
+    public void activateUserFailedForWrongUserId() throws Exception{
+        registerUserSuccess();
+        Map request=DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        userID="wrong_userID";
+        request.put("userId",userID);
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse,"203");
+    }
+    @Test
+    public void activateUserFailedForWrongActivationCode() throws Exception{
+        registerUserSuccess();
+        Map request =DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        request.put("userId",userID);
+        request.put("activationCode","wrong_activationCode");
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse,"202");
+    }
+    @Test
+    public void activateUserFailedForUserAlreadyActivated() throws Exception{
+        registerUserSuccess();
+        activateUserSuccess();
+        Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        request.put("userId",userID);
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "204");
+    }
 }

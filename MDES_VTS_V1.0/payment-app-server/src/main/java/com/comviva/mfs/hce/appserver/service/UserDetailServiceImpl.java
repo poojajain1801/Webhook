@@ -4,6 +4,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.mapper.UserRegistrationResponse;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
@@ -16,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -28,12 +26,14 @@ import java.util.UUID;
 public class UserDetailServiceImpl implements UserDetailService {
 
     private final UserDetailRepository userDetailRepository;
+    private final DeviceDetailRepository deviceDetailRepository;
 
     @Autowired
     private Environment env;
     @Autowired
-    public UserDetailServiceImpl(UserDetailRepository userDetailRepository) {
+    public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository) {
         this.userDetailRepository = userDetailRepository;
+        this.deviceDetailRepository=deviceDetailRepository;
     }
     UserDetail savedUser;
     String userstatus;
@@ -41,26 +41,36 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Override
     @Transactional
     public Map<String,Object> registerUser(RegisterUserRequest registerUserRequest) {
-        if(registerUserRequest.getUserId()==null || registerUserRequest.getUserId().isEmpty()){
+        if(registerUserRequest.getUserId()==null || registerUserRequest.getUserId().isEmpty()
+                || registerUserRequest.getClientDeviceID()==null || registerUserRequest.getClientDeviceID().isEmpty()){
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "300",
                     "message", "insufficient data");
             return  response;
         }
-        boolean isUserPresentInDb =checkIfUserExistInDb(registerUserRequest.getUserId());
-        if (!isUserPresentInDb) {
-
+      //  boolean isUserPresentInDb =checkIfUserExistInDb(registerUserRequest.getUserId());
+        List<UserDetail> userDetails = userDetailRepository.find(registerUserRequest.getUserId());
+        boolean isClientDeviceIDPresentInDb=checkIfClientDeviceIDExistInDb(registerUserRequest.getClientDeviceID());
+        if ((null == userDetails || userDetails.isEmpty()) && ! isClientDeviceIDPresentInDb ) {
             userstatus = "userRegistered";
             String activationCode = generateActivationCode();
             String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
-            savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,clientWalletAccountid));
+            savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
+                    clientWalletAccountid,registerUserRequest.getClientDeviceID()));
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "200",
                     "message", "User has been successfully registered in the system",
                     "userDetails", savedUser,
                     "activationCode", activationCode);
             return  response;
-        } else {
+        }
+        else if((null != userDetails && !userDetails.isEmpty()) && ! isClientDeviceIDPresentInDb){
+
+
+            return null;
+
+        }
+        else {
          Map<String,Object> response=ImmutableMap.of("message", "User is already registered in the system", "responseCode", "201");
             return  response;
         }
@@ -131,6 +141,10 @@ public class UserDetailServiceImpl implements UserDetailService {
     public boolean checkIfUserExistInDb(String userName) {
         boolean isUserPresentInDb = userDetailRepository.findByUserName(userName).isPresent();
         return isUserPresentInDb;
+    }
+    public boolean checkIfClientDeviceIDExistInDb(String clientDeviceID){
+        boolean isClientDeviceIDPresentInDb=deviceDetailRepository.findByClientDeviceId(clientDeviceID).isPresent();
+        return isClientDeviceIDPresentInDb;
     }
     public String getUserstatus(String userName) {
         String userStaus = userDetailRepository.findByUserName(userName).get().getUserstatus();

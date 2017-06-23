@@ -12,11 +12,13 @@ import lombok.Setter;
 public class RegisterUserRequest {
 
     private String userId;
+    private String clientDeviceID;
 
 
-    public RegisterUserRequest(String userId) {
+    public RegisterUserRequest(String userId,String clientDeviceID) {
 
         this.userId=userId;
+        this.clientDeviceID=clientDeviceID;
     }
 
     public RegisterUserRequest() {

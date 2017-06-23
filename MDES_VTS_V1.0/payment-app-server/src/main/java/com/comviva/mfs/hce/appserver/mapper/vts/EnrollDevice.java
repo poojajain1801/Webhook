@@ -1,16 +1,15 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
-import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceResponse;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
 import com.visa.cbp.encryptionutils.common.CertMetaData;
 import com.visa.cbp.encryptionutils.common.DeviceKeyPair;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
 import lombok.Setter;
+import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
@@ -35,7 +33,8 @@ import java.util.Calendar;
 @Setter
 public class EnrollDevice extends VtsRequest {
     private String vClientID;
-    private String clientDeviceID;
+   // private String apiKey;
+    //private String clientDeviceID;
     private DevicePersoData devicePersoData;
 
     private static final long CERTIFICATE_EXPIRY_DURATION = 2l * 365 * 24 * 60 * 60 * 1000l;
@@ -53,36 +52,15 @@ public class EnrollDevice extends VtsRequest {
      */
     private JSONObject prepareDeviceInfo(VtsDeviceInfoRequest devInfo) {
         JSONObject devInfoVts = new JSONObject();
-        /*devInfoVts.put("osType", devInfo.getOsType());
-        devInfoVts.put("osVersion", devInfo.getOsVersion());
+        devInfoVts.put("osType", devInfo.getOsType());
         devInfoVts.put("deviceType", devInfo.getDeviceType());
-        devInfoVts.put("deviceName", devInfo.getDeviceName());*/
-
-        devInfoVts.put("osType","ANDROID");
-        //devInfoVts.put("osVersion", devInfo.getOsVersion());
-        devInfoVts.put("deviceType","PHONE");
-        devInfoVts.put("deviceName","Mydevice");
-
-       /* String var = devInfo.getDeviceManufacturer();
-        if (var != null) {
-            devInfoVts.put("deviceManufacturer", var);
-        }
-        var = devInfo.getDeviceModel();
-        if (var != null) {
-            devInfoVts.put("deviceModel", var);
-        }
-        var = devInfo.getHostDeviceID();
-        if (var != null) {
-            devInfoVts.put("hostDeviceID", var);
-        }
-        var = devInfo.getOsBuildID();
-        if (var != null) {
-            devInfoVts.put("osBuildID", var);
-        }
-        var = devInfo.getDeviceIDType();
-        if (var != null) {
-            devInfoVts.put("deviceIDType", var);
-        }*/
+        devInfoVts.put("deviceName", devInfo.getDeviceName());
+        devInfoVts.put("osVersion",devInfo.getOsVersion());
+        devInfoVts.put("osBuildID",devInfo.getOsBuildID());
+        devInfoVts.put("deviceIDType",devInfo.getDeviceIDType());
+        devInfoVts.put("deviceManufacturer",devInfo.getDeviceManufacturer());
+        devInfoVts.put("deviceBrand",devInfo.getDeviceBrand());
+        devInfoVts.put("deviceModel",devInfo.getDeviceModel());
         return devInfoVts;
     }
 
@@ -99,22 +77,21 @@ public class EnrollDevice extends VtsRequest {
         return regDevParams;
     }
 
-    private void generateClientDeviceId() {
-        clientDeviceID = String.format("%014X", Calendar.getInstance().getTime().getTime());
-        clientDeviceID = clientDeviceID + ArrayUtil.getHexString(ArrayUtil.getRandom(5));
+    private String generateXrequestId() {
+        String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
+        xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
+        return xRequestId;
     }
 
     public DevicePersoData getDevicePersoData() {
         return devicePersoData;
     }
-
-    // public ResponseEntity<EnrollDeviceResponse> enrollDevice(VtsDeviceInfoRequest deviceInfo) throws IOException, GeneralSecurityException {
-    public String enrollDevice(VtsDeviceInfoRequest deviceInfo) throws IOException, GeneralSecurityException {
+    public String enrollDevice(VtsDeviceInfoRequest deviceInfo,String clientDeviceID) throws IOException, GeneralSecurityException {
         /* Device Information & Init Param */
         JSONObject jsDeviceInfo = prepareDeviceInfo(deviceInfo);
         JSONObject jsDevInitParams = createDeviceInitParam();
 
-        generateClientDeviceId();
+        //generateClientDeviceId();
 
         /* VTS Certificates */
         JSONArray vtsCerts = new JSONArray();
@@ -124,15 +101,15 @@ public class EnrollDevice extends VtsRequest {
         String vtsCertificateIDSign = env.getProperty("vCertificateID_Sign");
         // VTS Encryption Key Pair
         var.put("certUsage", CertUsage.CONFIDENTIALITY.name());
-        //var.put("vCertificateID", vtsCertificateIDConf);
-        var.put("vCertificateID","f1606e98");
-
+        var.put("vCertificateID", vtsCertificateIDConf);
+        //var.put("vCertificateID","f1606e98");
         vtsCerts.put(0, var);
+
         // VTS Signature Key Pair
         var = new JSONObject();
         var.put("certUsage", CertUsage.INTEGRITY.name());
-        //var.put("vCertificateID", vtsCertificateIDSign);
-        var.put("vCertificateID","bf617210");
+        var.put("vCertificateID", vtsCertificateIDSign);
+        //var.put("vCertificateID","bf617210");
         vtsCerts.put(1, var);
 
         /* Device Certificates */
@@ -156,100 +133,73 @@ public class EnrollDevice extends VtsRequest {
         certMetaData.setNotBefore(currentTimeInMilli);
         certMetaData.setNotAfter(currentTimeInMilli + CERTIFICATE_EXPIRY_DURATION);
         certMetaData.setSubject(new X500Name("CN=Device Certificate"));
-
-        //  DeviceKeyPair devEncKeyPair = VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
-        // DeviceKeyPair devSignKeyPair = VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
-        //DeviceKeyPair devRootKeyPair=   VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
-
-        DeviceKeyPair devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair("00015C1BACA69DDD65DE0964", issuerName, certMetaData, masterPrivateKey);
-        DeviceKeyPair devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair("00015C1BACA69DDD65DE0964",issuerName, certMetaData, masterPrivateKey);
-        DeviceKeyPair devRootKeyPair=VisaSDKMapUtil.generateDeviceKeyPair("00015C1BACA69DDD65DE0964", issuerName, certMetaData, masterPrivateKey);
+        DeviceKeyPair devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
+        DeviceKeyPair devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
 
         JSONArray deviceCerts = new JSONArray();
-
-        // Device Encryption Certificate
         var = new JSONObject();
         var.put("certFormat", "X509");
         var.put("certUsage", CertUsage.CONFIDENTIALITY);
-        var.put("certValue",devEncKeyPair.getCertificate());
-        //var.put("certValue", devEncKeyPair.getCertificate().replaceAll("\n", "").replace("\r", ""));
+        byte[] b64data = Base64.encodeBase64URLSafe(devEncKeyPair.getCertificate().getBytes());
+        var.put("certValue",new String(b64data));
         deviceCerts.put(0,var);
 
         // Device Encryption Certificate
         var = new JSONObject();
         var.put("certFormat", "X509");
         var.put("certUsage", CertUsage.INTEGRITY);
-        var.put("certValue", devSignKeyPair.getCertificate());
-        //var.put("certValue", devSignKeyPair.getCertificate().replaceAll("\n", "").replace("\r", ""));
+        byte[] twoencodedBytes = Base64.encodeBase64URLSafe(devSignKeyPair.getCertificate().getBytes());
+        var.put("certValue",new String(twoencodedBytes));
         deviceCerts.put(1,var);
 
-        var = new JSONObject();
-        var.put("certFormat", "X509");
-        var.put("certUsage", CertUsage.DEVICE_ROOT);
-        var.put("certValue",devRootKeyPair.getCertificate());
-        //var.put("certValue",devRootKeyPair.getCertificate().replaceAll("\n", "").replace("\r", ""));
-        deviceCerts.put(2, var);
-
-        // Prepare channelSecurityContext
+        JSONObject encryptionScheme=new JSONObject();
+        encryptionScheme.put("encryptionScheme","RSA_PKI");
+       // Prepare channelSecurityContext
         JSONObject channelSecurityContext = new JSONObject();
         channelSecurityContext.put("deviceCerts", deviceCerts);
         channelSecurityContext.put("vtsCerts", vtsCerts);
-        JSONObject encryptionScheme=new JSONObject();
-        encryptionScheme.put("encryptionScheme","RSA_PKI");
+        channelSecurityContext.put("channelInfo",encryptionScheme);
+
         /* Prepare Enroll Device Request */
         jsonRequest.put("deviceInfo", jsDeviceInfo);
-        // jsonRequest.put("deviceInitParams", jsDevInitParams);
         jsonRequest.put("channelSecurityContext", channelSecurityContext);
-        jsonRequest.put("channelInfo",encryptionScheme);
         String requestBody = jsonRequest.toString();
 
-
-        prepareHeader(ArrayUtil.getHexString(ArrayUtil.getRandom(36)),
-                RequestId.ENROLL_DEVICE, "apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc", requestBody);
-
+        JSONObject object=new JSONObject(requestBody);
+        requestBody=object.toString();
+        JSONObject prepareHeaderRequest=new JSONObject();
+        prepareHeaderRequest.put("xRequestId",generateXrequestId());
+        prepareHeaderRequest.put("queryString","apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc");
+        prepareHeaderRequest.put("resourcePath","vts/clients/"+vClientID+"/devices/"+clientDeviceID);
+        prepareHeaderRequest.put("requestBody",requestBody);
+        prepareHeader(prepareHeaderRequest);
         final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
-
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
         requestFactory.setProxy(proxy);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
-        final String sandBoxUrl = vtsUrl + PATH_SEPARATOR
-                + RequestId.ENROLL_DEVICE.getResourcePath() + PATH_SEPARATOR
-                + vClientID + PATH_SEPARATOR + "devices" + PATH_SEPARATOR
-                + clientDeviceID + "?apiKey=" + apiKey;
-        // URL url = new URL(sandBoxUrl);
-        // ResponseEntity<EnrollDeviceResponse> responseEntity = restTemplate.postForEntity(sandBoxUrl, entity, EnrollDeviceResponse.class);
-
-        //ResponseEntity<EnrollDeviceResponse> responseEntity = restTemplate.exchange(sandBoxUrl,HttpMethod.PUT,entity,EnrollDeviceResponse.class);
-        //ResponseEntity<String> response= new ResponseEntity;
+        final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
+        JSONObject jsonObject = null;
+        JSONObject jsonResponse=null;
         try {
             ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);
-            //  result=response.toString();
-            System.out.println("response is "+response.toString());
+            jsonResponse=new JSONObject();
+            jsonResponse.put("statusCode",String.valueOf(response.getStatusCode().value()));
+            jsonResponse.put("statusMessage",String.valueOf(response.getStatusCode().getReasonPhrase()));
+            result=response.getBody();
+            jsonObject=new JSONObject(result);
+            jsonObject.put("devEncKeyPair",devEncKeyPair);
+            jsonObject.put("devEncCertificate",new String(b64data));
+            jsonObject.put("devSignKeyPair",devSignKeyPair);
+            jsonObject.put("devSignCertificate",new String(twoencodedBytes));
+            jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
-            e.printStackTrace();
-            // JSONObject jsonObject =new JSONObject(result);
+            jsonResponse=new JSONObject();
+            jsonResponse.put("statusCode",e.getMessage());
+            jsonResponse.put("statusMessage","unauthorised");
+            return jsonResponse.toString();
         }
-        //    System.out.println(response.toString());
-        //System.out.println("\nSTATUS : "+ response.getStatusCode()+" "+response.getStatusCode().getReasonPhrase());
-        // System.out.println("details :"+ response.getBody());
-        // Prepare device personalization data
-        /*EnrollDeviceResponse enrollDevResp = responseEntity.getBody();
-        devicePersoData.setDeviceId(clientDeviceID);
-        devicePersoData.setDeviceSalt(ArrayUtil.getHexString(ArrayUtil.getRandom(32)));
-        devicePersoData.setMapKey(env.getProperty("mapKey"));
-        devicePersoData.setMapSalt(env.getProperty("mapSalt"));
-        devicePersoData.setWalletAccountId(env.getProperty("walletAccountId"));
-        devicePersoData.setServerEntropy(enrollDevResp.getVServerNonce());
-        devicePersoData.setEncExpoHex(devEncKeyPair.getPrivateKeyHex());
-        devicePersoData.setEncCert(devEncKeyPair.getCertificate());
-        devicePersoData.setSignExpoHex(devSignKeyPair.getPrivateKeyHex());
-        devicePersoData.setSignCert(devSignKeyPair.getCertificate());*/
-
-        return "null";
+        return jsonResponse.toString();
     }
-
-
-
 }

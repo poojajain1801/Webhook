@@ -14,6 +14,7 @@ import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceResponse;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.google.common.collect.ImmutableMap;
+import com.sun.xml.internal.bind.v2.TODO;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,87 +51,72 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Override
     @Transactional
     public Map<String,Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
+        boolean mdes=false;
+        boolean vts=false;
         String vClientID = env.getProperty("vClientID");
         Map<String,Object> response=new HashMap();
         response = validate(enrollDeviceRequest);
-
         if(!response.get("responseCode").equals("200")) {
+
             return response;
         }
+
+        // *********************MDES : Check device eligibility from MDES api.************************
         // MDES : Check device eligibility from MDES api.
+        Map mdesRespMap=new HashMap();
+        Map vtsRespMap=new HashMap();
+        //JSONObject mdesResponse=new JSONObject();
         DeviceRegistrationMdes devRegMdes = new DeviceRegistrationMdes();
         devRegMdes.setEnrollDeviceRequest(enrollDeviceRequest);
         boolean isMdesDevElib = devRegMdes.checkDeviceEligibility();
         if (!isMdesDevElib) {
             //throw error device not eligible.
-            response.put("mdesMessage", "Device is not eligible");
-            response.put("mdesResponseCode", "207");
-            //return response;
+            mdesRespMap.put("mdesMessage", "Device is not eligible");
+            mdesRespMap.put("mdesResponseCode", "207");
+            response.put("mdesFinalCode", "201");
+            response.put("mdesFinalMessage", "NOTOK");
         }
-           if(isMdesDevElib) {
-               // MDES : Register with CMS-d
-               DeviceRegistrationResponse devRegRespMdes = devRegMdes.registerDevice();
-               String respCodeMdes = devRegRespMdes.getResponse().get("responseCode").toString();
-               // If registration fails for MDES return error
-               if (!respCodeMdes.equalsIgnoreCase("200")) {
-                   response.put("mdesResponseCode", devRegRespMdes.getResponse().get("responseCode").toString());
-                   response.put("mdesMessage", devRegRespMdes.getResponse().get("message").toString());
-                   //return response;
+        DeviceRegistrationResponse devRegRespMdes = null;
+        if (isMdesDevElib) {
+            // MDES : Register with CMS-d
+            devRegRespMdes = devRegMdes.registerDevice();
+            String respCodeMdes = devRegRespMdes.getResponse().get("responseCode").toString();
+            // If registration fails for MDES return error
+            if (!respCodeMdes.equalsIgnoreCase("200")) {
+                mdesRespMap.put("mdesResponseCode", devRegRespMdes.getResponse().get("responseCode").toString());
+                mdesRespMap.put("mdesMessage", devRegRespMdes.getResponse().get("message").toString());
+                response.put("mdesFinalCode", "201");
+                response.put("mdesFinalMessage", "NOTOK");
 
-               }
+            }else{
+                    response.put("mdesFinalCode", "200");
+                    response.put("mdesFinalMessage", "OK");
+            }
 
-           }
-        // VTS : Register with VTS
-        // Prepare deviceInfo
+        }
+
+        // *******************VTS : Register with VTS Start**********************
         EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
         enrollDeviceVts.setEnv(env);
         enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
-        ResponseEntity<EnrollDeviceResponse> vtsResp = enrollDeviceVts.register(vClientID);
-        if(!vtsResp.getStatusCode().is2xxSuccessful()) {
-            response.put("vtsMessage", vtsResp.getStatusCode().getReasonPhrase());
-            response.put("vtsResponseCode", vtsResp.getStatusCode().value());
-            return response;
+        String vtsResp = enrollDeviceVts.register(vClientID);
+        JSONObject vtsJsonObject=new JSONObject(vtsResp);
+        if(!vtsJsonObject.get("statusCode").equals("200")) {
+            vtsRespMap.put("vtsMessage",vtsJsonObject.get("statusMessage") );
+            vtsRespMap.put("vtsResponseCode",vtsJsonObject.get("statusCode"));
+            response.put("visaFinalCode", "201");
+            response.put("visaFinalMessage", "NOTOK");
+            response.put("vts",vtsRespMap);
+        }else{
+            response.put("vts",vtsResp);
+            response.put("visaFinalCode", "200");
+            response.put("visaFinalMessage", "OK");
         }
-        EnrollDeviceResponse enrollDeviceResp = vtsResp.getBody();
-        // TODO Save Device Detail
-        //DeviceInfoRequest deviceInfo = enrollDeviceRequest.getMdes().getDeviceInfo();
-       // deviceInfo.setUserName(regDeviceParam.getUserId());
-        //deviceInfo.setPaymentAppInstanceId(regDeviceParam.getPaymentAppInstanceId());
-        //deviceInfo.setClientDeviceId(enrollDeviceResp.getClientDeviceID());
-        //deviceInfo.setVClientId(enrollDeviceResp.getVClientID());
-        //deviceDetailRepository.save(enrollDeviceRequest.getMdes().getDeviceInfo());
-
-        // Append VTS response
-       // Map respMap = devRegRespMdes.getResponse();
-        // MDES response
-        Map mdesRespMap = ImmutableMap.builder().build();
-        mdesRespMap.put("mobileKeysetId", "");
-        mdesRespMap.put("responseHost", "site1.cmsd.com");
-        mdesRespMap.put("remoteManagementUrl", "");
-        Map mdesMobKeys = ImmutableMap.builder().build();
-        mdesMobKeys.put("transportKey", "");
-        mdesMobKeys.put("macKey", "");
-        mdesMobKeys.put("dataEncryptionKey", "");
-        mdesRespMap.put("mobKeys", mdesMobKeys);
-
-        // VTS Response
-        Map vtsRespMap = ImmutableMap.builder().build();
-        vtsRespMap.put("clientDeviceID",enrollDeviceResp.getClientDeviceID());
-        vtsRespMap.put("vClientID", enrollDeviceResp.getVClientID());
-        vtsRespMap.put("deviceInitParams", enrollDeviceResp.getDeviceInitParams());
-        Map vtsEncDevPersoDataMap = ImmutableMap.builder().build();
-        EncDevicePersoData encDevicePersoData = enrollDeviceVts.getEncDevicePersoData();
-        vtsEncDevPersoDataMap.put("deviceId", encDevicePersoData.getDeviceId());
-        vtsEncDevPersoDataMap.put("encCert", encDevicePersoData.getEncCert());  		//VTS EncPubKey
-        vtsEncDevPersoDataMap.put("encExpo", encDevicePersoData.getEncExpo());			//Dev DecPrKey
-        vtsEncDevPersoDataMap.put("encryptedDPM", encDevicePersoData.getEncryptedDPM());
-        vtsEncDevPersoDataMap.put("signCert", encDevicePersoData.getSignCert());		//VTS VerifyPubKey
-        vtsEncDevPersoDataMap.put("signExpo", encDevicePersoData.getSignExpo());		//Dev SignPrKey
-        vtsEncDevPersoDataMap.put("walletAccountId", encDevicePersoData.getWalletAccountId());
-        vtsRespMap.put("encDevicePersoData", vtsEncDevPersoDataMap);
-
+        //******************VTS :Register with END***********************************
         response.put("mdes", mdesRespMap);
-        response.put("vts", vtsRespMap);
+        //********************push device status in db START**************************
+
+        //********************push device status in db END**************************
         return response;
     }
     private Map<String,Object> validate(EnrollDeviceRequest enrollDeviceRequest) {

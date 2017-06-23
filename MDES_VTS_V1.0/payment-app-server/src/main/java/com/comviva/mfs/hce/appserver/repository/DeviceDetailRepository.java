@@ -13,5 +13,6 @@ import java.util.Optional;
 public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String>{
     Optional<DeviceInfo> findByImei(String imei);
     Optional<DeviceInfo> findByPaymentAppInstanceId(String payment_app_instance_id);
+    Optional<DeviceInfo> findByClientDeviceId(String clientDeviceId);
 
 }

@@ -1,16 +1,17 @@
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
 import lombok.Setter;
+import org.json.JSONObject;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Calendar;
 
 /** Send enroll device request to VTS */
 // 1. Prepare Device Info
@@ -44,29 +45,59 @@ public class EnrollDeviceVts {
     private Environment env;
     private EncDevicePersoData encDevicePersoData;
     private EnrollDeviceRequest enrollDeviceRequest;
+    private DevicePersoData devicePersoData;
 
+    public EnrollDeviceVts () {
+        devicePersoData=new DevicePersoData();
+    }
     public EncDevicePersoData getEncDevicePersoData() {
         return encDevicePersoData;
     }
-
-   // public ResponseEntity<EnrollDeviceResponse> register(final String vClientID) {
      public String register(final String vClientID) {
-        // Enroll device with VTS
         EnrollDevice enrollDevice = new EnrollDevice(env);
         enrollDevice.setVClientID(vClientID);
-        //ResponseEntity<EnrollDeviceResponse> response = null;
         String response="";
         try {
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo());
+            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-       // EnrollDeviceResponse enrollDevResp = response.getBody();
-        encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(enrollDevice.getDevicePersoData());
-
-        return response;
+        JSONObject jsonObject=new JSONObject(response);
+        if("200".equals(jsonObject.get("statusCode"))) {
+            devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
+            String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());
+            DeviceSalt = DeviceSalt + ArrayUtil.getHexString(ArrayUtil.getRandom(9));
+            devicePersoData.setDeviceSalt(DeviceSalt);
+            devicePersoData.setMapKey(env.getProperty("mapKey"));
+            devicePersoData.setMapSalt(env.getProperty("mapSalt"));
+            devicePersoData.setWalletAccountId(env.getProperty("walletAccountId"));
+            devicePersoData.setServerEntropy((String) jsonObject.getJSONObject("responseBody").get("vServerNonce"));
+            devicePersoData.setEncExpoHex((String) jsonObject.getJSONObject("responseBody").get("devEncKeyPair"));
+            devicePersoData.setEncCert((String) jsonObject.getJSONObject("responseBody").get("devEncCertificate"));
+            devicePersoData.setSignExpoHex((String) jsonObject.getJSONObject("responseBody").get("devSignKeyPair"));
+            devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
+             try {
+                 encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
+             }catch (Exception e){
+                 jsonObject =new JSONObject();
+                 jsonObject.put("statusCode","444");
+                 jsonObject.put("statusMessage","Error while Encrypting Device PersoData");
+                 jsonObject.put("Error Message",e.getMessage());
+                 return jsonObject.toString();
+             }
+             JSONObject devicePersoDataObject=new JSONObject();
+             devicePersoDataObject.put("deviceId",encDevicePersoData.getDeviceId());
+             devicePersoDataObject.put("walletAccountId",encDevicePersoData.getWalletAccountId());
+            devicePersoDataObject.put("encryptedDPM",encDevicePersoData.getEncryptedDPM());
+            devicePersoDataObject.put("signExpo",encDevicePersoData.getSignExpo());
+            devicePersoDataObject.put("encExpo",encDevicePersoData.getEncExpo());
+            devicePersoDataObject.put("signCert",encDevicePersoData.getSignCert());
+            devicePersoDataObject.put("encCert",encDevicePersoData.getEncCert());
+            jsonObject.put("encDevicePersoData", devicePersoDataObject);
+        }
+        return jsonObject.toString();
     }
 
     private void enrollDevice() {

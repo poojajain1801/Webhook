@@ -104,11 +104,16 @@ public class DeviceRegistrationMdes {
         try {
             response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
         }catch (Exception e){
-
+                e.printStackTrace();
         }
-        System.out.println("Response = " + response);
-        JSONObject jsonResponse = new JSONObject(response);
-        return jsonResponse.has("eligibilityReceipt");
+        if("".equals(response)||response==null){
+            return false;
+        }else{
+            System.out.println("Response = " + response);
+            JSONObject jsonResponse = new JSONObject(response);
+            return jsonResponse.has("eligibilityReceipt");
+        }
+
     }
 
 }
