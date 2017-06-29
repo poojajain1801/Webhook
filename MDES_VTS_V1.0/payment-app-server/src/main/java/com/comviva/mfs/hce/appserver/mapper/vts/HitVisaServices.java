@@ -29,7 +29,7 @@ public class HitVisaServices extends VtsRequest {
         String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
         xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
         prepareHeaderRequest.put("xRequestId",xRequestId);
-        prepareHeaderRequest.put("queryString","apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc");
+        prepareHeaderRequest.put("queryString","apiKey="+env.getProperty("apiKey"));
         prepareHeaderRequest.put("resourcePath","vts/panEnrollments");
         prepareHeaderRequest.put("requestBody",requestBody);
         prepareHeader(prepareHeaderRequest);

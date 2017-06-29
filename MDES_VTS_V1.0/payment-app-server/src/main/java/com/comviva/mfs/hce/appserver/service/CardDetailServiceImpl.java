@@ -338,7 +338,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         //JWTUtility jwtUtility=new JWTUtility();
         String EncPaymentInstrument = null;
        //try {
-            EncPaymentInstrument = JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),"R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc","SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2");
+            EncPaymentInstrument = JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),env.getProperty("apiKey"),env.getProperty("sharedSecret"));
         //     EncPaymentInstrument = JWTUtility.createSharedSecretJwe(objectMapper.writeValueAsString(enrollPanRequest.getEncPaymentInstrument()).toString(),"R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc","SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2");
         //} catch (JsonProcessingException e) {
          //   e.printStackTrace();
@@ -356,7 +356,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         HitVisaServices hitVisaServices = new HitVisaServices(env);
        String response ="";
           try {
-              response = hitVisaServices.restfulServiceConsumerVisa("https://sandbox.digital.visa.com/vts/panEnrollments?apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc",objectMapper.writeValueAsString(map), map);
+              response = hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments?apiKey="+env.getProperty("apiKey"),objectMapper.writeValueAsString(map), map);
+              //response = hitVisaServices.restfulServiceConsumerVisa("https://sandbox.digital.visa.com/vts/panEnrollments?apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc",objectMapper.writeValueAsString(map), map);
          } catch (JsonProcessingException e) {
            e.printStackTrace();
        }
