@@ -1,6 +1,7 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import java.io.File;
@@ -29,6 +31,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.List;
 
 @Setter
 public class EnrollDevice extends VtsRequest {
@@ -90,9 +93,6 @@ public class EnrollDevice extends VtsRequest {
         /* Device Information & Init Param */
         JSONObject jsDeviceInfo = prepareDeviceInfo(deviceInfo);
         JSONObject jsDevInitParams = createDeviceInitParam();
-
-        //generateClientDeviceId();
-
         /* VTS Certificates */
         JSONArray vtsCerts = new JSONArray();
         JSONObject var = new JSONObject();
@@ -158,6 +158,8 @@ public class EnrollDevice extends VtsRequest {
         JSONObject channelSecurityContext = new JSONObject();
         channelSecurityContext.put("deviceCerts", deviceCerts);
         channelSecurityContext.put("vtsCerts", vtsCerts);
+
+
         channelSecurityContext.put("channelInfo",encryptionScheme);
 
         /* Prepare Enroll Device Request */
@@ -193,8 +195,25 @@ public class EnrollDevice extends VtsRequest {
             jsonObject.put("devEncCertificate",new String(b64data));
             jsonObject.put("devSignKeyPair",devSignKeyPair);
             jsonObject.put("devSignCertificate",new String(twoencodedBytes));
+
+            jsonObject.put("vtsCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY.name());
+            jsonObject.put("vtsCerts-vCertificateID-confidentiality",vtsCertificateIDConf);
+
+            jsonObject.put("vtsCerts-certUsage-integrity",CertUsage.INTEGRITY.name());
+            jsonObject.put("vtsCerts-vCertificateID-integrity",vtsCertificateIDSign);
+
+            jsonObject.put("deviceCerts-certFormat-confidentiality","X509");
+            jsonObject.put("deviceCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY);
+            jsonObject.put("deviceCerts-certValue-confidentiality",new String(b64data));
+
+            jsonObject.put("deviceCerts-certFormat-integrity","X509");
+            jsonObject.put("deviceCerts-certUsage-integrity",CertUsage.INTEGRITY);
+            jsonObject.put("deviceCerts-certValue-integrity",new String(twoencodedBytes));
+
+
             jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
+           // ((HttpClientErrorException)e).getResponseBodyAsString();
             jsonResponse=new JSONObject();
             jsonResponse.put("statusCode",e.getMessage());
             jsonResponse.put("statusMessage","unauthorised");

@@ -15,7 +15,7 @@ public class EnrollPanRequest {
     private String activationCode;
     private String clientAppId;
     private String clientWalletAccountId;
-    private String clientDeviceId;
+    private String clientDeviceID;
     private String locale;
     private String panSource;
     private String consumerEntryMode;
@@ -25,12 +25,12 @@ public class EnrollPanRequest {
     private ChannelSecurityContext channelSecurityContext;
 
 
-   public EnrollPanRequest(String userId,String activationCode,String clientAppId, String clientWalletAccountId, String clientDeviceId, String locale, String panSource, String consumerEntryMode,EncPaymentInstrument encPaymentInstrument,String encryptionMetaData,String platformType,ChannelSecurityContext channelSecurityContext) {
+   public EnrollPanRequest(String userId,String activationCode,String clientAppId, String clientWalletAccountId, String clientDeviceID, String locale, String panSource, String consumerEntryMode,EncPaymentInstrument encPaymentInstrument,String encryptionMetaData,String platformType,ChannelSecurityContext channelSecurityContext) {
         this.userId=userId;
         this.activationCode=activationCode;
         this.clientAppId=clientAppId;
         this.clientWalletAccountId = clientWalletAccountId;
-        this.clientDeviceId = clientDeviceId;
+        this.clientDeviceID = clientDeviceID;
         this.locale = locale;
         this.panSource = panSource;
         this.consumerEntryMode = consumerEntryMode;

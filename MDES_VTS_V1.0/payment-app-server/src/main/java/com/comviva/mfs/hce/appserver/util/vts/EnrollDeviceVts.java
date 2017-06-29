@@ -64,7 +64,13 @@ public class EnrollDeviceVts {
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-        JSONObject jsonObject=new JSONObject(response);
+         return encDevicePersoData(response);
+    }
+
+
+    //method to create encDevicePersoData
+    public String encDevicePersoData(String inputString){
+        JSONObject jsonObject=new JSONObject(inputString);
         if("200".equals(jsonObject.get("statusCode"))) {
             devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
             String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());
@@ -78,30 +84,31 @@ public class EnrollDeviceVts {
             devicePersoData.setEncCert((String) jsonObject.getJSONObject("responseBody").get("devEncCertificate"));
             devicePersoData.setSignExpoHex((String) jsonObject.getJSONObject("responseBody").get("devSignKeyPair"));
             devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
-             try {
-                 encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
-             }catch (Exception e){
-                 jsonObject =new JSONObject();
-                 jsonObject.put("statusCode","444");
-                 jsonObject.put("statusMessage","Error while Encrypting Device PersoData");
-                 jsonObject.put("Error Message",e.getMessage());
-                 return jsonObject.toString();
-             }
-             JSONObject devicePersoDataObject=new JSONObject();
-             devicePersoDataObject.put("deviceId",encDevicePersoData.getDeviceId());
-             devicePersoDataObject.put("walletAccountId",encDevicePersoData.getWalletAccountId());
-            devicePersoDataObject.put("encryptedDPM",encDevicePersoData.getEncryptedDPM());
-            devicePersoDataObject.put("signExpo",encDevicePersoData.getSignExpo());
-            devicePersoDataObject.put("encExpo",encDevicePersoData.getEncExpo());
-            devicePersoDataObject.put("signCert",encDevicePersoData.getSignCert());
-            devicePersoDataObject.put("encCert",encDevicePersoData.getEncCert());
+            try {
+                encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
+            } catch (Exception e) {
+                jsonObject = new JSONObject();
+                jsonObject.put("statusCode", "444");
+                jsonObject.put("statusMessage", "Error while Encrypting Device PersoData");
+                jsonObject.put("Error Message", e.getMessage());
+                return jsonObject.toString();
+            }
+            JSONObject devicePersoDataObject = new JSONObject();
+            devicePersoDataObject.put("deviceId", encDevicePersoData.getDeviceId());
+            devicePersoDataObject.put("walletAccountId", encDevicePersoData.getWalletAccountId());
+            devicePersoDataObject.put("encryptedDPM", encDevicePersoData.getEncryptedDPM());
+            devicePersoDataObject.put("signExpo", encDevicePersoData.getSignExpo());
+            devicePersoDataObject.put("encExpo", encDevicePersoData.getEncExpo());
+            devicePersoDataObject.put("signCert", encDevicePersoData.getSignCert());
+            devicePersoDataObject.put("encCert", encDevicePersoData.getEncCert());
             jsonObject.put("encDevicePersoData", devicePersoDataObject);
         }
         return jsonObject.toString();
     }
-
+    //end
     private void enrollDevice() {
 
     }
+
 
 }

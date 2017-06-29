@@ -13,11 +13,13 @@ public class ActivateUserRequest {
 
     private String userId;
     private String activationCode;
+    private String clientDeviceID;
 
-    public ActivateUserRequest(String userId, String activationCode) {
+    public ActivateUserRequest(String userId, String activationCode,String clientDeviceID) {
 
         this.userId=userId;
         this.activationCode=activationCode;
+        this.clientDeviceID=clientDeviceID;
     }
 
     public ActivateUserRequest() {

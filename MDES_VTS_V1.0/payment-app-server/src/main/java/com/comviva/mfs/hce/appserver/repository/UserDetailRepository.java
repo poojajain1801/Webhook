@@ -16,9 +16,11 @@ import java.util.Optional;
 @Repository
 public interface UserDetailRepository extends JpaRepository<UserDetail, String>{
     Optional<UserDetail> findByUserName(String userName);
+
     @Query("Select distinct mp from UserDetail mp where mp.userName =:userName")
-    //Map<String,Object> find(@Param("userName") String userName);
     List<UserDetail>find(@Param("userName") String userName);
-    //Optional<UserDetail> findByClientDeviceId(String clientDeviceId);
+
+    @Query("Select distinct mp from UserDetail mp where mp.clientDeviceId =:clientDeviceId")
+    List<UserDetail> findByClientDeviceId(@Param("clientDeviceId")String clientDeviceId);
 
 }

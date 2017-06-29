@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.mapper.UserRegistrationResponse;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
@@ -37,6 +38,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     }
     UserDetail savedUser;
     String userstatus;
+    String devicestatus;
 
     @Override
     @Transactional
@@ -48,10 +50,33 @@ public class UserDetailServiceImpl implements UserDetailService {
                     "message", "insufficient data");
             return  response;
         }
-      //  boolean isUserPresentInDb =checkIfUserExistInDb(registerUserRequest.getUserId());
         List<UserDetail> userDetails = userDetailRepository.find(registerUserRequest.getUserId());
-        boolean isClientDeviceIDPresentInDb=checkIfClientDeviceIDExistInDb(registerUserRequest.getClientDeviceID());
-        if ((null == userDetails || userDetails.isEmpty()) && ! isClientDeviceIDPresentInDb ) {
+        List<DeviceInfo> deviceInfo=deviceDetailRepository.find(registerUserRequest.getClientDeviceID());
+        if ((null == userDetails || userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())) {
+            userstatus = "userRegistered";
+            String activationCode = generateActivationCode();
+            String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
+            savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
+                    clientWalletAccountid,registerUserRequest.getClientDeviceID()));
+            deviceDetailRepository.save(new DeviceInfo(null,null,null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+            Map <String, Object> response = ImmutableMap.of(
+                    "responseCode", "200",
+                    "message", "User has been successfully registered in the system,Please Activate using below activation code",
+                   "userDetails", savedUser,
+                    "activationCode", activationCode);
+            return  response;
+        }
+        else if((null != userDetails || !userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())){
+            deviceDetailRepository.save(new DeviceInfo(null,null,null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+            userDetails.get(0).setClientDeviceId(registerUserRequest.getClientDeviceID());
+            userDetailRepository.save(userDetails.get(0));
+            Map <String, Object> response = ImmutableMap.of(
+                    "responseCode", "200",
+                    "message", "User has been successfully registered in the system,Please Activate using below activation code",
+                    "userDetails", userDetails.get(0),
+                    "activationCode", userDetails.get(0).getActivationCode());
+            return  response;
+        }else if ((null == userDetails || userDetails.isEmpty()) && (null !=deviceInfo || !deviceInfo.isEmpty())){
             userstatus = "userRegistered";
             String activationCode = generateActivationCode();
             String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
@@ -59,26 +84,54 @@ public class UserDetailServiceImpl implements UserDetailService {
                     clientWalletAccountid,registerUserRequest.getClientDeviceID()));
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "200",
-                    "message", "User has been successfully registered in the system",
+                    "message", "User has been successfully registered in the system ,Activate account with below Activaction code",
                     "userDetails", savedUser,
                     "activationCode", activationCode);
             return  response;
         }
-        else if((null != userDetails && !userDetails.isEmpty()) && ! isClientDeviceIDPresentInDb){
-
-
-            return null;
-
-        }
         else {
-         Map<String,Object> response=ImmutableMap.of("message", "User is already registered in the system", "responseCode", "201");
-            return  response;
-        }
+            if("userRegistered".equals(userDetails.get(0).getUserstatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+                Map <String, Object> response = ImmutableMap.of(
+                        "responseCode", "200",
+                        "message", "User already  registered in the system ,Activate account with below Activaction code",
+                        "userDetails", userDetails.get(0),
+                        "activationCode", userDetails.get(0).getActivationCode());
+                return  response;
+            }else if("userActivated".equals(userDetails.get(0).getUserstatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+                Map <String, Object> response = ImmutableMap.of(
+                        "responseCode", "200",
+                        "message", "User already  registered in the system ,Activate account with below Activaction code",
+                        "userDetails", userDetails.get(0),
+                        "activationCode", userDetails.get(0).getActivationCode());
+                return  response;
+            }else if("userRegistered".equals(userDetails.get(0).getUserstatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+                Map <String, Object> response = ImmutableMap.of(
+                        "responseCode", "200",
+                        "message", "User already  registered in the system ,Activate account with below Activaction code",
+                        "userDetails", userDetails.get(0),
+                        "activationCode", userDetails.get(0).getActivationCode());
+                return  response;
+            }else{
+                if(userDetails.get(0).getClientDeviceId().equals(deviceInfo.get(0).getClientDeviceId()) && "userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus()) ){
+                    Map <String, Object> response = ImmutableMap.of(
+                            "responseCode", "200",
+                            "message", "User already  registered in the system",
+                            "userDetails", userDetails.get(0),
+                            "activationCode", userDetails.get(0).getActivationCode());
+                    return  response;
+
+                }else{
+                    Map <String, Object> response = ImmutableMap.of(
+                            "responseCode", "200",
+                            "message", "User already  registered in the system ,Activate account with below Activaction code",
+                            "userDetails", userDetails.get(0),
+                            "activationCode", userDetails.get(0).getActivationCode());
+                    return  response;
+                }
+            }
+            }
     }
-
     public Map<String,Object> activateUser(ActivateUserRequest activateUserRequest) {
-
-
         if(activateUserRequest.getUserId()==null || activateUserRequest.getActivationCode()==null ||
                 activateUserRequest.getUserId().isEmpty() || activateUserRequest.getActivationCode().isEmpty()){
             Map <String, Object> response = ImmutableMap.of(
@@ -86,37 +139,40 @@ public class UserDetailServiceImpl implements UserDetailService {
                     "message", "insufficient data");
             return  response;
         }
+        List<UserDetail> userDetails = userDetailRepository.find(activateUserRequest.getUserId());
+        List<DeviceInfo> deviceInfo=deviceDetailRepository.find(activateUserRequest.getClientDeviceID());
         userstatus = "userActivated";
-
-        boolean isUserPresentInDb = userDetailRepository.findByUserName(activateUserRequest.getUserId()).isPresent();
-        //boolean checkUserStatus = getUserstatus(userName).equalsIgnoreCase(userstatus);
-
-        if(!isUserPresentInDb)
-        {
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "203");
+        devicestatus="deviceActivated";
+        if((null == userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
+            Map<String, Object> response = ImmutableMap.of("message", "Invalid User please Register or device not registred in system", "responseCode", "203");
             return response;
         }
-        savedUser = userDetailRepository.findByUserName(activateUserRequest.getUserId()).get();
-        if(getUserstatus(activateUserRequest.getUserId()).equalsIgnoreCase(userstatus))
-        {
-            Map <String, Object> response =ImmutableMap.of("message", "User is Already Activated", "responseCode", "204");
-            return response;
+        else {
+            if(!userDetails.get(0).getActivationCode().equals(activateUserRequest.getActivationCode())){
+                //activaction code problem.
+                Map <String, Object> response =ImmutableMap.of("message", "Wrong activaction Code", "responseCode", "202");
+                return response;
+            }else{
+            List<UserDetail> userDevice = userDetailRepository.findByClientDeviceId(activateUserRequest.getClientDeviceID());
+           // if("userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+               if(null !=userDevice && !userDevice.isEmpty()) {
+                   for (int i = 0; i <userDetails.size(); i++){
+                       if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
+                           userDevice.get(i).setClientDeviceId("CD");
+                           userDetailRepository.save(userDevice.get(i));
+                       }
+               }
+                }
+                userDetails.get(0).setUserstatus(userstatus);
+                userDetails.get(0).setClientDeviceId(activateUserRequest.getClientDeviceID());
+                userDetailRepository.save(userDetails.get(0));
+                deviceInfo.get(0).setDeviceStatus(devicestatus);
+                deviceDetailRepository.save(deviceInfo.get(0));
         }
-
-            String strActivationCode = getActivationCode(activateUserRequest.getUserId());
-            if (strActivationCode.equalsIgnoreCase(activateUserRequest.getActivationCode())) {
-
-                savedUser.setUserstatus(userstatus);
-                userDetailRepository.save(savedUser);
-                Map <String, Object> response =ImmutableMap.of("message", "User is activated", "responseCode", "200");
-                return response;
-            }
-            else {
-                Map<String, Object> response = ImmutableMap.of("message", "Invalid Acivation Code", "responseCode", "202");
-                return response;
-            }
+        }
+        Map <String, Object> response =ImmutableMap.of("message", "User is activated", "responseCode", "200");
+        return response;
     }
-
     /**
      * Implementation for generating activation code is required
      *

@@ -2,10 +2,13 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.vts.CertUsage;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
+import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HttpRestHandeler;
@@ -14,7 +17,7 @@ import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceResponse;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.google.common.collect.ImmutableMap;
-import com.sun.xml.internal.bind.v2.TODO;
+//import com.sun.xml.internal.bind.v2.TODO;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,14 +38,16 @@ import java.util.Map;
 public class DeviceDetailServiceImpl implements DeviceDetailService {
     private final DeviceDetailRepository deviceDetailRepository;
     private final UserDetailService userDetailService;
+    private final UserDetailRepository userDetailRepository;
 
     @Autowired
     private Environment env;
 
     @Autowired
-    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService) {
+    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
+        this.userDetailRepository=userDetailRepository;
     }
 
     /**
@@ -51,16 +57,15 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Override
     @Transactional
     public Map<String,Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
-        boolean mdes=false;
-        boolean vts=false;
         String vClientID = env.getProperty("vClientID");
         Map<String,Object> response=new HashMap();
-        response = validate(enrollDeviceRequest);
-        if(!response.get("responseCode").equals("200")) {
 
+        List<UserDetail> userDetails = userDetailRepository.find(enrollDeviceRequest.getUserId());
+        List<DeviceInfo> deviceInfo=deviceDetailRepository.find(enrollDeviceRequest.getClientDeviceID());
+        response = validate(enrollDeviceRequest,userDetails,deviceInfo);
+        if(!response.get("responseCode").equals("200")) {
             return response;
         }
-
         // *********************MDES : Check device eligibility from MDES api.************************
         // MDES : Check device eligibility from MDES api.
         Map mdesRespMap=new HashMap();
@@ -75,6 +80,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             mdesRespMap.put("mdesResponseCode", "207");
             response.put("mdesFinalCode", "201");
             response.put("mdesFinalMessage", "NOTOK");
+            response.put("mdes", mdesRespMap);
         }
         DeviceRegistrationResponse devRegRespMdes = null;
         if (isMdesDevElib) {
@@ -87,15 +93,24 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 mdesRespMap.put("mdesMessage", devRegRespMdes.getResponse().get("message").toString());
                 response.put("mdesFinalCode", "201");
                 response.put("mdesFinalMessage", "NOTOK");
+                response.put("mdes", mdesRespMap);
 
             }else{
+                    response.put("mdes", devRegRespMdes.getResponse());
                     response.put("mdesFinalCode", "200");
                     response.put("mdesFinalMessage", "OK");
+                deviceInfo.get(0).setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+                deviceInfo.get(0).setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
+                deviceInfo.get(0).setMastercardEnabled("Y");
+                deviceInfo.get(0).setMastercardMessage("OK");
+                deviceDetailRepository.save(deviceInfo.get(0));
             }
 
         }
 
         // *******************VTS : Register with VTS Start**********************
+
+
         EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
         enrollDeviceVts.setEnv(env);
         enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
@@ -109,33 +124,60 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             response.put("vts",vtsRespMap);
         }else{
             response.put("vts",vtsResp);
+            //DeviceInfo deviceInfo=new DeviceInfo();
+
+            deviceInfo.get(0).setVisaEnabled("Y");
+            deviceInfo.get(0).setVisaMessage("OK");
+
+            deviceInfo.get(0).setVtscerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-confidentiality"));
+            deviceInfo.get(0).setVtscerts_vcertificateid_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-vCertificateID-confidentiality"));
+
+            deviceInfo.get(0).setVtscerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-integrity"));
+            deviceInfo.get(0).setVtscerts_vcertificateid_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-vCertificateID-integrity"));
+
+            deviceInfo.get(0).setDevicecerts_certformat_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certFormat-confidentiality"));
+            deviceInfo.get(0).setDevicecerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certUsage-confidentiality"));
+            deviceInfo.get(0).setDevicecerts_certvalue_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-confidentiality"));
+
+            deviceInfo.get(0).setDevicecerts_certformat_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certFormat-integrity"));
+            deviceInfo.get(0).setDevicecerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certUsage-integrity"));
+            deviceInfo.get(0).setDevicecerts_certvalue_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-integrity"));
+
+            deviceInfo.get(0).setVClientId(vClientID);
+            deviceDetailRepository.save(deviceInfo.get(0));
             response.put("visaFinalCode", "200");
             response.put("visaFinalMessage", "OK");
         }
-        //******************VTS :Register with END***********************************
-        response.put("mdes", mdesRespMap);
-        //********************push device status in db START**************************
 
-        //********************push device status in db END**************************
+        //******************VTS :Register with END***********************************
         return response;
     }
-    private Map<String,Object> validate(EnrollDeviceRequest enrollDeviceRequest) {
-        // Check User is existing
+    private Map<String,Object> validate(EnrollDeviceRequest enrollDeviceRequest,List<UserDetail> userDetails,List<DeviceInfo> deviceInfo) {
         Map<String,Object> result=new HashMap();
-        if ((!userDetailService.checkIfUserExistInDb(enrollDeviceRequest.getUserId()))) {
-            result.put("message", "Invalid User");
+        if ((null==userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
+            result.put("message", "Invalid User please register");
+            result.put("responseCode", "205");
+            return result;
+        }else if("userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+            List<UserDetail> userDevice = userDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
+            if(null !=userDevice && !userDevice.isEmpty()) {
+                for (int i = 0; i <userDetails.size(); i++){
+                    if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
+                        userDevice.get(i).setClientDeviceId("CD");
+                        userDetailRepository.save(userDevice.get(i));
+                    }
+                }
+            }
+            userDetails.get(0).setClientDeviceId(enrollDeviceRequest.getClientDeviceID());
+            userDetailRepository.save(userDetails.get(0));
+            result.put("message", "Active User");
+            result.put("responseCode", "200");
+            return result;
+        }else{
+            result.put("message", "User not active");
             result.put("responseCode", "205");
             return result;
         }
-        boolean checkUserStatus = userDetailService.getUserstatus(enrollDeviceRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            result.put("message", "User is not active");
-            result.put("responseCode", "207");
-            return result;
-        }
-        result.put("message", "Valid and active user");
-        result.put("responseCode", "200");
-        return result;
     }
 
 }

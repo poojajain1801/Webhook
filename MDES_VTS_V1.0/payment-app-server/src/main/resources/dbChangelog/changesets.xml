@@ -44,12 +44,15 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="user_name" type="VARCHAR(255)">
+           <!-- <column name="user_name" type="VARCHAR(255)">
                 <constraints nullable="false" foreignKeyName="fk_user_device_detail"
                              references="USER_DETAILS(user_name)"/>
-            </column>
+            </column>-->
             <column name="payment_app_instance_id" type="TEXT">
-                <constraints nullable="false" unique="true"/>
+                <constraints nullable="true" unique="false"/>
+            </column>
+            <column name="payment_app_id" type="TEXT">
+                <constraints nullable="true" unique="false"/>
             </column>
             <column name="OS_NAME" type="VARCHAR(255)">
                 <constraints nullable="true"/>
@@ -70,7 +73,7 @@
                 <constraints nullable="true"/>
             </column>
             <column name="V_CLIENT_ID" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
 
             <column name="DEVICE_MODEL" type="VARCHAR(255)">
@@ -79,6 +82,47 @@
             <column name="HOST_DEVICE_ID" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
+
+            <!-- visa device/vts certs start-->
+            <column name="vtscerts_vcertificateid_confidentiality" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="vtscerts_certusage_confidentiality" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="vtscerts_vcertificateid_integrity" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="vtscerts_certusage_integrity" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="devicecerts_certvalue_confidentiality" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certusage_confidentiality" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certformat_confidentiality" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+
+
+            <column name="devicecerts_certvalue_integrity" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certusage_integrity" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certformat_integrity" type="VARCHAR(11600)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="vserver_nonce" type="VARCHAR(600)">
+                <constraints nullable="true"/>
+            </column>
+            <!--visa device/vts certs end-->
+
             <!-- added madan-->
             <column name="VISA_ENABLED" type="VARCHAR(255)">
                 <constraints nullable="true"/>
@@ -95,13 +139,13 @@
             <column name="DEVICE_STATUS" type="VARCHAR(255)">
                <constraints nullable="true"/>
             </column>
-            <!--addmadan-->
+            <!--add by madan-->
         </createTable>
         <addUniqueConstraint columnNames="IMEI" constraintName="device_unique_constraints" deferrable="true"
                              tableName="DEVICE_INFO"/>
         <createIndex tableName="DEVICE_INFO" indexName="device_info_id" unique="true">
             <column name="id"/>
-            <column name="user_name"/>
+          <!--  <column name="user_name"/>-->
             <column name="IMEI"/>
         </createIndex>
     </changeSet>

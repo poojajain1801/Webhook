@@ -13,9 +13,12 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
 import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
+import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.visa.dmpd.token.JWTUtility;
+import org.apache.commons.codec.binary.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,6 +53,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     private final DeviceDetailRepository deviceDetailRepository;
     private final TransctionRegDetailsRepository transctionRegDetailsRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
+    private final UserDetailRepository userDetailRepository;
     @Autowired
     private Environment env;
 
@@ -64,7 +68,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                                  DeviceDetailRepository deviceDetailRepository,
                                  VisaCardDetailRepository visaCardDetailRepository,
                                  TransctionRegDetailsRepository transctionRegDetailsRepository,
-                                 TransactionHistoryRepository transactionHistoryRepository) {
+                                 TransactionHistoryRepository transactionHistoryRepository,UserDetailRepository userDetailRepository) {
         this.cardDetailRepository = cardDetailRepository;
         this.userDetailService = userDetailService;
         this.serviceDataRepository = serviceDataRepository;
@@ -72,6 +76,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         this.visaCardDetailRepository=visaCardDetailRepository;
         this.transctionRegDetailsRepository = transctionRegDetailsRepository;
         this.transactionHistoryRepository = transactionHistoryRepository;
+        this.userDetailRepository=userDetailRepository;
     }
 
 
@@ -165,8 +170,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                 // Store the request and response in the DB for future use
                 String serviceId = Long.toString(new Random().nextLong());
 
-                String userName = deviceInfoOptional.get().getUserName();
-                serviceData = serviceDataRepository.save(new ServiceData(null, userName, serviceId, requestJson.toString(), response));
+               //--madan String userName = deviceInfoOptional.get().getUserName();
+                serviceData = serviceDataRepository.save(new ServiceData(null, "userName", serviceId, requestJson.toString(), response));
 
                 //Build response
                 Map mapResponse = new ImmutableMap.Builder()
@@ -237,7 +242,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (Integer.valueOf(provisionRespMdes.getString("reasonCode")) == 200) {
             //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
             CardDetails cardDetails = new CardDetails();
-            cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
+           //--madan cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
             cardDetails.setPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId"));
             cardDetails.setTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
             cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
@@ -307,33 +312,51 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> enrollPan (EnrollPanRequest enrollPanRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(enrollPanRequest.getUserId()))) {
-             Map <String, Object> response =ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-             return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(enrollPanRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
 
+        Map<String,Object> response1=new HashMap();
+        List<UserDetail> userDetails = userDetailRepository.find(enrollPanRequest.getUserId());
+        List<DeviceInfo> deviceInfo=deviceDetailRepository.find(enrollPanRequest.getClientDeviceID());
+        response1 = validate(enrollPanRequest,userDetails,deviceInfo);
+        if(!response1.get("responseCode").equals("200")) {
+            return response1;
+        }
         // *************** EnrollPan request to VTS ***************
-
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("clientAppID",env.getProperty("clientAppID") );
-        map.add("clientWalletAccountID", "db");
-        map.add("clientDeviceID", enrollPanRequest.getClientDeviceId());
-        map.add("locale", enrollPanRequest.getLocale());
-        map.add("panSource", enrollPanRequest.getPanSource());
-        map.add("encPaymentInstrument", enrollPanRequest.getEncPaymentInstrument());
-        map.add("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
-        map.add("platformType",enrollPanRequest.getPlatformType());
-        map.add("channelSecurityContext",enrollPanRequest.getChannelSecurityContext());
         ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> map = new HashMap<>();
+        map.put("clientAppID","111b95f4-06d9-b032-00c1-178ec0fd7201" );
+        map.put("clientWalletAccountID", userDetails.get(0).getClientWalletAccountid());
+        map.put("clientDeviceID", enrollPanRequest.getClientDeviceID());
+        map.put("locale", enrollPanRequest.getLocale());
+        map.put("panSource", enrollPanRequest.getPanSource());
+
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletProvider(userDetails.get(0).getClientWalletAccountid());
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletAccountID(userDetails.get(0).getClientWalletAccountid());
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientDeviceID(enrollPanRequest.getClientDeviceID());
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientAppID("111b95f4-06d9-b032-00c1-178ec0fd7201");
+
+
+        //JWTUtility jwtUtility=new JWTUtility();
+        String EncPaymentInstrument = null;
+       //try {
+            EncPaymentInstrument = JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),"R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc","SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2");
+        //     EncPaymentInstrument = JWTUtility.createSharedSecretJwe(objectMapper.writeValueAsString(enrollPanRequest.getEncPaymentInstrument()).toString(),"R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc","SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2");
+        //} catch (JsonProcessingException e) {
+         //   e.printStackTrace();
+        //}
+       // byte[] b64data = org.apache.commons.codec.binary.Base64.encodeBase64URLSafe(EncPaymentInstrument.getBytes());
+        //map.put("encPaymentInstrument",new String(b64data) );
+        map.put("encPaymentInstrument", EncPaymentInstrument);
+        map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
+        map.put("platformType",enrollPanRequest.getPlatformType());
+        //*********************create channelSecurityContext*****************
+        CreateChannelSecurityContext createChannelSecurityContext=new CreateChannelSecurityContext();
+        Map<String,Object> securityContext=createChannelSecurityContext.visaChannelSecurityContext(deviceInfo);
+        map.put("channelSecurityContext", securityContext);
+
         HitVisaServices hitVisaServices = new HitVisaServices(env);
        String response ="";
           try {
-              response = hitVisaServices.restfulServiceConsumerVisa("url",objectMapper.writeValueAsString(map), map);
+              response = hitVisaServices.restfulServiceConsumerVisa("https://sandbox.digital.visa.com/vts/panEnrollments?apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc",objectMapper.writeValueAsString(map), map);
          } catch (JsonProcessingException e) {
            e.printStackTrace();
        }
@@ -699,5 +722,34 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Call update the card starus of the token in CMS-D
         //Send response
         return JsonUtil.jsonStringToHashMap(response);
+    }
+
+
+    private Map<String,Object> validate(EnrollPanRequest enrollPanRequest,List<UserDetail> userDetails,List<DeviceInfo> deviceInfo) {
+        Map<String,Object> result=new HashMap();
+        if ((null==userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
+            result.put("message", "Invalid User please register");
+            result.put("responseCode", "205");
+            return result;
+        }else if("userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+            List<UserDetail> userDevice = userDetailRepository.findByClientDeviceId(enrollPanRequest.getClientDeviceID());
+            if(null !=userDevice && !userDevice.isEmpty()) {
+                for (int i = 0; i <userDetails.size(); i++){
+                    if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
+                        userDevice.get(i).setClientDeviceId("CD");
+                        userDetailRepository.save(userDevice.get(i));
+                    }
+                }
+            }
+            userDetails.get(0).setClientDeviceId(enrollPanRequest.getClientDeviceID());
+            userDetailRepository.save(userDetails.get(0));
+            result.put("message", "Active User");
+            result.put("responseCode", "200");
+            return result;
+        }else{
+            result.put("message", "User not active");
+            result.put("responseCode", "205");
+            return result;
+        }
     }
 }

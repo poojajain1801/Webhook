@@ -16,9 +16,9 @@ public class InstrumentProvider {
     private String clientWalletAccountID;
     private String clientDeviceID;
     private String clientAppID;
-    private String isIDnV;
+    private boolean isIDnV;
 
-    public InstrumentProvider(String intent,String clientWalletProvider,String clientWalletAccountID,String clientDeviceID ,String clientAppID,String isIDnV) {
+    public InstrumentProvider(String intent,String clientWalletProvider,String clientWalletAccountID,String clientDeviceID ,String clientAppID,boolean isIDnV) {
 
         this.intent=intent;
         this.clientWalletProvider=clientWalletProvider;
