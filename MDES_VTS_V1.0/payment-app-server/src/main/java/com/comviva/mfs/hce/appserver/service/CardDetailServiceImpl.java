@@ -14,6 +14,7 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
+import com.comviva.mfs.hce.appserver.util.vts.ValidateUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -171,7 +172,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 String serviceId = Long.toString(new Random().nextLong());
 
                //--madan String userName = deviceInfoOptional.get().getUserName();
-                serviceData = serviceDataRepository.save(new ServiceData(null, "userName", serviceId, requestJson.toString(), response));
+                serviceData = serviceDataRepository.save(new ServiceData(null,  serviceId, requestJson.toString(), response));
 
                 //Build response
                 Map mapResponse = new ImmutableMap.Builder()
@@ -316,7 +317,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         Map<String,Object> response1=new HashMap();
         List<UserDetail> userDetails = userDetailRepository.find(enrollPanRequest.getUserId());
         List<DeviceInfo> deviceInfo=deviceDetailRepository.find(enrollPanRequest.getClientDeviceID());
-        response1 = validate(enrollPanRequest,userDetails,deviceInfo);
+        ValidateUser validateUser=new ValidateUser(userDetailRepository);
+        response1 = validateUser.validate(enrollPanRequest.getClientDeviceID(),userDetails,deviceInfo);
         if(!response1.get("responseCode").equals("200")) {
             return response1;
         }
@@ -334,35 +336,22 @@ public class CardDetailServiceImpl implements CardDetailService {
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientDeviceID(enrollPanRequest.getClientDeviceID());
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientAppID("111b95f4-06d9-b032-00c1-178ec0fd7201");
 
-
-        //JWTUtility jwtUtility=new JWTUtility();
-        String EncPaymentInstrument = null;
-       //try {
-            EncPaymentInstrument = JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),env.getProperty("apiKey"),env.getProperty("sharedSecret"));
-        //     EncPaymentInstrument = JWTUtility.createSharedSecretJwe(objectMapper.writeValueAsString(enrollPanRequest.getEncPaymentInstrument()).toString(),"R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc","SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2");
-        //} catch (JsonProcessingException e) {
-         //   e.printStackTrace();
-        //}
-       // byte[] b64data = org.apache.commons.codec.binary.Base64.encodeBase64URLSafe(EncPaymentInstrument.getBytes());
-        //map.put("encPaymentInstrument",new String(b64data) );
-        map.put("encPaymentInstrument", EncPaymentInstrument);
+        map.put("encPaymentInstrument", JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),env.getProperty("apiKey"),env.getProperty("sharedSecret")));
         map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
         map.put("platformType",enrollPanRequest.getPlatformType());
-        //*********************create channelSecurityContext*****************
+        //*********************create channelSecurityContext start*****************
         CreateChannelSecurityContext createChannelSecurityContext=new CreateChannelSecurityContext();
         Map<String,Object> securityContext=createChannelSecurityContext.visaChannelSecurityContext(deviceInfo);
         map.put("channelSecurityContext", securityContext);
-
+        //******************************end***********************************
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-       String response ="";
-          try {
-              response = hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments?apiKey="+env.getProperty("apiKey"),objectMapper.writeValueAsString(map), map);
-              //response = hitVisaServices.restfulServiceConsumerVisa("https://sandbox.digital.visa.com/vts/panEnrollments?apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc",objectMapper.writeValueAsString(map), map);
-         } catch (JsonProcessingException e) {
-           e.printStackTrace();
-       }
-       JSONObject jsonResponse=new JSONObject(response);
-          if("200".equals(jsonResponse.getString("responseCode"))){
+        JSONObject jsonResponse= null;
+        try {
+            jsonResponse = new JSONObject(hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments?apiKey="+env.getProperty("apiKey"),objectMapper.writeValueAsString(map), "vts/panEnrollments","POST"));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if("200".equals(jsonResponse.getString("responseCode"))){
             //put card details in db
               VisaCardDetails visaCardDetails=new VisaCardDetails();
               visaCardDetails.setUserName(enrollPanRequest.getUserId());
@@ -371,14 +360,7 @@ public class CardDetailServiceImpl implements CardDetailService {
               visaCardDetails.setStatus("Y");
               visaCardDetailRepository.save(visaCardDetails);
           }
-         HashMap<String,Object> result =null;
-         try {
-
-           result =   new ObjectMapper().readValue(response, HashMap.class);
-         } catch (IOException e) {
-           e.printStackTrace();
-        }
-          return result;
+          return null;
     }
 
 
@@ -725,7 +707,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonStringToHashMap(response);
     }
 
-
+/*
     private Map<String,Object> validate(EnrollPanRequest enrollPanRequest,List<UserDetail> userDetails,List<DeviceInfo> deviceInfo) {
         Map<String,Object> result=new HashMap();
         if ((null==userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
@@ -752,5 +734,5 @@ public class CardDetailServiceImpl implements CardDetailService {
             result.put("responseCode", "205");
             return result;
         }
-    }
+    }*/
 }

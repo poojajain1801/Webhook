@@ -192,10 +192,10 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="true" primaryKey="true"/>
             </column>
-            <column name="user_name" type="VARCHAR(255)">
+            <!--<column name="user_name" type="VARCHAR(255)">
                 <constraints nullable="false" foreignKeyName="fk_user_device_detail"
                              references="USER_DETAILS(user_name)"/>
-            </column>
+            </column>-->
             <column name="service_id" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>

@@ -24,13 +24,13 @@ public class HitVisaServices extends VtsRequest {
         super(env);
     }
 
-    public String restfulServiceConsumerVisa(String url, String requestBody, Map parametersMap) {
+    public String restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
         JSONObject prepareHeaderRequest=new JSONObject();
         String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
         xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
         prepareHeaderRequest.put("xRequestId",xRequestId);
         prepareHeaderRequest.put("queryString","apiKey="+env.getProperty("apiKey"));
-        prepareHeaderRequest.put("resourcePath","vts/panEnrollments");
+        prepareHeaderRequest.put("resourcePath",resourcePath);
         prepareHeaderRequest.put("requestBody",requestBody);
         prepareHeader(prepareHeaderRequest);
         final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
@@ -38,12 +38,15 @@ public class HitVisaServices extends VtsRequest {
         Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
         requestFactory.setProxy(proxy);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
-       // final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
         try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            if("POST".equals(type)) {
+                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+            }else if("PUT".equals(type)){
+                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+            }
         }catch (Exception e){
             e.printStackTrace();
             ((HttpClientErrorException)e).getResponseBodyAsString();
