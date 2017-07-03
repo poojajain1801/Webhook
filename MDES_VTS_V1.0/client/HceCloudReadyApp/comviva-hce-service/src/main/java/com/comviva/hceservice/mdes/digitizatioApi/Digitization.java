@@ -9,6 +9,8 @@ import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.mdes.digitizatioApi.asset.AssetType;
 import com.comviva.hceservice.mdes.digitizatioApi.asset.GetAssetResponse;
 import com.comviva.hceservice.mdes.digitizatioApi.asset.MediaContent;
+import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationType;
 import com.comviva.hceservice.util.ArrayUtil;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
@@ -136,7 +138,6 @@ public class Digitization {
                         checkEligibilityListener.onCheckEligibilityError(httpResponse.getResponse());
                     }
                 } catch (JSONException e) {
-
                 }
             }
         }
@@ -279,10 +280,18 @@ public class Digitization {
                             digitizationListener.onApproved();
                             return;
                         } else if (decision.equalsIgnoreCase("REQUIRE_ADDITIONAL_AUTHENTICATION")) {
-                            JSONArray authenticationMethods = respObj.getJSONArray("authenticationMethods");
+                            JSONArray arrAuthenticationMethods = respObj.getJSONArray("authenticationMethods");
+                            int noOfAuthMethods = arrAuthenticationMethods.length();
 
-
-                            digitizationListener.onRequireAdditionalAuthentication();
+                            AuthenticationMethod[] authenticationMethods = new AuthenticationMethod[noOfAuthMethods];
+                            JSONObject jsAuthMethod;
+                            for (int i = 0; i < noOfAuthMethods; i++) {
+                                jsAuthMethod = arrAuthenticationMethods.getJSONObject(i);
+                                authenticationMethods[i] = new AuthenticationMethod(jsAuthMethod.getInt("id"),
+                                        AuthenticationType.valueOf(jsAuthMethod.getString("type")),
+                                        jsAuthMethod.getString("value"));
+                            }
+                            digitizationListener.onRequireAdditionalAuthentication(tokenUniqueReference, authenticationMethods);
                         }
                     } else {
                         digitizationListener.onError(httpResponse.getResponse());
@@ -413,5 +422,128 @@ public class Digitization {
         }
         CardLcmTask cardLcmTask = new CardLcmTask();
         cardLcmTask.execute();
+    }
+
+    public void requestActivationCode(final String tokenUniqueReference,
+                                      final AuthenticationMethod authenticationMethod,
+                                      final RequestActivationCodeListener activationCodeListener) {
+        final JSONObject jsReqActCodeReq = new JSONObject();
+        try {
+            ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
+            jsReqActCodeReq.put("paymentAppInstanceId", comvivaHce.getPaymentAppInstanceId());
+            jsReqActCodeReq.put("tokenUniqueReference", tokenUniqueReference);
+
+            JSONObject jsAuthenticationMethod = new JSONObject();
+            jsAuthenticationMethod.put("id", authenticationMethod.getId());
+            jsAuthenticationMethod.put("type", authenticationMethod.getType().name());
+            jsAuthenticationMethod.put("value", authenticationMethod.getValue());
+            jsReqActCodeReq.put("authenticationMethod", authenticationMethod);
+        } catch (JSONException e) {
+        }
+
+        class ReqActivationCodeTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                activationCodeListener.onReqActivationCodeStarted();
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getRequestActivationCodeUrl(), jsReqActCodeReq.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    // Activation Code sent successfully
+                    if (httpResponse.getStatusCode() == 200) {
+                        activationCodeListener.onSuccess(httpResponse.getResponse());
+                    } else {
+                        activationCodeListener.onError(httpResponse.getResponse());
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+        ReqActivationCodeTask reqActivationCodeTask = new ReqActivationCodeTask();
+        reqActivationCodeTask.execute();
+    }
+
+    public void activate(final String tokenUniqueReference, final String activationCode, ActivationCodeType type,
+                         final ActivateListener activateListener) {
+        final JSONObject jsActivateReq = new JSONObject();
+        try {
+            ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
+            jsActivateReq.put("paymentAppInstanceId", comvivaHce.getPaymentAppInstanceId());
+            jsActivateReq.put("tokenUniqueReference", tokenUniqueReference);
+            switch (type) {
+                case AUTHENTICATION_CODE:
+                    jsActivateReq.put("authenticationCode", activationCode);
+                    break;
+
+                case TOKENIZATION_AUTHENTICATION_VALUE:
+                    jsActivateReq.put("tokenizationAuthenticationValue", activationCode);
+                    break;
+            }
+        } catch (JSONException e) {
+        }
+
+        class ActivateTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                activateListener.onActivationStarted();
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getActivateUrl(), jsActivateReq.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
+                        ActivationResult result = ActivationResult.valueOf(jsResponse.getString("result"));
+                        switch (result) {
+                            case EXPIRED_CODE:
+                                activateListener.onExpiredCode();
+                                break;
+
+                            case EXPIRED_SESSION:
+                                activateListener.onSessionExpired();
+                                break;
+
+                            case INCORRECT_CODE:
+                                activateListener.onIncorrectCode();
+                                break;
+
+                            case INCORRECT_CODE_RETRIES_EXCEEDED:
+                                activateListener.onRetriesExceeded();
+                                break;
+
+                            case INCORRECT_TAV:
+                                activateListener.onIncorrectTAV();
+                                break;
+
+                            case SUCCESS:
+                                activateListener.onSuccess();
+                                break;
+                        }
+                    } else {
+                        activateListener.onError(httpResponse.getResponse());
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+        ActivateTask activateTask = new ActivateTask();
+        activateTask.execute();
     }
 }

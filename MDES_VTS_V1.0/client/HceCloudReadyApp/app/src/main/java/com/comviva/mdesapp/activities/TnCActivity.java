@@ -17,6 +17,7 @@ import com.comviva.hceservice.mdes.digitizatioApi.DigitizationListener;
 import com.comviva.hceservice.mdes.digitizatioApi.DigitizationRequest;
 import com.comviva.hceservice.mdes.digitizatioApi.EligibilityReceipt;
 import com.comviva.hceservice.mdes.digitizatioApi.asset.GetAssetResponse;
+import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -128,16 +129,20 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onRequireAdditionalAuthentication() {
+                    public void onRequireAdditionalAuthentication(final String tokenUniqueReference, final AuthenticationMethod[] authenticationMethods) {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
+
                         new AlertDialog.Builder(TnCActivity.this)
                                 .setTitle("Authentication Required")
                                 .setMessage("Card digitization needs more authentication")
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // continue
+                                        Intent intent = new Intent(TnCActivity.this, SelectAuthenticationActivity.class);
+                                        intent.putExtra("authenticationMethods", authenticationMethods);
+                                        intent.putExtra("tokenUniqueReference", tokenUniqueReference);
+                                        startActivity(intent);
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)

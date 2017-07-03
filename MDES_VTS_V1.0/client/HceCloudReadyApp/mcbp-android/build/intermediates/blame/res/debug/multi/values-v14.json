@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\mcbp-android\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v14\\values-v14.xml",
+        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\mcbp-android\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values-v14\\values-v14.xml",
         "map": [
             {
                 "to": {
@@ -12,14 +12,14 @@
                     "endOffset": 201
                 },
                 "from": {
-                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\mcbp-android\\src\\main\\res\\values-v14\\styles.xml",
+                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\mcbp-android\\src\\main\\res\\values-v14\\styles.xml",
                     "position": {
                         "startLine": 27,
                         "startColumn": 4,
-                        "startOffset": 1131,
+                        "startOffset": 1158,
                         "endLine": 29,
                         "endColumn": 12,
-                        "endOffset": 1277
+                        "endOffset": 1306
                     }
                 }
             }

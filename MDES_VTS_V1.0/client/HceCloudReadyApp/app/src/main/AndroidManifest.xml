@@ -62,7 +62,10 @@
         </service>
 
         <activity android:name=".activities.ActivateUserActivity" />
-        <activity android:name=".activities.TnCActivity"></activity>
+        <activity android:name=".activities.TnCActivity" />
+        <activity android:name=".activities.AuthenticationMethodActivity" />
+        <activity android:name=".activities.SelectAuthenticationActivity" />
+        <activity android:name=".activities.ActivateActivity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
+        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
         "map": [
             {
                 "to": {
@@ -3412,13 +3412,13 @@
                     "endOffset": 28360
                 },
                 "from": {
-                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\wallet-services\\src\\main\\res\\values\\strings.xml",
+                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\wallet-services\\src\\main\\res\\values\\strings.xml",
                     "position": {
                         "startLine": 21,
                         "startColumn": 4,
-                        "startOffset": 927,
+                        "startOffset": 948,
                         "endColumn": 52,
-                        "endOffset": 975
+                        "endOffset": 996
                     }
                 }
             },

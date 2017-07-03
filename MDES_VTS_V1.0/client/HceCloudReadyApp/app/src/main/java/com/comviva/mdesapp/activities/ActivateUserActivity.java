@@ -1,11 +1,13 @@
 package com.comviva.mdesapp.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,7 +45,8 @@ public class ActivateUserActivity extends AppCompatActivity {
         btnActUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), activateUserListener);
+                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), imei, activateUserListener);
             }
         });
     }

@@ -2,11 +2,15 @@ package com.comviva.mdesapp.activities;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +48,9 @@ public class RegisterUserActivity extends AppCompatActivity {
                 }
                 userId = edUserId.getText().toString();
                 Registration registration = new Registration();
-                registration.registerUser(userId, registerUserListener);
+                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+
+                registration.registerUser(userId, imei, Build.VERSION_CODES.class.getFields()[android.os.Build.VERSION.SDK_INT].getName(), Build.MODEL, registerUserListener);
             }
         });
     }

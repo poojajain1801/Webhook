@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.icu.util.Calendar;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 
 import com.comviva.hceservice.common.ComvivaHce;
@@ -18,9 +19,11 @@ import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.util.ArrayUtil;
+import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.HttpRequestListener;
+import com.comviva.hceservice.util.Miscellaneous;
 import com.comviva.hceservice.util.UrlUtil;
 import com.comviva.hceservice.util.crypto.AESUtil;
 
@@ -117,6 +120,7 @@ public class Registration {
 
             regDevParam.put("mdes", mdesRegDevJson);
             regDevParam.put("vts", vtsEnrollDeviceReqJson);
+            regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(registerParam.getDeviceInfo().getImei()));
             return regDevParam;
         } catch (JSONException e) {
         }
@@ -258,7 +262,9 @@ public class Registration {
         visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
     }
 
-    public void registerUser(final String userId, final RegisterUserListener regUserListener) {
+    public void registerUser(final String userId, final String imei,
+                             final String osName, final String deviceModel,
+                             final RegisterUserListener regUserListener) {
         final HttpUtil httpUtil = HttpUtil.getInstance();
         final RegisterUserResponse regResp = new RegisterUserResponse();
         regUserListener.setRegisterUserResponse(regResp);
@@ -266,6 +272,10 @@ public class Registration {
         final JSONObject registerUser = new JSONObject();
         try {
             registerUser.put("userId", userId);
+            registerUser.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(imei));
+            registerUser.put("imei", imei);
+            registerUser.put("os_name", osName);
+            registerUser.put("device_model", deviceModel);
         } catch (JSONException e) {
         }
 
@@ -344,7 +354,7 @@ public class Registration {
         }
     }
 
-    public void activateUser(final String userId, final String activationCode, final ActivateUserListener activateUserListener) {
+    public void activateUser(final String userId, final String activationCode, final String imei, final ActivateUserListener activateUserListener) {
         final HttpUtil httpUtil = HttpUtil.getInstance();
         final RestResponse restResp = new RestResponse();
         restResp.setResponseCode(-1);
@@ -353,6 +363,7 @@ public class Registration {
         try {
             activateUserReq.put("userId", userId);
             activateUserReq.put("activationCode", activationCode);
+            activateUserReq.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(imei));
         } catch (JSONException e) {
         }
 
@@ -466,11 +477,9 @@ public class Registration {
                         JSONObject respObj = new JSONObject(httpResponse.getResponse());
 
                         // MDES Initialization
-                        if(respObj.has("mdesResponseCode")) {
-                            String mdesRespCode = respObj.getString("mdesResponseCode");
+                        if(respObj.has("mdesFinalCode")) {
+                            String mdesRespCode = respObj.getString("mdesFinalCode");
                             if (mdesRespCode.equalsIgnoreCase("200")) {
-
-
                                 JSONObject mdesResponse = respObj.getJSONObject("mdes");
                                 initializeMdes(mdesResponse, registerParam);
                                 comvivaSdkInitData.setMdesInitState(true);
@@ -478,8 +487,8 @@ public class Registration {
                         }
 
                         // VTS Initialization
-                        if(respObj.has("vtsResponseCode")) {
-                            String vtsRespCode = respObj.getString("vtsResponseCode");
+                        if(respObj.has("visaFinalMessage")) {
+                            String vtsRespCode = respObj.getString("visaFinalMessage");
                             if (vtsRespCode.equalsIgnoreCase("200")) {
                                 JSONObject encDevicePersonalizationData = new JSONObject();
                                 visaPaymentSDK.onBoardDevicePerso(createEncDevicePersonalizationData(encDevicePersonalizationData));

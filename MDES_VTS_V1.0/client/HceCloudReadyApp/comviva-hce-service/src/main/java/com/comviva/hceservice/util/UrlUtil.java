@@ -52,4 +52,12 @@ public class UrlUtil {
     public static String getDeleteCardUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/delete";
     }
+
+    public static String getRequestActivationCodeUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/requestActivationCode";
+    }
+
+    public static String getActivateUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/activation";
+    }
 }

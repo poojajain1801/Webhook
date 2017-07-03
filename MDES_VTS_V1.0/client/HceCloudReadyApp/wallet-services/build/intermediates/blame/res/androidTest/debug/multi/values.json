@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": [
             {
                 "to": {
@@ -3412,7 +3412,7 @@
                     "endOffset": 28360
                 },
                 "from": {
-                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "D:\\Projects\\HCE\\HceCloudReady\\Workspace\\MDES\\MDES_VTS_V1.0\\client\\HceCloudReadyApp\\wallet-services\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 2,
                         "startColumn": 4,
