@@ -1,9 +1,7 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
-import org.springframework.util.MultiValueMap;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,4 +21,6 @@ public interface CardDetailService {
     Map registerWithTDS(TDSRegistration tdsRegistration);
     Map getTransctionHistory(GetTransactionHistoryReq getTransactionHistoryRea);
     Map deleteCard(LifeCycleManagementReq lifeCycleManagementReq);
+
+    Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
 }

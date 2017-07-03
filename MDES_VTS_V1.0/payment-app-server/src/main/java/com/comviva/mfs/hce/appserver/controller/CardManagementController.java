@@ -91,6 +91,9 @@ public class CardManagementController {
         return cardDetailService.getTransctionHistory(getTransactionHistoryReq);
     }
 
-
-
+    @ResponseBody
+    @RequestMapping(value = "/requestActivationCode", method = RequestMethod.POST)
+    public Map requestActivationCode(@RequestBody ActivationCodeReq activationCodeReq) {
+        return cardDetailService.requestActivationCode(activationCodeReq);
+    }
 }
