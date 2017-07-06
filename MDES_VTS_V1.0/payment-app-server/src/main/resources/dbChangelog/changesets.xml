@@ -199,10 +199,10 @@
             <column name="service_id" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="request" type="VARCHAR(1024)">
+            <column name="request" type="CLOB">
                 <constraints nullable="true"/>
             </column>
-            <column name="response" type="VARCHAR(1024)">
+            <column name="response" type="CLOB">
                 <constraints nullable="true"/>
             </column>
         </createTable>

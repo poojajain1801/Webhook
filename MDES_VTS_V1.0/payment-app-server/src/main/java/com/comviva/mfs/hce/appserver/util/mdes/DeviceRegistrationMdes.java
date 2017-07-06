@@ -2,19 +2,19 @@ package com.comviva.mfs.hce.appserver.util.mdes;
 
 
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.util.common.*;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
+import com.comviva.mfs.hce.appserver.util.common.HttpClint;
+import com.comviva.mfs.hce.appserver.util.common.HttpClintImpl;
+import com.comviva.mfs.hce.appserver.util.common.HttpRestHandeler;
+import com.comviva.mfs.hce.appserver.util.common.HttpRestHandelerImpl;
 import com.google.common.collect.ImmutableMap;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.util.Map;
 
 @Setter
@@ -28,22 +28,13 @@ public class DeviceRegistrationMdes {
     private String registerDeviceWithCMSD() {
         HttpClint httpClint = new HttpClintImpl();
         JSONObject jsonRegDevice = new JSONObject();
-        jsonRegDevice.put("paymentAppId", enrollDeviceRequest.getMdes().getPaymentAppId());
-        jsonRegDevice.put("paymentAppInstanceId", enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
-        jsonRegDevice.put("publicKeyFingerprint", enrollDeviceRequest.getMdes().getPublicKeyFingerprint());
-        jsonRegDevice.put("rgk", enrollDeviceRequest.getMdes().getRgk());
-        DeviceInfoRequest jsDevInfo = enrollDeviceRequest.getMdes().getDeviceInfo();
-        String deviceFingerPrint;
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(jsDevInfo.toString().getBytes());
-            deviceFingerPrint = ArrayUtil.getHexString(hash);
-        } catch (GeneralSecurityException e) {
-            deviceFingerPrint = null;
-        }
-
-        jsonRegDevice.put("deviceFingerprint", deviceFingerPrint);
-        jsonRegDevice.put("newMobilePin", enrollDeviceRequest.getMdes().getMobilePin());
+        MdesDeviceRequest mdesDeviceRequest = enrollDeviceRequest.getMdes();
+        jsonRegDevice.put("paymentAppId", mdesDeviceRequest.getPaymentAppId());
+        jsonRegDevice.put("paymentAppInstanceId", mdesDeviceRequest.getPaymentAppInstanceId());
+        jsonRegDevice.put("publicKeyFingerprint", mdesDeviceRequest.getPublicKeyFingerprint());
+        jsonRegDevice.put("rgk", mdesDeviceRequest.getRgk());
+        jsonRegDevice.put("deviceFingerprint", mdesDeviceRequest.getDeviceFingerprint());
+        jsonRegDevice.put("newMobilePin", mdesDeviceRequest.getMobilePin());
 
         JSONObject rnsInfo = new JSONObject();
         rnsInfo.put("rnsRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
