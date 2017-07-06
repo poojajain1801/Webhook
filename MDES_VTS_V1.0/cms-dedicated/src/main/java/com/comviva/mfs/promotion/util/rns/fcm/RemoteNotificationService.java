@@ -22,7 +22,8 @@ public interface RemoteNotificationService {
         CHANGE_PIN,
         DELETE,
         REPLENISH,
-        GET_TASK_STATUS
+        GET_TASK_STATUS,
+        RESET_MOBILE_PIN
     }
 
     /**

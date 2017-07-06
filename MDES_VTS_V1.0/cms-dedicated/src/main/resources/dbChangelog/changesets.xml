@@ -96,7 +96,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="card_profile" type="VARCHAR(4098)">
+            <column name="card_profile" type="CLOB">
                 <constraints nullable="false"/>
             </column>
 

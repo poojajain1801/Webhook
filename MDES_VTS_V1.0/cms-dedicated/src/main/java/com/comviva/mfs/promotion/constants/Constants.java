@@ -25,10 +25,11 @@ public class Constants {
 
     // http://172.19.4.107:9099/mdes
     public static final String RESPONSE_HOST = "http://172.19.4.107:9099/mdes";
-    public static final String SET_OR_CHANGE_MPIN_TASK_ID = "123456";//"setorchangemobilepin1234";
+    public static final String SET_OR_CHANGE_MPIN_TASK_ID = "0f7ab62b-1b85-4670-acc5-a0ca52d0076c";//"setorchangemobilepin1234";
     public static final String  PAYMENT_APP_PROVIDER_ID = "comviva123";
-    public static final int PIN_TRY_LIMIT = 3;
 
-
+    public static final int MAX_PIN_TRY_COUNTER = 3;
+    public static final int MIN_PIN_LENGTH = 4;
+    public static final int MAX_PIN_LENGTH = 8;
 
 }
