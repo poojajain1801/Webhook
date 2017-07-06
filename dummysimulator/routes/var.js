@@ -225,4 +225,7 @@ exports.mockGetTransctions = {
 ]
 };
 
-
+exports.mockRequestActivationCodeResp ={
+	"responseHost":"site1.Mastercard.com",
+	"responseId":"123456"
+};

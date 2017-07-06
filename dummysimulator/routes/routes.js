@@ -47,7 +47,7 @@ jsonObject = JSON.stringify({
 	"responseHost" : "comviva.mdes",
     "requestId" : "123456",
     "paymentAppProviderId" : "547102052016",
-    "paymentAppInstanceId" : "13403F4C0025E6A67C9FE31246D900000001497863284400",
+    "paymentAppInstanceId" : "866C53C6C4A75E1EAB72C7AFD61400000001498739384033",
     "tokenUniqueReference" : "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
     "tokenType" : "CLOUD",
     "taskId" : "3dacc64b-9703-4201-af40-02e636e3ff3b",
@@ -212,6 +212,13 @@ app.post("/mdes/digitization/1/0/unsuspend", function(req, res) {
     var unsuspendCardResp = require('./var.js').mockUnSuspendCardResp; 
     
     return res.json(unsuspendCardResp);
+});
+
+app.post("/mdes/digitization/1/0/requestActivationCode", function(req, res) {
+    console.info('Request Activation Code Invoked');
+    var requestActivationCodeResp = require('./var.js').mockRequestActivationCodeResp; 
+    
+    return res.json(requestActivationCodeResp);
 });
 
 }
