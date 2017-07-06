@@ -192,6 +192,10 @@ public class HomeActivity extends AppCompatActivity {
                 performCardLifeCycleManagement(cardList, CardLcmOperation.RESUME);
                 return true;
 
+            case R.id.changePin:
+                startActivity(new Intent(HomeActivity.this, ChangePinActivity.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

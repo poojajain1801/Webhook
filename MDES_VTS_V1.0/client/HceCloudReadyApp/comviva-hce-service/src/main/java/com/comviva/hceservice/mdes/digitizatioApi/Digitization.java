@@ -18,8 +18,14 @@ import com.comviva.hceservice.util.UrlUtil;
 import com.comviva.hceservice.util.crypto.AESUtil;
 import com.comviva.hceservice.util.crypto.CertificateUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
+import com.mastercard.mcbp.api.MdesMcbpWalletApi;
+import com.mastercard.mcbp.api.RemoteManagementServices;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
+import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.remotemanagement.mdes.RemoteManagementHandler;
+import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
+import com.mastercard.mcbp.utils.exceptions.mcbpcard.McbpCardNotFound;
+import com.mastercard.mobile_api.bytes.ByteArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -546,4 +552,22 @@ public class Digitization {
         ActivateTask activateTask = new ActivateTask();
         activateTask.execute();
     }
+
+    public void changePin(final String tokenUniqueReference,
+                          final String oldPin,
+                          final String newPin) {
+        try {
+            if(tokenUniqueReference == null || tokenUniqueReference.isEmpty()) {
+                MdesMcbpWalletApi.changeWalletPin(oldPin.getBytes(), newPin.getBytes());
+            } else {
+                McbpCardApi.changePin(tokenUniqueReference, oldPin.getBytes(), newPin.getBytes());
+            }
+        } catch (AlreadyInProcessException e) {
+            e.printStackTrace();
+        } finally {
+
+            RemoteManagementHandler.getInstance().clearPendingAction();
+        }
+    }
+
 }

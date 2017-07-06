@@ -47,9 +47,18 @@ public class MyHCEApp extends Application {
      * @param messageResId Resource Id of the message for the notification.
      */
     public static void publish(int titleResId, int messageResId) {
+        publish(titleResId, getInstance().getString(messageResId));
+    }
+
+    /**
+     * Publish a notification.
+     *
+     * @param titleResId   Resource Id of the title for the notification.
+     * @param messageResId Resource Id of the message for the notification.
+     */
+    public static void publish(int titleResId, String message) {
 
         String title = getInstance().getString(titleResId);
-        String message = getInstance().getString(messageResId);
 
         // Start building up the notification
         Notification.Builder builder = new Notification.Builder(getInstance())
@@ -66,6 +75,7 @@ public class MyHCEApp extends Application {
         NotificationManager notificationManager = (NotificationManager) getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(new Random().nextInt(), notification);
     }
+
 
     private final MdesCmsDedicatedWalletEventListener mEventListener =
             new MdesCmsDedicatedWalletEventListener() {
@@ -143,11 +153,18 @@ public class MyHCEApp extends Application {
 
                 @Override
                 public boolean onWalletPinChange(final MdesCmsDedicatedPinChangeResult result, final int pinTriesRemaining) {
+                    if("INCORRECT_PIN".equalsIgnoreCase(result.toString())) {
+                        publish(R.string.notification_change_pin_title,  "Change PIN failed\nTries Remaining : " + pinTriesRemaining);
+                    } else {
+                        publish(R.string.notification_change_pin_title,  R.string.notification_change_pin_message);
+                    }
+                    startActivity(new Intent(MyHCEApp.getInstance().getApplicationContext(), HomeActivity.class));
                     return false;
                 }
 
                 @Override
                 public boolean onWalletPinChangeFailure(final int retriesRemaining, final int errorCode) {
+                    publish(R.string.notification_change_pin_title, "Change PIN failed");
                     return false;
                 }
 

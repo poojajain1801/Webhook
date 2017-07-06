@@ -65,7 +65,8 @@
         <activity android:name=".activities.TnCActivity" />
         <activity android:name=".activities.AuthenticationMethodActivity" />
         <activity android:name=".activities.SelectAuthenticationActivity" />
-        <activity android:name=".activities.ActivateActivity"></activity>
+        <activity android:name=".activities.ActivateActivity" />
+        <activity android:name=".activities.ChangePinActivity"></activity>
     </application>
 
 </manifest>

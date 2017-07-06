@@ -5,4 +5,7 @@
     <string name="notification_new_card_profile_message">You have received a new card</string>
     <string name="tokenCount">Token Count</string>
     <string name="tapHere">Tap here</string>
+
+    <string name="notification_change_pin_title">PIN Result</string>
+    <string name="notification_change_pin_message">PIN changed successfully</string>
 </resources>

@@ -57,7 +57,7 @@ public class ComvivaFCMService extends FirebaseMessagingService {
 
             // Stop listener if we were listening
             if (isListening) {
-                McbpWalletApi.removeWalletEventListener(walletEventListener);
+                //McbpWalletApi.removeWalletEventListener(walletEventListener);
             }
         } catch (Exception e) {
             return;

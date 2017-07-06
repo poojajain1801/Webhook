@@ -26,4 +26,9 @@
         android:id="@+id/deleteCard"
         android:orderInCategory="100"
         android:title="Delete Card" />
+
+    <item
+        android:id="@+id/changePin"
+        android:orderInCategory="100"
+        android:title="Change Pin" />
 </menu>
