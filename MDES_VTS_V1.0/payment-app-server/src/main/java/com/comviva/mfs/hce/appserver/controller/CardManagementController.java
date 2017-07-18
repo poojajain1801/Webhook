@@ -65,9 +65,9 @@ public class CardManagementController {
         return cardDetailService.getPANData(getPANDataRequest);
     }
     @ResponseBody
-    @RequestMapping(value = "/delete",method = RequestMethod.POST)
+    @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     public Map<String,Object>delete(@RequestBody LifeCycleManagementReq lifeCycleManagementReq){
-        return cardDetailService.deleteCard(lifeCycleManagementReq);
+        return cardDetailService.performCardLifeCycleManagement(lifeCycleManagementReq);
     }
     //Transction History APIS
     @ResponseBody

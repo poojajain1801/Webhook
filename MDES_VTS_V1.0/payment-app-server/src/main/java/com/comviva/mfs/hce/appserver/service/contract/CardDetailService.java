@@ -20,7 +20,7 @@ public interface CardDetailService {
     Map getRegistrationCode(GetregCodeReq getregCodeReq);
     Map registerWithTDS(TDSRegistration tdsRegistration);
     Map getTransctionHistory(GetTransactionHistoryReq getTransactionHistoryRea);
-    Map deleteCard(LifeCycleManagementReq lifeCycleManagementReq);
+    Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq);
 
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
 }

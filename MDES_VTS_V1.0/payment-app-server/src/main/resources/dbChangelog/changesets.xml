@@ -44,16 +44,13 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-           <!-- <column name="user_name" type="VARCHAR(255)">
-                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
-                             references="USER_DETAILS(user_name)"/>
-            </column>-->
             <column name="payment_app_instance_id" type="TEXT">
                 <constraints nullable="true" unique="false"/>
             </column>
             <column name="payment_app_id" type="TEXT">
                 <constraints nullable="true" unique="false"/>
             </column>
+            <column name="rns_registration_id" type="TEXT"/>
             <column name="OS_NAME" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
@@ -156,10 +153,6 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="user_name" type="VARCHAR(255)">
-                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
-                             references="USER_DETAILS(user_name)"/>
-            </column>
             <column name="payment_app_instance_id" type="TEXT">
                 <constraints nullable="false" unique="true"/>
             </column>
@@ -181,7 +174,6 @@
                              tableName="CARD_DETAILS"/>
         <createIndex tableName="CARD_DETAILS" indexName="card_info_id" unique="true">
             <column name="id"/>
-            <column name="user_name"/>
             <column name="payment_app_instance_id"/>
             <column name="TOKEN_UNIQUE_REFERENCE"/>
         </createIndex>
@@ -192,10 +184,6 @@
             <column name="id" type="VARCHAR(255)">
                 <constraints nullable="true" primaryKey="true"/>
             </column>
-            <!--<column name="user_name" type="VARCHAR(255)">
-                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
-                             references="USER_DETAILS(user_name)"/>
-            </column>-->
             <column name="service_id" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>

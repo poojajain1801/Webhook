@@ -1,35 +1,26 @@
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.vts.CertUsage;
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandeler;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandelerImpl;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
-import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceResponse;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
-import com.google.common.collect.ImmutableMap;
-//import com.sun.xml.internal.bind.v2.TODO;
-import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+//import com.sun.xml.internal.bind.v2.TODO;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -62,6 +53,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
         List<UserDetail> userDetails = userDetailRepository.find(enrollDeviceRequest.getUserId());
         List<DeviceInfo> deviceInfo=deviceDetailRepository.find(enrollDeviceRequest.getClientDeviceID());
+        deviceInfo.get(0).setRnsId(enrollDeviceRequest.getGcmRegistrationId());
         response = validate(enrollDeviceRequest,userDetails,deviceInfo);
         if(!response.get("responseCode").equals("200")) {
             return response;

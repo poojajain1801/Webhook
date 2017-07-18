@@ -1,24 +1,22 @@
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
-import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateUserRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
-import com.comviva.mfs.hce.appserver.mapper.UserRegistrationResponse;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import java.io.IOException;
-import java.util.*;
+
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -58,7 +56,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
             savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
                     clientWalletAccountid,registerUserRequest.getClientDeviceID()));
-            deviceDetailRepository.save(new DeviceInfo(null,null,null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+            deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "200",
                     "message", "User has been successfully registered in the system,Please Activate using below activation code",
@@ -67,7 +65,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             return  response;
         }
         else if((null != userDetails || !userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())){
-            deviceDetailRepository.save(new DeviceInfo(null,null,null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+            deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
             userDetails.get(0).setClientDeviceId(registerUserRequest.getClientDeviceID());
             userDetailRepository.save(userDetails.get(0));
             Map <String, Object> response = ImmutableMap.of(

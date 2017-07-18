@@ -24,9 +24,6 @@ public class CardDetails {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
-    @Column(name = "user_name")
-    private String userName;
-
     @Column(name = "payment_app_instance_id")
     private String paymentAppInstanceId;
 
@@ -42,10 +39,9 @@ public class CardDetails {
     @Column(name = "TOKEN_STATUS")
     private String tokenStatus;
 
-    public CardDetails(String id, String userName, String paymentAppInstanceId, String tokenUniqueReference,
+    public CardDetails(String id, String paymentAppInstanceId, String tokenUniqueReference,
                        String panUniqueReference, String tokenInfo, String tokenStatus) {
         this.id = id;
-        this.userName = userName;
         this.paymentAppInstanceId = paymentAppInstanceId;
         this.tokenUniqueReference = tokenUniqueReference;
         this.panUniqueReference = panUniqueReference;
@@ -53,5 +49,5 @@ public class CardDetails {
         this.tokenStatus = tokenStatus;
     }
 
-    public CardDetails(){this(null,null,null,null,null,null, null);}
+    public CardDetails(){this(null,null,null,null,null, null);}
 }

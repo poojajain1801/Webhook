@@ -12,6 +12,8 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
 import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFactory;
 import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
 import com.comviva.mfs.hce.appserver.util.vts.ValidateUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -241,7 +243,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (Integer.valueOf(provisionRespMdes.getString("reasonCode")) == 200) {
             //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
             CardDetails cardDetails = new CardDetails();
-            //--madan cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
             cardDetails.setPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId"));
             cardDetails.setTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
             cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
@@ -462,11 +463,22 @@ public class CardDetailServiceImpl implements CardDetailService {
             TransctionRegDetails transctionRegDetails = transctionRegDetailsRepository.findByTokenUniqueReference(notifyTransactionDetailsReq.getTokenUniqueReference()).get();
             transctionRegDetails.setRegCode2(notifyTransactionDetailsReq.getRegistrationCode2());
             transctionRegDetailsRepository.save(transctionRegDetails);
+
+            // Create Remote Notification Data
+            RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM);
+            // TODO Get rnsRegistration ID of device
+            String deviceRnsRegistrationId = "";
+            JSONObject tdsNotificationData = new JSONObject();
+            tdsNotificationData.put("tokenUniqueReference", notifyTransactionDetailsReq.getTokenUniqueReference());
+            tdsNotificationData.put("registrationCode2", notifyTransactionDetailsReq.getRegistrationCode2());
+            tdsNotificationData.put("tdsUrl", notifyTransactionDetailsReq.getTdsUrl());
+            tdsNotificationData.put("paymentAppInstanceId", notifyTransactionDetailsReq.getPaymentAppInstanceId());
+
+            rns.sendRns(deviceRnsRegistrationId, tdsNotificationData.toString().getBytes());
         } else {
             return ImmutableMap.of("responseId", "123456", "responseCode", "268", "message", "Regcode2 not present");
             //notify the Mobile payment app to call getTransctionDetail API
         }
-
         return ImmutableMap.of("responseId", "123456", "responseCode", "200");
     }
 
@@ -609,7 +621,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonStringToHashMap(String.valueOf(response.getBody()));
     }
 
-    public Map deleteCard(LifeCycleManagementReq lifeCycleManagementReq) {
+    public Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq) {
         String paymentAppInstanseID = lifeCycleManagementReq.getPaymentAppInstanceId();
         List<String> tokenUniqueRefList = lifeCycleManagementReq.getTokenUniqueReferences();
         String tokenUniqueRef = "";

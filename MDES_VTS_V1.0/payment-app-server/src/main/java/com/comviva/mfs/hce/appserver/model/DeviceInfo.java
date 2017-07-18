@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-import org.json.JSONObject;
 
 import javax.persistence.*;
 
@@ -30,6 +29,9 @@ public class DeviceInfo {
 
     @Column(name = "payment_app_id")
     private String paymentAppId;
+
+    @Column(name = "rns_registration_id")
+    private String rnsId;
     /**
      * -- Device information common to both VTS & MDES
      */
@@ -116,7 +118,7 @@ public class DeviceInfo {
         //this(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    public DeviceInfo(String id,String paymentAppInstanceId, String paymentAppId,String osName, String osVersion, String nfcCapable,
+    public DeviceInfo(String id,String paymentAppInstanceId, String paymentAppId,String rnsId, String osName, String osVersion, String nfcCapable,
                       String imei, String clientDeviceId, String vClientId, String deviceModel,
                       String hostDeviceID,String visaEnabled,String mastercardEnabled,String visaMessage,String mastercardMessage,String deviceStatus,
                       String vtscerts_vcertificateid_confidentiality,String vtscerts_certusage_confidentiality,String vtscerts_vcertificateid_integrity,
@@ -127,6 +129,7 @@ public class DeviceInfo {
        // this.userName=userName;
         this.paymentAppInstanceId = paymentAppInstanceId;
         this.paymentAppId=paymentAppId;
+        this.rnsId = rnsId;
         this.osName = osName;
         this.osVersion = osVersion;
         this.nfcCapable = nfcCapable;

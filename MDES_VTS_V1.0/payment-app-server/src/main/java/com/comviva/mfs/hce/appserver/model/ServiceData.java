@@ -23,11 +23,6 @@ public class ServiceData {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private final String id;
 
-/*
-    @Column(name = "user_name")
-    private String userName;
-*/
-
     @Column(name = "service_id")
     private  String serviceId;
 
