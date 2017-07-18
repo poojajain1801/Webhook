@@ -4,8 +4,10 @@ import com.comviva.mfs.promotion.constants.ConstantErrorCodes;
 import com.comviva.mfs.promotion.constants.Constants;
 import com.comviva.mfs.promotion.constants.ServerConfig;
 import com.comviva.mfs.promotion.constants.TokenState;
+import com.comviva.mfs.promotion.modules.common.sessionmanagement.domain.PendingTask;
 import com.comviva.mfs.promotion.modules.common.sessionmanagement.domain.SessionInfo;
 import com.comviva.mfs.promotion.modules.common.sessionmanagement.model.ProcessSessionResponse;
+import com.comviva.mfs.promotion.modules.common.sessionmanagement.repository.PendingTaskRepository;
 import com.comviva.mfs.promotion.modules.common.sessionmanagement.repository.SessionInfoRepository;
 import com.comviva.mfs.promotion.modules.common.tokens.domain.Token;
 import com.comviva.mfs.promotion.modules.common.tokens.repository.TokenRepository;
@@ -23,11 +25,10 @@ import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.comviva.mfs.promotion.util.DateFormatISO8601;
 import com.comviva.mfs.promotion.util.aes.AESUtil;
 import com.comviva.mfs.promotion.util.cpadapter.CardProfile;
+import com.comviva.mfs.promotion.util.httpHandler.HttpClint;
 import com.comviva.mfs.promotion.util.httpHandler.HttpRestHandeler;
 import com.comviva.mfs.promotion.util.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.promotion.util.rns.fcm.RemoteNotificationService;
-import com.comviva.mfs.promotion.util.rns.fcm.RnsFactory;
-import com.comviva.mfs.promotion.util.rns.fcm.RnsResponse;
 import com.mastercard.mcbp.remotemanagement.mdes.RnsMessage;
 import com.mastercard.mcbp.remotemanagement.mdes.credentials.TransactionCredential;
 import com.mastercard.mcbp.remotemanagement.mdes.models.CmsDProvisionResponse;
@@ -63,16 +64,19 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
     private final RemoteManagementUtil remoteManagementUtil;
     private SessionInfo sessionInfo;
     private HttpRestHandeler httpRestHandeler;
+    private PendingTaskRepository pendingTaskRepository;
 
     @Autowired
     public RemoteManagementServiceImplApi(TokenRepository tokenRepository,
                                           ApplicationInstanceInfoRepository appInstInfoRepository,
                                           SessionInfoRepository sessionInfoRepository,
-                                          RemoteManagementUtil remoteManagementUtil) {
+                                          RemoteManagementUtil remoteManagementUtil,
+                                          PendingTaskRepository pendingTaskRepository) {
         this.tokenRepository = tokenRepository;
         this.appInstInfoRepository = appInstInfoRepository;
         this.sessionInfoRepository = sessionInfoRepository;
         this.remoteManagementUtil = remoteManagementUtil;
+        this.pendingTaskRepository = pendingTaskRepository;
     }
 
     /**
@@ -346,8 +350,14 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         }
 
         // Create Remote Notification Data
-        RemoteNotificationService rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM);
-        String rnsRegId = appInstanceInfo.getRnsRegistrationId();
+        RemoteNotificationService.PENDING_ACTION pendingAction = null;
+        Optional<PendingTask> pendingTasks = pendingTaskRepository.findByPaymentAppInstanceIdAndStatus(appInstanceInfo.getPaymentAppInstId(),
+                RemoteNotificationService.PENDING_TASK_STATUS.NEW.name());
+        PendingTask pendingTask = null;
+        if(pendingTasks.isPresent()) {
+            pendingTask = pendingTasks.get();
+            pendingAction = RemoteNotificationService.PENDING_ACTION.valueOf(pendingTask.getAction());
+        }
 
         byte[] sessionCode = generateSessionCode();
         sessionInfo = new SessionInfo();
@@ -356,16 +366,38 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         try {
             byte[] rnsPostData = prepareNotificationData(Constants.RESPONSE_HOST,
                     "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
-                    /*RemoteNotificationService.PENDING_ACTION.PROVISION*/ /*null*/RemoteNotificationService.PENDING_ACTION.RESET_MOBILE_PIN,
+                    pendingAction,
+                    ///*RemoteNotificationService.PENDING_ACTION.PROVISION*/ /*null*//*RemoteNotificationService.PENDING_ACTION.RESET_MOBILE_PIN*/,
                     appInstanceInfo);
-            RnsResponse response = rns.sendRns(rnsRegId, rnsPostData);
-            if (Integer.valueOf(response.getErrorCode()) != 200) {
+
+            String encodedRnsData = new String(Base64.getEncoder().encode(rnsPostData));
+            HttpClint httpClint = new HttpClint();
+            JSONObject jsNotificationData = new JSONObject();
+            jsNotificationData.put("paymentAppProviderId", "mahindracomviva");
+            jsNotificationData.put("paymentAppInstanceId", appInstanceInfo.getPaymentAppInstId());
+            jsNotificationData.put("notificationData", encodedRnsData);
+            String rnsResponse = httpClint.postHttpRequest(jsNotificationData.toString().getBytes(),
+                    ServerConfig.PAYMENT_APP_SERVER_IP + ":" + ServerConfig.PAYMENT_APP_SERVER_PORT + "/payment-app/mdes/mpamanagement/1/0/sendRemoteNotificationMessage");
+
+            /*HttpRestHandeler httpRestHandeler = new HttpRestHandeler();
+            MultiValueMap<String, Object> mapReq = new LinkedMultiValueMap<String, Object>();
+            mapReq.add("paymentAppProviderId", "mahindracomviva");
+            mapReq.add("paymentAppInstanceId", appInstanceInfo.getPaymentAppId());
+            mapReq.add("notificationData", encodedRnsData);
+            String rnsResponse = httpRestHandeler.restfulServieceConsumer(ServerConfig.PAYMENT_APP_SERVER_IP + ":" +
+                            ServerConfig.PAYMENT_APP_SERVER_PORT + "/payment-app/mdes/mpamanagement/1/0/sendRemoteNotificationMessage", mapReq);*/
+            JSONObject jsRnsResp = new JSONObject(rnsResponse);
+
+            if(jsRnsResp.has("errorCode")) {
                 return new RequestSessionResp(Integer.toString(ConstantErrorCodes.RNS_UNAVAILABLE),
                         ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.RNS_UNAVAILABLE));
             }
         } catch (GeneralSecurityException e) {
             return new RequestSessionResp(Integer.toString(ConstantErrorCodes.CRYPTOGRAPHY_ERROR),
                     ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.CRYPTOGRAPHY_ERROR));
+        } catch (Exception e) {
+            return new RequestSessionResp(Integer.toString(ConstantErrorCodes.RNS_UNAVAILABLE),
+                    ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.RNS_UNAVAILABLE));
         }
 
         // Calculation Authentication Code
@@ -390,6 +422,12 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         sessionInfo.setM2cCounter(0);
         sessionInfo.setC2mCounter(0);
         sessionInfoRepository.save(sessionInfo);
+
+        // Update Pending task status to IN_PROGRESS
+        if(pendingTask != null) {
+            pendingTask.setStatus(RemoteNotificationService.PENDING_TASK_STATUS.IN_PROGRESS.name());
+            pendingTaskRepository.save(pendingTask);
+        }
 
         return new RequestSessionResp(Integer.toString(ConstantErrorCodes.SC_OK), "Session Created Successfully");
     }
@@ -519,6 +557,16 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         if (provisionReqData.getString("result").equalsIgnoreCase("SUCCESS")) {
             token.setState(TokenState.DIGITIZED.name());
             tokenRepository.save(token);
+        }
+
+        Optional<PendingTask> pendingTasks = pendingTaskRepository.findByPaymentAppInstanceIdAndTokenUniqueReferenceAndStatus(
+                token.getPaymentAppInstId(),
+                token.getTokenUniqueReference(),
+                RemoteNotificationService.PENDING_TASK_STATUS.IN_PROGRESS.name());
+        if(pendingTasks.isPresent()) {
+            PendingTask pendingTask = pendingTasks.get();
+            pendingTask.setStatus(RemoteNotificationService.PENDING_TASK_STATUS.COMPLETE.name());
+            pendingTaskRepository.save(pendingTask);
         }
 
         // Return response

@@ -154,6 +154,26 @@
             <column name="payment_app_instance_id"/>
             <column name="authentication_code"/>
         </createIndex>
+
+        <!-- This table contains pending action for an payment app instance id -->
+        <createTable tableName="PENDING_TASK">
+            <!-- Unique ID -->
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="payment_app_instance_id" type="TEXT">
+                <constraints nullable="false" />
+            </column>
+            <column name="token_unique_reference" type="TEXT"/>
+            <column name="action" type="TEXT"/>
+            <column name="timestamp" type="TEXT"/>
+            <column name="status" type="TEXT"/>
+        </createTable>
+        <createIndex tableName="PENDING_TASK" indexName="pending_task_id" unique="true">
+            <column name="id"/>
+            <column name="payment_app_instance_id"/>
+            <column name="token_unique_reference"/>
+        </createIndex>
     </changeSet>
 
 

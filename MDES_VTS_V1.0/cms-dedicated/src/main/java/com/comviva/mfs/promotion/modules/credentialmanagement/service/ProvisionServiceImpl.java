@@ -3,6 +3,8 @@ package com.comviva.mfs.promotion.modules.credentialmanagement.service;
 import com.comviva.mfs.promotion.constants.ConstantErrorCodes;
 import com.comviva.mfs.promotion.constants.Constants;
 import com.comviva.mfs.promotion.constants.TokenState;
+import com.comviva.mfs.promotion.modules.common.sessionmanagement.domain.PendingTask;
+import com.comviva.mfs.promotion.modules.common.sessionmanagement.repository.PendingTaskRepository;
 import com.comviva.mfs.promotion.modules.credentialmanagement.model.ProvisionRequestMdes;
 import com.comviva.mfs.promotion.modules.credentialmanagement.model.ProvisionResponseMdes;
 import com.comviva.mfs.promotion.modules.credentialmanagement.model.TokenCredential;
@@ -13,7 +15,9 @@ import com.comviva.mfs.promotion.modules.common.paymentappproviders.repository.P
 import com.comviva.mfs.promotion.modules.common.tokens.domain.Token;
 import com.comviva.mfs.promotion.modules.common.tokens.repository.TokenRepository;
 import com.comviva.mfs.promotion.util.ArrayUtil;
+import com.comviva.mfs.promotion.util.DateFormatISO8601;
 import com.comviva.mfs.promotion.util.aes.AESUtil;
+import com.comviva.mfs.promotion.util.rns.fcm.RemoteNotificationService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,14 +34,17 @@ public class ProvisionServiceImpl implements ProvisionService {
     private ApplicationInstanceInfoRepository mobileEnvRepository;
     private PaymentAppProviderRepository paymentAppProviderRepository;
     private TokenRepository tokenRepository;
+    private PendingTaskRepository pendingTaskRepository;
 
     @Autowired
     public ProvisionServiceImpl(ApplicationInstanceInfoRepository mobileEnvRepository,
                                 PaymentAppProviderRepository paymentAppProviderRepository,
-                                TokenRepository tokenRepository) {
+                                TokenRepository tokenRepository,
+                                PendingTaskRepository pendingTaskRepository) {
         this.mobileEnvRepository = mobileEnvRepository;
         this.paymentAppProviderRepository = paymentAppProviderRepository;
         this.tokenRepository = tokenRepository;
+        this.pendingTaskRepository = pendingTaskRepository;
     }
 
     /**
@@ -125,7 +132,14 @@ public class ProvisionServiceImpl implements ProvisionService {
 
         JSONObject cardProfile = tokenCredentialData.getJSONObject("cardProfile");
         // Now save cardProfile and iccKek
-        tokenRepository.save(new Token("1234", payAppInstId, tokenUniqueRef, tokenType, cardProfile.toString(), iccKek, kekId, TokenState.NEW.name()));
+        tokenRepository.save(new Token(null, payAppInstId, tokenUniqueRef, tokenType, cardProfile.toString(), iccKek, kekId, TokenState.NEW.name()));
+
+        // Save it is pending task
+        pendingTaskRepository.save(new PendingTask(null, payAppInstId,
+                provisionRequestMdes.getTokenUniqueReference(),
+                RemoteNotificationService.PENDING_ACTION.PROVISION.name(),
+                DateFormatISO8601.now(),
+                RemoteNotificationService.PENDING_TASK_STATUS.NEW.name()));
 
         // Prepare response
         return prepareProvisionMdesResp(ConstantErrorCodes.SC_OK, "Provision Successful");

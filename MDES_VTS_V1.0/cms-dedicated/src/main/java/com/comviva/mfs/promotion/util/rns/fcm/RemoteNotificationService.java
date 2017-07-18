@@ -26,6 +26,12 @@ public interface RemoteNotificationService {
         RESET_MOBILE_PIN
     }
 
+    enum PENDING_TASK_STATUS {
+        NEW,
+        IN_PROGRESS,
+        COMPLETE
+    }
+
     /**
      * Send notification message to the target device.
      * @param deviceRegistrationId  Device registration id
