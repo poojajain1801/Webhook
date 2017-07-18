@@ -97,14 +97,13 @@ public class TnCActivity extends AppCompatActivity {
 
                         // Request Session
                         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-                        digitization.requestSession();
 
                         new AlertDialog.Builder(TnCActivity.this)
                                 .setTitle("Error")
                                 .setMessage("Card will Added Soon")
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // continue
+                                        digitization.requestSession();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -156,7 +155,7 @@ public class TnCActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // T&C Declined so redirect to home
-                //digitization.requestSession();
+                digitization.requestSession();
                 //startActivity(new Intent(TnCActivity.this, HomeActivity.class));
             }
         });

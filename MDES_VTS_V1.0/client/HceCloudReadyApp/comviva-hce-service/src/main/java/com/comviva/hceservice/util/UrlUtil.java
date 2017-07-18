@@ -49,8 +49,9 @@ public class UrlUtil {
         return CMS_D_SERVER_ADDRESS + "requestSession";
     }
 
-    public static String getDeleteCardUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/delete";
+
+    public static String getCardLifeCycleManagementMdesUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/lifeCycleManagement";
     }
 
     public static String getRequestActivationCodeUrl() {
@@ -59,5 +60,17 @@ public class UrlUtil {
 
     public static String getActivateUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/activation";
+    }
+
+    public static String getRegCodeTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getRegistrationCode";
+    }
+
+    public static String getRegisterTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/registerWithTDS";
+    }
+
+    public static String getTransactionDetailsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getTransactions";
     }
 }

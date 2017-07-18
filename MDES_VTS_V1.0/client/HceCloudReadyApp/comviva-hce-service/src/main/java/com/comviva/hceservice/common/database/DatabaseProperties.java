@@ -23,4 +23,14 @@ public class DatabaseProperties {
     public static final String COL_TASK_ID = "TASK_ID";
     /** Token Unique reference if application for the task */
     public static final String COL_TOKEN_UNIQUE_REFERENCE = "TOKEN_UNIQUE_REFERENCE";
+
+
+    /** This table contains registration code-1 for TDS. Used in MDES case */
+    public static final String TBL_TDS_REG = "TDS_REGISTRATION";
+    /** Registration Code-01 */
+    public static final String COL_TDS_REG_CODE1 = "TDS_REG_CODE1";
+    /** Authentication Code */
+    public static final String COL_TDS_AUTH_CODE = "TDS_AUTH_CODE";
+    /** TDS Url to access for transaction history */
+    public static final String COL_TDS_URL = "TDS_URL";
 }

@@ -88,9 +88,12 @@ public class ComvivaHce {
     public void replenishCard(String tokenUniqueReference) {
         try {
             McbpCardApi.replenishForCardWithId(tokenUniqueReference);
-            McbpCardApi.suspendCard(tokenUniqueReference);
         } catch (InvalidCardStateException | AlreadyInProcessException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean isTdsRegistered(final String tokenUniqueReference) {
+        return commonDb.getTdsRegistrationData(tokenUniqueReference) != null;
     }
 }

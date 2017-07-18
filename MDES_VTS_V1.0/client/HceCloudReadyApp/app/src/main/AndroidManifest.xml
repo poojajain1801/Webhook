@@ -66,7 +66,8 @@
         <activity android:name=".activities.AuthenticationMethodActivity" />
         <activity android:name=".activities.SelectAuthenticationActivity" />
         <activity android:name=".activities.ActivateActivity" />
-        <activity android:name=".activities.ChangePinActivity"></activity>
+        <activity android:name=".activities.ChangePinActivity" />
+        <activity android:name=".activities.TransactionHistoryMdesActivity"></activity>
     </application>
 
 </manifest>

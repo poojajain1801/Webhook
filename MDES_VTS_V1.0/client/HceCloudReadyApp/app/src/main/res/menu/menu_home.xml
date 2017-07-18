@@ -31,4 +31,14 @@
         android:id="@+id/changePin"
         android:orderInCategory="100"
         android:title="Change Pin" />
+
+    <item
+        android:id="@+id/registerTds"
+        android:orderInCategory="100"
+        android:title="Register TDS" />
+
+    <item
+        android:id="@+id/transactionDetails"
+        android:orderInCategory="100"
+        android:title="Transaction History" />
 </menu>

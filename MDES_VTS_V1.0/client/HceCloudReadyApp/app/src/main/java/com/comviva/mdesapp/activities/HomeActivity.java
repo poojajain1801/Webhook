@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.comviva.hceservice.common.CardLcmOperation;
@@ -28,6 +29,10 @@ import com.comviva.hceservice.mdes.digitizatioApi.CardLcmListener;
 import com.comviva.hceservice.mdes.digitizatioApi.CardLcmReasonCode;
 import com.comviva.hceservice.mdes.digitizatioApi.CardLcmRequest;
 import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
+import com.comviva.hceservice.mdes.tds.TdsRegistrationListener;
+import com.comviva.hceservice.mdes.tds.TransactionDetails;
+import com.comviva.hceservice.mdes.tds.TransactionDetailsListener;
+import com.comviva.hceservice.mdes.tds.TransactionHistory;
 import com.comviva.mdesapp.R;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
@@ -103,13 +108,12 @@ public class HomeActivity extends AppCompatActivity {
                     tokenCount.setText(tokenCount.getHint() + ": " + sukCount);
 
 
-                    if (!cardState.equals(ProfileState.INITIALIZED)) {
+                    /*if (!cardState.equals(ProfileState.INITIALIZED)) {
                         boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId()));
                         System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
-                    }
-
+                    }*/
                     // Replenish Card if it has no transaction credential
-                    if (sukCount == 0) {
+                    if (sukCount == 0 && cardState.equals(ProfileState.INITIALIZED)) {
                         ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
                         comvivaHce.replenishCard(tokenUniqueReference);
                     }
@@ -194,6 +198,22 @@ public class HomeActivity extends AppCompatActivity {
 
             case R.id.changePin:
                 startActivity(new Intent(HomeActivity.this, ChangePinActivity.class));
+                return true;
+
+            case R.id.registerTds:
+                if(ComvivaHce.getInstance(null).isTdsRegistered(tokenUniqueReference)) {
+                    Toast.makeText(HomeActivity.this, "Token is already registered for transaction history", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                registerWithTds(tokenUniqueReference);
+                return true;
+
+            case R.id.transactionDetails:
+                if(!ComvivaHce.getInstance(null).isTdsRegistered(tokenUniqueReference)) {
+                    Toast.makeText(HomeActivity.this, "Token is not registered for transaction history", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                getTransactionHistory(tokenUniqueReference);
                 return true;
 
             default:
@@ -290,5 +310,95 @@ public class HomeActivity extends AppCompatActivity {
                         .show();
             }
         });
+    }
+
+    private void registerWithTds(final String tokenUniqueReference) {
+        TransactionHistory.registerWithTdsInitiate(tokenUniqueReference, new TdsRegistrationListener() {
+            @Override
+            public void onRegistrationStarted() {
+                progressDialog = new ProgressDialog(HomeActivity.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Error")
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            @Override
+            public void onSuccess() {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Success")
+                        .setMessage("Card will be registered soon...")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
+
+    private void getTransactionHistory(final String tokenUniqueReference) {
+        TransactionHistory.getTransactionDetails(tokenUniqueReference, new TransactionDetailsListener() {
+            @Override
+            public void onStarted() {
+                progressDialog = new ProgressDialog(HomeActivity.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Error")
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            @Override
+            public void onSuccess(TransactionDetails[] transactionDetails) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                Intent intent = new Intent(HomeActivity.this, TransactionHistoryMdesActivity.class);
+                intent.putExtra("transactionDetails", transactionDetails);
+                startActivity(intent);
+            }
+        });
+
     }
 }

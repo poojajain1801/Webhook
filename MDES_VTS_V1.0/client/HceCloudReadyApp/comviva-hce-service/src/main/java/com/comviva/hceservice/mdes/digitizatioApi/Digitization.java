@@ -3,6 +3,7 @@ package com.comviva.hceservice.mdes.digitizatioApi;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.ComvivaHce;
 import com.comviva.hceservice.common.RmPendingTask;
 import com.comviva.hceservice.common.database.CommonDb;
@@ -19,13 +20,8 @@ import com.comviva.hceservice.util.crypto.AESUtil;
 import com.comviva.hceservice.util.crypto.CertificateUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.MdesMcbpWalletApi;
-import com.mastercard.mcbp.api.RemoteManagementServices;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
-import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.remotemanagement.mdes.RemoteManagementHandler;
-import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
-import com.mastercard.mcbp.utils.exceptions.mcbpcard.McbpCardNotFound;
-import com.mastercard.mobile_api.bytes.ByteArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -366,7 +362,7 @@ public class Digitization {
             jsCardLcmReq.put("reasonCode", cardLcmRequest.getReasonCode().name());
             jsCardLcmReq.put("reason", "Not Specified");
 
-            jsCardLcmReq.put("operation", cardLcmRequest.getCardLcmOperation().name());
+            jsCardLcmReq.put("operation", (cardLcmRequest.getCardLcmOperation() == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmRequest.getCardLcmOperation().name());
         } catch (JSONException e) {
         }
 
@@ -380,7 +376,7 @@ public class Digitization {
             @Override
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getDeleteCardUrl(), jsCardLcmReq.toString());
+                return httpUtil.postRequest(UrlUtil.getCardLifeCycleManagementMdesUrl(), jsCardLcmReq.toString());
             }
 
             @Override
@@ -390,6 +386,12 @@ public class Digitization {
                     try {
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
+                        if(jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
+                            cardLcmListener.onError(jsResponse.getString("message"));
+                            return;
+                        }
+
+
                         JSONArray tokens = jsResponse.getJSONArray("tokens");
                         JSONObject token;
                         String tokenUniqueRef;

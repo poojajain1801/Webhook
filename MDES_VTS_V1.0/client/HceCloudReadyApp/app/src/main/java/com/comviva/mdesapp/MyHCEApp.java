@@ -12,7 +12,10 @@ import android.support.v4.app.NotificationCompat;
 import com.comviva.hceservice.common.ComvivaHce;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.mdesapp.activities.HomeActivity;
+import com.mastercard.mcbp.api.McbpCardApi;
+import com.mastercard.mcbp.card.profile.ProfileState;
 import com.mastercard.mcbp.init.McbpInitializer;
+import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener;
@@ -47,19 +50,29 @@ public class MyHCEApp extends Application {
      * @param messageResId Resource Id of the message for the notification.
      */
     public static void publish(int titleResId, int messageResId) {
-        publish(titleResId, getInstance().getString(messageResId));
+        String title = getInstance().getString(titleResId);
+        String message = getInstance().getString(messageResId);
+        publish(title, message);
     }
 
     /**
      * Publish a notification.
      *
      * @param titleResId   Resource Id of the title for the notification.
-     * @param messageResId Resource Id of the message for the notification.
+     * @param messageRes Resource Id of the message for the notification.
      */
-    public static void publish(int titleResId, String message) {
-
+    public static void publish(int titleResId, String messageRes) {
         String title = getInstance().getString(titleResId);
+        publish(title, messageRes);
+    }
 
+    /**
+     * Publish a notification.
+     *
+     * @param title   The title for the notification.
+     * @param message Message for the notification.
+     */
+    public static void publish(String title, String message) {
         // Start building up the notification
         Notification.Builder builder = new Notification.Builder(getInstance())
                 .setSmallIcon(android.R.drawable.stat_notify_chat)
@@ -97,14 +110,16 @@ public class MyHCEApp extends Application {
                     String digitizedCardId = null;
                     try {
                         digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
+
+                        LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
+                        ProfileState cardState = ldeRemoteManagementService.getCardState(digitizedCardId);
+
+                        if (!cardState.equals(ProfileState.INITIALIZED)) {
+                            boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(digitizedCardId));
+                            System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
+                        }
                     } catch (InvalidInput invalidInput) {
                         invalidInput.printStackTrace();
-                    }
-                    // If it's MDES mode then we want to remove the stored preferences record of the
-                    // currently digitizing card
-                    if (McbpInitializer.getInstance().getRemoteProtocol() == McbpInitializer.RemoteProtocol.Mdes) {
-                        /*DataManager.INSTANCE.clearDigitizedCardDetails();
-                        DataManager.INSTANCE.saveSetPinState(digitizedCardId);*/
                     }
                     startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
                     return true;
