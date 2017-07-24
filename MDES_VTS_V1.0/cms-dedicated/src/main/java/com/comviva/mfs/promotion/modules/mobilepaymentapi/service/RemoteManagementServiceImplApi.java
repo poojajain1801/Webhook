@@ -217,6 +217,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         dataMap.put("requestId", "123456");
         dataMap.put("paymentAppInstanceId", sessionInfo.getPaymentAppInstanceId());
         dataMap.put("notificationData", notificationData);
+        dataMap.put("TYPE", "MDES");
         JSONObject data = new JSONObject(dataMap);
 
         JSONObject payloadObject = new JSONObject();
