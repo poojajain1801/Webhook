@@ -1,6 +1,8 @@
 package com.comviva.hceservice.mdes.tds;
 
-public class TransactionDetails {
+import java.io.Serializable;
+
+public class TransactionDetails implements Serializable {
     private String tokenUniqueReference;
     private String recordId;
     private String transactionIdentifier;

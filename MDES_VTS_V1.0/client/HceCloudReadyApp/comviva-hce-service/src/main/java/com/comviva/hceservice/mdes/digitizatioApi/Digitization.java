@@ -445,7 +445,7 @@ public class Digitization {
             jsAuthenticationMethod.put("id", authenticationMethod.getId());
             jsAuthenticationMethod.put("type", authenticationMethod.getType().name());
             jsAuthenticationMethod.put("value", authenticationMethod.getValue());
-            jsReqActCodeReq.put("authenticationMethod", authenticationMethod);
+            jsReqActCodeReq.put("authenticationMethod", jsAuthenticationMethod);
         } catch (JSONException e) {
         }
 

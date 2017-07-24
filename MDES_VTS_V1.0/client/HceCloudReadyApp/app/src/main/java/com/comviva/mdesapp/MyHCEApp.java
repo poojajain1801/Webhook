@@ -6,10 +6,10 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.NotificationCompat;
 
 import com.comviva.hceservice.common.ComvivaHce;
+import com.comviva.hceservice.common.ComvivaWalletListener;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.mdesapp.activities.HomeActivity;
 import com.mastercard.mcbp.api.McbpCardApi;
@@ -18,7 +18,6 @@ import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus;
-import com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener;
 import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
 
 import java.util.Random;
@@ -29,6 +28,7 @@ import java.util.Random;
 
 public class MyHCEApp extends Application {
     private static MyHCEApp appInstance;
+    private ComvivaWalletListener mEventListener;
 
     @Override
     public void onCreate() {
@@ -36,7 +36,8 @@ public class MyHCEApp extends Application {
         ComvivaHce.getInstance(this);
         appInstance = this;
 
-        ComvivaFCMService.setMdesCmsDedicatedWalletEventListener(mEventListener);
+        mEventListener = new WalletListener();
+        ComvivaFCMService.setComvivaWalletListener(mEventListener);
     }
 
     public static MyHCEApp getInstance() {
@@ -58,7 +59,7 @@ public class MyHCEApp extends Application {
     /**
      * Publish a notification.
      *
-     * @param titleResId   Resource Id of the title for the notification.
+     * @param titleResId Resource Id of the title for the notification.
      * @param messageRes Resource Id of the message for the notification.
      */
     public static void publish(int titleResId, String messageRes) {
@@ -73,160 +74,176 @@ public class MyHCEApp extends Application {
      * @param message Message for the notification.
      */
     public static void publish(String title, String message) {
-        // Start building up the notification
-        Notification.Builder builder = new Notification.Builder(getInstance())
-                .setSmallIcon(android.R.drawable.stat_notify_chat)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(appInstance);
+        Notification notification = mBuilder.setSmallIcon(android.R.drawable.stat_notify_chat)
+                .setTicker(title).setWhen(0)
+                .setAutoCancel(true)
                 .setContentTitle(title)
-                .setContentText(message).setLargeIcon(
-                        BitmapFactory.decodeResource(getInstance().getResources(),
-                                R.drawable.notification_icon));
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                .setLargeIcon(BitmapFactory.decodeResource(getInstance().getResources(), R.drawable.notification_icon))
+                .setContentText(message).build();
 
-        // Building the notification is SDK version dependant
-        Notification notification = builder.build();
-
-        // Grab the notification service and send it
         NotificationManager notificationManager = (NotificationManager) getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(new Random().nextInt(), notification);
     }
 
+    //mEventListener
+    private class WalletListener implements ComvivaWalletListener {
+        @Override
+        public boolean onRegistrationCompleted() {
+            return false;
+        }
 
-    private final MdesCmsDedicatedWalletEventListener mEventListener =
-            new MdesCmsDedicatedWalletEventListener() {
+        @Override
+        public boolean onRegistrationFailure(final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onRegistrationCompleted() {
-                    return false;
+        @Override
+        public boolean onCardAdded(final String tokenUniqueReference) {
+            publish(R.string.notification_new_card_profile_title,
+                    R.string.notification_new_card_profile_message);
+            String digitizedCardId;
+            try {
+                digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
+
+                LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
+                ProfileState cardState = ldeRemoteManagementService.getCardState(digitizedCardId);
+
+                if (!cardState.equals(ProfileState.INITIALIZED)) {
+                    boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(digitizedCardId));
+                    System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
                 }
+            } catch (InvalidInput invalidInput) {
+                invalidInput.printStackTrace();
+            }
+            startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
+            return true;
+        }
 
-                @Override
-                public boolean onRegistrationFailure(final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onCardAddedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onCardAdded(final String tokenUniqueReference) {
-                    publish(R.string.notification_new_card_profile_title,
-                            R.string.notification_new_card_profile_message);
-                    String digitizedCardId = null;
-                    try {
-                        digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
+        @Override
+        public boolean onPaymentTokensReceived(final String tokenUniqueReference, final int numberOfCredentialReceived) {
+            return false;
+        }
 
-                        LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
-                        ProfileState cardState = ldeRemoteManagementService.getCardState(digitizedCardId);
+        @Override
+        public boolean onPaymentTokensReceivedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                        if (!cardState.equals(ProfileState.INITIALIZED)) {
-                            boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(digitizedCardId));
-                            System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
-                        }
-                    } catch (InvalidInput invalidInput) {
-                        invalidInput.printStackTrace();
-                    }
-                    startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
-                    return true;
-                }
+        @Override
+        public boolean onCardPinChanged(final String tokenUniqueReference,
+                                        final MdesCmsDedicatedPinChangeResult result,
+                                        final int pinTriesRemaining) {
+            return false;
+        }
 
-                @Override
-                public boolean onCardAddedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onCardPinChangedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onPaymentTokensReceived(final String tokenUniqueReference, final int numberOfCredentialReceived) {
-                    return false;
-                }
-
-                @Override
-                public boolean onPaymentTokensReceivedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
-
-                @Override
-                public boolean onCardPinChanged(final String tokenUniqueReference,
-                                                final MdesCmsDedicatedPinChangeResult result,
-                                                final int pinTriesRemaining) {
-                    return false;
-                }
-
-                @Override
-                public boolean onCardPinChangedFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
-
-                @Override
-                public boolean onCardPinReset(final String tokenUniqueReference) {
+        @Override
+        public boolean onCardPinReset(final String tokenUniqueReference) {
                     /*McbpApplication.publish(R.string.notification_reset_pin,
                                             R.string.notification_reset_pin_received_message);
                     DataManager.INSTANCE.saveSetPinStateFromTokenUniqueReference(
                             tokenUniqueReference);*/
-                    return true;
-                }
+            return true;
+        }
 
-                @Override
-                public boolean onCardPinResetFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onCardPinResetFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onWalletPinChange(final MdesCmsDedicatedPinChangeResult result, final int pinTriesRemaining) {
-                    if("INCORRECT_PIN".equalsIgnoreCase(result.toString())) {
-                        publish(R.string.notification_change_pin_title,  "Change PIN failed\nTries Remaining : " + pinTriesRemaining);
-                    } else {
-                        publish(R.string.notification_change_pin_title,  R.string.notification_change_pin_message);
-                    }
-                    startActivity(new Intent(MyHCEApp.getInstance().getApplicationContext(), HomeActivity.class));
-                    return false;
-                }
+        @Override
+        public boolean onWalletPinChange(final MdesCmsDedicatedPinChangeResult result, final int pinTriesRemaining) {
+            if ("INCORRECT_PIN".equalsIgnoreCase(result.toString())) {
+                publish(R.string.notification_change_pin_title, "Change PIN failed\nTries Remaining : " + pinTriesRemaining);
+            } else {
+                publish(R.string.notification_change_pin_title, R.string.notification_change_pin_message);
+            }
+            startActivity(new Intent(MyHCEApp.getInstance().getApplicationContext(), HomeActivity.class));
+            return false;
+        }
 
-                @Override
-                public boolean onWalletPinChangeFailure(final int retriesRemaining, final int errorCode) {
-                    publish(R.string.notification_change_pin_title, "Change PIN failed");
-                    return false;
-                }
+        @Override
+        public boolean onWalletPinChangeFailure(final int retriesRemaining, final int errorCode) {
+            publish(R.string.notification_change_pin_title, "Change PIN failed");
+            return false;
+        }
 
-                @Override
-                public boolean onWalletPinReset() {
-                    //In context of wallet reset pin
+        @Override
+        public boolean onWalletPinReset() {
+            //In context of wallet reset pin
                     /*DataManager.INSTANCE.setWalletPin(false);
 
                     McbpApplication.publish(R.string.notification_reset_pin,
                                             R.string.notification_reset_pin_wallet_received_message);*/
-                    return true;
-                }
+            return true;
+        }
 
-                @Override
-                public boolean onWalletPinResetFailure(final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onWalletPinResetFailure(final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onCardDelete(final String tokenUniqueReference) {
-                    startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
-                    return false;
-                }
+        @Override
+        public boolean onCardDelete(final String tokenUniqueReference) {
+            startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
+            return false;
+        }
 
-                @Override
-                public boolean onCardDeleteFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onCardDeleteFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onTaskStatusReceived(final MdesCmsDedicatedTaskStatus status) {
-                    return false;
-                }
+        @Override
+        public boolean onTaskStatusReceived(final MdesCmsDedicatedTaskStatus status) {
+            return false;
+        }
 
-                @Override
-                public boolean onTaskStatusReceivedFailure(final int retriesRemaining, final int errorCode) {
-                    return false;
-                }
+        @Override
+        public boolean onTaskStatusReceivedFailure(final int retriesRemaining, final int errorCode) {
+            return false;
+        }
 
-                @Override
-                public boolean onSystemHealthCompleted() {
-                    return false;
-                }
+        @Override
+        public boolean onSystemHealthCompleted() {
+            return false;
+        }
 
-                @Override
-                public boolean onSystemHealthFailure(final int errorCode) {
-                    return false;
-                }
-            };
+        @Override
+        public boolean onSystemHealthFailure(final int errorCode) {
+            return false;
+        }
+
+        @Override
+        public void onTdsRegistrationCode2Received(String tokenUniqueReference) {
+            publish("Tds Registration", "TdsRegistrationCode2 received for Card " + tokenUniqueReference);
+        }
+
+        @Override
+        public void onTdsRegistrationSuccess(String tokenUniqueReference) {
+            publish("Tds Registration", "Tds Registration Successful for Card " + tokenUniqueReference);
+        }
+
+        public void onTdsRegistrationError(String tokenUniqueReference, final String errorMessage) {
+            publish("Tds Registration", "Tds Registration failed for Card " + tokenUniqueReference);
+        }
+
+        @Override
+        public void onTdsNotificationReceived(String tokenUniqueReference) {
+            publish("Transaction Notification", "Transaction Notification for Card\n" + tokenUniqueReference);
+        }
+    }
+
+
 }

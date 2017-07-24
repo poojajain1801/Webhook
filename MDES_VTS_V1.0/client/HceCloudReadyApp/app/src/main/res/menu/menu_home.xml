@@ -41,4 +41,9 @@
         android:id="@+id/transactionDetails"
         android:orderInCategory="100"
         android:title="Transaction History" />
+
+    <item
+        android:id="@+id/unregisterTds"
+        android:orderInCategory="100"
+        android:title="Unregister TDS" />
 </menu>

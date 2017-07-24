@@ -42,6 +42,7 @@ public class ActivateActivity extends AppCompatActivity {
 
         final String tokenUniqueReference = getIntent().getStringExtra("tokenUniqueReference");
 
+        final Digitization digitization = new Digitization();
         final EditText etActivationCode = (EditText) findViewById(R.id.etActivationCode);
         final Button btnSubmit = (Button) findViewById(R.id.btnSubmitActivationCode);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +62,6 @@ public class ActivateActivity extends AppCompatActivity {
                     return;
                 }
 
-                Digitization digitization = new Digitization();
                 digitization.activate(tokenUniqueReference,
                         activationCode,
                         ActivationCodeType.AUTHENTICATION_CODE,
@@ -86,7 +86,17 @@ public class ActivateActivity extends AppCompatActivity {
                                 if (progressDialog.isShowing()) {
                                     progressDialog.dismiss();
                                 }
-                                startActivity(new Intent(ActivateActivity.this, HomeActivity.class));
+                                new AlertDialog.Builder(ActivateActivity.this)
+                                        .setTitle("Success")
+                                        .setMessage("Activation successful. Card will be Added Soon")
+                                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                digitization.requestSession();
+                                                startActivity(new Intent(ActivateActivity.this, HomeActivity.class));
+                                            }
+                                        })
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .show();
                             }
 
                             @Override

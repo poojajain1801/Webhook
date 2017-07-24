@@ -59,7 +59,7 @@ public class UrlUtil {
     }
 
     public static String getActivateUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/activation";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/activate";
     }
 
     public static String getRegCodeTdsUrl() {
@@ -72,5 +72,9 @@ public class UrlUtil {
 
     public static String getTransactionDetailsUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getTransactions";
+    }
+
+    public static String getUnregisterTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/unregisterTds";
     }
 }

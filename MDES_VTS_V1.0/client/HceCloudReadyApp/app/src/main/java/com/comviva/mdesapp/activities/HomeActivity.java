@@ -33,6 +33,7 @@ import com.comviva.hceservice.mdes.tds.TdsRegistrationListener;
 import com.comviva.hceservice.mdes.tds.TransactionDetails;
 import com.comviva.hceservice.mdes.tds.TransactionDetailsListener;
 import com.comviva.hceservice.mdes.tds.TransactionHistory;
+import com.comviva.hceservice.mdes.tds.UnregisterTdsListener;
 import com.comviva.mdesapp.R;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
@@ -83,178 +84,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void addCard() {
         startActivity(new Intent(this, AddCardActivity.class));
-    }
-
-    public void refreshCardList() {
-        cards.removeAllViews();
-        cardList = McbpWalletApi.getCards();
-        if (cardList.isEmpty()) {
-            setFlipperImage(R.drawable.loading_card_profile_white, 0, "", false);
-            tokenCount.setText("");
-        } else {
-            int i = 0;
-            for (McbpCard card : cardList) {
-                try {
-                    LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
-                    ProfileState cardState = ldeRemoteManagementService.getCardState(card.getDigitizedCardId());
-
-                    tokenUniqueReference = ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId());
-                    SdkContext sdkContext = SdkContext.initialize(getApplicationContext());
-                    String cardNum = "XXXX XXXX XXXX " + sdkContext.getLdeMcbpCardService().getDisplayablePanDigits(tokenUniqueReference);
-
-                    setFlipperImage(R.drawable.mastercardimg, i++, cardNum, cardState.equals(ProfileState.SUSPENDED));
-
-                    int sukCount = card.numberPaymentsLeft();
-                    tokenCount.setText(tokenCount.getHint() + ": " + sukCount);
-
-
-                    /*if (!cardState.equals(ProfileState.INITIALIZED)) {
-                        boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId()));
-                        System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
-                    }*/
-                    // Replenish Card if it has no transaction credential
-                    if (sukCount == 0 && cardState.equals(ProfileState.INITIALIZED)) {
-                        ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
-                        comvivaHce.replenishCard(tokenUniqueReference);
-                    }
-                } catch (InvalidInput e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-
-        cards = (ViewFlipper) findViewById(R.id.viewflipperCards);
-        tokenCount = (TextView) findViewById(R.id.tokencount);
-
-        refreshCardList();
-
-        ImageButton payButton = (ImageButton) findViewById(R.id.button_pay);
-        payButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList cards = McbpInitializer.getInstance().getBusinessService().getAllCards(true);
-                LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
-                try {
-                    ldeRemoteManagementService.getCardState(((McbpCard) cards.get(0)).getDigitizedCardId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-        //refreshCardList();
-
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        //refreshCardList();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        ArrayList<String> cardList = new ArrayList<>();
-
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.addCard:
-                addCard();
-                return true;
-
-            case R.id.setPin:
-                //startActivity(new Intent(this, SetPinActivity.class));7
-                return true;
-
-            case R.id.deleteCard:
-                cardList.add(tokenUniqueReference);
-                performCardLifeCycleManagement(cardList, CardLcmOperation.DELETE);
-                return true;
-
-            case R.id.suspendCard:
-                cardList.add(tokenUniqueReference);
-                performCardLifeCycleManagement(cardList, CardLcmOperation.SUSPEND);
-                return true;
-
-            case R.id.resumeCard:
-                cardList.add(tokenUniqueReference);
-                performCardLifeCycleManagement(cardList, CardLcmOperation.RESUME);
-                return true;
-
-            case R.id.changePin:
-                startActivity(new Intent(HomeActivity.this, ChangePinActivity.class));
-                return true;
-
-            case R.id.registerTds:
-                if(ComvivaHce.getInstance(null).isTdsRegistered(tokenUniqueReference)) {
-                    Toast.makeText(HomeActivity.this, "Token is already registered for transaction history", Toast.LENGTH_LONG).show();
-                    return true;
-                }
-                registerWithTds(tokenUniqueReference);
-                return true;
-
-            case R.id.transactionDetails:
-                if(!ComvivaHce.getInstance(null).isTdsRegistered(tokenUniqueReference)) {
-                    Toast.makeText(HomeActivity.this, "Token is not registered for transaction history", Toast.LENGTH_LONG).show();
-                    return true;
-                }
-                getTransactionHistory(tokenUniqueReference);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent touchevent) {
-        float lastX = 0;
-        switch (touchevent.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                lastX = touchevent.getX();
-                break;
-
-            case MotionEvent.ACTION_UP:
-                float currentX = touchevent.getX();
-                if (lastX < currentX) {
-                    if (cards.getChildCount() == 1) {
-                        break;
-                    }
-                    cards.setInAnimation(this, R.anim.slide_in_from_left);
-                    cards.setOutAnimation(this, R.anim.slide_out_to_right);
-                    cards.showNext();
-                }
-
-                if (lastX > currentX) {
-                    if (cards.getChildCount() == 1) {
-                        break;
-                    }
-                    cards.setInAnimation(this, R.anim.slide_in_from_right);
-                    cards.setOutAnimation(this, R.anim.slide_out_to_left);
-                    cards.showPrevious();
-                }
-                break;
-        }
-        int tagCard = Integer.parseInt(cards.getCurrentView().getTag().toString());
-        //McbpCard card = cardList.get(tagCard);
-        //int sukCount = card.numberPaymentsLeft();
-        //tokenCount.setText(tokenCount.getHint() + ": " + sukCount);
-        return false;
     }
 
     private void performCardLifeCycleManagement(final ArrayList<String> cardList, final CardLcmOperation operation) {
@@ -390,7 +219,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSuccess(TransactionDetails[] transactionDetails) {
+            public void onSuccess(ArrayList<TransactionDetails> transactionDetails) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
@@ -399,6 +228,222 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
+
+    private void unregisterFromTds(String tokenUniqueReference) {
+        TransactionHistory.unregisterWithTds(tokenUniqueReference, new UnregisterTdsListener() {
+            @Override
+            public void onStarted() {
+                progressDialog = new ProgressDialog(HomeActivity.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+
+            @Override
+            public void onError(String message) {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Error")
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            @Override
+            public void onSuccess() {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Success")
+                        .setMessage("Successfully Unregistered from TDS service")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
+
+    public void refreshCardList() {
+        cards.removeAllViews();
+        cardList = McbpWalletApi.getCards();
+        if (cardList.isEmpty()) {
+            setFlipperImage(R.drawable.loading_card_profile_white, 0, "", false);
+            tokenCount.setText("");
+        } else {
+            int i = 0;
+            for (McbpCard card : cardList) {
+                try {
+                    LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
+                    ProfileState cardState = ldeRemoteManagementService.getCardState(card.getDigitizedCardId());
+
+                    tokenUniqueReference = ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId());
+                    SdkContext sdkContext = SdkContext.initialize(getApplicationContext());
+                    String cardNum = "XXXX XXXX XXXX " + sdkContext.getLdeMcbpCardService().getDisplayablePanDigits(tokenUniqueReference);
+
+                    setFlipperImage(R.drawable.mastercardimg, i++, cardNum, cardState.equals(ProfileState.SUSPENDED));
+
+                    int sukCount = card.numberPaymentsLeft();
+                    tokenCount.setText(tokenCount.getHint() + ": " + sukCount);
+
+
+                    /*if (!cardState.equals(ProfileState.INITIALIZED)) {
+                        boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId()));
+                        System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
+                    }*/
+                    // Replenish Card if it has no transaction credential
+                    if (sukCount == 0 && cardState.equals(ProfileState.INITIALIZED)) {
+                        ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
+                        comvivaHce.replenishCard(tokenUniqueReference);
+                    }
+                } catch (InvalidInput e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        cards = (ViewFlipper) findViewById(R.id.viewflipperCards);
+        tokenCount = (TextView) findViewById(R.id.tokencount);
+
+        refreshCardList();
+
+        ImageButton payButton = (ImageButton) findViewById(R.id.button_pay);
+        payButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList cards = McbpInitializer.getInstance().getBusinessService().getAllCards(true);
+                LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
+                try {
+                    ldeRemoteManagementService.getCardState(((McbpCard) cards.get(0)).getDigitizedCardId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //refreshCardList();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        ArrayList<String> cardList = new ArrayList<>();
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.addCard:
+                addCard();
+                return true;
+
+            case R.id.setPin:
+                //startActivity(new Intent(this, SetPinActivity.class));7
+                return true;
+
+            case R.id.deleteCard:
+                cardList.add(tokenUniqueReference);
+                performCardLifeCycleManagement(cardList, CardLcmOperation.DELETE);
+                return true;
+
+            case R.id.suspendCard:
+                cardList.add(tokenUniqueReference);
+                performCardLifeCycleManagement(cardList, CardLcmOperation.SUSPEND);
+                return true;
+
+            case R.id.resumeCard:
+                cardList.add(tokenUniqueReference);
+                performCardLifeCycleManagement(cardList, CardLcmOperation.RESUME);
+                return true;
+
+            case R.id.changePin:
+                startActivity(new Intent(HomeActivity.this, ChangePinActivity.class));
+                return true;
+
+            case R.id.registerTds:
+                if(ComvivaHce.getInstance(null).isTdsRegistered(tokenUniqueReference)) {
+                    Toast.makeText(HomeActivity.this, "Token is already registered for transaction history", Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                registerWithTds(tokenUniqueReference);
+                return true;
+
+            case R.id.transactionDetails:
+                getTransactionHistory(tokenUniqueReference);
+                return true;
+
+            case R.id.unregisterTds:
+                unregisterFromTds(tokenUniqueReference);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent touchevent) {
+        float lastX = 0;
+        switch (touchevent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = touchevent.getX();
+                break;
+
+            case MotionEvent.ACTION_UP:
+                float currentX = touchevent.getX();
+                if (lastX < currentX) {
+                    if (cards.getChildCount() == 1) {
+                        break;
+                    }
+                    cards.setInAnimation(this, R.anim.slide_in_from_left);
+                    cards.setOutAnimation(this, R.anim.slide_out_to_right);
+                    cards.showNext();
+                }
+
+                if (lastX > currentX) {
+                    if (cards.getChildCount() == 1) {
+                        break;
+                    }
+                    cards.setInAnimation(this, R.anim.slide_in_from_right);
+                    cards.setOutAnimation(this, R.anim.slide_out_to_left);
+                    cards.showPrevious();
+                }
+                break;
+        }
+        int tagCard = Integer.parseInt(cards.getCurrentView().getTag().toString());
+        McbpCard card = cardList.get(tagCard);
+        int sukCount = card.numberPaymentsLeft();
+        tokenCount.setText(tokenCount.getHint() + ": " + sukCount);
+        return false;
+    }
+
 }

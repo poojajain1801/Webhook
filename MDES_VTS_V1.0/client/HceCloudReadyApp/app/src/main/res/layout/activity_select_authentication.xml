@@ -24,6 +24,7 @@
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:text="Submit"
+        android:layout_below="@+id/rbgAuthMethods"
         android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

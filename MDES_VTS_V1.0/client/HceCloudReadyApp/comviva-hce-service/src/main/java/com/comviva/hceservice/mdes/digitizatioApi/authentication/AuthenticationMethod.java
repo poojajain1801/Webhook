@@ -3,10 +3,12 @@ package com.comviva.hceservice.mdes.digitizatioApi.authentication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by tarkeshwar.v on 6/20/2017.
  */
-public class AuthenticationMethod {
+public class AuthenticationMethod implements Serializable {
     private Number id;
     private AuthenticationType type;
     private String value;
