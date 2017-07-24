@@ -12,11 +12,27 @@ exports.mockmdesres = {
 } 
 };
 
+// "decision" : "APPROVED", "REQUIRE_ADDITIONAL_AUTHENTICATION", "DECLINED"
 exports.mockaddCardres={
 "responseHost" : "site1.mastercard.com",
 "responseId" : "123456",
-"decision" : "APPROVED",
-"authenticationMethods" :"",
+"decision" : "REQUIRE_ADDITIONAL_AUTHENTICATION",
+"authenticationMethods":[
+{
+	"id" : 12344,
+	"type" : "TEXT_TO_CARDHOLDER_NUMBER",
+	"value" : "99X-XXX-8469"
+},
+{
+	"id" : 12345,
+	"type" : "CARDHOLDER_TO_CALL_AUTOMATED_NUMBER",
+	"value" : "1-800-BANK-NUMBER"
+},
+{
+	"id" : 12346,
+	"type" : "CARDHOLDER_TO_USE_ISSUER_MOBILE_APP",
+	"value": "{\"activateWithIssuerMobileAppAndroidIntent\": \"{\"action\" : \"com.mybank.bankingapp.action.ACTIVATE_TOKEN\",\"packageName\" : \"com.mybank.bankingapp\",\"extraTextValue\" : \"ew0KICAgICJwYXltZW50QXBwUHJvdmlkZXJJZCI6ICIxMjM0NTY3ODkiLA0KICAgICJwYXltZW50QXBwSW5zdGFuY2VJZCI6ICIxMjM0NTY3ODkiLA0KICAgICJ0b2tlblVuaXF1ZVJlZmVyZW5jZSI6ICJEV1NQTUMwMDAwMDAwMDBmY2IyZjQxMzZiMmY0MTM2YTA1MzJkMmY0MTM2YTA1MzIiLA0KICAgICJhY2NvdW50UGFuU3VmZml4IjogIjY3ODkiLA0KICAgICJhY2NvdW50RXhwaXJ5IjogIjEwMTgiDQp9\"}\"}"
+}],
 "tokenUniqueReference" : "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
 "panUniqueReference" : "FWSPMC000000000159f71f703d2141efaf04dd26803f922b",
 "productConfig" : {
@@ -131,7 +147,7 @@ exports.mockGetRegistrationCodeResp = {
 exports.mockRegisterwithTDSResp={
 "responseHost" : "site1.Mastercard.com",
 "authenticationCode" : "800200c9-629d-11e3-949a-0739d27e5a66",
-"tdsUrl" : "loadbalanced.Mastercard.com"
+"tdsUrl" : "http://localhost:3000/mdes/tds/1/0/"
 };
 
 exports.mockDeleteCardResp ={
@@ -226,6 +242,11 @@ exports.mockGetTransctions = {
 };
 
 exports.mockRequestActivationCodeResp ={
+	"responseHost":"site1.Mastercard.com",
+	"responseId":"123456"
+};
+
+exports.mockUnregisterTdsResp ={
 	"responseHost":"site1.Mastercard.com",
 	"responseId":"123456"
 };

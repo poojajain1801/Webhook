@@ -1,4 +1,6 @@
 var http = require('http');
+var paymentAppInstanceId = '0604538F8F989E392BF1FB35051700000001500890959288';
+
 var appRouter = function(app) {
 
 app.get("/", function(req, res) {
@@ -47,7 +49,7 @@ jsonObject = JSON.stringify({
 	"responseHost" : "comviva.mdes",
     "requestId" : "123456",
     "paymentAppProviderId" : "547102052016",
-    "paymentAppInstanceId" : "866C53C6C4A75E1EAB72C7AFD61400000001498739384033",
+    "paymentAppInstanceId" : paymentAppInstanceId,
     "tokenUniqueReference" : "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
     "tokenType" : "CLOUD",
     "taskId" : "3dacc64b-9703-4201-af40-02e636e3ff3b",
@@ -171,17 +173,61 @@ app.post("/mdes/credentials/1/0/replenish", function(req, res) {
     var replinishmentResponse = require('./var.js').mockreplinishmentResponse;  
     return res.json(replinishmentResponse);
 }); 
-app.post("/mdes/tds/1/0/123456781/getRegistrationCode", function(req, res) {
+app.post("/mdes/tds/1/0/" + paymentAppInstanceId + "/getRegistrationCode", function(req, res) {
     console.info('getRegistrationCode Invoked');
     var getRegCodeRes = require('./var.js').mockGetRegistrationCodeResp;  
+		
+	// Invoke Notify transaction Details to PaymentAppServer
+	jsonObject = JSON.stringify({ 
+		"requestId" : "123456",
+		"tokenUniqueReference" : "DWSPMC000000000fcb2f4136b2f4136a0532d2f4136a0532",
+		"registrationCode2" : "a1b1f68a-5d0e-4a38-9817-420d85301c46",
+		"tdsUrl" : "site2.mastercard.com",
+		"paymentAppInstanceId" : paymentAppInstanceId
+	});
+
+	// prepare the header
+	var postheaders = {
+		'Content-Type' : 'application/json',
+		'Content-Length' : Buffer.byteLength(jsonObject, 'utf8')
+	};
+	// the post options
+	var optionspost = {
+		host : 'localhost',
+		port : 9176,
+		path : '/payment-app/api/card/notifyTransactionDetails',
+		method : 'POST',
+		headers : postheaders
+	};
+
+	console.info('Options prepared:');
+	console.info(optionspost);
+	console.info('Do the POST call');
+	// do the POST call
+	var reqPost = http.request(optionspost, function(res) {
+		console.log("statusCode: ", res.statusCode);
+		res.on('data', function(d) {
+			console.info('POST result:\n');
+			process.stdout.write(d);
+			console.info('\n\nPOST completed');
+		});
+	});
+
+// write the json data
+reqPost.write(jsonObject);
+reqPost.end();
+reqPost.on('error', function(e) {
+    console.error(e);
+});
+	
     return res.json(getRegCodeRes);
 }); 
-app.post("/mdes/tds/1/0/123456781/register", function(req, res) {
+app.post("/mdes/tds/1/0/" + paymentAppInstanceId + "/register", function(req, res) {
     console.info('getRegistrationCode Invoked');
     var registerWithTDSResp = require('./var.js').mockRegisterwithTDSResp;  
     return res.json(registerWithTDSResp);
 }); 
-app.post("/mdes/tds/1/0/123456781/getTransactions", function(req, res) {
+app.post("/mdes/tds/1/0/" + paymentAppInstanceId + "/getTransactions", function(req, res) {
     console.info('getRegistration Invoked');
     var getTransctionResp = require('./var.js').mockGetTransctions;  
     return res.json(getTransctionResp);
@@ -219,6 +265,13 @@ app.post("/mdes/digitization/1/0/requestActivationCode", function(req, res) {
     var requestActivationCodeResp = require('./var.js').mockRequestActivationCodeResp; 
     
     return res.json(requestActivationCodeResp);
+});
+
+app.post("/mdes/tds/1/0/" + paymentAppInstanceId + "/unregister", function(req, res) {
+    console.info('Unregister TDS Invoked');
+    var unregisterTdsResp = require('./var.js').mockUnregisterTdsResp; 
+    
+    return res.json(unregisterTdsResp);
 });
 
 }
