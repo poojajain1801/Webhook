@@ -6,17 +6,17 @@ import lombok.Getter;
  * Created by Tanmay.Patel on 5/9/2017.
  */
 @Getter
-public class GetregCodeReq {
+public class GetRegCodeReq {
     private String tokenUniqueReference;
     private String paymentAppInstanceId;
 
 
-    public GetregCodeReq(String tokenUniqueReference, String paymentAppInstanceId) {
+    public GetRegCodeReq(String tokenUniqueReference, String paymentAppInstanceId) {
         this.tokenUniqueReference = tokenUniqueReference;
         this.paymentAppInstanceId = paymentAppInstanceId;
     }
 
-    public GetregCodeReq()
+    public GetRegCodeReq()
     {
         
     }

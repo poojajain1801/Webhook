@@ -6,6 +6,7 @@ import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.*;
 import com.comviva.mfs.hce.appserver.repository.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
@@ -13,7 +14,8 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
-import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFactory;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
 import com.comviva.mfs.hce.appserver.util.vts.ValidateUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -52,13 +54,16 @@ public class CardDetailServiceImpl implements CardDetailService {
     private final ServiceDataRepository serviceDataRepository;
 
     private final DeviceDetailRepository deviceDetailRepository;
-    private final TransctionRegDetailsRepository transctionRegDetailsRepository;
-    private final TransactionHistoryRepository transactionHistoryRepository;
+    private final TransactionRegDetailsRepository transactionRegDetailsRepository;
     private final UserDetailRepository userDetailRepository;
+
     @Autowired
     private Environment env;
 
     ServiceData serviceData;
+
+    @Autowired
+    RemoteNotificationService remoteNotificationService;
 
     HttpRestHandlerUtils httpRestHandlerUtils = new HttpRestHandlerImplUtils();
 
@@ -68,15 +73,14 @@ public class CardDetailServiceImpl implements CardDetailService {
                                  ServiceDataRepository serviceDataRepository,
                                  DeviceDetailRepository deviceDetailRepository,
                                  VisaCardDetailRepository visaCardDetailRepository,
-                                 TransctionRegDetailsRepository transctionRegDetailsRepository,
-                                 TransactionHistoryRepository transactionHistoryRepository, UserDetailRepository userDetailRepository) {
+                                 TransactionRegDetailsRepository transactionRegDetailsRepository,
+                                 UserDetailRepository userDetailRepository) {
         this.cardDetailRepository = cardDetailRepository;
         this.userDetailService = userDetailService;
         this.serviceDataRepository = serviceDataRepository;
         this.deviceDetailRepository = deviceDetailRepository;
         this.visaCardDetailRepository = visaCardDetailRepository;
-        this.transctionRegDetailsRepository = transctionRegDetailsRepository;
-        this.transactionHistoryRepository = transactionHistoryRepository;
+        this.transactionRegDetailsRepository = transactionRegDetailsRepository;
         this.userDetailRepository = userDetailRepository;
     }
 
@@ -85,50 +89,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         return new AddCardResponse(ImmutableMap.of("reasonCode", Integer.toString(reasonCode), "reasonDescription", reasonDescription));
     }
 
-    private AddCardResponse prepareDigitizeResponse() {
-        // ************* Prepare Response *************
-        ImmutableMap.Builder addCardResponse = new ImmutableMap.Builder();
-        addCardResponse.put("responseHost", "mahindracomviva.paymentAppServer");
-        addCardResponse.put("responseId", "123456");
-        addCardResponse.put("decision", "APPROVED");
-        addCardResponse.put("tokenUniqueReference", "DWSPMC000000000132d72d4fcb2f4136a0532d3093ff1a45");
-        addCardResponse.put("panUniqueReference", "FWSPMC000000000159f71f703d2141efaf04dd26803f922b");
-        addCardResponse.put("tdsRegistrationUrl", "tds.mastercard.com");
-
-        // Prepare tokenInfo object
-        ImmutableMap.Builder productConfig = new ImmutableMap.Builder();
-        productConfig.put("tokenPanSuffix", "1234");
-        productConfig.put("accountPanSuffix", "6789");
-        productConfig.put("tokenExpiry", "1018");
-        productConfig.put("dsrpCapable", false);
-        addCardResponse.put("tokenInfo", productConfig.build());
-
-        productConfig = new ImmutableMap.Builder();
-        productConfig.put("brandLogoAssetId", "800200c9-629d-11e3-949a-0739d27e5a66");
-        productConfig.put("isCoBranded", "true");
-        productConfig.put("coBrandName", "Co brand partner");
-        productConfig.put("coBrandLogoAssetId", "dbc55444-496a-4896-b41c-5d5e2dd431e2");
-        productConfig.put("cardBackgroundCombinedAssetId", "739d27e5-629d-11e3-949a-0800200c9a66");
-        productConfig.put("foregroundColor", "000000");
-        productConfig.put("issuerName", "Issuing Bank");
-        productConfig.put("shortDescription", "Bank Rewards MasterCard");
-        productConfig.put("longDescription", "Bank Rewards MasterCard with the super duper rewards program");
-        productConfig.put("customerServiceUrl", "https://bank.com/customerservice");
-        productConfig.put("termsAndConditionsUrl", "https://bank.com/termsAndConditions");
-        productConfig.put("privacyPolicyUrl", "https://bank.com/privacy");
-        productConfig.put("issuerProductConfigCode", "123456");
-
-        ImmutableMap.Builder openIssuerMobileAppAndroidIntent = new ImmutableMap.Builder();
-        openIssuerMobileAppAndroidIntent.put("action", "com.mybank.bankingapp.action.OPEN_ISSUER_MOBILE_APP");
-        openIssuerMobileAppAndroidIntent.put("packageName", "com.mybank.bankingapp");
-        openIssuerMobileAppAndroidIntent.put("extraTextValue", "ew0KICAgICJwYXltZW50QXBwUHJvdmlkZXJJZCI6ICIxMjM0NTY3ODkiLA0KICAgICJwYXltZW50QXBwSWQiOiAiV2FsbGV0QXBwMSIsDQogICAgInBheW1lbnRBcHBJbnN0YW5jZUlkIjogIjEyMzQ1Njc4OSIsDQogICAgInRva2VuVW5pcXVlUmVmZXJlbmNlIjogIkRXU1BNQzAwMDAwMDAwMGZjYjJmNDEzNmIyZjQxMzZhMDUzMmQyZjQxMzZhMDUzMiINCn0=");
-
-        ImmutableMap.Builder issuerMobileApp = new ImmutableMap.Builder();
-        issuerMobileApp.put("openIssuerMobileAppAndroidIntent", openIssuerMobileAppAndroidIntent.build());
-        productConfig.put("issuerMobileApp", issuerMobileApp.build());
-
-        addCardResponse.put("productConfig", productConfig.build());
-        return new AddCardResponse(addCardResponse.build());
+    private AddCardResponse prepareDigitizeResponse(JSONObject digitizationRespMdes) {
+        Map<String, Object> mapRespMdes = JsonUtil.jsonStringToHashMap(digitizationRespMdes.toString());
+        return new AddCardResponse(mapRespMdes);
     }
 
     /**
@@ -157,7 +120,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             map.add("cardInfo", addCardParam.getCardInfo());
             map.add("cardletId", addCardParam.getCardId());
             map.add("consumerLanguage", addCardParam.getConsumerLanguage());
-            //Store the service id and the request in the service DB for API stitching
+            //Store the service registrationId and the request in the service DB for API stitching
             JSONObject requestJson = new JSONObject(addCardParam);
             // Call checkEligibility Api of MDES to check if the card is eligible for digitization.
             String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
@@ -249,7 +212,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             cardDetails.setTokenInfo(provisionRespMdes.getJSONObject("tokenInfo").toString());
             cardDetails.setTokenStatus("NEW");
             cardDetailRepository.save(cardDetails);
-            return prepareDigitizeResponse();
+            return prepareDigitizeResponse(provisionRespMdes);
         } else {
             return prepareDigitizeResponse(Integer.valueOf(provisionRespMdes.getString("reasonCode")), provisionRespMdes.getString("reasonDescription"));
         }
@@ -452,201 +415,207 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     @Override
     public Map notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq) {
-        //Check if tokenn unique referance is null
-        JSONObject reqObj = new JSONObject(notifyTransactionDetailsReq);
+        String tokenUniqueReference = notifyTransactionDetailsReq.getTokenUniqueReference();
+        String registrationCode2 = notifyTransactionDetailsReq.getRegistrationCode2();
 
-        if ((!reqObj.has("tokenUniqueReference")) || (reqObj.getString("tokenUniqueReference").isEmpty()))
+        // Check if token unique reference is null
+        if (tokenUniqueReference == null || tokenUniqueReference.isEmpty()) {
             return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+        }
 
-        //Check if the registration code is there
-        if ((reqObj.has("registrationCode2")) && (!reqObj.getString("registrationCode2").isEmpty())) {
-            TransctionRegDetails transctionRegDetails = transctionRegDetailsRepository.findByTokenUniqueReference(notifyTransactionDetailsReq.getTokenUniqueReference()).get();
-            transctionRegDetails.setRegCode2(notifyTransactionDetailsReq.getRegistrationCode2());
-            transctionRegDetailsRepository.save(transctionRegDetails);
+        // Get rnsRegistration ID of device
+        Optional<DeviceInfo> oDeviceInfo = deviceDetailRepository.findByPaymentAppInstanceId(notifyTransactionDetailsReq.getPaymentAppInstanceId());
+        if (!oDeviceInfo.isPresent()) {
+            return ImmutableMap.of("responseId", "123456", "responseCode", "268", "message", "Incorrect PaymentAppInstanceId");
+        }
 
-            // Create Remote Notification Data
-            RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM);
-            // TODO Get rnsRegistration ID of device
-            String deviceRnsRegistrationId = "";
-            JSONObject tdsNotificationData = new JSONObject();
-            tdsNotificationData.put("tokenUniqueReference", notifyTransactionDetailsReq.getTokenUniqueReference());
+        // Create Remote Notification Data
+        HashMap<String, String> tdsNotificationData = new HashMap<>();
+        tdsNotificationData.put("tokenUniqueReference", notifyTransactionDetailsReq.getTokenUniqueReference());
+        tdsNotificationData.put("tdsUrl", notifyTransactionDetailsReq.getTdsUrl());
+        tdsNotificationData.put("paymentAppInstanceId", notifyTransactionDetailsReq.getPaymentAppInstanceId());
+
+        // If registrationCode2 is present then it's a new TDS registration.
+        if (registrationCode2 != null) {
+            if (registrationCode2.isEmpty()) {
+                return ImmutableMap.of("responseId", "123456", "responseCode", "268", "message", "Registration Code2 is empty");
+            }
+            TransactionRegDetails transactionRegDetails = transactionRegDetailsRepository.findByTokenUniqueReference(notifyTransactionDetailsReq.getTokenUniqueReference()).get();
+            transactionRegDetails.setRegCode2(notifyTransactionDetailsReq.getRegistrationCode2());
+            transactionRegDetailsRepository.save(transactionRegDetails);
             tdsNotificationData.put("registrationCode2", notifyTransactionDetailsReq.getRegistrationCode2());
-            tdsNotificationData.put("tdsUrl", notifyTransactionDetailsReq.getTdsUrl());
-            tdsNotificationData.put("paymentAppInstanceId", notifyTransactionDetailsReq.getPaymentAppInstanceId());
-
-            rns.sendRns(deviceRnsRegistrationId, tdsNotificationData.toString().getBytes());
+            tdsNotificationData.put(RemoteNotification.KEY_NOTIFICATION_TYPE, RemoteNotification.TYPE_TDS_REGISTRATION_NOTIFICATION);
         } else {
-            return ImmutableMap.of("responseId", "123456", "responseCode", "268", "message", "Regcode2 not present");
-            //notify the Mobile payment app to call getTransctionDetail API
+            // New transaction notification
+            tdsNotificationData.put(RemoteNotification.KEY_NOTIFICATION_TYPE, RemoteNotification.TYPE_TDS_NOTIFICATION);
+        }
+
+        RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
+        rnsGenericRequest.setIdType(UniqueIdType.MDES);
+        rnsGenericRequest.setRegistrationId(oDeviceInfo.get().getRnsId());
+        rnsGenericRequest.setRnsData(tdsNotificationData);
+        Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+        if (rnsResp.containsKey("errorCode")) {
+            return rnsResp;
         }
         return ImmutableMap.of("responseId", "123456", "responseCode", "200");
     }
 
-    public Map getRegistrationCode(GetregCodeReq getregCodeReq) {
-        String tokenUniqueRef = getregCodeReq.getTokenUniqueReference();
-        String paymentAppInstanceId = "";
-        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap<String, String>();
+    public Map getRegistrationCode(GetRegCodeReq getRegCodeReq) {
+        String paymentAppInstanceId;
+        String tokenUniqueRef = getRegCodeReq.getTokenUniqueReference();
+
+        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap();
         reqMap.add("tokenUniqueReference", tokenUniqueRef);
-        //Get the app instanse ID from the DB
-        if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent())
+
+        // Validate Token Unique reference
+        if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
             paymentAppInstanceId = cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).get().getPaymentAppInstanceId();
-        else
+        } else {
             return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+        }
 
-        if (!paymentAppInstanceId.equalsIgnoreCase(getregCodeReq.getPaymentAppInstanceId()))
+        // Validate PaymentAppInstanceId
+        if (!paymentAppInstanceId.equalsIgnoreCase(getRegCodeReq.getPaymentAppInstanceId())) {
             return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+        }
 
-        //Call getregstration Code API of the Master card
+        // Invoke Get Registration Code API of the MDES
         String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + ServerConfig.TDS_PATH + "/" + paymentAppInstanceId + "/getRegistrationCode", reqMap);
 
         JSONObject responseJson = new JSONObject(response);
-        TransctionRegDetails transctionRegDetails;
+        TransactionRegDetails transactionRegDetails;
         if (responseJson.getString("reasonCode").equalsIgnoreCase("200")) {
-            //Strore the regcode1 to the data base
-            //TransctionRegDetails transctionRegDetails = transctionRegDetailsRepository.save(new TransctionRegDetails(null,tokenUniqueRef,responseJson.getString("registrationCode1"),null,null,null));
-            // transctionRegDetails.setId(null);
-            if (!transctionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent())
-                transctionRegDetails = new TransctionRegDetails();
-            else
-                transctionRegDetails = transctionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get();
-            transctionRegDetails.setTokenUniqueReference(tokenUniqueRef);
-            transctionRegDetails.setRegCode1(responseJson.getString("registrationCode1"));
-            transctionRegDetails.setRegCode2(null);
-            transctionRegDetails.setAuthCode(null);
-            transctionRegDetails.setAuthCodeExpiry(null);
-            transctionRegDetailsRepository.save(transctionRegDetails);
-
+            // Store the registrationCode1
+            if (transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
+                transactionRegDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get();
+            } else {
+                transactionRegDetails = new TransactionRegDetails();
+            }
+            transactionRegDetails.setPaymentAppInstanceId(paymentAppInstanceId);
+            transactionRegDetails.setTokenUniqueReference(tokenUniqueRef);
+            transactionRegDetails.setRegCode1(responseJson.getString("registrationCode1"));
+            transactionRegDetails.setRegCode2(null);
+            transactionRegDetails.setAuthCode(null);
+            transactionRegDetailsRepository.save(transactionRegDetails);
         }
-       /* MultiValueMap<String,String> responseMap = new LinkedMultiValueMap<String,String>();
-        responseMap.add("reasonCode",responseJson.getString("reasonCode"));
-        responseMap.add("result",responseJson.getString("result"));
-        responseMap.add("message","SUCCESS");*/
-
-
         return JsonUtil.jsonToMap(responseJson);
-
-
     }
 
     public Map registerWithTDS(TDSRegistration tdsRegistration) {
         String tokenUniqueRef = tdsRegistration.getTokenUniqueReference();
-        String paymentAppInstanceId = "";
-        String registrationHash = "";
+        String paymentAppInstanceId;
+        String registrationHash;
 
-        //Get the app instanse ID from the DB
-        if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent())
+        // Get the app instance ID from the DB
+        if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
             paymentAppInstanceId = cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).get().getPaymentAppInstanceId();
-        else
+        } else {
             return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
-
-        if (!paymentAppInstanceId.equalsIgnoreCase(tdsRegistration.getPaymentAppInstanceId()))
-            return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
-
-        //Get the regcode1 and regcode2 from the DB and generate registrationHash
-        TransctionRegDetails transctionRegDetails = transctionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get();
-        String regcode1 = transctionRegDetails.getRegCode1();
-        String regCode2 = transctionRegDetails.getRegCode2();
-
-        try {
-            registrationHash = MessageDigestUtil.sha256Hasing(regcode1 + regCode2);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
-        //Creat request
-        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap<String, String>();
+
+        // Validate PaymentAppInstanceId
+        if (!paymentAppInstanceId.equalsIgnoreCase(tdsRegistration.getPaymentAppInstanceId())) {
+            return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+        }
+
+        // Get the regcode1 and regcode2 from the DB and generate registrationHash
+        TransactionRegDetails transactionRegDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get();
+        try {
+            registrationHash = MessageDigestUtil.sha256Hasing(transactionRegDetails.getRegCode1() + transactionRegDetails.getRegCode2());
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            return ImmutableMap.of("reasonCode", "261", "message", "Crypto Exception");
+        }
+
+        // Create request
+        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap();
         reqMap.add("tokenUniqueReference", tokenUniqueRef);
         reqMap.add("registrationHash", registrationHash);
 
-        //Call getregstration API of the Master card
+        // Invoke Register API of the MDES
         ResponseEntity response = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + ServerConfig.TDS_PATH + "/" + paymentAppInstanceId + "/register", reqMap);
 
         JSONObject responseJson = new JSONObject(String.valueOf(response.getBody()));
         if (response.getStatusCode().value() == 200) {
-            //Strore the Authcode in DB
-            transctionRegDetails.setAuthCode(responseJson.getString("authenticationCode"));
-            //TODO:Generate the authcodeExpity here and update the same in the DB
-            transctionRegDetails.setAuthCodeExpiry(null);
-            transctionRegDetailsRepository.save(transctionRegDetails);
+            // Store the AuthenticationCode and TDS Url
+            transactionRegDetails.setAuthCode(responseJson.getString("authenticationCode"));
+            transactionRegDetails.setTdsUrl(responseJson.getString("tdsUrl"));
+            transactionRegDetailsRepository.save(transactionRegDetails);
         }
-
-        // TODO: Set the  RegURL In ServerCinfig file
-        /*MultiValueMap<String,String> responseMap = new LinkedMultiValueMap<String,String>();
-        responseMap.add("reasonCode",responseJson.getString("reasonCode"));
-        responseMap.add("result",responseJson.getString("result"));
-        responseMap.add("message","SUCCESS");*/
         return JsonUtil.jsonToMap(responseJson);
     }
 
-    public Map getTransctionHistory(GetTransactionHistoryReq getTransactionHistoryReq) {
+    public Map getTransactionHistory(GetTransactionHistoryReq getTransactionHistoryReq) {
         String tokenUniqueRef = getTransactionHistoryReq.getTokenUniqueReference();
-        String paymentAppInstanceId = "";
+        String paymentAppInstanceId = getTransactionHistoryReq.getPaymentAppInstanceId();
 
-        if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent())
-            paymentAppInstanceId = cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).get().getPaymentAppInstanceId();
-        else
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+        // If TokenUniqueReference is present then Check that paymentAppInstanceId and tokenUniqueReference
+        if (tokenUniqueRef != null) {
+            Optional<CardDetails> oCardDetails = cardDetailRepository.findByPaymentAppInstanceIdAndTokenUniqueReference(getTransactionHistoryReq.getPaymentAppInstanceId(),
+                    getTransactionHistoryReq.getTokenUniqueReference());
 
-        if (!paymentAppInstanceId.equalsIgnoreCase(getTransactionHistoryReq.getPaymentAppInstanceId()))
-            return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
-
-        //TODO:if required Get the authcode from DB and Validate the auth code expiry
-
-
-        String authCode = transctionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get().getAuthCode();
-        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap<String, String>();
-        reqMap.add("tokenUniqueReference", tokenUniqueRef);
-        reqMap.add("authenticationCode", authCode);
-
-        //Call getTransctions Code API of the Master card
-        ResponseEntity response = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + ServerConfig.TDS_PATH + "/" + paymentAppInstanceId + "/getTransactions", reqMap);
-        JSONObject responseJson = new JSONObject(String.valueOf(response.getBody()));
-        TransactionHistory transactionHistory;
-        if (response.getStatusCode().value() == 200) {
-            //store the Transaction History to the Data Base
-            if (transactionHistoryRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
-                transactionHistory = transactionHistoryRepository.findByTokenUniqueReference(tokenUniqueRef).get();
-                transactionHistory.setTransactionDetails(responseJson.getJSONArray("transactions").toString());
-                transactionHistoryRepository.save(transactionHistory);
-            } else {
-                transactionHistory = new TransactionHistory();
-                transactionHistory.setTokenUniqueReference(tokenUniqueRef);
-                transactionHistory.setTransactionDetails(responseJson.getJSONArray("transactions").toString());
-                transactionHistoryRepository.save(transactionHistory);
-
+            if (!oCardDetails.isPresent()) {
+                return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId or TokenUniqueReference");
             }
         }
 
-        return JsonUtil.jsonStringToHashMap(String.valueOf(response.getBody()));
+        // If paymentAppInstanceId is provided only then validate paymentAppInstanceId
+        Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+        if (!oTxnDetails.isPresent()) {
+            return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId");
+        }
+
+        TransactionRegDetails txnDetails = oTxnDetails.get();
+        String authCode = txnDetails.getAuthCode();
+
+        // Fetch Authentication Code and try to retrieve transaction details from MDES
+        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap();
+        reqMap.add("tokenUniqueReference", tokenUniqueRef);
+        reqMap.add("authenticationCode", authCode);
+
+        ResponseEntity response = httpRestHandlerUtils.httpPost(txnDetails.getTdsUrl() + "/" + paymentAppInstanceId + "/getTransactions", reqMap);
+        String strMdesResp = String.valueOf(response.getBody());
+        JSONObject jsMdesResp = new JSONObject(strMdesResp);
+        if (response.getStatusCode().value() == 200) {
+            // Get AuthenticationCode received from MDES and if it's different from previous one then update it.
+            String mdesAuthCode = jsMdesResp.getString("authenticationCode");
+            if (!mdesAuthCode.equalsIgnoreCase(authCode)) {
+                txnDetails.setAuthCode(mdesAuthCode);
+                transactionRegDetailsRepository.save(txnDetails);
+            }
+        }
+        return JsonUtil.jsonStringToHashMap(strMdesResp);
     }
 
     public Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq) {
-        String paymentAppInstanseID = lifeCycleManagementReq.getPaymentAppInstanceId();
+        String paymentAppInstanceID = lifeCycleManagementReq.getPaymentAppInstanceId();
         List<String> tokenUniqueRefList = lifeCycleManagementReq.getTokenUniqueReferences();
         String tokenUniqueRef = "";
 
-        for (int i = 0; i < tokenUniqueRefList.size(); i++)//Use foreach instade of for
-        {
+        for (int i = 0; i < tokenUniqueRefList.size(); i++) {//Use foreach instade of for
             tokenUniqueRef = tokenUniqueRefList.get(i);
             //get card detail repository
             CardDetails cardDetails = cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).get();
 
             //Check if the token unique reference are valid or not
-            if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getTokenUniqueReference())))
+            if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getTokenUniqueReference()))) {
                 return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+            }
 
             //Check if the payment appInstance ID is valid or not
-            if (!(paymentAppInstanseID.equalsIgnoreCase(cardDetails.getPaymentAppInstanceId())))
+            if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails.getPaymentAppInstanceId()))) {
                 return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
-            if (cardDetails.getTokenStatus().equalsIgnoreCase("DEACTIVATED"))
+            }
+            if (cardDetails.getTokenStatus().equalsIgnoreCase("DEACTIVATED")) {
                 return ImmutableMap.of("reasonCode", "264", "message", "Card not found");
+            }
         }
+
         //Prepare req for delete req
         MultiValueMap<String, Object> deleteReqMap = new LinkedMultiValueMap<String, Object>();
         deleteReqMap.add("responseHost", ServerConfig.RESPONSE_HOST);
         deleteReqMap.add("requestId", ArrayUtil.getHexString(ArrayUtil.getRandom(10)));
-        deleteReqMap.add("paymentAppInstanceId", paymentAppInstanseID);
+        deleteReqMap.add("paymentAppInstanceId", paymentAppInstanceID);
         deleteReqMap.add("tokenUniqueReferences", tokenUniqueRefList);
         deleteReqMap.add("causedBy", lifeCycleManagementReq.getCausedBy());
         deleteReqMap.add("reasonCode", lifeCycleManagementReq.getReasonCode());
@@ -667,10 +636,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 break;
             default:
                 return ImmutableMap.of("reasonCode", "262", "message", "Invalid Operation");
-
-
         }
-
 
         response = String.valueOf(responseEntity.getBody());
         //Check if https req is 200
@@ -690,13 +656,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetailRepository.save(cardDetails);
                     }
                 }
-
             }
             //Check the status of indivisual token and update the status of the token in the DB
             //Call update the card starus of the token in CMS-D
-
         }
-
 
         //Check the status of indivisual token and update the status of the token in the DB
         //Call update the card starus of the token in CMS-D
@@ -710,7 +673,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         response.put("requestId", "123456");
 
         String tokenUniqueRef = activationCodeReq.getTokenUniqueReference();
-        String paymentAppInstanceId = "";
+        String paymentAppInstanceId;
 
         // Validate tokenUniqueReference
         if (cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
@@ -745,6 +708,37 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonToMap(jsRespMdes);
     }
 
+    @Override
+    public Map unregisterTds(Map<String, String> unregisterTdsReq) {
+        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap();
+        if (unregisterTdsReq.containsKey("tokenUniqueReference")) {
+            String tokenUniqueReference = unregisterTdsReq.get("tokenUniqueReference");
+            if (!cardDetailRepository.findByTokenUniqueReference(tokenUniqueReference).isPresent()) {
+                return ImmutableMap.of("reasonCode", "261", "message", "Invalid tokenUniqueReference");
+            }
+            reqMap.add("tokenUniqueReference", tokenUniqueReference);
+        }
+        String paymentAppInstanceId = unregisterTdsReq.get("paymentAppInstanceId");
+
+
+        Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+        if (!oTxnDetails.isPresent()) {
+            return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId");
+        }
+
+        TransactionRegDetails txnDetails = oTxnDetails.get();
+        String authCode = txnDetails.getAuthCode();
+        reqMap.add("authenticationCode", authCode);
+
+        ResponseEntity response = httpRestHandlerUtils.httpPost(txnDetails.getTdsUrl() + "/" + paymentAppInstanceId + "/unregister", reqMap);
+        String strMdesResp = String.valueOf(response.getBody());
+        JSONObject jsMdesResp = new JSONObject(strMdesResp);
+        if (response.getStatusCode().value() == 200) {
+            // Delete TDS Registration Details
+            transactionRegDetailsRepository.delete(txnDetails);
+        }
+        return JsonUtil.jsonStringToHashMap(strMdesResp);
+    }
 /*
     private Map<String,Object> validate(EnrollPanRequest enrollPanRequest,List<UserDetail> userDetails,List<DeviceInfo> deviceInfo) {
         Map<String,Object> result=new HashMap();

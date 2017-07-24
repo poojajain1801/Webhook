@@ -75,7 +75,7 @@ public class VtsRequest {
     }
 
     protected void prepareHeader(JSONObject prepareHeaderRequest) {
-        headers.add("x-request-id", (String) prepareHeaderRequest.get("xRequestId"));
+        headers.add("x-request-registrationId", (String) prepareHeaderRequest.get("xRequestId"));
         headers.add("x-pay-token", generateXPayToken(prepareHeaderRequest));
         try {
          //   headers.add("Content-Length",String.valueOf(requestBody.getBytes("UTF-8").length));

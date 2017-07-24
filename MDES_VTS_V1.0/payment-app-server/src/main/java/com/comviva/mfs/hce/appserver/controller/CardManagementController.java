@@ -77,8 +77,8 @@ public class CardManagementController {
     }
     @ResponseBody
     @RequestMapping(value = "/getRegistrationCode", method = RequestMethod.POST)
-    public Map getRegistrationCode(@RequestBody GetregCodeReq getregCodeReq) {
-        return cardDetailService.getRegistrationCode(getregCodeReq);
+    public Map getRegistrationCode(@RequestBody GetRegCodeReq getRegCodeReq) {
+        return cardDetailService.getRegistrationCode(getRegCodeReq);
     }
     @ResponseBody
     @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
@@ -88,12 +88,18 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
     public Map registerWithTDS(@RequestBody GetTransactionHistoryReq getTransactionHistoryReq) {
-        return cardDetailService.getTransctionHistory(getTransactionHistoryReq);
+        return cardDetailService.getTransactionHistory(getTransactionHistoryReq);
     }
 
     @ResponseBody
     @RequestMapping(value = "/requestActivationCode", method = RequestMethod.POST)
     public Map requestActivationCode(@RequestBody ActivationCodeReq activationCodeReq) {
         return cardDetailService.requestActivationCode(activationCodeReq);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
+    public Map unregisterFromTds(@RequestBody Map unregisterTdsReq) {
+        return cardDetailService.unregisterTds(unregisterTdsReq);
     }
 }

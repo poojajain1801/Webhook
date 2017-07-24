@@ -34,7 +34,7 @@ public class FcmRns implements RemoteNotification {
     }
 
     @Override
-    public RnsResponse sendRns(String deviceRegistrationId, byte[] rnsPostData) {
+    public RnsResponse sendRns(byte[] rnsPostData) {
         int responseCode;
         String responseBody;
         RnsResponse response = new RnsResponse();

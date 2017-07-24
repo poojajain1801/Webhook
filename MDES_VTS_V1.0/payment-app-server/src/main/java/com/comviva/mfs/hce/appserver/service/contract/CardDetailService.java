@@ -17,10 +17,12 @@ public interface CardDetailService {
     Map<String,Object>getContent(GetContentRequest getContentRequest);
     Map<String,Object>getPANData(GetPANDataRequest getPANDataRequest);
     Map notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq);
-    Map getRegistrationCode(GetregCodeReq getregCodeReq);
+    Map getRegistrationCode(GetRegCodeReq getRegCodeReq);
     Map registerWithTDS(TDSRegistration tdsRegistration);
-    Map getTransctionHistory(GetTransactionHistoryReq getTransactionHistoryRea);
+    Map getTransactionHistory(GetTransactionHistoryReq getTransactionHistoryRea);
     Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq);
 
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
+
+    Map unregisterTds(Map<String, String> unregisterTdsReq);
 }
