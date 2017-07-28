@@ -355,7 +355,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         Optional<PendingTask> pendingTasks = pendingTaskRepository.findByPaymentAppInstanceIdAndStatus(appInstanceInfo.getPaymentAppInstId(),
                 RemoteNotificationService.PENDING_TASK_STATUS.NEW.name());
         PendingTask pendingTask = null;
-        if(pendingTasks.isPresent()) {
+        if (pendingTasks.isPresent()) {
             pendingTask = pendingTasks.get();
             pendingAction = RemoteNotificationService.PENDING_ACTION.valueOf(pendingTask.getAction());
         }
@@ -389,7 +389,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
                             ServerConfig.PAYMENT_APP_SERVER_PORT + "/payment-app/mdes/mpamanagement/1/0/sendRemoteNotificationMessage", mapReq);*/
             JSONObject jsRnsResp = new JSONObject(rnsResponse);
 
-            if(jsRnsResp.has("errorCode")) {
+            if (jsRnsResp.has("errorCode")) {
                 return new RequestSessionResp(Integer.toString(ConstantErrorCodes.RNS_UNAVAILABLE),
                         ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.RNS_UNAVAILABLE));
             }
@@ -425,7 +425,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         sessionInfoRepository.save(sessionInfo);
 
         // Update Pending task status to IN_PROGRESS
-        if(pendingTask != null) {
+        if (pendingTask != null) {
             pendingTask.setStatus(RemoteNotificationService.PENDING_TASK_STATUS.IN_PROGRESS.name());
             pendingTaskRepository.save(pendingTask);
         }
@@ -491,8 +491,12 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
             e.printStackTrace();
         }
 
+        JSONObject jsCardProfile = new JSONObject(token.getCardProfile());
+
         CmsDProvisionResponse cmsDProvisionResponse = new CmsDProvisionResponse();
         CardProfile cardProfile = new CardProfile();
+        // TODO when MDES Sandbox is received take it from database in serialized form and deserialize
+        //DigitizedCardProfileMdes digitizedCardProfileMdes = cardProfile.getDigitizedCardProfileMdes(jsCardProfile);
         DigitizedCardProfileMdes digitizedCardProfileMdes = cardProfile.getDigitizedCardProfileMdes(iccKek,
                 "5480981500100002",
                 "5480981500100002FFFF01150305163347");
@@ -564,7 +568,7 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
                 token.getPaymentAppInstId(),
                 token.getTokenUniqueReference(),
                 RemoteNotificationService.PENDING_TASK_STATUS.IN_PROGRESS.name());
-        if(pendingTasks.isPresent()) {
+        if (pendingTasks.isPresent()) {
             PendingTask pendingTask = pendingTasks.get();
             pendingTask.setStatus(RemoteNotificationService.PENDING_TASK_STATUS.COMPLETE.name());
             pendingTaskRepository.save(pendingTask);

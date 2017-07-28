@@ -3,8 +3,11 @@ package com.comviva.mfs.promotion.util.cpadapter;
 import com.comviva.mfs.promotion.util.ArrayUtil;
 import com.comviva.mfs.promotion.util.aes.AESUtil;
 import com.mastercard.mcbp.remotemanagement.mdes.profile.*;
+import flexjson.JSONDeserializer;
 import lombok.Getter;
 import lombok.Setter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.security.GeneralSecurityException;
 
@@ -65,11 +68,11 @@ public class CardProfile {
     }
 
     private IccPrivateKeyCrtComponents getIccPrivateKeyCrtComponents(byte[] iccKek) {
-        byte[] p = ArrayUtil.getByteArray("101565610013301240713207239558950144682174355406589305284428666903702505233009");
-        byte[] q = ArrayUtil.getByteArray("89468719188754548893545560595594841381237600305314352142924213312069293984003");
-        byte[] dp = ArrayUtil.getByteArray("93508487983621011980308809077436163233486980736420426663592427234014400426465");
-        byte[] dq = ArrayUtil.getByteArray("39924206061844862938366722914051164017185614552526332124140845908593107749243");
-        byte[] u = ArrayUtil.getByteArray("82979745043413288095388081210478420482729140505221184605143714377105157807297");
+        byte[] p = ArrayUtil.getByteArray("f90ca5ac46dc22667b7a58f1ca048beae65af5ee3856783922aa91fb27fd4a10a0c17b1ea8fd10e92dfe1bc41bf77d409639414feb7cbdf9a4e3dcedeef0961b8b70943a45e6a7482b5d012db349ca5d556dba753fd1755fa7e56be58e9da62d96b093c92e7dd30936e6942f1f90db243da83fb96d939c975db4c617d04df83f");
+        byte[] q = ArrayUtil.getByteArray("b413b2a68aa7f1b9fddc64f355d3108bea3bbf8e8eca61be01fecad9bb9b8247a011ad27d62b2b8b790cb82d81dddf62485d168d5be3f0bbca43aa7a5d7b614305ed2265f0faa74142fd58c169ca8dbe32c8fb554bab4836d12bbc02371279641816f7a6e12cc88ec2abfe6910fc0e876f7624b2b0aac6a47ba3a0e24bd8bf51");
+        byte[] dp = ArrayUtil.getByteArray("c6b774a9d5906852654be6146720e193786233c0f46aea5a8c729530556420e8cb9c15e50ce97fc8cecde6d1bf8ee5fdd6dfb06158809c04c9b096e3b2b77cce55a06a6564c8f9c8f7f0a9b4114e5b8dc5505c6a99954396239d474e4f5132fb453577761b068290e3a16fb379f85722bf9fb3d8fcb9bf44779c7a431e0e5879");
+        byte[] dq = ArrayUtil.getByteArray("a4f3663227d0af1c2fee328ab393231506fab3fd61cf00b98c1a58b619a3d932c2ed6e2f8f7efbe4467de037cf3dede19967abc0d0eb7b1889ae71faa4a6dff104fcb305ae37ebfd5bdfb5ed757a955c2428f610abbfb9e67cb41303f46e77c3b84d518d0bb67a004b524138fcd5e67929208f7d1f574f9e5ba3073c433dc801");
+        byte[] qInv = ArrayUtil.getByteArray("627578ddc9466db48adc8fffb70f05f476b6717c09aa20fdd00ed84b776f6c9d23b3f9e21ffe84ceb906b8dc6220dca1ca0814b374f37b09a065b82ff04f3261013daf803cb658badde6edd157b43fe5b098526b69b3697303dcb3ce9504ab85cad85f137d64ba024bcb99af2907ac28594111ad1e02d8c8a0022cab08659004");
 
         byte[] encP = null, encQ = null, encDp = null, encDq = null, encU = null;
         try {
@@ -77,7 +80,7 @@ public class CardProfile {
             encQ = AESUtil.cipherECB(q, iccKek, AESUtil.Padding.ISO7816_4, true);
             encDp = AESUtil.cipherECB(dp, iccKek, AESUtil.Padding.ISO7816_4, true);
             encDq = AESUtil.cipherECB(dq, iccKek, AESUtil.Padding.ISO7816_4, true);
-            encU = AESUtil.cipherECB(u, iccKek, AESUtil.Padding.ISO7816_4, true);
+            encU = AESUtil.cipherECB(qInv, iccKek, AESUtil.Padding.ISO7816_4, true);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
@@ -111,7 +114,7 @@ public class CardProfile {
         contactlessPaymentData.setGpoResponse("770E82021B8094080801010010010301");
         contactlessPaymentData.setIccPrivateKeyCrtComponents(getIccPrivateKeyCrtComponents(iccKek));
         contactlessPaymentData.setIssuerApplicationData("0314000100000000000000000000000000FF");
-        contactlessPaymentData.setPaymentFci("8407A0000000041010A52D500A4D4153544552434152448701015F2D02656E9F38099F1D089F1A029F3501BF0C0A9F6E0708400000313400");
+        contactlessPaymentData.setPaymentFci("6F388407A0000000041010A52D500A4D4153544552434152448701015F2D02656E9F38099F1D089F1A029F3501BF0C0A9F6E0708400000313400");
         contactlessPaymentData.setPinIvCvc3Track2("56DE");
         contactlessPaymentData.setPpseFci("6F39840E325041592E5359532E4444463031A527BF0C2461224F07A0000000041010500A4D4153544552434152448701015F550255534203545501");
         // SFI-1, Record-1
@@ -150,4 +153,70 @@ public class CardProfile {
         return cardProfile;
     }
 
+    public DigitizedCardProfileMdes getDigitizedCardProfileMdes(JSONObject jsCardProfile) {
+        DigitizedCardProfileMdes digitizedCardProfileMdes = new DigitizedCardProfileMdes();
+
+        digitizedCardProfileMdes.maximumPinTry = jsCardProfile.getInt("maximumPinTry");
+        digitizedCardProfileMdes.digitizedCardId = jsCardProfile.getString("digitizedCardId");
+
+        // BusinessLogicModule
+        digitizedCardProfileMdes.businessLogicModule = (BusinessLogicModule) new JSONDeserializer()
+                .deserialize(jsCardProfile.getJSONObject("businessLogicModule").toString(), BusinessLogicModule.class);
+
+        // MppLiteModule
+        JSONObject jsMppLiteModule = jsCardProfile.getJSONObject("mppLiteModule");
+        digitizedCardProfileMdes.mppLiteModule = new MppLiteModule();
+
+        // CardRiskManagementData
+        CardRiskManagementData cardRiskManagementData = (CardRiskManagementData) new JSONDeserializer()
+                .deserialize(jsMppLiteModule.getJSONObject("cardRiskManagementData").toString(), CardRiskManagementData.class);
+        digitizedCardProfileMdes.mppLiteModule.setCardRiskManagementData(cardRiskManagementData);
+
+        // ContactlessPaymentData
+        JSONObject jsContactlessPaymentData = jsMppLiteModule.getJSONObject("contactlessPaymentData");
+        ContactlessPaymentData contactlessPaymentData = new ContactlessPaymentData();
+        contactlessPaymentData.setAid(jsContactlessPaymentData.getString("aid"));
+        contactlessPaymentData.setPpseFci(jsContactlessPaymentData.getString("ppseFci"));
+        contactlessPaymentData.setPaymentFci(jsContactlessPaymentData.getString("paymentFci"));
+        contactlessPaymentData.setGpoResponse(jsContactlessPaymentData.getString("gpoResponse"));
+        contactlessPaymentData.setCdol1RelatedDataLength(jsContactlessPaymentData.getString("cdol1RelatedDataLength"));
+        contactlessPaymentData.setCiacDecline(jsContactlessPaymentData.getString("ciacDecline"));
+        contactlessPaymentData.setCvrMaskAnd(jsContactlessPaymentData.getString("cvrMaskAnd"));
+        contactlessPaymentData.setIssuerApplicationData(jsContactlessPaymentData.getString("issuerApplicationData"));
+        contactlessPaymentData.setPinIvCvc3Track2(jsContactlessPaymentData.getString("pinIvCvc3Track2"));
+        contactlessPaymentData.setCiacDeclineOnPpms(jsContactlessPaymentData.getString("ciacDeclineOnPpms"));
+
+        IccPrivateKeyCrtComponents iccPrivateKeyCrtComponents = (IccPrivateKeyCrtComponents) new JSONDeserializer()
+                .deserialize(jsContactlessPaymentData.getJSONObject("iccPrivateKeyCrtComponents").toString(), IccPrivateKeyCrtComponents.class);
+        contactlessPaymentData.setIccPrivateKeyCrtComponents(iccPrivateKeyCrtComponents);
+
+        try {
+            AlternateContactlessPaymentData alternateContactlessPaymentData = (AlternateContactlessPaymentData) new JSONDeserializer()
+                    .deserialize(jsContactlessPaymentData.getJSONObject("alternateContactlessPaymentData").toString(), AlternateContactlessPaymentData.class);
+            contactlessPaymentData.setAlternateContactlessPaymentData(alternateContactlessPaymentData);
+        } catch (Exception e) {
+            contactlessPaymentData.setAlternateContactlessPaymentData(null);
+        }
+
+        JSONArray jsArrRecords = jsContactlessPaymentData.getJSONArray("records");
+        int noOfRecords = jsArrRecords.length();
+        Records[] records = new Records[noOfRecords];
+        JSONObject tempObject;
+        for (int i = 0; i < noOfRecords; i++) {
+            tempObject = jsArrRecords.getJSONObject(i);
+            records[i] = new Records();
+            records[i].setRecordNumber(tempObject.getInt("recordNumber"));
+            records[i].setSfi(tempObject.getString("sfi"));
+            records[i].setRecordValue(tempObject.getString("recordValue"));
+        }
+        contactlessPaymentData.setRecords(records);
+        digitizedCardProfileMdes.mppLiteModule.setContactlessPaymentData(contactlessPaymentData);
+
+        // RemotePaymentData
+        RemotePaymentData remotePaymentData = (RemotePaymentData) new JSONDeserializer()
+                .deserialize(jsMppLiteModule.getJSONObject("remotePaymentData").toString(), RemotePaymentData.class);
+        digitizedCardProfileMdes.mppLiteModule.setRemotePaymentData(remotePaymentData);
+
+        return digitizedCardProfileMdes;
+    }
 }
