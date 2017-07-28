@@ -10,16 +10,11 @@ import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.util.UrlUtil;
-import com.mastercard.mcbp.api.McbpApi;
 import com.mastercard.mcbp.api.McbpCardApi;
-import com.mastercard.mcbp.api.MpaManagementApi;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
 import com.mastercard.mcbp.init.McbpInitializer;
-import com.mastercard.mcbp.lde.services.LdeMcbpCardService;
 import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
-
-import java.util.ArrayList;
 
 /**
  * Global object.
@@ -30,8 +25,11 @@ public class ComvivaHce {
     private CommonDb commonDb;
     private Application application;
 
+    private PaymentCard paymentCard;
+
     private ComvivaHce(Application application) {
         this.application = application;
+        paymentCard = new PaymentCard();
         commonDb = new CommonDatabase(application.getApplicationContext());
         VisaPaymentSDKImpl.initialize(application.getApplicationContext());
         McbpInitializer.setup(application, null);
@@ -95,5 +93,13 @@ public class ComvivaHce {
 
     public boolean isTdsRegistered(final String tokenUniqueReference) {
         return commonDb.getTdsRegistrationData(tokenUniqueReference) != null;
+    }
+
+    public PaymentCard getPaymentCard() {
+        return paymentCard;
+    }
+
+    public void setPaymentCard(Object paymentCard) {
+        this.paymentCard.setCurrentCard(paymentCard);
     }
 }

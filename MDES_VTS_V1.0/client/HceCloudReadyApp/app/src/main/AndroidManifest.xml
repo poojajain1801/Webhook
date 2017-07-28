@@ -48,6 +48,13 @@
         <activity android:name=".activities.AddCardActivity" />
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.RegisterUserActivity" />
+        <activity android:name=".activities.ActivateUserActivity" />
+        <activity android:name=".activities.TnCActivity" />
+        <activity android:name=".activities.AuthenticationMethodActivity" />
+        <activity android:name=".activities.SelectAuthenticationActivity" />
+        <activity android:name=".activities.ActivateActivity" />
+        <activity android:name=".activities.ChangePinActivity" />
+        <activity android:name=".activities.TransactionHistoryMdesActivity"></activity>
 
         <!-- Defining Services -->
         <service android:name="com.comviva.hceservice.fcm.ComvivaFCMService">
@@ -61,13 +68,20 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".activities.ActivateUserActivity" />
-        <activity android:name=".activities.TnCActivity" />
-        <activity android:name=".activities.AuthenticationMethodActivity" />
-        <activity android:name=".activities.SelectAuthenticationActivity" />
-        <activity android:name=".activities.ActivateActivity" />
-        <activity android:name=".activities.ChangePinActivity" />
-        <activity android:name=".activities.TransactionHistoryMdesActivity"></activity>
+        <service
+            android:name="com.comviva.mdesapp.AndroidHceService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NFC_SERVICE" >
+            <intent-filter>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.nfc.cardemulation.host_apdu_service"
+                android:resource="@xml/apduservice" />
+        </service>
+
+
     </application>
 
 </manifest>

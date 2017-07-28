@@ -8,4 +8,7 @@
 
     <string name="notification_change_pin_title">PIN Result</string>
     <string name="notification_change_pin_message">PIN changed successfully</string>
+
+    <string name="hceSrviceDesc">ComvivaHce</string>
+    <string name="aidDescription">Hce Solutions AID desc</string>
 </resources>
