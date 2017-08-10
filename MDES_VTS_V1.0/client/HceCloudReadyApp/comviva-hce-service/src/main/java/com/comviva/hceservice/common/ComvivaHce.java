@@ -17,8 +17,7 @@ import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 
 /**
- * Global object.
- * Created by tarkeshwar.v on 3/11/2017.
+ * Entry Class for Comviva SDK.
  */
 public class ComvivaHce {
     private static ComvivaHce comvivaHce;
@@ -35,6 +34,11 @@ public class ComvivaHce {
         McbpInitializer.setup(application, null);
     }
 
+    /**
+     * Returns Singleton Instance of this class.
+     * @param context Current Context
+     * @return Singleton ComvivaHce Instance
+     */
     public static ComvivaHce getInstance(Application context) {
         if(comvivaHce == null) {
             PropertyReader propertyReader = PropertyReader.getInstance(context);
@@ -47,14 +51,28 @@ public class ComvivaHce {
         return comvivaHce;
     }
 
+    /**
+     * Checks that SDK is initialized of not.
+     *
+     * @return <code>true </code> SDK is initialized <br>
+     *     <code>false </code> SDK is uninitialized
+     */
     public boolean isSdkInitialized() {
         return commonDb.getInitializationData().isInitState();
     }
 
+    /**
+     * Returns Remote Notification Detail.
+     * @return RnsInfo object
+     */
     public RnsInfo getRnsInfo() {
         return commonDb.getInitializationData().getRnsInfo();
     }
 
+    /**
+     * Saves Remote Notification Detail
+     * @param rnsInfo
+     */
     public void saveRnsInfo(RnsInfo rnsInfo) {
         commonDb.setRnsInfo(rnsInfo);
     }
@@ -83,6 +101,10 @@ public class ComvivaHce {
         return commonDb;
     }
 
+    /**
+     * replenish new Transaction credentials for given Token
+     * @param tokenUniqueReference  TokenUniqueReference which needs to be replenished.
+     */
     public void replenishCard(String tokenUniqueReference) {
         try {
             McbpCardApi.replenishForCardWithId(tokenUniqueReference);
@@ -91,6 +113,12 @@ public class ComvivaHce {
         }
     }
 
+    /**
+     * Checks that given token is registered for given token or not.
+     * @param tokenUniqueReference Token Unique Reference to checked.
+     * @return <code>true </code>Registered for TDS<br>
+     *     <code>false </code>Not registered yet for TDS
+     */
     public boolean isTdsRegistered(final String tokenUniqueReference) {
         return commonDb.getTdsRegistrationData(tokenUniqueReference) != null;
     }

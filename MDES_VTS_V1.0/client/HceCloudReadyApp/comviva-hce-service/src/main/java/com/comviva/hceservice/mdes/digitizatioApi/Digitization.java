@@ -39,7 +39,6 @@ import javax.crypto.Cipher;
 
 /**
  * Contains all Digitization APIs.
- * Created by tarkeshwar.v on 5/23/2017.
  */
 public class Digitization {
     private JSONObject prepareCardInfo(CardEligibilityRequest cardEligibilityRequest) throws JSONException,
@@ -76,6 +75,11 @@ public class Digitization {
         return cardInfo;
     }
 
+    /**
+     * Checks that Card is eligible for digitization or not.
+     * @param cardEligibilityRequest    Eligibility request
+     * @param checkEligibilityListener  Eligibility Response
+     */
     public void checkCardEligibility(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonCardEligibilityReq = new JSONObject();
         try {
@@ -148,6 +152,11 @@ public class Digitization {
         checkCardEligibilityTask.execute();
     }
 
+    /**
+     * Fetches Asset's value from payment App Server.
+     * @param assetId   Asset ID
+     * @return GetAssetResponse object
+     */
     public GetAssetResponse getAsset(String assetId) {
         final Map<String, String> queryMap = new HashMap<>();
         queryMap.put("assetId", assetId);
@@ -212,6 +221,11 @@ public class Digitization {
         return getAssetResponse;
     }
 
+    /**
+     * Digitize the card.
+     * @param digitizationRequest   Digitization Request
+     * @param digitizationListener  UI Listener
+     */
     public void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
         final ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
         final JSONObject jsonContinueDigitizationReq = new JSONObject();
@@ -308,6 +322,9 @@ public class Digitization {
         digitizeTask.execute();
     }
 
+    /**
+     * Request new session to complete pending task.
+     */
     public void requestSession() {
         final JSONObject requestSessionReq = new JSONObject();
         try {
@@ -345,6 +362,11 @@ public class Digitization {
         requestSessionTask.execute();
     }
 
+    /**
+     * This API is used to Suspend, UnSuspend and Delete Token
+     * @param cardLcmRequest    Card Life Cycle Management Request
+     * @param cardLcmListener   UI Listener
+     */
     public void performCardLcm(final CardLcmRequest cardLcmRequest, final CardLcmListener cardLcmListener) {
         final JSONObject jsCardLcmReq = new JSONObject();
         try {
@@ -432,6 +454,12 @@ public class Digitization {
         cardLcmTask.execute();
     }
 
+    /**
+     * This API is used to request an Activation Code be sent to authenticate the Cardholder.
+     * @param tokenUniqueReference      The Token for which to send an Activation Code.
+     * @param authenticationMethod      Identifies the AuthenticationMethod chosen by the Cardholder from the list of AuthenticationMethods
+     * @param activationCodeListener    UI Listener
+     */
     public void requestActivationCode(final String tokenUniqueReference,
                                       final AuthenticationMethod authenticationMethod,
                                       final RequestActivationCodeListener activationCodeListener) {
@@ -480,6 +508,13 @@ public class Digitization {
         reqActivationCodeTask.execute();
     }
 
+    /**
+     * This API is used to activate a Token for first-time use if the digitization decision was to "Require Additional Authentication" in the Digitize response
+     * @param tokenUniqueReference  The Token to be activated.
+     * @param activationCode        Activation Code received by Cardholder
+     * @param type                  Type of Activation Code
+     * @param activateListener      UI listener
+     */
     public void activate(final String tokenUniqueReference, final String activationCode, ActivationCodeType type,
                          final ActivateListener activateListener) {
         final JSONObject jsActivateReq = new JSONObject();

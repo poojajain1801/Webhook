@@ -1,10 +1,22 @@
 package com.comviva.hceservice.mdes.tds;
 
+/**
+ * UI Listener for TDS registration.
+ */
 public interface TdsRegistrationListener {
+    /**
+     * TDS registration started.
+     */
     void onRegistrationStarted();
 
+    /**
+     * Error occurred.
+     * @param message Error Message
+     */
     void onError(String message);
 
-    /** Registration was successful */
+    /**
+     * Registration is successful
+     */
     void onSuccess();
 }

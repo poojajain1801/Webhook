@@ -17,7 +17,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+/**
+ * This Class contains all transaction history related APIs.
+ */
 public class TransactionHistory {
+    /**
+     * Initiate registration with Transaction Details Services.
+     * @param tokenUniqueReference      The Token for which to register for transaction details
+     * @param tdsRegistrationListener   UI Listener
+     */
     public static void registerWithTdsInitiate(final String tokenUniqueReference, final TdsRegistrationListener tdsRegistrationListener) {
         final ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
@@ -85,6 +93,9 @@ public class TransactionHistory {
         getRegCodeTask.execute();
     }
 
+    /**
+     * @param tdsNotificationData
+     */
     public static void registerWithTdsFinish(final TdsNotificationData tdsNotificationData) {
         final ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
@@ -141,6 +152,11 @@ public class TransactionHistory {
         registerTdsTask.execute();
     }
 
+    /**
+     * This API is used by the Mobile Payment App to get recent transactions for one or more Tokens.
+     * @param tokenUniqueReference          The Token for which to get transaction details.
+     * @param transactionDetailsListener    UI Listener
+     */
     public static void getTransactionDetails(final String tokenUniqueReference, final TransactionDetailsListener transactionDetailsListener) {
         final ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
 
@@ -194,13 +210,13 @@ public class TransactionHistory {
                             ArrayList<TransactionDetails> arrTxnDetails = new ArrayList<>();
                             TransactionDetails txnDetails;
                             String displayableCardNo;
-                            for(int i = 0; i < arrTransactions.length(); i++) {
+                            for (int i = 0; i < arrTransactions.length(); i++) {
                                 tempTransactionDetail = arrTransactions.getJSONObject(i);
                                 txnDetails = new TransactionDetails();
                                 displayableCardNo = McbpCardApi.getDisplayablePanDigits(tempTransactionDetail.getString("tokenUniqueReference"));
                                 txnDetails.setTokenUniqueReference("XXXX XXXX XXXX " + displayableCardNo);
                                 txnDetails.setRecordId(tempTransactionDetail.getString("recordId"));
-                                if(tempTransactionDetail.has("transactionIdentifier")) {
+                                if (tempTransactionDetail.has("transactionIdentifier")) {
                                     txnDetails.setTransactionIdentifier(tempTransactionDetail.getString("transactionIdentifier"));
                                 }
                                 txnDetails.setTransactionType(tempTransactionDetail.getString("transactionType"));
@@ -208,13 +224,13 @@ public class TransactionHistory {
                                 txnDetails.setCurrencyCode(tempTransactionDetail.getString("currencyCode"));
                                 txnDetails.setAuthorizationStatus(tempTransactionDetail.getString("authorizationStatus"));
                                 txnDetails.setTransactionTimestamp(tempTransactionDetail.getString("transactionTimestamp"));
-                                if(tempTransactionDetail.has("merchantName")) {
+                                if (tempTransactionDetail.has("merchantName")) {
                                     txnDetails.setMerchantName(tempTransactionDetail.getString("merchantName"));
                                 }
-                                if(tempTransactionDetail.has("merchantType")) {
+                                if (tempTransactionDetail.has("merchantType")) {
                                     txnDetails.setMerchantType(tempTransactionDetail.getString("merchantType"));
                                 }
-                                if(tempTransactionDetail.has("merchantPostalCode")) {
+                                if (tempTransactionDetail.has("merchantPostalCode")) {
                                     txnDetails.setMerchantPostalCode(tempTransactionDetail.getString("merchantPostalCode"));
                                 }
                                 arrTxnDetails.add(txnDetails);
@@ -231,13 +247,19 @@ public class TransactionHistory {
         getTxnDetailsTask.execute();
     }
 
+    /**
+     * This API is used to unregister a specific Token from the Transaction Details Service, or to opt out of the Transaction Details Service altogether.
+     * @param tokenUniqueReference  The Token for which to unregister from transaction details.
+     *                              If tokenUniqueReference is null, all Tokens for the Mobile Payment App instance will be unregistered.
+     * @param unregisterTdsListener UI Listener
+     */
     public static void unregisterWithTds(final String tokenUniqueReference, final UnregisterTdsListener unregisterTdsListener) {
         final ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
 
         final JSONObject jsUnregisterTds = new JSONObject();
         try {
             jsUnregisterTds.put("paymentAppInstanceId", comvivaHce.getPaymentAppInstanceId());
-            if(tokenUniqueReference != null) {
+            if (tokenUniqueReference != null) {
                 jsUnregisterTds.put("tokenUniqueReference", tokenUniqueReference);
             }
         } catch (JSONException e) {

@@ -1,9 +1,19 @@
 package com.comviva.hceservice.fcm;
 
+/**
+ * Remote Notification Information. Remote notification service used may be GCM or FCM.
+ */
 public class RnsInfo {
     private String registrationId;
     private RNS_TYPE rnsType;
 
+    /**
+     * Type of Remote Notification Service.
+     * <list>
+     *     <li>GCM - Google Cloud Messaging Service</li>
+     *     <li>FCM - Firebase Cloud Messaging Service</li>
+     * </list>
+     */
     public enum RNS_TYPE {
         GCM, FCM
     }

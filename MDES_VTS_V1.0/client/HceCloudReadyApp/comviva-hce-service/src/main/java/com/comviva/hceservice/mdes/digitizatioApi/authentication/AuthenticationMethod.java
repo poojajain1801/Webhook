@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 /**
- * Created by tarkeshwar.v on 6/20/2017.
+ * Additional Authentication if required while digitization process.
  */
 public class AuthenticationMethod implements Serializable {
     private Number id;
@@ -39,40 +39,78 @@ public class AuthenticationMethod implements Serializable {
         }
     }
 
+    /**
+     * Constructor.
+     * @param id    Unique identifier assigned to this Authentication Method
+     * @param type  Specifies the authentication method type
+     * @param value Specifies the authentication method value (meaning varies depending on the authentication method type).
+     */
     public AuthenticationMethod(Number id, AuthenticationType type, String value) {
         this.id = id;
         this.type = type;
         parseValue(value);
     }
 
+    /**
+     * Returns Value of Authentication Method
+     * @return Value of Authentication Method
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Set Value of Authentication Method
+     * @param value Value of Authentication Method
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * Returns Unique identifier.
+     * @return  Unique identifier
+     */
     public Number getId() {
         return id;
     }
 
+    /**
+     * Set Unique identifier.
+     * @param id    Unique identifier
+     */
     public void setId(Number id) {
         this.id = id;
     }
 
+    /**
+     * Returns Authentication Type.
+     * @return Authentication Type
+     */
     public AuthenticationType getType() {
         return type;
     }
 
+    /**
+     * Set Authentication Type.
+     * @param type Authentication Type
+     */
     public void setType(AuthenticationType type) {
         this.type = type;
     }
 
+    /**
+     * Returns Android Intent.
+     * @return Android Intent
+     */
     public AndroidIntent getAndroidIntent() {
         return androidIntent;
     }
 
+    /**
+     * Set Android Intent
+     * @param androidIntent Android Intent
+     */
     public void setAndroidIntent(AndroidIntent androidIntent) {
         this.androidIntent = androidIntent;
     }

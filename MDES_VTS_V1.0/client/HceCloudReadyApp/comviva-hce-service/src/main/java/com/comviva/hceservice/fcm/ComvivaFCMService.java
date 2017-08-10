@@ -18,15 +18,33 @@ import com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener;
 import java.util.Map;
 import java.util.Random;
 
-public class ComvivaFCMService extends FirebaseMessagingService {
-    public static final String MESSAGE_TAG = "notificationData";
-    public static final String KEY_NOTIFICATION_TYPE = "notificationType";
-    public static final String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";
-    public static final String TYPE_TDS_NOTIFICATION = "notificationTds";
+/**
+ * Service Class implementing Firebase Messaging Service.
+ */
+public class ComvivaFCMService {
+    private static final String MESSAGE_TAG = "notificationData";
+    private static final String KEY_NOTIFICATION_TYPE = "notificationType";
+    private static final String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";
+    private static final String TYPE_TDS_NOTIFICATION = "notificationTds";
 
     private static ComvivaWalletListener walletEventListener;
+    private static ComvivaFCMService comvivaFCMService;
 
-    @Override
+    /**
+     * Returns Singleton Instance of this class.
+     * @return ComvivaFCMService instance
+     */
+    public static ComvivaFCMService getInstance() {
+        if(comvivaFCMService == null) {
+            comvivaFCMService = new ComvivaFCMService();
+        }
+        return comvivaFCMService;
+    }
+
+    /**
+     * Invoke this API when FCM notification comes.
+     * @param remoteMessage RemoteMessage object received through FCM notification
+     */
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Map data;
         String strNotificationData;
@@ -86,10 +104,18 @@ public class ComvivaFCMService extends FirebaseMessagingService {
         }
     }
 
+    /***
+     * Set Wallet Event Listener.
+     * @param walletEventListener Wallet Event Listener
+     */
     public static void setComvivaWalletListener(ComvivaWalletListener walletEventListener) {
         ComvivaFCMService.walletEventListener = walletEventListener;
     }
 
+    /**
+     * Returns Wallet Event Listener
+     * @return Wallet Event Listener
+     */
     public static ComvivaWalletListener getWalletEventListener() {
         return walletEventListener;
     }

@@ -1,7 +1,7 @@
 package com.comviva.hceservice.mdes.digitizatioApi.authentication;
 
 /**
- * Created by tarkeshwar.v on 6/20/2017.
+ * The authentication method type.
  */
 public enum AuthenticationType {
     /** Text message to Cardholder's mobile phone number.

@@ -1,65 +1,47 @@
 package com.comviva.hceservice.register;
 
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.icu.util.Calendar;
 import android.os.AsyncTask;
-import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
 
 import com.comviva.hceservice.common.ComvivaHce;
-import com.comviva.hceservice.common.InitializationData;
 import com.comviva.hceservice.common.RestResponse;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
-import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.util.ArrayUtil;
-import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
-import com.comviva.hceservice.util.HttpRequestListener;
 import com.comviva.hceservice.util.Miscellaneous;
 import com.comviva.hceservice.util.UrlUtil;
-import com.comviva.hceservice.util.crypto.AESUtil;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Date;
 
 import com.comviva.hceservice.util.crypto.MessageDigestUtil;
-import com.comviva.hceservice.util.crypto.RsaCipher;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.mastercard.mcbp.api.McbpApi;
 import com.mastercard.mcbp.api.MpaManagementApi;
-import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.utils.crypto.CryptoService;
 import com.mastercard.mcbp.utils.crypto.CryptoServiceFactory;
 import com.mastercard.mcbp.utils.exceptions.crypto.McbpCryptoException;
 import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
 import com.mastercard.mcbp.utils.exceptions.gcm.GcmRegistrationFailed;
 import com.mastercard.mobile_api.bytes.ByteArray;
-import com.mastercard.mobile_api.utils.Utils;
 import com.visa.cbp.external.common.EncDevicePersoData;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 
-import static com.mastercard.mcbp.utils.crypto.CryptoService.Mode.ENCRYPT;
-
+/**
+ *  This class contains all apis related to user registration and device enrollment.
+ */
 public class Registration {
     private VisaPaymentSDK visaPaymentSDK;
     private byte[] deviceFingerprint;
@@ -262,6 +244,15 @@ public class Registration {
         visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
     }
 
+    /**
+     * Register a new user with payment App Server.
+     *
+     * @param userId          User Id
+     * @param imei            IMEI of the device being used
+     * @param osName          OS Name of device e.g. Android
+     * @param deviceModel     Device model name
+     * @param regUserListener UI listener for this api
+     */
     public void registerUser(final String userId, final String imei,
                              final String osName, final String deviceModel,
                              final RegisterUserListener regUserListener) {
@@ -354,6 +345,14 @@ public class Registration {
         }
     }
 
+    /**
+     * Activates an already registered user.
+     *
+     * @param userId               User ID to be activated
+     * @param activationCode       Activation Code received by user
+     * @param imei                 IMEI of the device
+     * @param activateUserListener UI listener for Activate User
+     */
     public void activateUser(final String userId, final String activationCode, final String imei, final ActivateUserListener activateUserListener) {
         final HttpUtil httpUtil = HttpUtil.getInstance();
         final RestResponse restResp = new RestResponse();
@@ -425,6 +424,12 @@ public class Registration {
         }
     }
 
+    /**
+     * Register device of the user.
+     *
+     * @param registerParam        Registration parameters
+     * @param activateUserListener UI listener for Activate User
+     */
     public void registerDevice(final RegisterParam registerParam, final ActivateUserListener activateUserListener) {
         // Calculate Device Fingerprint
         deviceFingerprint = getDeviceFingerprint(getDeviceInfoInJson(registerParam.getDeviceInfo()));
@@ -477,7 +482,7 @@ public class Registration {
                         JSONObject respObj = new JSONObject(httpResponse.getResponse());
 
                         // MDES Initialization
-                        if(respObj.has("mdesFinalCode")) {
+                        if (respObj.has("mdesFinalCode")) {
                             String mdesRespCode = respObj.getString("mdesFinalCode");
                             if (mdesRespCode.equalsIgnoreCase("200")) {
                                 JSONObject mdesResponse = respObj.getJSONObject("mdes");
@@ -487,7 +492,7 @@ public class Registration {
                         }
 
                         // VTS Initialization
-                        if(respObj.has("visaFinalMessage")) {
+                        if (respObj.has("visaFinalMessage")) {
                             String vtsRespCode = respObj.getString("visaFinalMessage");
                             if (vtsRespCode.equalsIgnoreCase("200")) {
                                 JSONObject encDevicePersonalizationData = new JSONObject();
@@ -514,7 +519,7 @@ public class Registration {
     }
 
     // TODO Mocked request and responses. Remove after development completion
-    public static final String strMockRespp = "{\"mdesResponseCode\":\"200\"," +
+   /* public static final String strMockRespp = "{\"mdesResponseCode\":\"200\"," +
             "\"mdesMessage\":\"Device Registered Successfully\",\n" +
             "\"vtsResponseCode\":\"200\",\n" +
             "\"vtsMessage\":\"Device Registered Successfully\",\n" +
@@ -542,6 +547,6 @@ public class Registration {
             "\"walletAccountId\":\"abhyirweo78898jldsjlfjdosui\"\n" +
             "}\n" +
             "}\n" +
-            "}";
+            "}";*/
 
 }

@@ -1,9 +1,18 @@
 package com.comviva.hceservice.mdes.digitizatioApi;
 
-
+/**
+ * UI Listener for Activate Token.
+ */
 public interface ActivateListener {
+    /**
+     * Activation started.
+     */
     void onActivationStarted();
 
+    /**
+     * Error occurred.
+     * @param message   Error Message
+     */
     void onError(String message);
 
     /** Activation was successful */

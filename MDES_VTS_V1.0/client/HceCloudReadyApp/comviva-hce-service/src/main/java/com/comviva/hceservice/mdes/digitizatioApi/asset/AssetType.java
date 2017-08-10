@@ -1,13 +1,24 @@
 package com.comviva.hceservice.mdes.digitizatioApi.asset;
 
 /**
- * Type of assets.
- * Created by tarkeshwar.v on 5/25/2017.
+ * What type of media this is. Specified as a MIME type.
  */
 public enum AssetType {
+    /**
+     * For images, must be a vector PDF image.
+     */
     APPLICATION_PDF("application/pdf"),
+    /**
+     * Image type in PNG format.
+     */
     IMAGE_PNG("image/png"),
+    /**
+     * Plain text contents.
+     */
     TEXT_PLAIN("text/plain"),
+    /**
+     * HTML pages.
+     */
     TEXT_HTML("text/html");
 
     private String type;
@@ -16,10 +27,19 @@ public enum AssetType {
         this.type = type;
     }
 
+    /**
+     * Returns type of asset.
+     * @return Asset Type
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * Returns respective AssetType enum for given type.
+     * @param type Asset Type
+     * @return AssetType enum instance
+     */
     public static AssetType getType(String type) {
         if(type.equalsIgnoreCase(APPLICATION_PDF.name())) {
             return APPLICATION_PDF;

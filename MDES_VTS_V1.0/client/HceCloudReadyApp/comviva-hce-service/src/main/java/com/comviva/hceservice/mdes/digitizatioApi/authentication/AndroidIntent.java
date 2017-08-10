@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Created by tarkeshwar.v on 6/20/2017.
+ * AndroidIntent object can be used to open the issuer mobile app.
  */
 public class AndroidIntent {
     /** The name of the action to be performed. This is a fully qualified name including the
@@ -40,6 +40,12 @@ public class AndroidIntent {
         }
     }
 
+    /**
+     * Constructor.
+     * @param action The name of the action to be performed. This is a fully qualified name including the package name in order to create an explicit intent.
+     * @param packageName The package name of the issuer's mobile app. This identifies the app that the intent will resolve to.
+     * @param extraTextValue Contains the data to be passed through to the target app in the intent as an extra key/value pair with key 'android.intent.extra.TEXT'.
+     */
     public AndroidIntent(final String action, final String packageName, final String extraTextValue) {
         this.action = action;
         this.packageName = packageName;
