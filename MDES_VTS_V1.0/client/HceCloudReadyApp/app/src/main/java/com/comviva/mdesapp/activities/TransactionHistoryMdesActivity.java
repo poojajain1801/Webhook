@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityResponse;
 import com.comviva.hceservice.mdes.tds.TransactionDetails;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.TransactionHistoryAdapter;
@@ -24,7 +23,7 @@ public class TransactionHistoryMdesActivity extends AppCompatActivity {
 
         transactionDetailsArrayList = (ArrayList) getIntent().getSerializableExtra("transactionDetails");
 
-        listView = (ListView)findViewById(R.id.listview) ;
+        listView = (ListView) findViewById(R.id.listview);
 
         transactionHistoryAdapter = new TransactionHistoryAdapter(this, transactionDetailsArrayList);
         listView.setAdapter(transactionHistoryAdapter);

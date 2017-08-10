@@ -57,12 +57,12 @@
         <activity android:name=".activities.TransactionHistoryMdesActivity"></activity>
 
         <!-- Defining Services -->
-        <service android:name="com.comviva.hceservice.fcm.ComvivaFCMService">
+        <service android:name="com.comviva.mdesapp.MyAppFCMService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name="com.comviva.hceservice.fcm.ComvivaFirebaseInstanceIDService">
+        <service android:name="com.comviva.mdesapp.MyAppFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

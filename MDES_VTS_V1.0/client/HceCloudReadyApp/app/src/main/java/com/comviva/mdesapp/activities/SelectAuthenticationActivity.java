@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityResponse;
 import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
 import com.comviva.hceservice.mdes.digitizatioApi.RequestActivationCodeListener;
 import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;

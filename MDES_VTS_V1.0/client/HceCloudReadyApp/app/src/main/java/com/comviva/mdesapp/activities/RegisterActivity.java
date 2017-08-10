@@ -14,9 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.comviva.hceservice.common.RestResponse;
 import com.comviva.hceservice.register.ActivateUserListener;
 
 import com.comviva.hceservice.register.DeviceInfo;

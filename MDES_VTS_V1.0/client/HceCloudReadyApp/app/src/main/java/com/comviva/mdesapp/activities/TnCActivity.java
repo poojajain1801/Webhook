@@ -8,21 +8,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityResponse;
 import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
 import com.comviva.hceservice.mdes.digitizatioApi.DigitizationListener;
 import com.comviva.hceservice.mdes.digitizatioApi.DigitizationRequest;
-import com.comviva.hceservice.mdes.digitizatioApi.EligibilityReceipt;
 import com.comviva.hceservice.mdes.digitizatioApi.asset.GetAssetResponse;
 import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
 import com.google.firebase.iid.FirebaseInstanceId;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class TnCActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
