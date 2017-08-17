@@ -22,6 +22,7 @@
             <column name="client_device_id" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="payment_app_instance_id" type="TEXT"/>
             <column name="user_status" type="varchar(255)"/>
             <column name="activation_code" type="varchar(255)"/>
         </createTable>

@@ -31,24 +31,28 @@ public class UserDetail {
     private final String activationCode;
 
     @Column(name = "user_status")
-    private /*final*/ String userstatus;
+    private String userstatus;
 
     @Column(name = "client_wallet_account_id")
-    private /*final*/ String clientWalletAccountid;
+    private String clientWalletAccountid;
+
+    @Column(name = "payment_app_instance_id")
+    private String paymentAppInstId;
 
     @Column(name = "client_device_id")
     private String clientDeviceId;
 
-    public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid, String clientDeviceId) {
+    public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid, String clientDeviceId, String paymentAppInstId) {
         this.id = id;
         this.userName = userName;
         this.activationCode = activationCode;
         this.userstatus = userstatus;
         this.clientWalletAccountid=clientWalletAccountid;
         this.clientDeviceId=clientDeviceId;
+        this.paymentAppInstId = paymentAppInstId;
     }
 
     public UserDetail() {
-        this(null, null,null, null,null,null);
+        this(null, null,null, null, null,null,null);
     }
 }

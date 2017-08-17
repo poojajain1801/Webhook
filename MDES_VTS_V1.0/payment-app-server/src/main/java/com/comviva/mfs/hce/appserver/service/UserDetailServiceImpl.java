@@ -55,7 +55,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             String activationCode = generateActivationCode();
             String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
             savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
-                    clientWalletAccountid,registerUserRequest.getClientDeviceID()));
+                    clientWalletAccountid,registerUserRequest.getClientDeviceID(), null));
             deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "200",
@@ -79,7 +79,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             String activationCode = generateActivationCode();
             String clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
             savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
-                    clientWalletAccountid,registerUserRequest.getClientDeviceID()));
+                    clientWalletAccountid,registerUserRequest.getClientDeviceID(), deviceInfo.get(0).getPaymentAppInstanceId()));
             Map <String, Object> response = ImmutableMap.of(
                     "responseCode", "200",
                     "message", "User has been successfully registered in the system ,Activate account with below Activaction code",

@@ -6,7 +6,7 @@ package com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm;
  */
 public interface RemoteNotification {
     /** Server's registration key with RNS server */
-    String SERVER_KEY = "AAAAiK6Zc-I:APA91bHO5ou4YoEhJ4fYZBXA2OKVfq2vzhZ9wOYHLrsiQs2uy4IjVg2bjCls-OnmuMjivtb2cQBRzahhHvKS4gz7bNM3iH506Sfxos8502vFMwNmiT-AxE0MtJCjJn6DB1yyq38NRMpX";
+    String SERVER_KEY = "AAAAZ7NvXtc:APA91bHaOfXFRoMHidhBFmgDHDLB0jqF_VucWIAhEEePGO8AtQhWLh42Y2c1v7SHb3C44NZqMurD7C3u2Mu5qImr6G_y0uhCTfUY5gZoVk4-wIRtVYuHSAczm-UZ8abdNzr6gLF41rq-";
 
     String KEY_NOTIFICATION_TYPE = "notificationType";
     String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";

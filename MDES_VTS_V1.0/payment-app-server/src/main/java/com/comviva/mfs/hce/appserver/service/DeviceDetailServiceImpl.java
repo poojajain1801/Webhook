@@ -88,6 +88,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put("mdes", mdesRespMap);
 
             } else {
+                // Save PaymentAppInstanceId mapping with user
+                UserDetail userDetail = userDetails.get(0);
+                userDetail.setPaymentAppInstId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+                userDetailRepository.save(userDetail);
+
                 response.put("mdes", devRegRespMdes.getResponse());
                 response.put("mdesFinalCode", "200");
                 response.put("mdesFinalMessage", "OK");
