@@ -279,13 +279,15 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
     }
 
     private RmResponseMpa prepareSetOrChangePinResp(String result, int mobilePinTriesRemaining,
-                                                    final int reasonCode, final String reasonDescription) {
+                                                    final int reasonCode, final String reasonDescription, boolean isChangePin) {
         // Prepare Response
         JSONObject response = new JSONObject();
         response.put("responseId", "3000000001");
         response.put("responseHost", Constants.RESPONSE_HOST);
         response.put("result", result);
-        response.put("mobilePinTriesRemaining", mobilePinTriesRemaining);
+        if (isChangePin) {
+            response.put("mobilePinTriesRemaining", mobilePinTriesRemaining);
+        }
         //Prepare Response
 
         // Encrypt response prepared
@@ -803,53 +805,15 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         Optional<ApplicationInstanceInfo> applicationInstanceInfo = appInstInfoRepository.findByMobileKeySetId(mobileKeySetId);
         ApplicationInstanceInfo appInstanceInfo = applicationInstanceInfo.get();
 
-        // Check if PIN is blocked
-        int pinTryCounter = appInstanceInfo.getPinTryCounter();
-        if (pinTryCounter == 0) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.MAX_PIN_TRY_LIMIT_REACHED, "Pin Blocked");
-        }
+        boolean isChangePin = reqData.has("newMobilePin") && reqData.has("currentMobilePin");
 
-        // Check if newMobilePin is available in the request or not
-        if (!reqData.has("newMobilePin")) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "New Pin value is required");
-        }
-
-        // If Mobile PIN is already set, Current Mobile PIN must be provided
-        String currentPin = applicationInstanceInfo.get().getMobilePin();
-        if ((currentPin != null || !currentPin.isEmpty()) && !reqData.has("currentMobilePin")) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "Current Pin value is required");
-        }
-
-        // Verify PIN lengths
-        String encCurrentMobPin = reqData.getString("currentMobilePin");
         String encNewMobPin = reqData.getString("newMobilePin");
-        if (encCurrentMobPin.length() != 32 || encNewMobPin.length() != 32) {
+        if (encNewMobPin.length() != 32) {
             return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Incorrect Pin length");
         }
 
-        // *** Decrypt received PIN values
         // Get Mobile data encryption key
         String mobileDataEncKey = appInstanceInfo.getDataEncryptionKey();
-        // Current Mobile PIN
-        byte[] bCurrentMobPinReceived;
-        try {
-            bCurrentMobPinReceived = MobilePinUtil.decryptPinBlock(ByteArray.of(encCurrentMobPin),
-                    appInstanceInfo.getPaymentAppInstId(), ByteArray.of(mobileDataEncKey)).getBytes();
-
-        } catch (GeneralSecurityException | McbpCryptoException e) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Pin decryption error");
-        }
-
-        if (!verifyPinFormat(bCurrentMobPinReceived)) {
-            return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Wrong Pin Format of current PIN");
-        }
-
-        // Verify that current PIN is correct
-        if (!comparePin(bCurrentMobPinReceived, ArrayUtil.getByteArray(currentPin))) {
-            pinTryCounter--;
-            updatePinTryCounter(appInstanceInfo, pinTryCounter);
-            return prepareSetOrChangePinResp("INCORRECT_PIN", pinTryCounter, 200, "Wrong Old Pin");
-        }
 
         // New Mobile PIN
         byte[] bNewMobPinReceived;
@@ -864,6 +828,57 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
             return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Wrong Pin Format of new PIN");
         }
 
+        int pinTryCounter = 0;
+
+        // Change PIN Case
+        if (isChangePin) {
+            // Change PIN Case
+            // Check if PIN is blocked
+            pinTryCounter = appInstanceInfo.getPinTryCounter();
+            if (pinTryCounter == 0) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.MAX_PIN_TRY_LIMIT_REACHED, "Pin Blocked");
+            }
+
+            // Check if newMobilePin is available in the request or not
+            if (!reqData.has("newMobilePin")) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "New Pin value is required");
+            }
+
+            // If Mobile PIN is already set, Current Mobile PIN must be provided
+            String currentPin = applicationInstanceInfo.get().getMobilePin();
+            if ((currentPin != null || !currentPin.isEmpty()) && !reqData.has("currentMobilePin")) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_VALUE, "Current Pin value is required");
+            }
+
+            // Verify PIN lengths
+            String encCurrentMobPin = reqData.getString("currentMobilePin");
+            if (encCurrentMobPin.length() != 32) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Incorrect Pin length");
+            }
+
+            // *** Decrypt received PIN values
+            // Current Mobile PIN
+            byte[] bCurrentMobPinReceived;
+            try {
+                bCurrentMobPinReceived = MobilePinUtil.decryptPinBlock(ByteArray.of(encCurrentMobPin),
+                        appInstanceInfo.getPaymentAppInstId(), ByteArray.of(mobileDataEncKey)).getBytes();
+
+            } catch (GeneralSecurityException | McbpCryptoException e) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Pin decryption error");
+            }
+
+            if (!verifyPinFormat(bCurrentMobPinReceived)) {
+                return prepareProvisionResponseMpaError(ConstantErrorCodes.INVALID_FIELD_LENGTH, "Wrong Pin Format of current PIN");
+            }
+
+            // Verify that current PIN is correct
+            if (!comparePin(bCurrentMobPinReceived, ArrayUtil.getByteArray(currentPin))) {
+                pinTryCounter--;
+                updatePinTryCounter(appInstanceInfo, pinTryCounter);
+                return prepareSetOrChangePinResp("INCORRECT_PIN", pinTryCounter, 200, "Wrong Old Pin", isChangePin);
+            }
+        }
+
         // Update New Mobile PIN and set retry counter to max
         updateNewPin(appInstanceInfo, bNewMobPinReceived);
 
@@ -871,7 +886,6 @@ public class RemoteManagementServiceImplApi implements RemoteManagementServiceAp
         notifyMobilePinChangeResult(appInstanceInfo.getPaymentAppInstId());
 
         //Prepare Response And send.
-        return prepareSetOrChangePinResp("SUCCESS", pinTryCounter, 200, "Set pin successful");
+        return prepareSetOrChangePinResp("SUCCESS", pinTryCounter, 200, "Set pin successful", isChangePin);
     }
-
 }
