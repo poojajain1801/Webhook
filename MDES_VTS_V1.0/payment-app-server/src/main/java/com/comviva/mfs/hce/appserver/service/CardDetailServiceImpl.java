@@ -135,7 +135,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 String serviceId = Long.toString(new Random().nextLong());
 
                 //--madan String userName = deviceInfoOptional.get().getUserName();
-                serviceData = serviceDataRepository.save(new ServiceData(null, serviceId, requestJson.toString(), response));
+                serviceData = serviceDataRepository.save(new ServiceData(null, serviceId, requestJson.toString().getBytes(), response.getBytes()));
 
                 //Build response
                 Map mapResponse = new ImmutableMap.Builder()
@@ -169,8 +169,13 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (!serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).isPresent()) {
             return prepareDigitizeResponse(220, "Card is not eligible for the digitization service");
         }
-        String eligibilityRequest = serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getRequest();
-        String eligibilityResponse = serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getResponse();
+
+
+        String eligibilityRequest = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getRequest());
+        String eligibilityResponse =new String (serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getResponse());
+
+
+
         JSONObject jsonRequest = new JSONObject(eligibilityRequest);
         JSONObject jsonResponse = new JSONObject(eligibilityResponse);
 
@@ -288,13 +293,13 @@ public class CardDetailServiceImpl implements CardDetailService {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> map = new HashMap<>();
         map.put("clientAppID", "111b95f4-06d9-b032-00c1-178ec0fd7201");
-        map.put("clientWalletAccountID", userDetails.get(0).getClientWalletAccountid());
+        map.put("clientWalletAccountID", userDetails.get(0).getClientWalletAccountId());
         map.put("clientDeviceID", enrollPanRequest.getClientDeviceID());
         map.put("locale", enrollPanRequest.getLocale());
         map.put("panSource", enrollPanRequest.getPanSource());
 
-        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletProvider(userDetails.get(0).getClientWalletAccountid());
-        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletAccountID(userDetails.get(0).getClientWalletAccountid());
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletProvider(userDetails.get(0).getClientWalletAccountId());
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletAccountID(userDetails.get(0).getClientWalletAccountId());
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientDeviceID(enrollPanRequest.getClientDeviceID());
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientAppID("111b95f4-06d9-b032-00c1-178ec0fd7201");
 
@@ -317,7 +322,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             //put card details in db
             VisaCardDetails visaCardDetails = new VisaCardDetails();
             visaCardDetails.setUserName(enrollPanRequest.getUserId());
-            visaCardDetails.setCardnumberSuffix(enrollPanRequest.getEncPaymentInstrument().getAccountNumber());
+            visaCardDetails.setCardnumbersuffix(enrollPanRequest.getEncPaymentInstrument().getAccountNumber());
             visaCardDetails.setVpanenrollmentid((String) jsonResponse.get("vPanEnrollmentID"));
             visaCardDetails.setStatus("Y");
             visaCardDetailRepository.save(visaCardDetails);
@@ -452,7 +457,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
         rnsGenericRequest.setIdType(UniqueIdType.MDES);
-        rnsGenericRequest.setRegistrationId(oDeviceInfo.get().getRnsId());
+        rnsGenericRequest.setRegistrationId(oDeviceInfo.get().getRnsRegistrationId());
         rnsGenericRequest.setRnsData(tdsNotificationData);
         Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
         if (rnsResp.containsKey("errorCode")) {

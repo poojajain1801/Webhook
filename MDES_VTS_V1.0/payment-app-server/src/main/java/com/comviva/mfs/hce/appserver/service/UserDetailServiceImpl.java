@@ -41,6 +41,8 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Override
     @Transactional
     public Map<String,Object> registerUser(RegisterUserRequest registerUserRequest) {
+
+        System.out.print("*********************************************** Inside user registration impl *********************************************************");
         if(registerUserRequest.getUserId()==null || registerUserRequest.getUserId().isEmpty()
                 || registerUserRequest.getClientDeviceID()==null || registerUserRequest.getClientDeviceID().isEmpty()){
             Map <String, Object> response = ImmutableMap.of(
@@ -88,21 +90,21 @@ public class UserDetailServiceImpl implements UserDetailService {
             return  response;
         }
         else {
-            if("userRegistered".equals(userDetails.get(0).getUserstatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+            if("userRegistered".equals(userDetails.get(0).getUserStatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
                 Map <String, Object> response = ImmutableMap.of(
                         "responseCode", "200",
                         "message", "User already  registered in the system ,Activate account with below Activaction code",
                         "userDetails", userDetails.get(0),
                         "activationCode", userDetails.get(0).getActivationCode());
                 return  response;
-            }else if("userActivated".equals(userDetails.get(0).getUserstatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+            }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
                 Map <String, Object> response = ImmutableMap.of(
                         "responseCode", "200",
                         "message", "User already  registered in the system ,Activate account with below Activaction code",
                         "userDetails", userDetails.get(0),
                         "activationCode", userDetails.get(0).getActivationCode());
                 return  response;
-            }else if("userRegistered".equals(userDetails.get(0).getUserstatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+            }else if("userRegistered".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
                 Map <String, Object> response = ImmutableMap.of(
                         "responseCode", "200",
                         "message", "User already  registered in the system ,Activate account with below Activaction code",
@@ -110,7 +112,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                         "activationCode", userDetails.get(0).getActivationCode());
                 return  response;
             }else{
-                if(userDetails.get(0).getClientDeviceId().equals(deviceInfo.get(0).getClientDeviceId()) && "userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus()) ){
+                if(userDetails.get(0).getClientDeviceId().equals(deviceInfo.get(0).getClientDeviceId()) && "userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus()) ){
                     Map <String, Object> response = ImmutableMap.of(
                             "responseCode", "200",
                             "message", "User already  registered in the system",
@@ -161,7 +163,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                        }
                }
                 }
-                userDetails.get(0).setUserstatus(userstatus);
+                userDetails.get(0).setUserStatus(userstatus);
                 userDetails.get(0).setClientDeviceId(activateUserRequest.getClientDeviceID());
                 userDetailRepository.save(userDetails.get(0));
                 deviceInfo.get(0).setDeviceStatus(devicestatus);
@@ -201,7 +203,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         return isClientDeviceIDPresentInDb;
     }
     public String getUserstatus(String userName) {
-        String userStaus = userDetailRepository.findByUserName(userName).get().getUserstatus();
+        String userStaus = userDetailRepository.findByUserName(userName).get().getUserStatus();
         return userStaus;
     }
 

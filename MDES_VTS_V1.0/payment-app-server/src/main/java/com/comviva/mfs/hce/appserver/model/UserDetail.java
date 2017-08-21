@@ -1,58 +1,109 @@
 package com.comviva.mfs.hce.appserver.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
- * Created by Tanmay.Patel on 1/8/2017.
+ * The persistent class for the USER_DETAILS database table.
+ *
  */
 @Entity
-@Getter
-@Setter
-@Table(name = "USER_DETAILS")
-@ToString
-@EqualsAndHashCode
-public class UserDetail {
+@Table(name="USER_DETAILS")
+public class UserDetail implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private final String id;
+    private String id;
 
-    @Column(name = "USER_NAME")
-    private final String userName;
+    @Column(name="ACTIVATION_CODE")
+    private String activationCode;
 
-    @Column(name = "activation_code")
-    private final String activationCode;
-
-    @Column(name = "user_status")
-    private String userstatus;
-
-    @Column(name = "client_wallet_account_id")
-    private String clientWalletAccountid;
-
-    @Column(name = "payment_app_instance_id")
-    private String paymentAppInstId;
-
-    @Column(name = "client_device_id")
+    @Column(name="CLIENT_DEVICE_ID")
     private String clientDeviceId;
+
+    @Column(name="CLIENT_WALLET_ACCOUNT_ID")
+    private String clientWalletAccountId;
+
+    @Column(name="PAYMENT_APP_INSTANCE_ID")
+    private String paymentAppInstanceId;
+
+    @Column(name="USER_NAME")
+    private String userName;
+
+    @Column(name="USER_STATUS")
+    private String userStatus;
+
+    public UserDetail() {
+    }
 
     public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid, String clientDeviceId, String paymentAppInstId) {
         this.id = id;
         this.userName = userName;
         this.activationCode = activationCode;
-        this.userstatus = userstatus;
-        this.clientWalletAccountid=clientWalletAccountid;
+        this.userStatus = userstatus;
+        this.clientWalletAccountId=clientWalletAccountid;
         this.clientDeviceId=clientDeviceId;
-        this.paymentAppInstId = paymentAppInstId;
+        this.paymentAppInstanceId = paymentAppInstId;
     }
 
-    public UserDetail() {
-        this(null, null,null, null, null,null,null);
+
+    public String getId() {
+        return this.id;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getActivationCode() {
+        return this.activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public String getClientDeviceId() {
+        return this.clientDeviceId;
+    }
+
+    public void setClientDeviceId(String clientDeviceId) {
+        this.clientDeviceId = clientDeviceId;
+    }
+
+    public String getClientWalletAccountId() {
+        return this.clientWalletAccountId;
+    }
+
+    public void setClientWalletAccountId(String clientWalletAccountId) {
+        this.clientWalletAccountId = clientWalletAccountId;
+    }
+
+    public String getPaymentAppInstanceId() {
+        return this.paymentAppInstanceId;
+    }
+
+    public void setPaymentAppInstanceId(String paymentAppInstanceId) {
+        this.paymentAppInstanceId = paymentAppInstanceId;
+    }
+
+    public String getUserName() {
+        return this.userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserStatus() {
+        return this.userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
+
 }

@@ -1,46 +1,77 @@
 package com.comviva.mfs.hce.appserver.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.Serializable;
+
+
 
 /**
- * Created by Tanmay.Patel on 2/2/2017.
+ * The persistent class for the SERVICE_DATA database table.
+ *
  */
 @Entity
-@Setter
-@Getter
-@Table(name = "SERVICE_DATA")
-@ToString
-@EqualsAndHashCode
-public class ServiceData {
+@Table(name="SERVICE_DATA")
+public class ServiceData implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private final String id;
+    private String id;
 
-    @Column(name = "service_id")
-    private  String serviceId;
+    @Lob
+    private byte[] request;
 
-    @Column(name = "request")
-    private  String request;
+    @Lob
+    private byte[] response;
 
-    @Column(name = "response")
-    private  String response;
+    @Column(name="SERVICE_ID")
+    private String serviceId;
 
-    public ServiceData(String id, String serviceId, String request, String response) {
+    public ServiceData() {
+    }
+
+    public ServiceData(String id, String serviceId, byte[] request, byte[] response) {
         this.id = id;
         this.serviceId = serviceId;
         this.request = request;
         this.response = response;
     }
 
-    public ServiceData() {this(null,null,null,null);
+
+    public String getId() {
+        return this.id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public byte[] getRequest() {
+        return this.request;
+    }
+
+    public void setRequest(byte[] request) {
+        this.request = request;
+    }
+
+    public byte[] getResponse() {
+        return this.response;
+    }
+
+    public void setResponse(byte[] response) {
+        this.response = response;
+    }
+
+    public String getServiceId() {
+        return this.serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
 
 }

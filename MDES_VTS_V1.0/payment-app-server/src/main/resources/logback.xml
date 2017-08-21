@@ -4,7 +4,7 @@
     <property resource="application.properties"/>
     <property scope="context" name="node.name" value="%property{mfs.node.name}"/>
     <property name="defaultPattern"
-              value="%d ${HOSTNAME} ${mfs.component.registrationId} ${node.name:-unknown_node} %X{mfs.flowId:-?} %thread %-5level %logger{25}.%M - %msg%n"/>
+              value="%d [%-5level] ${HOSTNAME} %thread  %logger{25}.%M - %m%n"/>
 
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-./logs}/startup.log}"/>
 

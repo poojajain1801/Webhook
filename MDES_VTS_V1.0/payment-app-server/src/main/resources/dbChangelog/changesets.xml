@@ -10,21 +10,21 @@
 
     <changeSet author="tanmay.p" id="201701091530">
         <createTable tableName="USER_DETAILS">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="user_name" type="VARCHAR(255)">
+            <column name="user_name" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="client_wallet_account_id" type="VARCHAR(255)">
+            <column name="client_wallet_account_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="client_device_id" type="VARCHAR(255)">
+            <column name="client_device_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="payment_app_instance_id" type="TEXT"/>
-            <column name="user_status" type="varchar(255)"/>
-            <column name="activation_code" type="varchar(255)"/>
+            <column name="payment_app_instance_id" type="VARCHAR2(255)"/>
+            <column name="user_status" type="VARCHAR2(255)"/>
+            <column name="activation_code" type="VARCHAR2(255)"/>
         </createTable>
         <addUniqueConstraint columnNames="user_name" constraintName="unique_constraints"
                              tableName="user_details" deferrable="false"/>
@@ -35,97 +35,97 @@
 
         <!-- Table for device management-->
         <createTable tableName="DEVICE_INFO">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="true" unique="false"/>
             </column>
-            <column name="payment_app_id" type="TEXT">
+            <column name="payment_app_id" type="VARCHAR2(255)">
                 <constraints nullable="true" unique="false"/>
             </column>
-            <column name="rns_registration_id" type="TEXT"/>
-            <column name="OS_NAME" type="VARCHAR(255)">
+            <column name="rns_registration_id" type="VARCHAR2(1024)"/>
+            <column name="OS_NAME" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="OS_VERSION" type="VARCHAR(255)">
+            <column name="OS_VERSION" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="NFC_CAPABLE" type="VARCHAR(255)">
+            <column name="NFC_CAPABLE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="IMEI" type="VARCHAR(255)">
+            <column name="IMEI" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
             <!-- VISA specific columns -->
-            <column name="CLIENT_DEVICE_ID" type="VARCHAR(255)">
+            <column name="CLIENT_DEVICE_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="V_CLIENT_ID" type="VARCHAR(255)">
+            <column name="V_CLIENT_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
 
-            <column name="DEVICE_MODEL" type="VARCHAR(255)">
+            <column name="DEVICE_MODEL" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="HOST_DEVICE_ID" type="VARCHAR(255)">
+            <column name="HOST_DEVICE_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
 
             <!-- visa device/vts certs start-->
-            <column name="vtscerts_vcertificateid_confidentiality" type="VARCHAR(11600)">
+        <!---    <column name="vtscerts_vcertificateid_confidentiality" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
-            <column name="vtscerts_certusage_confidentiality" type="VARCHAR(11600)">
+            <column name="vtscerts_certusage_confidentiality" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
-            <column name="vtscerts_vcertificateid_integrity" type="VARCHAR(11600)">
+            <column name="vtscerts_vcertificateid_integrity" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
-            <column name="vtscerts_certusage_integrity" type="VARCHAR(11600)">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="devicecerts_certvalue_confidentiality" type="VARCHAR(11600)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="devicecerts_certusage_confidentiality" type="VARCHAR(11600)">
-                <constraints nullable="true"/>
-            </column>
-            <column name="devicecerts_certformat_confidentiality" type="VARCHAR(11600)">
+            <column name="vtscerts_certusage_integrity" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
 
-            <column name="devicecerts_certvalue_integrity" type="VARCHAR(11600)">
+            <column name="devicecerts_certvalue_confidentiality" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
-            <column name="devicecerts_certusage_integrity" type="VARCHAR(11600)">
+            <column name="devicecerts_certusage_confidentiality" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
-            <column name="devicecerts_certformat_integrity" type="VARCHAR(11600)">
+            <column name="devicecerts_certformat_confidentiality" type="VARCHAR2(11600)">
                 <constraints nullable="true"/>
             </column>
 
-            <column name="vserver_nonce" type="VARCHAR(600)">
+            <column name="devicecerts_certvalue_integrity" type="VARCHAR2(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certusage_integrity" type="VARCHAR2(11600)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="devicecerts_certformat_integrity" type="VARCHAR2(11600)">
+                <constraints nullable="true"/>
+            </column>-->
+
+            <column name="vserver_nonce" type="VARCHAR2(600)">
                 <constraints nullable="true"/>
             </column>
             <!--visa device/vts certs end-->
 
             <!-- added madan-->
-            <column name="VISA_ENABLED" type="VARCHAR(255)">
+            <column name="VISA_ENABLED" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="MASTERCARD_ENABLED" type="VARCHAR(255)">
+            <column name="MASTERCARD_ENABLED" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="VISA_MESSAGE" type="VARCHAR(255)">
+            <column name="VISA_MESSAGE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="MASTERCARD_MESSAGE" type="VARCHAR(255)">
+            <column name="MASTERCARD_MESSAGE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="DEVICE_STATUS" type="VARCHAR(255)">
+            <column name="DEVICE_STATUS" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
             <!--add by madan-->
@@ -139,22 +139,22 @@
 
         <!-- Table for Card management-->
         <createTable tableName="CARD_DETAILS">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+            <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="TOKEN_INFO" type="VARCHAR(255)">
+            <column name="TOKEN_INFO" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="TOKEN_STATUS" type="VARCHAR(255)">
+            <column name="TOKEN_STATUS" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -168,16 +168,16 @@
         </createIndex>
 
         <createTable tableName="SERVICE_DATA">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="true" primaryKey="true"/>
             </column>
-            <column name="service_id" type="VARCHAR(255)">
+            <column name="service_id" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="request" type="CLOB">
+            <column name="request" type="BLOB">
                 <constraints nullable="true"/>
             </column>
-            <column name="response" type="CLOB">
+            <column name="response" type="BLOB">
                 <constraints nullable="true"/>
             </column>
         </createTable>
@@ -190,24 +190,24 @@
 
         <!-- Table for  visa Card management-->
         <createTable tableName="CARD_DETAILS_VISA">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="user_name" type="VARCHAR(255)">
+            <column name="user_name" type="VARCHAR2(255)">
                 <constraints nullable="false" foreignKeyName="fk_user_device_detail"
                              references="USER_DETAILS(user_name)"/>
             </column>
-            <column name="cardnumberSuffix" type="VARCHAR(255)">
+            <column name="cardnumberSuffix" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="vpanenrollmentid" type="VARCHAR(255)">
+            <column name="vpanenrollmentid" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="STATUS" type="VARCHAR(255)">
+            <column name="STATUS" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="vpanenrollmentid" constraintName="vpanenrollmentid_unique_constraints"
+        <addUniqueConstraint columnNames="vpanenrollmentid" constraintName="vpanenrollmentid_constraints"
                              deferrable="true"
                              tableName="CARD_DETAILS_VISA"/>
         <createIndex tableName="CARD_DETAILS_VISA" indexName="visa_card_info_id" unique="true">
@@ -219,29 +219,29 @@
 
         <!--Transaction details table-->
         <createTable tableName="TRANSACTION_REG_DETAILS">
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR(255)">
+            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REG_CODE_1" type="VARCHAR(255)">
+            <column name="REG_CODE_1" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="REG_CODE_2" type="VARCHAR(255)">
+            <column name="REG_CODE_2" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="AUTH_CODE" type="VARCHAR(255)">
+            <column name="AUTH_CODE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="TDS_URL" type="VARCHAR(255)">
+            <column name="TDS_URL" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="tokenuniqueRef_unique_constraints"
+        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="tokenuniqueRef_constraints"
                              tableName="TRANSACTION_REG_DETAILS" deferrable="false"/>
         <createIndex tableName="TRANSACTION_REG_DETAILS" indexName="TRANSACTION_REG_DETAILS_ID" unique="true">
             <column name="id"/>

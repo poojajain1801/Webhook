@@ -53,7 +53,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
         List<UserDetail> userDetails = userDetailRepository.find(enrollDeviceRequest.getUserId());
         List<DeviceInfo> deviceInfo = deviceDetailRepository.find(enrollDeviceRequest.getClientDeviceID());
-        deviceInfo.get(0).setRnsId(enrollDeviceRequest.getGcmRegistrationId());
+        deviceInfo.get(0).setRnsRegistrationId(enrollDeviceRequest.getGcmRegistrationId());
         response = validate(enrollDeviceRequest, userDetails, deviceInfo);
         if (!response.get("responseCode").equals("200")) {
             return response;
@@ -90,7 +90,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             } else {
                 // Save PaymentAppInstanceId mapping with user
                 UserDetail userDetail = userDetails.get(0);
-                userDetail.setPaymentAppInstId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+                userDetail.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
                 userDetailRepository.save(userDetail);
 
                 response.put("mdes", devRegRespMdes.getResponse());
@@ -125,7 +125,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             deviceInfo.get(0).setVisaEnabled("Y");
             deviceInfo.get(0).setVisaMessage("OK");
 
-            deviceInfo.get(0).setVtscerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-confidentiality"));
+           /* deviceInfo.get(0).setVtscerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-confidentiality"));
             deviceInfo.get(0).setVtscerts_vcertificateid_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-vCertificateID-confidentiality"));
 
             deviceInfo.get(0).setVtscerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-integrity"));
@@ -137,7 +137,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             deviceInfo.get(0).setDevicecerts_certformat_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certFormat-integrity"));
             deviceInfo.get(0).setDevicecerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certUsage-integrity"));
-            deviceInfo.get(0).setDevicecerts_certvalue_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-integrity"));
+            deviceInfo.get(0).setDevicecerts_certvalue_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-integrity"));*/
 
             deviceInfo.get(0).setVClientId(vClientID);
             deviceDetailRepository.save(deviceInfo.get(0));
@@ -155,7 +155,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             result.put("message", "Invalid User please register");
             result.put("responseCode", "205");
             return result;
-        } else if ("userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())) {
+        } else if ("userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())) {
             List<UserDetail> userDevice = userDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
             if (null != userDevice && !userDevice.isEmpty()) {
                 for (int i = 0; i < userDetails.size(); i++) {
