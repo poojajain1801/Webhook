@@ -229,8 +229,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject resp = new JSONObject(restTemplate.getForObject(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/digitization/1/0/asset?assetId=" + assetID, String.class));
 
         Map<String, Object> respMap;
-        if (resp.has("mediaContent")) {
-            JSONArray jArrMediaContent = resp.getJSONArray("mediaContent");
+        if (resp.has("mediaContents")) {
+            JSONArray jArrMediaContent = resp.getJSONArray("mediaContents");
             JSONObject assetComponent;
             String type;
             ArrayList<Map> listOfAssets = new ArrayList<>();
@@ -239,13 +239,13 @@ public class CardDetailServiceImpl implements CardDetailService {
                 assetComponent = jArrMediaContent.getJSONObject(i);
                 type = assetComponent.getString("type");
 
-                if (type.equalsIgnoreCase("text")) {
+                if (type.equalsIgnoreCase("text/plain")) {
                     listOfAssets.add(ImmutableMap.of("type", type, "data", assetComponent.getString("data")));
                 } else if (type.contains("image")) {
                     listOfAssets.add(ImmutableMap.of("type", type, "height", assetComponent.getString("height"), "width", assetComponent.getString("width"), "data", assetComponent.getString("type")));
                 }
             }
-            respMap = ImmutableMap.of("mediaContent", listOfAssets, "reasonCode", "200", "reasonDescription", "Successful");
+            respMap = ImmutableMap.of("mediaContents", listOfAssets, "reasonCode", "200", "reasonDescription", "Successful");
         } else {
             respMap = ImmutableMap.of("reasonCode", resp.getString("reasonCode"), "reasonDescription", resp.getString("reasonDescription"));
         }

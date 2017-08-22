@@ -1,5 +1,5 @@
 var http = require('http');
-var paymentAppInstanceId = '0604538F8F989E392BF1FB35051700000001500890959288';
+var paymentAppInstanceId = 'B9B44F4AE0A7A7320B611829A9E800000001503326363042';
 
 var appRouter = function(app) {
 
@@ -138,14 +138,14 @@ var sendMoneyRes = require('./var.js').mocksendmoneyres;
 
 app.get("/mdes/digitization/1/0/asset", function(req, res) {
 	var assetValue = {
-		type: 'text',
+		type: 'text/plain',
 		data: 'I agree to T&C'
 	};
 	
 	var content = [assetValue];
 	
 	var mediaContent = {
-		mediaContent: content, 
+		mediaContents: content, 
 		reasonCode:"200", 
 		reasonDescription:"Successful"
 	};
