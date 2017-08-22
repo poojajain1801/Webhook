@@ -11,6 +11,7 @@ import java.util.Optional;
  */
 @Repository
 public interface TransactionRegDetailsRepository extends JpaRepository<TransactionRegDetails,String> {
+
     Optional<TransactionRegDetails> findByTokenUniqueReference(String tokenUniqueReference);
     Optional<TransactionRegDetails> findByPaymentAppInstanceId(String paymentAppInstanceId);
 }

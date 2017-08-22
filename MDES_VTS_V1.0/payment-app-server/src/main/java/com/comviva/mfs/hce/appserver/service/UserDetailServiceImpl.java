@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Map;
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserDetailServiceImpl.class);
 
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
@@ -42,7 +46,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Transactional
     public Map<String,Object> registerUser(RegisterUserRequest registerUserRequest) {
 
-        System.out.print("*********************************************** Inside user registration impl *********************************************************");
+        LOGGER.debug("Enter UserDetailServiceImpl->registerUser");
         if(registerUserRequest.getUserId()==null || registerUserRequest.getUserId().isEmpty()
                 || registerUserRequest.getClientDeviceID()==null || registerUserRequest.getClientDeviceID().isEmpty()){
             Map <String, Object> response = ImmutableMap.of(
