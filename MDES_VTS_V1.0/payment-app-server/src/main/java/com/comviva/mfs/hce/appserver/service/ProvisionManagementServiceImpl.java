@@ -10,16 +10,24 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
+import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
 import com.comviva.mfs.hce.appserver.util.vts.ValidateUser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -43,31 +51,58 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
     public Map<String, Object> ProvisionTokenGivenPanEnrollmentId (ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest) {
 
-        Map<String,Object> response1=new HashMap();
-        List<UserDetail> userDetails = userDetailRepository.find(provisionTokenGivenPanEnrollmentIdRequest.getUserId());
-        List<DeviceInfo> deviceInfo=deviceDetailRepository.find(provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
-        ValidateUser validateUser=new ValidateUser(userDetailRepository);
-        response1 = validateUser.validate(provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID(),userDetails,deviceInfo);
-        if(!response1.get("responseCode").equals("200")) {
-            return response1;
-        }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("vPanEnrollmentID", "DB-1231231231231");
-        map.put("clientAppID", "111b95f4-06d9-b032-00c1-178ec0fd7201");
-        map.put("clientDeviceID", provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
-        map.put("clientWalletAccountID", "DB");
-       // map.put("emailAddress", provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress());
-        //map.put("emailAddressHash", provisionTokenGivenPanEnrollmentIdRequest.getEmailAddressHash());
-        map.put("protectionType", "SOFTWARE");
-        map.put("presentationType", "create - list");
+        //TODO: Validate clintdevice ID and clint account id
+        //TODO get the vPanEnrollmentID from DB
+        String emailAdress = provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress();
+        String emailHash = "";
+        /*try {
+            emailHash = MessageDigestUtil.sha256Hasing(emailAdress);
+            byte[] b64data = org.apache.commons.codec.binary.Base64.encodeBase64URLSafe(emailHash.getBytes());
+            emailAdress = new String(b64data);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }*/
+        emailAdress = "ZtoaslwtWW6FQEvuOQ-GWvABWf-VInFJUmGQgm4AdtY";
+       /* Map<String, Object> map = new HashMap<>();
+        map.put("clientAppID",provisionTokenGivenPanEnrollmentIdRequest.getClientAppId());
+        map.put("clientWalletAccountID", provisionTokenGivenPanEnrollmentIdRequest.getClientWalletAccountId());
+        map.put("clientWalletAccountEmailAddressHash", emailAdress);
+        map.put("protectionType", provisionTokenGivenPanEnrollmentIdRequest.getProtectionType());
+        map.put("clientDeviceID",provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
+        Map<String, Object> mapPra = new HashMap<>();
+        //mapPra.put("presentationType",provisionTokenGivenPanEnrollmentIdRequest.getPresentationType());
+        JSONArray presentationType = new JSONArray();
+        presentationType.put(provisionTokenGivenPanEnrollmentIdRequest.getPresentationType());
+        map.put("presentationType", presentationType);
+*/
+       JSONObject reqest = new JSONObject();
+       reqest.put("clientAppID",provisionTokenGivenPanEnrollmentIdRequest.getClientAppId());
+       reqest.put("clientWalletAccountID", provisionTokenGivenPanEnrollmentIdRequest.getClientWalletAccountId());
+       reqest.put("clientWalletAccountEmailAddressHash", emailAdress);
+       reqest.put("clientDeviceID",provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
+       reqest.put("protectionType", provisionTokenGivenPanEnrollmentIdRequest.getProtectionType());
+        JSONArray presentationType = new JSONArray();
+        presentationType.put(provisionTokenGivenPanEnrollmentIdRequest.getPresentationType());
+        reqest.put("presentationType", presentationType);
+        JSONObject termandCondition =  new JSONObject();
+        termandCondition.put("id",provisionTokenGivenPanEnrollmentIdRequest.getTermsAndConditionsID());
+       // long utcTimestamp = System.currentTimeMillis() / 1000L;
+        long unixTimestamp = Instant.now().getEpochSecond();
+        //String date = Long.toString(utcTimestamp);
+        termandCondition.put("date",unixTimestamp);
+        reqest.put("termsAndConditions",termandCondition);
+        //ObjectMapper objectMapper = new ObjectMapper();
+        HitVisaServices hitVisaServices = new HitVisaServices(env);
+        JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
+        String vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
+        String url = env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments/"+vPanEnrollmentID+"/provisionedTokens"+"?apiKey="+env.getProperty("apiKey");
+        String resourcePath = "vts/panEnrollments/"+vPanEnrollmentID+"/provisionedTokens";
+        responseEntity = hitVisaServices.restfulServiceConsumerVisa(url,reqest.toString(), resourcePath,"POST");
 
-        map.put("termsAndConditions", "map");
-        map.put("platformType", "DB");
-
-        CreateChannelSecurityContext createChannelSecurityContext=new CreateChannelSecurityContext();
-        Map<String,Object> securityContext=createChannelSecurityContext.visaChannelSecurityContext(deviceInfo);
-        map.put("channelSecurityContext", securityContext);
 
         return null;
     }

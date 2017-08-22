@@ -27,10 +27,10 @@ public class VisaCardDetails {
     @Column(name = "user_name")
     private String userName;
 
-    @Column(name = "cardnumberSuffix")
-    private String cardnumberSuffix;
+    @Column(name = "CRAD_NUMBER_SUFIX")
+    private String cardnumbersuffix;
 
-    @Column(name = "vpanenrollmentid")
+    @Column(name = "V_PAN_ENROLLMENT_ID")
     private String vpanenrollmentid;
 
     @Column(name = "STATUS")
@@ -39,7 +39,7 @@ public class VisaCardDetails {
     public VisaCardDetails(String id, String userName,String cardnumberSuffix,String vpanenrollmentid,String status) {
         this.id = id;
         this.userName = userName;
-        this.cardnumberSuffix=cardnumberSuffix;
+        this.cardnumbersuffix=cardnumberSuffix;
         this.vpanenrollmentid=vpanenrollmentid;
         this.status=status;
     }

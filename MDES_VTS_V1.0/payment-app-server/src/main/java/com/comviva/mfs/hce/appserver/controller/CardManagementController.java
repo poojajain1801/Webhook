@@ -90,6 +90,16 @@ public class CardManagementController {
     public Map registerWithTDS(@RequestBody GetTransactionHistoryReq getTransactionHistoryReq) {
         return cardDetailService.getTransctionHistory(getTransactionHistoryReq);
     }
+    @ResponseBody
+    @RequestMapping(value = "/getToken", method = RequestMethod.POST)
+    public Map getToekns(@RequestBody GetTokensRequest getTokensRequest) {
+        return cardDetailService.getTokens(getTokensRequest);
+    }
+    @ResponseBody
+    @RequestMapping(value = "/searchTokens", method = RequestMethod.POST)
+    public Map searchTokens(@RequestBody SearchTokensReq getTokensRequest) {
+        return cardDetailService.searchTokens(getTokensRequest);
+    }
 
 
 

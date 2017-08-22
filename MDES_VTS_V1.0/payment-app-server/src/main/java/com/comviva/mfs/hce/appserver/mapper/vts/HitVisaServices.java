@@ -24,7 +24,7 @@ public class HitVisaServices extends VtsRequest {
         super(env);
     }
 
-    public String restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
+    public ResponseEntity restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
         JSONObject prepareHeaderRequest=new JSONObject();
         String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
         xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
@@ -41,18 +41,24 @@ public class HitVisaServices extends VtsRequest {
         String result="";
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
+        ResponseEntity<String> response=null;
+        String strResponse =null;
         try {
             if("POST".equals(type)) {
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+                response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             }else if("PUT".equals(type)){
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+                response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
             }
         }catch (Exception e){
             e.printStackTrace();
-            ((HttpClientErrorException)e).getResponseBodyAsString();
-            ((HttpClientErrorException)e).getResponseHeaders();
+            String error = ((HttpClientErrorException) e).getResponseBodyAsString();
+            String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
+            strResponse = ((HttpClientErrorException)e).getResponseBodyAsString();
+            //response = strResponse;
         }
-        return null;
+
+
+        return response;
     }
 
     public String restfulServiceConsumerVisaGet(String url, String requestBody) {

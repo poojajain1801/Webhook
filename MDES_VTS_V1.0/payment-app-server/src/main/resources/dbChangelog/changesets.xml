@@ -225,25 +225,19 @@
                 <constraints nullable="false" foreignKeyName="fk_user_device_detail"
                              references="USER_DETAILS(user_name)"/>
             </column>
-            <column name="cardnumberSuffix" type="VARCHAR(255)">
+            <column name="CRAD_NUMBER_SUFIX" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="vpanenrollmentid" type="VARCHAR(255)">
+            <column name="V_PAN_ENROLLMENT_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
             <column name="STATUS" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="vpanenrollmentid" constraintName="vpanenrollmentid_unique_constraints"
+        <addUniqueConstraint columnNames="id" constraintName="id_unique_constraints"
                              deferrable="true"
                              tableName="CARD_DETAILS_VISA"/>
-        <createIndex tableName="CARD_DETAILS_VISA" indexName="visa_card_info_id" unique="true">
-            <column name="id"/>
-            <column name="user_name"/>
-            <column name="vpanenrollmentid"/>
-            <column name="cardnumberSuffix"/>
-        </createIndex>
     </changeSet>
     <!--Transction details table-->
     <changeSet author="tanmay.p" id="201701091543">

@@ -325,42 +325,48 @@ public class CardDetailServiceImpl implements CardDetailService {
         // *************** EnrollPan request to VTS ***************
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> map = new HashMap<>();
-        map.put("clientAppID","111b95f4-06d9-b032-00c1-178ec0fd7201" );
-        map.put("clientWalletAccountID", userDetails.get(0).getClientWalletAccountid());
-        map.put("clientDeviceID", enrollPanRequest.getClientDeviceID());
+        map.put("clientAppID","comviva123" );
+        map.put("clientWalletAccountID", "987654321098765432101234");
+        //map.put("clientDeviceID", enrollPanRequest.getClientDeviceID());
         map.put("locale", enrollPanRequest.getLocale());
         map.put("panSource", enrollPanRequest.getPanSource());
 
-        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletProvider(userDetails.get(0).getClientWalletAccountid());
+        /*enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletProvider(userDetails.get(0).getClientWalletAccountid());
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientWalletAccountID(userDetails.get(0).getClientWalletAccountid());
         enrollPanRequest.getEncPaymentInstrument().getProvider().setClientDeviceID(enrollPanRequest.getClientDeviceID());
-        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientAppID("111b95f4-06d9-b032-00c1-178ec0fd7201");
-
-        map.put("encPaymentInstrument", JWTUtility.createSharedSecretJwe(enrollPanRequest.getEncPaymentInstrument().toString(),env.getProperty("apiKey"),env.getProperty("sharedSecret")));
+        enrollPanRequest.getEncPaymentInstrument().getProvider().setClientAppID("111b95f4-06d9-b032-00c1-178ec0fd7201");*/
+        JSONObject jsonencPaymentInstrument = new JSONObject(enrollPanRequest.getEncPaymentInstrument());
+        String encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(),env.getProperty("apiKey"),env.getProperty("sharedSecret"));
+        map.put("encPaymentInstrument", encPaymentInstrument);
         map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
-        map.put("platformType",enrollPanRequest.getPlatformType());
+       // map.put("platformType",enrollPanRequest.getPlatformType());
         //*********************create channelSecurityContext start*****************
-        CreateChannelSecurityContext createChannelSecurityContext=new CreateChannelSecurityContext();
+       /* CreateChannelSecurityContext createChannelSecurityContext=new CreateChannelSecurityContext();
         Map<String,Object> securityContext=createChannelSecurityContext.visaChannelSecurityContext(deviceInfo);
-        map.put("channelSecurityContext", securityContext);
+        map.put("channelSecurityContext", securityContext);*/
         //******************************end***********************************
         HitVisaServices hitVisaServices = new HitVisaServices(env);
         JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
         try {
-            jsonResponse = new JSONObject(hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments?apiKey="+env.getProperty("apiKey"),objectMapper.writeValueAsString(map), "vts/panEnrollments","POST"));
+            responseEntity = hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments?apiKey="+env.getProperty("apiKey"),objectMapper.writeValueAsString(map), "vts/panEnrollments","POST");
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        if("200".equals(jsonResponse.getString("responseCode"))){
+        if(responseEntity.getStatusCode().value()==200 || responseEntity.getStatusCode().value()==201)
+        {
             //put card details in db
-              VisaCardDetails visaCardDetails=new VisaCardDetails();
-              visaCardDetails.setUserName(enrollPanRequest.getUserId());
-              visaCardDetails.setCardnumberSuffix(enrollPanRequest.getEncPaymentInstrument().getAccountNumber());
-              visaCardDetails.setVpanenrollmentid((String) jsonResponse.get("vPanEnrollmentID"));
-              visaCardDetails.setStatus("Y");
-              visaCardDetailRepository.save(visaCardDetails);
-          }
-          return null;
+            String response = String.valueOf(responseEntity.getBody());
+            jsonResponse = new JSONObject(response);
+            VisaCardDetails visaCardDetails = new VisaCardDetails();
+            visaCardDetails.setUserName(enrollPanRequest.getUserId());
+            visaCardDetails.setCardnumbersuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
+            visaCardDetails.setVpanenrollmentid((String) jsonResponse.get("vPanEnrollmentID"));
+            visaCardDetails.setStatus("Y");
+            visaCardDetailRepository.save(visaCardDetails);
+        }
+
+          return JsonUtil.jsonStringToHashMap(jsonResponse.toString());
     }
 
 
@@ -631,6 +637,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             CardDetails cardDetails = cardDetailRepository.findByTokenUniqueReference(tokenUniqueRef).get();
 
             //Check if the token unique reference are valid or not
+
             if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getTokenUniqueReference())))
                 return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
 
@@ -735,4 +742,46 @@ public class CardDetailServiceImpl implements CardDetailService {
             return result;
         }
     }*/
+    public  Map getTokens(GetTokensRequest getTokensRequest)
+    {
+        //Check if the token unique reference is valid or not
+        if(cardDetailRepository.findByTokenUniqueReference(getTokensRequest.getTokenUniqueReference()).isPresent())
+        {
+            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+        }
+        MultiValueMap getToeknReqMap = new LinkedMultiValueMap();
+        getToeknReqMap.add("tokenUniqueReference",getTokensRequest.getTokenUniqueReference());
+        //call master card get token API.
+        ResponseEntity responseEntity = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT +ServerConfig.DIGITIZATION_PATH+"/getToken", getToeknReqMap);
+        String response;
+        if (responseEntity.getStatusCode().value() == 200)
+        {
+            response = String.valueOf(responseEntity.getBody());
+            return JsonUtil.jsonStringToHashMap(response);
+
+        }
+        return null;
+
+    }
+    public Map searchTokens(SearchTokensReq searchTokensReq)
+    {
+        //Check if the paymentAppInstanceId is valid or not
+       if(!deviceDetailRepository.findByPaymentAppInstanceId(searchTokensReq.getPaymentAppInstanceId()).isPresent())
+       {
+           return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+       }
+        //call the master card searchTokens API
+        MultiValueMap searchTokensReqMap = new LinkedMultiValueMap();
+        searchTokensReqMap.add("paymentAppInstanceId",searchTokensReq.getPaymentAppInstanceId());
+        ResponseEntity responseEntity = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT +ServerConfig.DIGITIZATION_PATH+"/searchTokens", searchTokensReqMap);
+        String response;
+        if (responseEntity.getStatusCode().value() == 200)
+        {
+            response = String.valueOf(responseEntity.getBody());
+            return JsonUtil.jsonStringToHashMap(response);
+
+        }
+        return null;
+
+    }
 }

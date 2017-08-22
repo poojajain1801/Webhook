@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
@@ -57,7 +58,13 @@ public class EnrollDevice extends VtsRequest {
         JSONObject devInfoVts = new JSONObject();
         devInfoVts.put("osType", devInfo.getOsType());
         devInfoVts.put("deviceType", devInfo.getDeviceType());
-        devInfoVts.put("deviceName", devInfo.getDeviceName());
+        String deviceName = devInfo.getDeviceName();
+        byte[] b64data = Base64.encodeBase64URLSafe(deviceName.getBytes());
+        try {
+            devInfoVts.put("deviceName", new String(b64data,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         devInfoVts.put("osVersion",devInfo.getOsVersion());
         devInfoVts.put("osBuildID",devInfo.getOsBuildID());
         devInfoVts.put("deviceIDType",devInfo.getDeviceIDType());
@@ -177,8 +184,8 @@ public class EnrollDevice extends VtsRequest {
         prepareHeader(prepareHeaderRequest);
         final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
-        requestFactory.setProxy(proxy);
+       /* Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
+        requestFactory.setProxy(proxy);*/
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
@@ -214,6 +221,8 @@ public class EnrollDevice extends VtsRequest {
             jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
            // ((HttpClientErrorException)e).getResponseBodyAsString();
+            String error = ((HttpClientErrorException) e).getResponseBodyAsString();
+            String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
             jsonResponse=new JSONObject();
             jsonResponse.put("statusCode",e.getMessage());
             jsonResponse.put("statusMessage","unauthorised");
