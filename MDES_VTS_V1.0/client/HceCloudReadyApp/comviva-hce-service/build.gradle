@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
 
     lintOptions {
         abortOnError false
@@ -20,7 +20,7 @@ android {
         release {
             minifyEnabled false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile 'D:/Projects/HCE/HceCloudReady/Workspace/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
+            //proguardFile 'D:/Projects/HCE/HceCloudReady/Workspace/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
         }
         debug {
             debuggable true
@@ -77,8 +77,8 @@ task buildDebugJar(type: Copy) {
 task buildReleaseJar(type: Copy) {
     from('build/outputs/aar/')
     into('..//app//libs')
-    include('comviva-hce-service-mdes-debug.aar')
-    rename('comviva-hce-service-mdes-debug.aar', 'comvivaSdk.aar')
+    include('comviva-hce-service-mdes-release.aar')
+    rename('comviva-hce-service-mdes-release.aar', 'comvivaSdk.aar')
 }
 
 buildDebugJar.dependsOn(deleteOldJar, build)
@@ -103,13 +103,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
-    compile files('libs/mobile-api-core.jar')
-    compile files('libs/mcbp.jar')
-    compile files('libs/mcbp-android-api-mdes.jar')
-    compile files('libs/mcbp-android.jar')
-    //    compile files('libs/VisaDigitalSDK-flow2-SBX-4.6.1.jar')
     compile 'com.google.code.gson:gson:2.8.0'
-    //    compile 'com.android.support:multidex:1.0.0'
+    //compile 'com.android.support:multidex:1.0.0'
 }
 apply plugin: 'dexguard'
 
