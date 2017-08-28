@@ -138,17 +138,23 @@ public class HttpUtil {
             // Prepare Query String
             if(queryStrings.size() > 0) {
                 String strQueries = "";
+                boolean isFirstElement =  true;
                 for (String key : queryStrings.keySet()) {
-                    strQueries += "&" + key + "=" + queryStrings.get(key);
+                    if(isFirstElement) {
+                        strQueries += "?" + key + "=" + queryStrings.get(key);
+                        isFirstElement = false;
+                    } else {
+                        strQueries += "&" + key + "=" + queryStrings.get(key);
+                    }
                 }
-                serviceUrl += strQueries.substring(1, strQueries.length());
+                serviceUrl += strQueries;
             }
 
             URL url = new URL(serviceUrl);
             httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setConnectTimeout(TIMEOUT);
             httpURLConnection.setReadTimeout(TIMEOUT);
-            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setDoOutput(false);
             httpURLConnection.setUseCaches(false);
             httpURLConnection.setRequestMethod("GET");
 

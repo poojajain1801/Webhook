@@ -11,17 +11,12 @@ public interface RegisterUserListener {
 
     /**
      * User registration successful.
+     * @param registerUserResponse Register User Response
      */
-    void onRegistrationCompeted();
+    void onRegistrationCompeted(RegisterUserResponse registerUserResponse);
 
     /**
      * Error occurred while registering user.
      */
-    void onError();
-
-    /**
-     * Set register user response. This method is used by SDK to provide response of user registration.
-     * @param registerUserResponse
-     */
-    void setRegisterUserResponse(RegisterUserResponse registerUserResponse);
+    void onError(String errorMessage);
 }

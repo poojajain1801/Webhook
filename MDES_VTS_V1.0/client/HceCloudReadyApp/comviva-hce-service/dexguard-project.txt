@@ -1,0 +1,211 @@
+##############################################################################
+# General settings.
+##############################################################################
+
+-dontwarn
+-verbose
+
+# If you encounter problems in your project, you can try to narrow down
+# the issue by disabling some processing steps:
+
+-dontshrink
+-dontoptimize
+#-dontobfuscate
+
+# You can also check if the problem can be solved by keeping additional
+# code or resources:
+#
+#-keep class * { *; }
+#-keepattributes *
+#
+#-keepresources */*
+#-keepresourcefiles **
+#-keepresourcexmlattributenames **
+
+
+# These are really crude settings that you shouldn't use for building
+# actual releases, but it's easier to start from a working configuration,
+# which you can then refine.
+
+
+##############################################################################
+# Reflection in the library.
+##############################################################################
+
+# With configuration dexguard-library-release-aggressive.pro # in build.gradle,
+# we can specify our own subset of the public classes that defines the
+# public API.
+
+#-keep public class com.mahindracomviva.mobile_api.**,
+#                    com.mahindracomviva.sdk.**  {
+#    public protected *;
+#}
+
+# We can then also repackage all obfuscated internal classes.
+#-repackageclasses com.mahindracomviva.internal
+
+
+##############################################################################
+# Reflection in the library.
+##############################################################################
+
+-keep class * extends android.view.View {
+    void set*(***);
+    *** get*();
+}
+
+# Keep methods in Activity that could be used in the XML attribute onClick.
+-keep class * extends android.app.Activity {
+    public void *(android.view.View);
+}
+
+-keep class * extends android.os.Bundle {
+    *;
+}
+
+#-keepclassmembers class **.R$* {
+#    public static *;
+#}
+
+#-keep class com.comviva.security.RootCheck {
+#    public com.mahindracomviva.sdk.hce.DeviceStatus getDeviceRootingStatus();
+#}
+
+#-keep class services.Util {*;}
+
+#-keep class services.WhiteboxCrypto {*;}
+-keep class cz.muni.fi.xklinec.whiteboxAES.generator.* { *; }
+#-keep class cz.muni.fi.xklinec.whiteboxAES.* { *; }
+
+-keepresourcefiles jni/**/libwbc.so
+#-encryptnativelibraries /lib/**/libwbc.so
+#-encryptnativelibraries /libs/**/libwbc.so
+#-encryptnativelibraries /comviva-sdk/lib/**/libwbc.so
+#-encryptnativelibraries /comviva-sdk/libs/**/libwbc.so
+
+#-keep enum com.comviva.security.** {*;}
+-keep enum com.mahindracomviva.common.core.mcbpcards.ActivateCLResultCode { *; }
+
+#-keep class com.comviva.security.TamperDetection {
+#    public void setTamperingStatusListener(com.mahindracomviva.sdk.hce.TamperResultListener);
+#}
+
+#-keep class com.mahindracomviva.common.* { *; }
+#-keep class com.mahindracomviva.common.CardNotFoundException { *; }
+#-keep class com.mahindracomviva.common.InvalidTokensException { *; }
+#-keep class com.mahindracomviva.common.PaymentService { *; }
+#-keep class com.mahindracomviva.common.core.* { *; }
+#-keep class com.mahindracomviva.common.core.lde.containers.* { *; }
+#-keep class com.mahindracomviva.common.core.lde.data.* { *; }
+#-keep class com.mahindracomviva.common.core.lde.data.DcSukContent { *; }
+#-keep class com.mahindracomviva.common.core.lde.data.mobilecheck.* { *; }
+#-keep class com.mahindracomviva.common.core.lde.data.mobilecheck.MobileCheckResponse { *; }
+#-keep class com.mahindracomviva.common.core.lde.services.* { *; }
+#-keep class com.mahindracomviva.common.core.lde.services.* { *; }
+#-keep class com.mahindracomviva.common.core.mcbpcards.* { *; }
+#-keep class com.mahindracomviva.common.core.mobilekernel.* { *; }
+#-keep class com.mahindracomviva.common.core.mpplite.* { *; }
+#-keep class com.mahindracomviva.common.core.mpplite.* { *; }
+#-keep class com.mahindracomviva.common.crypto.* { *; }
+#-keep class com.mahindracomviva.common.database.* { *; }
+#-keep class com.mahindracomviva.common.hce.AndroidHCEService extends android.nfc.cardemulation.HostApduService { *; }
+#-keep class com.mahindracomviva.common.impl.database.* { *; }
+#-keep class com.mahindracomviva.common.impl.json.* { *; }
+-keep class com.mahindracomviva.common.remotemanagement.AndroidRNSService extends com.mahindracomviva.common.remotemanagement.RNSService { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSApi { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSCertificate { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSConfiguration { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSInitializationInfo { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSPMA_ID { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSPTP { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.CMSServiceImpl { *; }
+-keep class com.mahindracomviva.common.remotemanagement.CMSToken extends java.io.Serializable { *; }
+-keep class com.mahindracomviva.common.remotemanagement.CMSValueName extends java.io.Serializable { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.FnGenAuthCode { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.FnGenMSKey { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.MCBPNotificationManager { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.ProofContainer { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.RNSListener { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.RNSMessage { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.RNSService { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.RNS_MPA_ID { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.RegisterResultStatus { *; }
+-keep class com.mahindracomviva.common.remotemanagement.RemMgtInfo extends java.io.Serializable { *; }
+-keep class com.mahindracomviva.common.remotemanagement.ServiceRequest extends java.io.Serializable { *; }
+#-keep class com.mahindracomviva.common.remotemanagement.ServiceRequestUtils { *; }
+-keep class com.mahindracomviva.common.remotemanagement.ServiceResponse extends java.io.Serializable { *; }
+#-keep class com.mahindracomviva.common.userinterface.* { *; }
+#-keep class com.mahindracomviva.common.utils.* { *; }
+#-keep class com.mahindracomviva.common.utils.* { *; }
+#-keep class com.mahindracomviva.common.utils.http.* { *; }
+#-keep class com.mahindracomviva.common.utils.json.MCBPJsonFactory { *; }
+#-keep class com.mahindracomviva.mobile_api.bytes.* { *; }
+#-keep class com.mahindracomviva.mobile_api.bytes.AndroidByteArray { *; }
+#-keep class com.mahindracomviva.mobile_api.bytes.ByteArray { *; }
+#-keep class com.mahindracomviva.mobile_api.json.* { *; }
+#-keep class com.mahindracomviva.mobile_api.json.JSONObject { *; }
+#-keep class com.mahindracomviva.mobile_api.payment.* { *; }
+#-keep class com.mahindracomviva.mobile_api.payment.cld.* { *; }
+#-keep class com.mahindracomviva.mobile_api.task.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.apdu.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.apdu.emv.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.logs.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.logs.* { *; }
+#-keep class com.mahindracomviva.mobile_api.utils.tlv.* { *; }
+
+# Keep names - Native method names. Keep all native class/method names.
+#-keepclasseswithmembers,includedescriptorclasses,allowshrinking class * {
+#    native <methods>;
+#}
+
+
+##############################################################################
+# External code.
+##############################################################################
+
+# The Landicorp library.
+-keep class com.landicorp.** {
+    *;
+}
+
+# The WhiteboxAES library.
+
+
+
+
+##############################################################################
+# Additional hardening.
+##############################################################################
+
+
+
+##############################################################################
+# Remove logging code.
+##############################################################################
+
+-keep public class com.google.android.gms.* { public *; }
+-dontwarn com.google.android.gms.**
+
+-keep class org.jetbrains.annotations.** { *; }
+-dontwarn org.jetbrains.annotations.**
+
+#-keep public class com.mastercard.** { public *; }
+-dontwarn com.mastercard.**
+
+#-keep public class com.mastercard.mcbp_android.BuildConfig.class
+
+-keep class org.apache.cordova.** { *; }
+-dontwarn org.apache.cordova.**
+-dontwarn org.crosswalk.**
+-dontwarn org.xwalk.core.XWalkView
+-dontwarn org.apache.commons.codec.binary.Hex
+
+
+
+
+
+
+
+
