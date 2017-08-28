@@ -11,10 +11,8 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.comviva.hceservice.common.RestResponse;
-import com.comviva.hceservice.register.ActivateUserListener;
+import com.comviva.hceservice.register.RegistrationListener;
 import com.comviva.hceservice.register.Registration;
 
 import com.comviva.mdesapp.R;
@@ -39,7 +37,7 @@ public class ActivateUserActivity extends AppCompatActivity {
             edActivationCode.setText(activationCode);
         }
 
-        final Registration registration = new Registration();
+        final Registration registration = Registration.getInstance();
 
         Button btnActUser = (Button) findViewById(R.id.btnActUser);
         btnActUser.setOnClickListener(new View.OnClickListener() {
@@ -51,9 +49,9 @@ public class ActivateUserActivity extends AppCompatActivity {
         });
     }
 
-    ActivateUserListener activateUserListener = new ActivateUserListener() {
+    RegistrationListener activateUserListener = new RegistrationListener() {
         @Override
-        public void onActivationStarted() {
+        public void onStarted() {
             progressDialog = new ProgressDialog(ActivateUserActivity.this);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage("Please wait...");
@@ -63,7 +61,7 @@ public class ActivateUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onActivationCompeted() {
+        public void onCompeted() {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }

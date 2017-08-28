@@ -3,7 +3,6 @@ package com.comviva.mdesapp.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.AttrRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,9 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.comviva.hceservice.mdes.digitizatioApi.ActivateListener;
-import com.comviva.hceservice.mdes.digitizatioApi.ActivationCodeType;
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
+import com.comviva.hceservice.digitizationApi.ActivateListener;
+import com.comviva.hceservice.digitizationApi.ActivationCodeType;
+import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.mdesapp.R;
 
 public class ActivateActivity extends AppCompatActivity {
@@ -42,7 +41,7 @@ public class ActivateActivity extends AppCompatActivity {
 
         final String tokenUniqueReference = getIntent().getStringExtra("tokenUniqueReference");
 
-        final Digitization digitization = new Digitization();
+        final Digitization digitization = Digitization.getInstance();
         final EditText etActivationCode = (EditText) findViewById(R.id.etActivationCode);
         final Button btnSubmit = (Button) findViewById(R.id.btnSubmitActivationCode);
         btnSubmit.setOnClickListener(new View.OnClickListener() {

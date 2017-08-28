@@ -1,22 +1,14 @@
 package com.comviva.hceservice.fcm;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.graphics.BitmapFactory;
-
 import com.comviva.hceservice.common.ComvivaWalletListener;
-import com.comviva.hceservice.mdes.tds.TdsNotificationData;
-import com.comviva.hceservice.mdes.tds.TransactionHistory;
-import com.google.firebase.messaging.FirebaseMessagingService;
+import com.comviva.hceservice.tds.TdsNotificationData;
+import com.comviva.hceservice.tds.TransactionHistory;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpNotificationApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
-import com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener;
 
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Service Class implementing Firebase Messaging Service.

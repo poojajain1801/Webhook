@@ -8,47 +8,76 @@ import com.comviva.hceservice.fcm.RnsInfo;
  */
 public class ComvivaSdkInitData {
     private boolean initState;
-    private String rnsRegistrationId;
     private RnsInfo rnsInfo;
     private boolean vtsInitState;
     private boolean mdesInitState;
 
+    /**
+     * Returns initialization state of the SDK.
+     * @return <code>true </code>If SDK is initialized
+     *         <code>false </code>SDK is not initialized
+     */
     public boolean isInitState() {
         return initState;
     }
 
-    public String getRnsRegistrationId() {
-        return rnsRegistrationId;
-    }
-
+    /**
+     *
+     * @return
+     */
     public RnsInfo getRnsInfo() {
         return rnsInfo;
     }
 
+    /**
+     * Checks if SDK is initialized successfully with VTS.
+     * @return <code>true </code>If SDK is initialized with VTS <br>
+     *          <code>false </code>If SDk is not initialized with VTS
+     */
     public boolean isVtsInitState() {
         return vtsInitState;
     }
 
+    /**
+     * Checks if SDK is initialized successfully with MDES.
+     * @return <code>true </code>If SDK is initialized with MDES <br>
+     *          <code>false </code>If SDk is not initialized with MDES
+     */
     public boolean isMdesInitState() {
         return mdesInitState;
     }
 
+    /**
+     * Set Initialization state of the SDK.
+     * @param initState <code>true </code>SDK is initialized <br>
+     *                  <code>false </code>SDK is not initialized <br>
+     */
     public void setInitState(boolean initState) {
         this.initState = initState;
     }
 
-    public void setRnsRegistrationId(String rnsRegistrationId) {
-        this.rnsRegistrationId = rnsRegistrationId;
-    }
-
+    /**
+     * Set RNS information.
+     * @param rnsInfo RNS info
+     */
     public void setRnsInfo(RnsInfo rnsInfo) {
         this.rnsInfo = rnsInfo;
     }
 
+    /**
+     * Set VTS Initialization state of the SDK.
+     * @param vtsInitState <code>true </code>If SDK is initialized with VTS <br>
+     *          <code>false </code>If SDk is not initialized with VTS
+     */
     public void setVtsInitState(boolean vtsInitState) {
         this.vtsInitState = vtsInitState;
     }
 
+    /**
+     * Set MDES Initialization state of the SDK.
+     * @param mdesInitState <code>true </code>If SDK is initialized with MDES <br>
+     *          <code>false </code>If SDk is not initialized with MDES
+     */
     public void setMdesInitState(boolean mdesInitState) {
         this.mdesInitState = mdesInitState;
     }

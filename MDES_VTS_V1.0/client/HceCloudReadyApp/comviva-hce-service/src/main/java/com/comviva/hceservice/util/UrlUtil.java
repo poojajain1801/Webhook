@@ -77,4 +77,20 @@ public class UrlUtil {
     public static String getUnregisterTdsUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/unregisterTds";
     }
+
+    public static String getVTSEnrollPanUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/enrollPan";
+    }
+
+    public static String getVTSProvisionTokenUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/provisionTokenWithPanEnrollmentId";
+    }
+
+    public static String getVTSContentUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getContent";
+    }
+
+    public static String getVTSConfirmProvisioningUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/confirmProvisioning";
+    }
 }

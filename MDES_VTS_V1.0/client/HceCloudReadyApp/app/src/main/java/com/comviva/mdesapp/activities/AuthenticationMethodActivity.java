@@ -11,9 +11,9 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
-import com.comviva.hceservice.mdes.digitizatioApi.RequestActivationCodeListener;
-import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.digitizationApi.RequestActivationCodeListener;
+import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
 
 public class AuthenticationMethodActivity extends AppCompatActivity {
@@ -60,7 +60,7 @@ public class AuthenticationMethodActivity extends AppCompatActivity {
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } else {
-                    Digitization digitization = new Digitization();
+                    Digitization digitization = Digitization.getInstance();
                     digitization.requestActivationCode(tokenUniqueReference,
                             authenticationMethods[idSelectedAuthMethod - 1000],
                             new RequestActivationCodeListener() {

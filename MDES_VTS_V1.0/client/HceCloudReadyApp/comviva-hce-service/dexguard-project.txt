@@ -1,0 +1,120 @@
+##############################################################################
+# General settings.
+##############################################################################
+
+-dontwarn
+-verbose
+
+# If you encounter problems in your project, you can try to narrow down
+# the issue by disabling some processing steps:
+
+-dontshrink
+-dontoptimize
+#-dontobfuscate
+
+# You can also check if the problem can be solved by keeping additional
+# code or resources:
+#
+#-keep class * { *; }
+#-keepattributes *
+#
+#-keepresources */*
+#-keepresourcefiles **
+#-keepresourcexmlattributenames **
+
+
+# These are really crude settings that you shouldn't use for building
+# actual releases, but it's easier to start from a working configuration,
+# which you can then refine.
+
+
+##############################################################################
+# Reflection in the library.
+##############################################################################
+
+# With configuration dexguard-library-release-aggressive.pro # in build.gradle,
+# we can specify our own subset of the public classes that defines the
+# public API.
+
+#-keep public class com.mahindracomviva.mobile_api.**,
+#                    com.mahindracomviva.sdk.**  {
+#    public protected *;
+#}
+
+# We can then also repackage all obfuscated internal classes.
+#-repackageclasses com.mahindracomviva.internal
+
+
+##############################################################################
+# Reflection in the library.
+##############################################################################
+
+-keep class * extends android.view.View {
+    void set*(***);
+    *** get*();
+}
+
+# Keep methods in Activity that could be used in the XML attribute onClick.
+-keep class * extends android.app.Activity {
+    public void *(android.view.View);
+}
+
+-keep class * extends android.os.Bundle {
+    *;
+}
+
+#-keepclassmembers class **.R$* {
+#    public static *;
+#}
+
+#-keep class com.comviva.security.RootCheck {
+#    public com.mahindracomviva.sdk.hce.DeviceStatus getDeviceRootingStatus();
+#}
+
+#-keep class services.Util {*;}
+
+#-keep class services.WhiteboxCrypto {*;}
+#-keep class cz.muni.fi.xklinec.whiteboxAES.generator.* { *; }
+#-keep class cz.muni.fi.xklinec.whiteboxAES.* { *; }
+
+-keepresourcefiles jni/**/libvisacrypto.so
+
+
+
+##############################################################################
+# External code.
+##############################################################################
+
+#-injars libs
+-libraryjars libs
+
+
+##############################################################################
+# Additional hardening.
+##############################################################################
+
+
+
+##############################################################################
+# Remove logging code.
+##############################################################################
+
+-keep public class com.google.android.gms.* { public *; }
+-dontwarn com.google.android.gms.**
+
+-keep class org.jetbrains.annotations.** { *; }
+-dontwarn org.jetbrains.annotations.**
+
+#-keep public class com.mastercard.** { public *; }
+-dontwarn com.mastercard.**
+-dontwarn org.apache.cordova.**
+-dontwarn org.crosswalk.engine.**
+-dontwarn org.xwalk.core.XWalkView
+
+-keep public class com.mastercard.mcbp_android.BuildConfig.class
+
+
+
+
+
+

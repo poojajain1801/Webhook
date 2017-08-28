@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.comviva.hceservice.common.RmPendingTask;
 import com.comviva.hceservice.fcm.RnsInfo;
-import com.comviva.hceservice.mdes.tds.TdsRegistrationData;
+import com.comviva.hceservice.tds.TdsRegistrationData;
 
 public class CommonDatabase implements CommonDb {
     private DatabaseHelper commonDb;
@@ -135,7 +135,7 @@ public class CommonDatabase implements CommonDb {
         return initData;
     }
 
-    @Override
+    /*@Override
     public RmPendingTask getRmPendingTask() {
         SQLiteDatabase sqLiteDb = null;
         Cursor cursor = null;
@@ -181,7 +181,7 @@ public class CommonDatabase implements CommonDb {
                 sqLiteDb.close();
             }
         }
-    }
+    }*/
 
     @Override
     public void saveTdsRegistrationCode(TdsRegistrationData tdsRegistrationData) {

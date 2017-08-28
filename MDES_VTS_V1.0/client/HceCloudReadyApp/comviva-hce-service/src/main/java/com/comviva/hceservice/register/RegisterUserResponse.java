@@ -6,7 +6,7 @@ import com.comviva.hceservice.common.RestResponse;
 /**
  * Response object of register user.
  */
-public class RegisterUserResponse extends RestResponse {
+public class RegisterUserResponse {
     private String activationCode;
 
     /**

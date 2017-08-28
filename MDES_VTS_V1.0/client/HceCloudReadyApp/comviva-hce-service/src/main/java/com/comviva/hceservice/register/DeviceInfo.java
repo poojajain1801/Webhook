@@ -1,12 +1,14 @@
 package com.comviva.hceservice.register;
 
+import com.comviva.hceservice.common.DeviceType;
+
 /**
  * Device information.
  */
 public class DeviceInfo {
     private String deviceId;
     private String deviceName;
-    private String deviceType;
+    private DeviceType deviceType;
     private String imei;
     private String msisdn;
     private String nfcCapable;
@@ -34,7 +36,7 @@ public class DeviceInfo {
      * Set type of device i.e. form factor.
      * @param deviceType    Device type e.g. Tablet, phone etc
      */
-    public void setDeviceType(String deviceType) {
+    public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
     }
 
@@ -104,7 +106,7 @@ public class DeviceInfo {
     /**
      * @return  Type of device e.g. PHONE, TABLET etc.
      */
-    public String getDeviceType() {
+    public DeviceType getDeviceType() {
         return deviceType;
     }
 

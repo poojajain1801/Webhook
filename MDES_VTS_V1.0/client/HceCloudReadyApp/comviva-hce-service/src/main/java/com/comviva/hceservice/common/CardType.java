@@ -12,5 +12,26 @@ public enum CardType {
     /**
      * VISA Cards following VTS product.
      */
-    VTS
+    VTS,
+
+    /**
+     * Card type is not supported
+     */
+    UNKNOWN;
+
+    /**
+     * Determines type of Card.
+     * @param cardNumber Card Number
+     * @return CardType
+     */
+    public static CardType checkCardType(String cardNumber) {
+        switch (cardNumber.charAt(0)) {
+            case '5':
+                return MDES;
+
+            case '4':
+                return VTS;
+        }
+        return UNKNOWN;
+    }
 }
