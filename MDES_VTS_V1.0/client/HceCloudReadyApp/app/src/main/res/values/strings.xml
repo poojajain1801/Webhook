@@ -11,4 +11,6 @@
 
     <string name="hceSrviceDesc">ComvivaHce</string>
     <string name="aidDescription">Hce Solutions AID desc</string>
+
+    <string name="set_pin">Set Pin</string>
 </resources>

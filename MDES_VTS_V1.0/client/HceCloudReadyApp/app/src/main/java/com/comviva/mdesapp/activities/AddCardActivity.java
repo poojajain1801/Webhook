@@ -11,12 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityRequest;
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityResponse;
-import com.comviva.hceservice.mdes.digitizatioApi.CheckCardEligibilityListener;
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
-import com.comviva.hceservice.mdes.digitizatioApi.asset.GetAssetResponse;
-import com.comviva.hceservice.register.RegisterParam;
+import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.digitizationApi.CardEligibilityRequest;
+import com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener;
+import com.comviva.hceservice.digitizationApi.ContentGuid;
+import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.mdesapp.R;
 
 public class AddCardActivity extends AppCompatActivity {
@@ -33,17 +32,18 @@ public class AddCardActivity extends AppCompatActivity {
         final EditText etExpYear = (EditText) findViewById(R.id.editExpYear);
         final EditText etCardHolderName = (EditText) findViewById(R.id.editCardHolderName);
         final CardEligibilityRequest cardEligibilityRequest = new CardEligibilityRequest();
-        cardEligibilityRequest.setAccountNumber(etPan.getText().toString());
-        cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
-        cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
-        cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
-        cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
 
         Button digiCard = (Button) findViewById(R.id.btnDigCard);
         digiCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Digitization digitization = new Digitization();
+                cardEligibilityRequest.setAccountNumber(etPan.getText().toString());
+                cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
+                cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
+                cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
+                cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
+
+                final Digitization digitization = Digitization.getInstance();
                 digitization.checkCardEligibility(cardEligibilityRequest, new CheckCardEligibilityListener() {
                     @Override
                     public void onCheckEligibilityStarted() {
@@ -64,7 +64,7 @@ public class AddCardActivity extends AppCompatActivity {
 
                     @Override
                     public void onCheckEligibilityError(String message) {
-                        if (progressDialog.isShowing()) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
                         new AlertDialog.Builder(AddCardActivity.this)
@@ -80,10 +80,11 @@ public class AddCardActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onTermsAndConditionsRequired(CardEligibilityResponse cardEligibilityResponse) {
+                    public void onTermsAndConditionsRequired(ContentGuid cardEligibilityResponse) {
                         try {
                             Intent intent = new Intent(AddCardActivity.this, TnCActivity.class);
                             intent.putExtra("eligibilityResponse", cardEligibilityResponse);
+                            intent.putExtra("CardType", CardType.checkCardType(etPan.getText().toString()));
                             startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();

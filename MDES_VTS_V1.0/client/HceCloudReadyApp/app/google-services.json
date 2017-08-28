@@ -1,35 +1,27 @@
 {
   "project_info": {
-    "project_number": "587044844514",
-    "firebase_url": "https://mdesapp-3660c.firebaseio.com",
-    "project_id": "mdesapp-3660c",
-    "storage_bucket": "mdesapp-3660c.appspot.com"
+    "project_number": "445392051927",
+    "firebase_url": "https://mdesvts.firebaseio.com",
+    "project_id": "mdesvts",
+    "storage_bucket": "mdesvts.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:587044844514:android:d18a657fb2873357",
+        "mobilesdk_app_id": "1:445392051927:android:d18a657fb2873357",
         "android_client_info": {
           "package_name": "com.comviva.mdesapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "587044844514-1s89bqqe38gkhefjtr0ssaaqko9nkmqt.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.comviva.mdesapp",
-            "certificate_hash": "f6f2c056b2909975b01d8dbe44ebf0b5feabd8c5"
-          }
-        },
-        {
-          "client_id": "587044844514-sajst20vgj6tsg1ottjlhubq66rkkig4.apps.googleusercontent.com",
+          "client_id": "445392051927-s7anvk06tnknve5lalq9m878afrj398t.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDtPwUDS2NHtoW3MqHA0hlFAPns_yeVvQM"
+          "current_key": "AIzaSyA4huZoHEVOa25fu8vys3gFOiMawBK8-8M"
         }
       ],
       "services": {
@@ -37,13 +29,8 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "587044844514-sajst20vgj6tsg1ottjlhubq66rkkig4.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2
