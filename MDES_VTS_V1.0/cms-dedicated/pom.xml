@@ -54,6 +54,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>mcbp</groupId>
+            <artifactId>mcbp</artifactId>
+            <version>1.0.6</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/main/lib/mcbp.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>mobile-api-core</groupId>
+            <artifactId>mobile-api-core</artifactId>
+            <version>1.0.6</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/src/main/lib/mobile-api-core.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
