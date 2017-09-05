@@ -32,9 +32,8 @@ public class ActivateUserActivity extends AppCompatActivity {
         final EditText edActivationCode = (EditText) findViewById(R.id.editActivationCode);
         if (getIntent().hasExtra("userId")) {
             userId = getIntent().getExtras().getString("userId");
-            activationCode = getIntent().getStringExtra("activationCode").toString();
+            activationCode = edActivationCode.getText().toString();
             edUserId.setText(userId);
-            edActivationCode.setText(activationCode);
         }
 
         final Registration registration = Registration.getInstance();
@@ -61,7 +60,7 @@ public class ActivateUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onCompeted() {
+        public void onCompleted() {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }

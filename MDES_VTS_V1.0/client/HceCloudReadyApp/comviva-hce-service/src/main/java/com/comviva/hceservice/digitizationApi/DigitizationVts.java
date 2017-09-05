@@ -2,6 +2,8 @@ package com.comviva.hceservice.digitizationApi;
 
 import android.os.AsyncTask;
 
+import com.comviva.hceservice.common.CardLcmOperation;
+import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
@@ -10,13 +12,16 @@ import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
 import com.visa.cbp.external.common.*;
 import com.visa.cbp.external.enp.ProvisionAckRequest;
 import com.visa.cbp.external.enp.ProvisionResponse;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
+import com.visa.cbp.sdk.facade.data.TokenStatus;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +31,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import flexjson.JSONDeserializer;
 
 
 class DigitizationVts {
@@ -141,6 +148,38 @@ class DigitizationVts {
         return contentGuid;
     }
 
+    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException {
+
+        JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
+        JSONObject jsExpirationDateObject = jsTokenInfoObject.getJSONObject("expirationDate");
+        JSONObject jsHCEDataObject = jsTokenInfoObject.getJSONObject("hceData");
+        JSONObject jsDynParamsObject = jsHCEDataObject.getJSONObject("dynParams");
+
+
+        ExpirationDate expirationDate = new ExpirationDate();
+        expirationDate.setMonth(jsExpirationDateObject.getString("month"));
+        expirationDate.setYear(jsExpirationDateObject.getString("year"));
+        com.visa.cbp.external.common.ParamsStatus paramsStatus = (com.visa.cbp.external.common.ParamsStatus) new JSONDeserializer<>().deserialize(jsDynParamsObject.toString(), com.visa.cbp.external.common.ParamsStatus.class);
+        /*com.visa.cbp.external.common.ParamsStatus paramsStatus = new com.visa.cbp.external.common.ParamsStatus();
+        paramsStatus.*/
+
+        DynParams dynParams = new DynParams();
+        dynParams.setParamsStatus(paramsStatus);
+        dynParams.setApi(jsDynParamsObject.getString("api"));
+
+        HceData hceData = new HceData();
+        hceData.setDynParams(dynParams);
+
+        TokenInfo tokenInfo = new TokenInfo();
+        tokenInfo.setHceData(hceData);
+        tokenInfo.setExpirationDate(expirationDate);
+        tokenInfo.setTokenStatus(jsTokenInfoObject.getString("tokenStatus"));
+
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.getTokenStatus(jsTokenInfoObject.getString("tokenStatus")));
+        return tokenInfo;
+    }
+
     private EnrollPanResponse parseEnrollPanResponse(JSONObject jsEnrollPanResp) throws JSONException {
         EnrollPanResponse enrollPanResponse = new EnrollPanResponse();
         enrollPanResponse.setvPanEnrollmentID(jsEnrollPanResp.getString(Tags.PAN_ENROLLMENT_ID.getTag()));
@@ -176,6 +215,29 @@ class DigitizationVts {
 
         enrollPanResponse.setCardMetaData(cardMetaData);
         return enrollPanResponse;
+    }
+
+    private ReplenishODAResponse parseReplenishODADataResponse(JSONObject jsReplenishODAData) throws JSONException {
+
+        JSONObject jsODAData = jsReplenishODAData.getJSONObject("ODAData");
+        JSONObject jsICCPubKeyCert = jsODAData.getJSONObject("iccPubKeyCert");
+        JSONObject jsExpirationDate = jsICCPubKeyCert.getJSONObject("expirationDate");
+
+        IccPubKeyCert iccPubKeyCert = new IccPubKeyCert();
+        ExpirationDate expirationDate = new ExpirationDate();
+        expirationDate.setMonth(jsExpirationDate.getString("month"));
+        expirationDate.setYear(jsExpirationDate.getString("year"));
+        iccPubKeyCert.setExpirationDate(expirationDate);
+        iccPubKeyCert.setCertificate(jsICCPubKeyCert.getString("certificate"));
+        iccPubKeyCert.setExponent(jsICCPubKeyCert.getString("exponent"));
+        iccPubKeyCert.setRemainder(jsICCPubKeyCert.getString("remainder"));
+
+        ReplenishODAData replenishODAData = new ReplenishODAData();
+        replenishODAData.setIccPubKeyCert(iccPubKeyCert);
+        ReplenishODAResponse replenishODAResponse = new ReplenishODAResponse();
+        replenishODAResponse.setODAData(replenishODAData);
+
+        return replenishODAResponse;
     }
 
     EnrollPanResponse getEnrollPanResponse() {
@@ -506,5 +568,185 @@ class DigitizationVts {
         provisionTokenTask.execute();
     }
 
+    /**
+     * Replenish ODA data.
+     *
+     * @param tokenKey             TokenKey of which ODA data is to update
+     * @param digitizationListener Listener
+     */
+    public void replenishODADataRequest(final TokenKey tokenKey, final DigitizationListener digitizationListener) {
+        final JSONObject replenishODADataObject = new JSONObject();
+        try {
+            // replenishODADataObject.put(Tags.USER_ID.getTag(), );
+            replenishODADataObject.put(Tags.ACTIVATION_CODE.getTag(), "Dummy");
+        } catch (JSONException e) {
+            digitizationListener.onError("SDK Error : JSONException");
+        }
 
+        class ReplenishODADataTask extends AsyncTask<Void, Void, HttpResponse> {
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSReplenishODADataTokenUrl(), replenishODADataObject.toString());
+            }
+
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                if (digitizationListener != null) {
+                    digitizationListener.onDigitizationCompleted();
+                }
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                        JSONObject replenishODADataResponse = new JSONObject(httpResponse.getResponse());
+                        visaPaymentSDK.processODAReplenishResponse(tokenKey, parseReplenishODADataResponse(replenishODADataResponse));
+                    } else {
+                        if (digitizationListener != null) {
+                            digitizationListener.onError(httpResponse.getResponse());
+                        }
+                    }
+                } catch (Exception e) {
+                    if (digitizationListener != null) {
+                        digitizationListener.onError("Wrong data from server");
+                    }
+                }
+            }
+        }
+        ReplenishODADataTask replenishODADataTask = new ReplenishODADataTask();
+        replenishODADataTask.execute();
+    }
+
+    /**
+     * Fetches content value of the given GUID identified by GUID.
+     *
+     * @param guid             GUID of the resource
+     * @param getAssetListener Listener
+     */
+    public void getContent(final String guid, GetAssetListener getAssetListener) {
+        GetTnCAssetTask getTnCAssetTask = new GetTnCAssetTask(guid, getAssetListener);
+        getTnCAssetTask.execute();
+    }
+
+    /**
+     * Checks token's current status and update accordingly.
+     *
+     * @param paymentCard      Payment Card need to be checked
+     * @param responseListener Listener
+     */
+    public void getTokenStatus(final PaymentCard paymentCard, final ResponseListener responseListener) {
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
+        final JSONObject jsonTokenStatusRequest = new JSONObject();
+        try {
+            jsonTokenStatusRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
+        } catch (Exception e) {
+            //checkEligibilityListener.onCheckEligibilityError("Error while preparing request");
+            return;
+        }
+
+        class GetTokenStatus extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (responseListener != null) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSProvisionTokenUrl(), jsonTokenStatusRequest.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
+                        parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
+                        if (responseListener != null) {
+                            responseListener.onSuccess();
+                        }
+
+                    } else if (responseListener != null) {
+                        responseListener.onError(httpResponse.getResponse());
+                    }
+                } catch (JSONException e) {
+                    if (responseListener != null) {
+                        responseListener.onError(e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * This API is used to Suspend, UnSuspend and Delete Token
+     */
+    public void performCardLcm(final PaymentCard card,
+                               final CardLcmOperation cardLcmOperation,
+                               final CardLcmReasonCode reasonCode,
+                               final CardLcmListener cardLcmListener) {
+
+        final JSONObject jsCardLcmReq = new JSONObject();
+        try {
+            jsCardLcmReq.put("vProvisionedTokenID", ((TokenData) card.getCurrentCard()).getVProvisionedTokenID());
+            jsCardLcmReq.put("reasonCode", reasonCode.name());
+            jsCardLcmReq.put("operation", cardLcmOperation.name());
+        } catch (JSONException e) {
+            cardLcmListener.onError("SDK Exception:JSON Error");
+            return;
+        }
+
+        class CardLcmTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                cardLcmListener.onCardLcmStarted();
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getCardLifeCycleManagementVtsUrl(cardLcmOperation), jsCardLcmReq.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                if (httpResponse.getStatusCode() == 200) {
+                    try {
+                        // Get all tokens
+                        JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
+                        if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
+                            cardLcmListener.onError(jsResponse.getString("message"));
+                            return;
+                        }
+
+                        if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
+                            switch (cardLcmOperation) {
+                                case DELETE:
+                                    cardLcmListener.onSuccess("Card will be Deleted Successfully");
+                                    break;
+
+                                case SUSPEND:
+                                    cardLcmListener.onSuccess("Card will be suspended successfully");
+                                    break;
+
+                                case RESUME:
+                                    cardLcmListener.onSuccess("Card will be resumed successfully");
+                                    break;
+                            }
+                        }
+                    } catch (JSONException e) {
+                        cardLcmListener.onError("Wrong data from server");
+                    }
+                } else {
+                    cardLcmListener.onError(httpResponse.getResponse());
+                }
+            }
+        }
+        CardLcmTask cardLcmTask = new CardLcmTask();
+        cardLcmTask.execute();
+    }
 }

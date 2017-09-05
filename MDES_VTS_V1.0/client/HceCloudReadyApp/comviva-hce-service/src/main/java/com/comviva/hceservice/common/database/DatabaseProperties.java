@@ -32,4 +32,9 @@ public class DatabaseProperties {
     public static final String COL_TDS_AUTH_CODE = "TDS_AUTH_CODE";
     /** TDS Url to access for transaction history */
     public static final String COL_TDS_URL = "TDS_URL";
+
+    /** This table contains default card */
+    public static final String TBL_DEFAULT_CARD = "default_card";
+    public static final String COL_CARD_UNIQUE_ID = "card_unique_id";
+    public static final String COL_CARD_TYPE = "card_type";
 }

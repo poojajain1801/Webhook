@@ -12,7 +12,19 @@ public enum Tags {
     CLIENT_DEVICE_ID("clientDeviceID"),
     PAN_ENROLLMENT_ID("panEnrollmentID"),
     TERMS_AND_CONDITION_ID("termsAndConditionsID"),
+    USER_ID("userID"),
+    ACTIVATION_CODE("activationCode"),
+    TOKEN_INFO("tokenInfo"),
+    MAC("mac"),
+    API("api"),
+    SC("sc"),
+    TV1("tvl"),
+    PROVISIONING_STATUS("provisioningStatus"),
+    FAILURE_REASON("failureReason"),
+    REPERSO("reperso"),
+    ENCRYPTION_META_DATA("encryptionMetaData"),
     VPAN_ENROLLMENT_ID("vPanEnrollmentID"),
+    V_PROVISIONED_TOKEN_ID("vProvisionedTokenID"),
     TERMS_CONDITION_ID("termsAndConditionsID");
 
     private String tag;

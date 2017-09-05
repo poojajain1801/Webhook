@@ -1,6 +1,7 @@
 package com.comviva.hceservice.common.database;
 
 
+import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.RmPendingTask;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.tds.TdsRegistrationData;
@@ -60,4 +61,29 @@ public interface CommonDb {
      * @return TDS Registration data
      */
     TdsRegistrationData getTdsRegistrationData(String tokenUniqueReference);
+
+    /**
+     * Clears all tables from database and SDK state changes to initialized state.
+     */
+    void resetDatabase();
+
+    /**
+     * Set default card.
+     * @param paymentCard Payment Card to set as default
+     * @return <code>true </code>If default card is set successfully.<br/>
+     *         <code>false </code>Error while default card is not set.
+     */
+    boolean setDefaultCard(PaymentCard paymentCard);
+
+    /**
+     * Returns default card's unique ID.
+     * @return Unique Card Id of the default card.
+     */
+    String getDefaultCardUniqueId();
+
+    /**
+     * Returns payment card object set as default card.
+     * @return Default Card
+     */
+    PaymentCard getDefaultCard();
 }

@@ -12,7 +12,7 @@ public interface RegistrationListener {
     /**
      * Task is completed.
      */
-    void onCompeted();
+    void onCompleted();
 
     /**
      * Error occurred while executing the task.

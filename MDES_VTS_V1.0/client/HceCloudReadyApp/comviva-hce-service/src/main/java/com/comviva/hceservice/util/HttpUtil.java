@@ -27,7 +27,7 @@ public class HttpUtil {
     private static HttpUtil httpUtil;
     private HttpResponse httpResponse;
 
-    public static final int TIMEOUT = 60*1000;
+    public static final int TIMEOUT = 20*60*1000;
 
     private HttpUtil() {
     }

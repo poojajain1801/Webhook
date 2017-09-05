@@ -1,5 +1,7 @@
 package com.comviva.hceservice.register;
 
+import com.comviva.hceservice.common.SchemeType;
+
 /***
  * Registration parameter object.
  */
@@ -9,6 +11,7 @@ public class RegisterParam {
     private String paymentAppId;
     private String publicKeyFingerprint;
     private String deviceName;
+    private SchemeType schemeType;
 
     /**
      * Get Mobile PIN which is used at time of payment.
@@ -90,4 +93,19 @@ public class RegisterParam {
         this.deviceName = deviceName;
     }
 
+    /**
+     * Returns type of schemes/schemes for which registration is needed.
+     * @return Scheme Type
+     */
+    public SchemeType getSchemeType() {
+        return schemeType;
+    }
+
+    /**
+     * Set type of schemes/schemes for which registration is needed.
+     * @param schemeType Scheme Type
+     */
+    public void setSchemeType(SchemeType schemeType) {
+        this.schemeType = schemeType;
+    }
 }

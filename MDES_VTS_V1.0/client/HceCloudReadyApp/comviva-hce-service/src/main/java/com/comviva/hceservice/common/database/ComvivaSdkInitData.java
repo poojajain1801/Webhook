@@ -34,7 +34,7 @@ public class ComvivaSdkInitData {
      * @return <code>true </code>If SDK is initialized with VTS <br>
      *          <code>false </code>If SDk is not initialized with VTS
      */
-    public boolean isVtsInitState() {
+    public boolean isVtsInitialized() {
         return vtsInitState;
     }
 
@@ -43,7 +43,7 @@ public class ComvivaSdkInitData {
      * @return <code>true </code>If SDK is initialized with MDES <br>
      *          <code>false </code>If SDk is not initialized with MDES
      */
-    public boolean isMdesInitState() {
+    public boolean isMdesInitialized() {
         return mdesInitState;
     }
 

@@ -6,6 +6,7 @@ import android.util.Log;
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
@@ -18,6 +19,11 @@ import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.MdesMcbpWalletApi;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
 import com.mastercard.mcbp.remotemanagement.mdes.RemoteManagementHandler;
+import com.visa.cbp.sdk.facade.VisaPaymentSDK;
+import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenKey;
+import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
+import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +39,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class Digitization {
     private static Digitization instance;
-
+    private VisaPaymentSDK visaPaymentSDK;
     private DigitizationMdes digitizationMdes;
     private DigitizationVts digitizationVts;
 
@@ -240,96 +246,62 @@ public class Digitization {
     }
 
     /**
-     * This API is used to Suspend, UnSuspend and Delete Token
+     * This API is used to Suspend, UnSuspend and Delete Token. <br>
+     * At a time, you can provide one type of card only. <br>
+     * Note - In case of MasterCard, you can provide more than one card. <br>
+     * In case of Visa, you can provide only one card<br>
      *
      * @param cardLcmRequest  Card Life Cycle Management Request
      * @param cardLcmListener UI Listener
      */
     public void performCardLcm(final CardLcmRequest cardLcmRequest, final CardLcmListener cardLcmListener) {
-        final JSONObject jsCardLcmReq = new JSONObject();
-        try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
-            jsCardLcmReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
+        ArrayList<PaymentCard> cards = cardLcmRequest.getPaymentCards();
+        ArrayList<PaymentCard> mdesCardList = new ArrayList<>();
+        ArrayList<PaymentCard> vtsCardList = new ArrayList<>();
 
-            ArrayList cardList = cardLcmRequest.getTokenUniqueReferences();
-            JSONArray jsArrCards = new JSONArray();
-            int noOfCard = cardList.size();
-            for (int i = 0; i < noOfCard; i++) {
-                jsArrCards.put(cardList.get(i));
-            }
-            jsCardLcmReq.put("tokenUniqueReferences", jsArrCards);
-            jsCardLcmReq.put("causedBy", "CARDHOLDER");
-            jsCardLcmReq.put("reasonCode", cardLcmRequest.getReasonCode().name());
-            jsCardLcmReq.put("reason", "Not Specified");
+        for (PaymentCard card : cards) {
+            switch (card.getCardType()) {
+                case MDES:
+                    mdesCardList.add(card);
+                    break;
 
-            jsCardLcmReq.put("operation", (cardLcmRequest.getCardLcmOperation() == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmRequest.getCardLcmOperation().name());
-        } catch (JSONException e) {
-        }
+                case VTS:
+                    vtsCardList.add(card);
 
-        class CardLcmTask extends AsyncTask<Void, Void, HttpResponse> {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                cardLcmListener.onCardLcmStarted();
-            }
-
-            @Override
-            protected HttpResponse doInBackground(Void... params) {
-                HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getCardLifeCycleManagementMdesUrl(), jsCardLcmReq.toString());
-            }
-
-            @Override
-            protected void onPostExecute(HttpResponse httpResponse) {
-                super.onPostExecute(httpResponse);
-                if (httpResponse.getStatusCode() == 200) {
-                    try {
-                        // Get all tokens
-                        JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
-                        if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
-                            cardLcmListener.onError(jsResponse.getString("message"));
-                            return;
-                        }
-
-
-                        JSONArray tokens = jsResponse.getJSONArray("tokens");
-                        JSONObject token;
-                        String tokenUniqueRef;
-                        for (int i = 0; i < tokens.length(); i++) {
-                            token = tokens.getJSONObject(i);
-                            tokenUniqueRef = token.getString("tokenUniqueReference");
-                            switch (cardLcmRequest.getCardLcmOperation()) {
-                                case DELETE:
-                                    cardLcmListener.onSuccess("Card will be Deleted Successfully");
-                                    McbpCardApi.deleteCard(tokenUniqueRef, false);
-                                    break;
-
-                                case SUSPEND:
-                                    if (token.getString("status").equals("SUSPENDED")) {
-                                        McbpCardApi.suspendCard(tokenUniqueRef);
-                                        McbpCardApi.remoteWipeSuksForCard(tokenUniqueRef);
-                                    }
-                                    cardLcmListener.onSuccess("Card is suspended successfully");
-                                    break;
-
-                                case RESUME:
-                                    if (token.getString("status").equals("ACTIVE")) {
-                                        McbpCardApi.activateCard(tokenUniqueRef);
-                                    }
-                                    cardLcmListener.onSuccess("Card is resumed successfully");
-                                    break;
-                            }
-                        }
-                    } catch (JSONException | AlreadyInProcessException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    cardLcmListener.onError(httpResponse.getResponse());
-                }
+                default:
+                    cardLcmListener.onError("Card type is not supported");
+                    return;
             }
         }
-        CardLcmTask cardLcmTask = new CardLcmTask();
-        cardLcmTask.execute();
+
+        int noOfVtsCards = vtsCardList.size();
+        int noOfMdesCards = mdesCardList.size();
+
+        // In one method call, only one type of cards is supported.
+        if (noOfVtsCards > 0 && noOfMdesCards > 0) {
+            cardLcmListener.onError("At a time either only Master Card or Visa");
+            return;
+        }
+
+        // If CardList contains only Visa card then only one card is allowed.
+        if (noOfVtsCards != 0 && noOfMdesCards > 1) {
+            cardLcmListener.onError("One visa card at a time can be deleted");
+            return;
+        }
+
+        // If list contains only MasterCard
+        if (noOfMdesCards > 0) {
+            if (digitizationMdes == null) {
+                digitizationMdes = new DigitizationMdes();
+            }
+            digitizationMdes.performCardLcm(mdesCardList, cardLcmRequest.getCardLcmOperation(), cardLcmRequest.getReasonCode(), cardLcmListener);
+        } else {
+            // List contains only one visa Card
+            if (digitizationVts == null) {
+                digitizationVts = new DigitizationVts();
+            }
+            digitizationVts.performCardLcm(vtsCardList.get(0), cardLcmRequest.getCardLcmOperation(), cardLcmRequest.getReasonCode(), cardLcmListener);
+        }
     }
 
     /**
@@ -487,7 +459,6 @@ public class Digitization {
         }
     }
 
-
     /**
      * Set Mobiile PIN if it is not already set.
      *
@@ -505,6 +476,54 @@ public class Digitization {
             e.printStackTrace();
         } finally {
             RemoteManagementHandler.getInstance().clearPendingAction();
+        }
+    }
+
+    /**
+     * Replenish ODA Data.
+     *
+     * @param tokenKey TokenKey that identifies the certificate.
+     */
+    public void replenishODAData(final TokenKey tokenKey) {
+        try {
+            if (tokenKey != null) {
+                long expirationTime, currentTimeStamp;
+                visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                currentTimeStamp = System.currentTimeMillis() / 1000;
+                expirationTime = visaPaymentSDK.getODAExpirationTime(tokenKey);
+
+                if (currentTimeStamp > expirationTime) {
+                    digitizationVts.replenishODADataRequest(tokenKey, new DigitizationListener() {
+                        @Override
+                        public void onDigitizationStarted() {
+                        }
+
+                        @Override
+                        public void onDigitizationCompleted() {
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                        }
+
+                        @Override
+                        public void onApproved() {
+                        }
+
+                        @Override
+                        public void onDeclined() {
+                        }
+
+                        @Override
+                        public void onRequireAdditionalAuthentication(String tokenUniqueReference, AuthenticationMethod[] authenticationMethods) {
+                        }
+                    });
+                }
+            }
+        } catch (TokenInvalidException e) {
+            e.printStackTrace();
+        } catch (VisaPaymentSDKException e) {
+            e.printStackTrace();
         }
     }
 }

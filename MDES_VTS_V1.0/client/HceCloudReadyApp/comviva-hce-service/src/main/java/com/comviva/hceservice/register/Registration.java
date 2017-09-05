@@ -11,6 +11,7 @@ import android.telephony.TelephonyManager;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.DeviceType;
+import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
@@ -106,38 +107,44 @@ public class Registration {
             regDevParam.put("userId", registerParam.getUserId());
             regDevParam.put("gcmRegistrationId", fcmRegistrationToken);
 
-            // VTS Registration Parameters
-            JSONObject vtsEnrollDeviceReqJson = new JSONObject();
-            JSONObject vtsDeviceInfo = enrollDeviceVtsReqJSon(registerParam.getDeviceName());
-            vtsEnrollDeviceReqJson.put("deviceInfo", vtsDeviceInfo);
-
-            // MDES Registration Parameters
-            JSONObject mdesRegDevJson = new JSONObject();
             JSONObject jsDeviceInfo = getDeviceInfoInJson();
-            mdesRegDevJson.put("deviceInfo", jsDeviceInfo);
-            mdesRegDevJson.put("paymentAppId", registerParam.getPaymentAppId());
-            mdesRegDevJson.put("paymentAppInstanceId", paymentAppInstanceId);
-            mdesRegDevJson.put("publicKeyFingerprint", registerParam.getPublicKeyFingerprint());
-
-            try {
-                // Encrypt RGK
-                ByteArray publicKey = ByteArray.of(getPublicKey());
-                CryptoService cryptoService = CryptoServiceFactory.getDefaultCryptoService();
-                byte[] encRgk = cryptoService.buildRgkForRegistrationRequest(publicKey).getBytes();
-
-                // Encrypting Mobile PIN
-                ByteArray mobPin = ByteArray.of(registerParam.getMobilePin().getBytes());
-                byte[] encMobPin = cryptoService.encryptPinBlockUsingRgk(mobPin, paymentAppInstanceId).getBytes();
-                mdesRegDevJson.put("mobilePin", ArrayUtil.getHexString(encMobPin));
-                mdesRegDevJson.put("rgk", ArrayUtil.getHexString(encRgk));
-                mdesRegDevJson.put("deviceFingerprint", ArrayUtil.getHexString(deviceFingerprint));
-            } catch (McbpCryptoException e) {
-                throw new RegistrationException(RegistrationException.ERR_CODE_CRYPTO);
+            regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(jsDeviceInfo.getString("imei")));
+            
+            // VTS
+            if (registerParam.getSchemeType().equals(SchemeType.ALL) || registerParam.getSchemeType().equals(SchemeType.VISA)) {
+                // VTS Registration Parameters
+                JSONObject vtsEnrollDeviceReqJson = new JSONObject();
+                JSONObject vtsDeviceInfo = enrollDeviceVtsReqJSon(registerParam.getDeviceName());
+                vtsEnrollDeviceReqJson.put("deviceInfo", vtsDeviceInfo);
+                regDevParam.put("vts", vtsEnrollDeviceReqJson);
             }
 
-            regDevParam.put("mdes", mdesRegDevJson);
-            regDevParam.put("vts", vtsEnrollDeviceReqJson);
-            regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(jsDeviceInfo.getString("imei")));
+            // MDES
+            if (registerParam.getSchemeType().equals(SchemeType.ALL) || registerParam.getSchemeType().equals(SchemeType.MASTERCARD)) {
+                // MDES Registration Parameters
+                JSONObject mdesRegDevJson = new JSONObject();
+                mdesRegDevJson.put("deviceInfo", jsDeviceInfo);
+                mdesRegDevJson.put("paymentAppId", registerParam.getPaymentAppId());
+                mdesRegDevJson.put("paymentAppInstanceId", paymentAppInstanceId);
+                mdesRegDevJson.put("publicKeyFingerprint", registerParam.getPublicKeyFingerprint());
+
+                try {
+                    // Encrypt RGK
+                    ByteArray publicKey = ByteArray.of(getPublicKey());
+                    CryptoService cryptoService = CryptoServiceFactory.getDefaultCryptoService();
+                    byte[] encRgk = cryptoService.buildRgkForRegistrationRequest(publicKey).getBytes();
+
+                    // Encrypting Mobile PIN
+                    ByteArray mobPin = ByteArray.of(registerParam.getMobilePin().getBytes());
+                    byte[] encMobPin = cryptoService.encryptPinBlockUsingRgk(mobPin, paymentAppInstanceId).getBytes();
+                    mdesRegDevJson.put("mobilePin", ArrayUtil.getHexString(encMobPin));
+                    mdesRegDevJson.put("rgk", ArrayUtil.getHexString(encRgk));
+                    mdesRegDevJson.put("deviceFingerprint", ArrayUtil.getHexString(deviceFingerprint));
+                } catch (McbpCryptoException e) {
+                    throw new RegistrationException(RegistrationException.ERR_CODE_CRYPTO);
+                }
+                regDevParam.put("mdes", mdesRegDevJson);
+            }
             return regDevParam;
         } catch (JSONException e) {
             throw new RegistrationException(RegistrationException.ERR_CODE_JSON);
@@ -248,7 +255,7 @@ public class Registration {
 
     private void initializeComvivaSdk(ComvivaSdkInitData comvivaSdkInitData, String rnsRegistrationId) {
         // If anyone of MDES/VTS initialized successfully, keep comviva sdk initialization state true
-        if (comvivaSdkInitData.isMdesInitState() || comvivaSdkInitData.isVtsInitState()) {
+        if (comvivaSdkInitData.isMdesInitialized() || comvivaSdkInitData.isVtsInitialized()) {
             comvivaSdkInitData.setInitState(true);
         } else {
             return;
@@ -352,14 +359,7 @@ public class Registration {
 
                         // If success then retrieve activation code
                         if (respCode == 200) {
-                            if (respObj.has("userDetails")) {
-                                JSONObject userDetails = respObj.getJSONObject("userDetails");
-
-                                if (userDetails.has("activationCode")) {
-                                    regResp.setActivationCode(userDetails.getString("activationCode"));
-                                }
-                                regUserListener.onRegistrationCompeted(regResp);
-                            }
+                            regUserListener.onRegistrationCompeted();
                         } else {
                             if (regUserListener != null) {
                                 regUserListener.onError(respObj.getString("message"));
@@ -445,7 +445,7 @@ public class Registration {
                             registrationListener.onError(respObj.getString("message"));
                             return;
                         }
-                        registrationListener.onCompeted();
+                        registrationListener.onCompleted();
                     } catch (JSONException e) {
                         registrationListener.onError("Wrong data from server");
                     }
@@ -475,6 +475,11 @@ public class Registration {
         if (!this.userId.equalsIgnoreCase(registerParam.getUserId())) {
             registrationListener.onError("Incorrect UserId");
             return;
+        }
+
+        // If scheme type is not provided then set all scheme type
+        if(registerParam.getSchemeType() == null) {
+            registerParam.setSchemeType(SchemeType.ALL);
         }
 
         // Register Device
@@ -522,9 +527,9 @@ public class Registration {
                             if (respObj.has("mdesFinalCode")) {
                                 String mdesRespCode = respObj.getString("mdesFinalCode");
                                 if (mdesRespCode.equalsIgnoreCase("200")) {
-                                    JSONObject mdesResponse = respObj.getJSONObject("mdes");
-                                    initializeMdes(mdesResponse);
-                                    comvivaSdkInitData.setMdesInitState(true);
+                                    //JSONObject mdesResponse = respObj.getJSONObject("mdes");
+                                    //initializeMdes(mdesResponse);
+                                    //comvivaSdkInitData.setMdesInitState(true);
                                 }
                             }
 
@@ -539,16 +544,16 @@ public class Registration {
                                 }
                             }
 
-                            if (comvivaSdkInitData.isMdesInitState() || comvivaSdkInitData.isVtsInitState()) {
-                                registrationListener.onCompeted();
+                            if (comvivaSdkInitData.isMdesInitialized() || comvivaSdkInitData.isVtsInitialized()) {
+                                registrationListener.onCompleted();
                             } else {
                                 registrationListener.onError("Registration Failed");
                             }
-                        } catch (JSONException | InvalidInput | McbpCryptoException e) {
+                        } catch (JSONException/* | InvalidInput | McbpCryptoException*/ e) {
                             registrationListener.onError("Wrong data from server");
-                        } catch (GcmRegistrationFailed e) {
+                        } /*catch (GcmRegistrationFailed e) {
                             // Do nothing as we are supporting FCM
-                        } catch (Exception e) {
+                        }*/ catch (Exception e) {
                             registrationListener.onError("Some error occurred");
                         } finally {
                             // Initialize Comviva SDK with common data for all schemes

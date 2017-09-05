@@ -9,6 +9,8 @@ import com.comviva.hceservice.common.database.CommonDatabase;
 import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
+import com.comviva.hceservice.security.DexGuardSecurity;
+import com.comviva.hceservice.security.SecurityInf;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
@@ -19,6 +21,7 @@ import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
 import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
 import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
+import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 
@@ -32,12 +35,14 @@ public class ComvivaSdk {
     private static ComvivaSdk comvivaSdk;
     private CommonDb commonDb;
     private Application application;
+    private SecurityInf securityInf;
 
     private PaymentCard selectedCard;
 
     private ComvivaSdk(Application application) {
         this.application = application;
         selectedCard = null;
+        securityInf = DexGuardSecurity.getInstance(application.getApplicationContext());
         commonDb = new CommonDatabase(application.getApplicationContext());
         VisaPaymentSDKImpl.initialize(application.getApplicationContext());
         McbpInitializer.setup(application, null);
@@ -173,15 +178,33 @@ public class ComvivaSdk {
      */
     public ArrayList<PaymentCard> getAllCards() {
         ArrayList<PaymentCard> allCards = new ArrayList<>();
-        List<McbpCard> mdesCards = McbpWalletApi.getCards(true);
-        List<TokenData> vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
+        List<McbpCard> mdesCards;
+        List<TokenData> vtsCards;
 
-        for (McbpCard mcbpCard : mdesCards) {
-            allCards.add(new PaymentCard(mcbpCard));
+        String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
+        SchemeType enrollmentStatus = checkEnrolmentStatus();
+        PaymentCard paymentCard;
+
+        if(enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.MASTERCARD) {
+            mdesCards = McbpWalletApi.getCards(true);
+            for (McbpCard mcbpCard : mdesCards) {
+                paymentCard = new PaymentCard(mcbpCard);
+                if(mcbpCard.getDigitizedCardId().equalsIgnoreCase(defaultCardUniqueId)) {
+                    paymentCard.setDefaultCard();
+                }
+                allCards.add(paymentCard);
+            }
         }
 
-        for (TokenData tokenData :  vtsCards) {
-            allCards.add(new PaymentCard(tokenData));
+        if(enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
+            vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
+            for (TokenData tokenData :  vtsCards) {
+                paymentCard = new PaymentCard(tokenData);
+                if(tokenData.getTokenKey().getTokenId() == Long.parseLong(defaultCardUniqueId)) {
+                    paymentCard.setDefaultCard();
+                }
+                allCards.add(paymentCard);
+            }
         }
         return allCards;
     }
@@ -211,20 +234,67 @@ public class ComvivaSdk {
     }
 
     /**
-     * Return initialization state of SDK with VTS System.
-     * @return <code>true </code>Device registered successfully with VTS. <br>
-     *         <code>false </code>Device not registered with VTS. <br>
+     * Checks Enrollment status of device with all supported scheme.
+     * @return Enrollment status
      */
-    public boolean isVtsInitialized() {
-        return commonDb.getInitializationData().isVtsInitState();
+    public SchemeType checkEnrolmentStatus() {
+        ComvivaSdkInitData initData = commonDb.getInitializationData();
+        boolean isVtsInitialized = initData.isVtsInitialized();
+        boolean isMdesInitialized = initData.isMdesInitialized();
+
+        if(isMdesInitialized && isVtsInitialized) {
+            return SchemeType.ALL;
+        }
+
+        if(isVtsInitialized) {
+            return SchemeType.VISA;
+        }
+
+        if(isMdesInitialized) {
+            return SchemeType.MASTERCARD;
+        }
+        return SchemeType.NONE;
     }
 
     /**
-     * Return initialization state of SDK with MDES System.
-     * @return <code>true </code>Device registered successfully with MDES. <br>
-     *         <code>false </code>Device not registered with MDES. <br>
+     * Clears all data andd reset device to un-initialized state.
+     * @return <code>true </code>Reset device successful <br>
+     *     <code>false </code>Reset device failed
      */
-    public boolean isMdesInitialized() {
-        return commonDb.getInitializationData().isMdesInitState();
+    public boolean resetDevice() {
+        // Clear MDES related data.
+        McbpInitializer.getInstance().getLdeRemoteManagementService().unregister();
+
+        // Clear VTS related data
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        visaPaymentSDK.deleteAllTokensLocally();
+
+        // Clear Comviva SDK data
+        commonDb.resetDatabase();
+        return true;
+    }
+
+    /**
+     * Set default card.
+     * @param paymentCard Payment Card to be set as default card
+     */
+    public void setDefaultCard(PaymentCard paymentCard) {
+        commonDb.setDefaultCard(paymentCard);
+    }
+
+    /**
+     * Returns SecurityInf instance.
+     * @return SecurityInf Instance
+     */
+    public SecurityInf getSecurityInf() {
+        return securityInf;
+    }
+
+    /**
+     * Set SecurityInf instance.
+     * @param securityInf SecurityInf Instance
+     */
+    public void setSecurityInf(SecurityInf securityInf) {
+        this.securityInf = securityInf;
     }
 }

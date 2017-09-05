@@ -11,9 +11,8 @@ public interface RegisterUserListener {
 
     /**
      * User registration successful.
-     * @param registerUserResponse Register User Response
      */
-    void onRegistrationCompeted(RegisterUserResponse registerUserResponse);
+    void onRegistrationCompeted();
 
     /**
      * Error occurred while registering user.

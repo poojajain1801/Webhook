@@ -35,6 +35,7 @@ import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.CardState;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.digitizationApi.CardLcmListener;
 import com.comviva.hceservice.digitizationApi.CardLcmReasonCode;
 import com.comviva.hceservice.digitizationApi.CardLcmRequest;
@@ -97,10 +98,10 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(new Intent(this, AddCardActivity.class));
     }
 
-    private void performCardLifeCycleManagement(final ArrayList<String> cardList, final CardLcmOperation operation) {
+    private void performCardLifeCycleManagement(final ArrayList<PaymentCard> cardList, final CardLcmOperation operation) {
         final CardLcmRequest cardLcmRequest = new CardLcmRequest();
         cardLcmRequest.setReasonCode(CardLcmReasonCode.ACCOUNT_CLOSED);
-        cardLcmRequest.setTokenUniqueReferences(cardList);
+        cardLcmRequest.setPaymentCards(cardList);
         cardLcmRequest.setCardLcmOperation(operation);
 
         Digitization digitization = Digitization.getInstance();
@@ -230,7 +231,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onSuccess(ArrayList<TransactionDetails> transactionDetails) {
+            public void onSuccess(ArrayList transactionDetails) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
@@ -427,7 +428,20 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 };
                 currentCard.prepareForContactlessTransaction(processContactlessListener);
-                currentCard.startContactlessTransaction();
+                try {
+                    currentCard.startContactlessTransaction();
+                } catch (SdkException e) {
+                    new AlertDialog.Builder(HomeActivity.this)
+                            .setTitle("Error")
+                            .setMessage("Credentials not available please replenish")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    refreshCardList();
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
             }
         });
     }
@@ -452,7 +466,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ArrayList<String> cardList = new ArrayList<>();
+        ArrayList<PaymentCard> cardList = new ArrayList<>();
 
         // Handle item selection
         switch (item.getItemId()) {
@@ -465,17 +479,17 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
 
             case R.id.deleteCard:
-                cardList.add(tokenUniqueReference);
+                cardList.add(currentCard);
                 performCardLifeCycleManagement(cardList, CardLcmOperation.DELETE);
                 return true;
 
             case R.id.suspendCard:
-                cardList.add(tokenUniqueReference);
+                cardList.add(currentCard);
                 performCardLifeCycleManagement(cardList, CardLcmOperation.SUSPEND);
                 return true;
 
             case R.id.resumeCard:
-                cardList.add(tokenUniqueReference);
+                cardList.add(currentCard);
                 performCardLifeCycleManagement(cardList, CardLcmOperation.RESUME);
                 return true;
 

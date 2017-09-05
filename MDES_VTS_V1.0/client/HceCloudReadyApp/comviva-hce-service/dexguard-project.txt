@@ -10,111 +10,154 @@
 
 -dontshrink
 -dontoptimize
-#-dontobfuscate
 
-# You can also check if the problem can be solved by keeping additional
-# code or resources:
-#
-#-keep class * { *; }
-#-keepattributes *
-#
-#-keepresources */*
-#-keepresourcefiles **
-#-keepresourcexmlattributenames **
+-dontwarn com.mastercard.**
 
+-dontwarn org.apache.cordova.*
+-dontwarn com.guardsquare.dexguard.runtime.encryption.*
 
-# These are really crude settings that you shouldn't use for building
-# actual releases, but it's easier to start from a working configuration,
-# which you can then refine.
-
-
-##############################################################################
-# Reflection in the library.
-##############################################################################
-
-# With configuration dexguard-library-release-aggressive.pro # in build.gradle,
-# we can specify our own subset of the public classes that defines the
-# public API.
-
-#-keep public class com.mahindracomviva.mobile_api.**,
-#                    com.mahindracomviva.sdk.**  {
-#    public protected *;
-#}
-
-# We can then also repackage all obfuscated internal classes.
-#-repackageclasses com.mahindracomviva.internal
-
-
-##############################################################################
-# Reflection in the library.
-##############################################################################
-
--keep class * extends android.view.View {
-    void set*(***);
-    *** get*();
-}
-
-# Keep methods in Activity that could be used in the XML attribute onClick.
--keep class * extends android.app.Activity {
-    public void *(android.view.View);
-}
-
--keep class * extends android.os.Bundle {
-    *;
-}
-
-#-keepclassmembers class **.R$* {
-#    public static *;
-#}
-
-#-keep class com.comviva.security.RootCheck {
-#    public com.mahindracomviva.sdk.hce.DeviceStatus getDeviceRootingStatus();
-#}
-
-#-keep class services.Util {*;}
-
-#-keep class services.WhiteboxCrypto {*;}
-#-keep class cz.muni.fi.xklinec.whiteboxAES.generator.* { *; }
-#-keep class cz.muni.fi.xklinec.whiteboxAES.* { *; }
+-injars libs
 
 -keepresourcefiles jni/**/libvisacrypto.so
 
-
-
-##############################################################################
-# External code.
-##############################################################################
-
-#-injars libs
--libraryjars libs
-
-
-##############################################################################
-# Additional hardening.
-##############################################################################
-
-
+-printconfiguration config.txt
 
 ##############################################################################
 # Remove logging code.
 ##############################################################################
 
--keep public class com.google.android.gms.* { public *; }
--dontwarn com.google.android.gms.**
+-keepattributes Exceptions
 
--keep class org.jetbrains.annotations.** { *; }
--dontwarn org.jetbrains.annotations.**
+-keep public class com.comviva.hceservice.digitizationApi.Digitization {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.ActivateListener {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.ActivationCodeType {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.CardLcmListener {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.CardLcmReasonCode {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardLcmRequest {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.DigitizationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.DigitizationRequest {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardEligibilityRequest {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ContentGuid {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.RequestActivationCodeListener {
+    public public *;
+}
 
-#-keep public class com.mastercard.** { public *; }
--dontwarn com.mastercard.**
--dontwarn org.apache.cordova.**
--dontwarn org.crosswalk.engine.**
--dontwarn org.xwalk.core.XWalkView
+-keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
+    public public *;
+}
 
--keep public class com.mastercard.mcbp_android.BuildConfig.class
+-keep public enum com.comviva.hceservice.digitizationApi.authentication.AuthenticationType {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod {
+    public public *;
+}
 
+-keep public interface com.comviva.hceservice.register.RegistrationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.register.Registration {
+    public public *;
+}
+-keep public class com.comviva.hceservice.register.RegisterParam {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.register.RegisterUserListener {
+    public public *;
+}
 
+-keep public enum com.comviva.hceservice.common.CardType {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.CardLcmOperation {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.CardState {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.ComvivaSdk {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.PaymentCard {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.SdkException {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.SchemeType {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.ComvivaHceService {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
+    public public *;
+}
 
+-keep public interface com.comviva.hceservice.tds.TdsRegistrationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.tds.TransactionDetails {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.TransactionDetailsListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.tds.TransactionHistory {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.UnregisterTdsListener {
+    public public *;
+}
 
+-keep public class com.comviva.hceservice.fcm.ComvivaFCMService {
+    public public *;
+}
 
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.listeners.ProcessContactlessListener {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.card.cvm.PinListener {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.userinterface.DisplayTransactionInfo {
+    public public *;
+}
+
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener {
+    public public *;
+}
+
+#-keep public class com.mastercard.mcbp.hce.AndroidHceService {
+#    public public *;
+#}
 

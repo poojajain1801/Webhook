@@ -5,11 +5,15 @@ import android.os.AsyncTask;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;
+import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
+import com.visa.cbp.sdk.facade.VisaPaymentSDK;
+import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +27,7 @@ import java.util.ArrayList;
 public class TransactionHistory {
     /**
      * Initiate registration with Transaction Details Services.
+     *
      * @param tokenUniqueReference      The Token for which to register for transaction details
      * @param tdsRegistrationListener   UI Listener
      */
@@ -154,6 +159,7 @@ public class TransactionHistory {
 
     /**
      * This API is used by the Mobile Payment App to get recent transactions for one or more Tokens.
+     *
      * @param tokenUniqueReference          The Token for which to get transaction details.
      * @param transactionDetailsListener    UI Listener
      */
@@ -249,6 +255,7 @@ public class TransactionHistory {
 
     /**
      * This API is used to unregister a specific Token from the Transaction Details Service, or to opt out of the Transaction Details Service altogether.
+     *
      * @param tokenUniqueReference  The Token for which to unregister from transaction details.
      *                              If tokenUniqueReference is null, all Tokens for the Mobile Payment App instance will be unregistered.
      * @param unregisterTdsListener UI Listener
@@ -305,4 +312,72 @@ public class TransactionHistory {
         unregisterTdsTask.execute();
     }
 
+    /**
+     * This API is used to get the transaction History .
+     * @param paymentCard  Payment Card whose transaction history needs to be fetched.
+     * @param count   Number of records to retrieve. Maximum is 10. If not specified, the maximum number of records will be returned, up to 10, inclusive.
+     * @param transactionHistoryListener   UI Listener
+     */
+    public  void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
+
+        final JSONObject jsTransactionHistoryObject = new JSONObject();
+        try {
+            TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
+            String vProvisionedTokenID = tokenData.getVProvisionedTokenID();
+            VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+            //paymentCard.getCardUniqueId();
+            jsTransactionHistoryObject.put("vProvisionedTokenID", vProvisionedTokenID);
+            //jsTransactionHistoryObject.put("encryptionMetaData", encryptionMetaData);
+            if ( count <0 || count > 10 ) {
+                transactionHistoryListener.onError("Invalid Count Value");
+            }else
+            {
+                jsTransactionHistoryObject.put("Count", count);
+            }
+        } catch (JSONException e) {
+            transactionHistoryListener.onError("JSON Error");
+        }
+
+        class GetTransactionHistoryTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSTransactionHistory(), jsTransactionHistoryObject.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
+                        ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
+                        transactionHistoryListener.onSuccess(encryptedTransactionInfo);
+
+                    }
+                } catch (JSONException e) {
+                    transactionHistoryListener.onError("JSON Error");
+                }
+            }
+        }
+        GetTransactionHistoryTask getTransactionHistoryTask = new GetTransactionHistoryTask();
+        getTransactionHistoryTask.execute();
+    }
+
+    private ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
+        String transactionScope =  jsTransactionHistory.getString("transactionScope");
+        JSONArray transactionDetailsArray =  jsTransactionHistory.getJSONArray("transactionDetails");
+        ArrayList<String> encTransactionInfo = new ArrayList<>();
+        for(int i =0; i < transactionDetailsArray.length(); i ++)
+        {
+            encTransactionInfo.add(transactionDetailsArray.getJSONObject(0).getString("encTransactionInfo"));
+        }
+
+        return encTransactionInfo;
+    }
 }

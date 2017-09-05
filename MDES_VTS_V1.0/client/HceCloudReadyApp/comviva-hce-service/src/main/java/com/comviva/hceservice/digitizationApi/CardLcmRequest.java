@@ -1,6 +1,7 @@
 package com.comviva.hceservice.digitizationApi;
 
 import com.comviva.hceservice.common.CardLcmOperation;
+import com.comviva.hceservice.common.PaymentCard;
 
 import java.util.ArrayList;
 
@@ -9,23 +10,23 @@ import java.util.ArrayList;
  */
 public class CardLcmRequest {
     private CardLcmOperation cardLcmOperation;
-    private ArrayList<String> tokenUniqueReferences;
+    private ArrayList<PaymentCard> paymentCards;
     private CardLcmReasonCode reasonCode;
 
     /**
      * Returns List of Tokens Unique References on which LCM is to be performed.
      * @return List of Tokens Unique References
      */
-    public ArrayList<String> getTokenUniqueReferences() {
-        return tokenUniqueReferences;
+    public ArrayList<PaymentCard> getPaymentCards() {
+        return paymentCards;
     }
 
     /**
      * Set List of Tokens Unique References
-     * @param tokenUniqueReferences List of Tokens Unique References
+     * @param paymentCards List of Tokens Unique References
      */
-    public void setTokenUniqueReferences(ArrayList<String> tokenUniqueReferences) {
-        this.tokenUniqueReferences = tokenUniqueReferences;
+    public void setPaymentCards(ArrayList<PaymentCard> paymentCards) {
+        this.paymentCards = paymentCards;
     }
 
     /**

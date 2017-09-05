@@ -6,32 +6,56 @@ package com.comviva.hceservice.digitizationApi;
 
 public enum CardLcmReasonCode {
     /**
-     * Token device lost
+     * Token device lost. <br>
+     * Note - Used in case of MasterCard for SUSPEND & DELETE
      */
     DEVICE_LOST,
+
     /**
-     * Token device stolen
+     * Token device stolen.<br>
+     * Note - Used in case of MasterCard for SUSPEND & DELETE
      */
     DEVICE_STOLEN,
+
     /**
-     * Account closed
+     * Account closed. <br>
+     * Note - Used in case of MasterCard for DELETE
      */
     ACCOUNT_CLOSED,
+
     /**
-     * Suspected fraudulent token transactions.
+     * Suspected fraudulent token transactions. <br>
+     * Note - Used in case of MasterCard for SUSPEND & DELETE
      */
-    SUSPECTED_FRAUD, //
-    /** Other – default, used if value not provided */
+    SUSPECTED_FRAUD,
+
+    /**
+     * Other – default, used if value not provided.
+     */
     OTHER,
 
     /**
-     * Token device found or not stolen.
-     * Used in case of RESUME operation only.
+     * Token device found or not stolen. <br>
+     * Used in case of MasterCard for RESUME operation only.
      */
     DEVICE_FOUND,
+
     /**
-     * Confirmed no fraudulent token transactions.
-     * Used in case of RESUME operation only.
+     * Confirmed no fraudulent token transactions.<br>
+     * Used in case of MasterCard for RESUME operation only.
      */
     NOT_FRAUD,
+
+    /**
+     * If any fraud happened.<br>
+     * Note - Used for VISA case only
+     */
+    FRAUD,
+
+    /**
+     * Consumer Initiated.<br>
+     * Note - Used for VISA case only
+     */
+    CUSTOMER_CONFIRMED
+
 }

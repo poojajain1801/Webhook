@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
@@ -135,8 +136,9 @@ class DigitizationMdes {
 
     /**
      * Checks that Card is eligible for digitization or not.
-     * @param cardEligibilityRequest    Eligibility request
-     * @param checkEligibilityListener  Eligibility Response
+     *
+     * @param cardEligibilityRequest   Eligibility request
+     * @param checkEligibilityListener Eligibility Response
      */
     public void checkCardEligibilityMdes(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonCardEligibilityReq = new JSONObject();
@@ -150,15 +152,15 @@ class DigitizationMdes {
             jsonCardEligibilityReq.put("cardInfo", cardInfoData);
             jsonCardEligibilityReq.put("cardletId", "1.0");
         } catch (JSONException e) {
-            if(checkEligibilityListener != null) {
-             checkEligibilityListener.onCheckEligibilityError("SDK Error : JSONException");
+            if (checkEligibilityListener != null) {
+                checkEligibilityListener.onCheckEligibilityError("SDK Error : JSONException");
             }
         } catch (GeneralSecurityException e) {
-            if(checkEligibilityListener != null) {
+            if (checkEligibilityListener != null) {
                 checkEligibilityListener.onCheckEligibilityError("SDK Error : Security Exception");
             }
         } catch (IOException e) {
-            if(checkEligibilityListener != null) {
+            if (checkEligibilityListener != null) {
                 checkEligibilityListener.onCheckEligibilityError("SDK Error : IO Exception");
             }
         }
@@ -247,7 +249,8 @@ class DigitizationMdes {
 
     /**
      * Fetches Asset's value from payment App Server.
-     * @param assetId   Asset ID
+     *
+     * @param assetId Asset ID
      * @return GetAssetResponse object
      */
     public GetAssetResponse getAsset(String assetId) {
@@ -316,8 +319,9 @@ class DigitizationMdes {
 
     /**
      * Digitize the card.
-     * @param digitizationRequest   Digitization Request
-     * @param digitizationListener  UI Listener
+     *
+     * @param digitizationRequest  Digitization Request
+     * @param digitizationListener UI Listener
      */
     public void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
         final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
@@ -458,28 +462,29 @@ class DigitizationMdes {
 
     /**
      * This API is used to Suspend, UnSuspend and Delete Token
-     * @param cardLcmRequest    Card Life Cycle Management Request
-     * @param cardLcmListener   UI Listener
      */
-    public void performCardLcm(final CardLcmRequest cardLcmRequest, final CardLcmListener cardLcmListener) {
+    public void performCardLcm(ArrayList<PaymentCard> cardList,
+                               final CardLcmOperation cardLcmOperation,
+                               final CardLcmReasonCode reasonCode,
+                               final CardLcmListener cardLcmListener) {
         final JSONObject jsCardLcmReq = new JSONObject();
         try {
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsCardLcmReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
 
-            ArrayList cardList = cardLcmRequest.getTokenUniqueReferences();
             JSONArray jsArrCards = new JSONArray();
             int noOfCard = cardList.size();
             for (int i = 0; i < noOfCard; i++) {
-                jsArrCards.put(cardList.get(i));
+                jsArrCards.put(cardList.get(i).getCardUniqueId());
             }
             jsCardLcmReq.put("tokenUniqueReferences", jsArrCards);
             jsCardLcmReq.put("causedBy", "CARDHOLDER");
-            jsCardLcmReq.put("reasonCode", cardLcmRequest.getReasonCode().name());
+            jsCardLcmReq.put("reasonCode", reasonCode.name());
             jsCardLcmReq.put("reason", "Not Specified");
-
-            jsCardLcmReq.put("operation", (cardLcmRequest.getCardLcmOperation() == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmRequest.getCardLcmOperation().name());
+            jsCardLcmReq.put("operation", (cardLcmOperation == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmOperation.name());
         } catch (JSONException e) {
+            cardLcmListener.onError("SDK Exception:JSON Error");
+            return;
         }
 
         class CardLcmTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -502,11 +507,10 @@ class DigitizationMdes {
                     try {
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
-                        if(jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
+                        if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
                             cardLcmListener.onError(jsResponse.getString("message"));
                             return;
                         }
-
 
                         JSONArray tokens = jsResponse.getJSONArray("tokens");
                         JSONObject token;
@@ -514,7 +518,7 @@ class DigitizationMdes {
                         for (int i = 0; i < tokens.length(); i++) {
                             token = tokens.getJSONObject(i);
                             tokenUniqueRef = token.getString("tokenUniqueReference");
-                            switch (cardLcmRequest.getCardLcmOperation()) {
+                            switch (cardLcmOperation) {
                                 case DELETE:
                                     cardLcmListener.onSuccess("Card will be Deleted Successfully");
                                     McbpCardApi.deleteCard(tokenUniqueRef, false);
@@ -537,7 +541,7 @@ class DigitizationMdes {
                             }
                         }
                     } catch (JSONException | AlreadyInProcessException e) {
-                        e.printStackTrace();
+                        cardLcmListener.onError("Wrong data from server");
                     }
                 } else {
                     cardLcmListener.onError(httpResponse.getResponse());
@@ -550,9 +554,10 @@ class DigitizationMdes {
 
     /**
      * This API is used to request an Activation Code be sent to authenticate the Cardholder.
-     * @param tokenUniqueReference      The Token for which to send an Activation Code.
-     * @param authenticationMethod      Identifies the AuthenticationMethod chosen by the Cardholder from the list of AuthenticationMethods
-     * @param activationCodeListener    UI Listener
+     *
+     * @param tokenUniqueReference   The Token for which to send an Activation Code.
+     * @param authenticationMethod   Identifies the AuthenticationMethod chosen by the Cardholder from the list of AuthenticationMethods
+     * @param activationCodeListener UI Listener
      */
     public void requestActivationCode(final String tokenUniqueReference,
                                       final AuthenticationMethod authenticationMethod,
@@ -604,10 +609,11 @@ class DigitizationMdes {
 
     /**
      * This API is used to activate a Token for first-time use if the digitization decision was to "Require Additional Authentication" in the Digitize response
-     * @param tokenUniqueReference  The Token to be activated.
-     * @param activationCode        Activation Code received by Cardholder
-     * @param type                  Type of Activation Code
-     * @param activateListener      UI listener
+     *
+     * @param tokenUniqueReference The Token to be activated.
+     * @param activationCode       Activation Code received by Cardholder
+     * @param type                 Type of Activation Code
+     * @param activateListener     UI listener
      */
     public void activate(final String tokenUniqueReference, final String activationCode, ActivationCodeType type,
                          final ActivateListener activateListener) {

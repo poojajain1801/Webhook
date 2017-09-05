@@ -15,7 +15,6 @@ import android.widget.EditText;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.register.RegisterUserListener;
-import com.comviva.hceservice.register.RegisterUserResponse;
 import com.comviva.hceservice.register.Registration;
 
 import com.comviva.mdesapp.R;
@@ -63,13 +62,13 @@ public class RegisterUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRegistrationCompeted(RegisterUserResponse registerUserResponse) {
+        public void onRegistrationCompeted() {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             Intent actUser = new Intent(RegisterUserActivity.this, ActivateUserActivity.class);
             actUser.putExtra("userId", userId);
-            actUser.putExtra("activationCode", registerUserResponse.getActivationCode());
+            //actUser.putExtra("activationCode", registerUserResponse.getActivationCode());
             startActivity(actUser);
         }
 

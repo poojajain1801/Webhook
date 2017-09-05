@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.register.RegisterParam;
 import com.comviva.hceservice.register.Registration;
 import com.comviva.hceservice.register.RegistrationListener;
@@ -47,6 +48,7 @@ public class RegisterActivity extends Activity {
                 registerParam.setUserId(edUserId.getText().toString());
                 registerParam.setMobilePin(editMobilePin.getText().toString());
                 registerParam.setDeviceName(editDeviceName.getText().toString());
+                registerParam.setSchemeType(SchemeType.ALL);
                 registration.registerDevice(registerParam, regDeviceListener);
             }
         });
@@ -64,7 +66,7 @@ public class RegisterActivity extends Activity {
         }
 
         @Override
-        public void onCompeted() {
+        public void onCompleted() {
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }

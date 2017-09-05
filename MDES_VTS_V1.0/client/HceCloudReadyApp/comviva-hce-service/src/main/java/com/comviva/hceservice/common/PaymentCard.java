@@ -9,6 +9,10 @@ import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.init.SdkContext;
 import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
 import com.mastercard.mcbp.listeners.ProcessContactlessListener;
+import com.mastercard.mcbp.utils.exceptions.crypto.McbpCryptoException;
+import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
+import com.mastercard.mcbp.utils.exceptions.lde.LdeNotInitialized;
+import com.mastercard.mcbp.utils.exceptions.lde.SessionKeysNotAvailable;
 import com.mastercard.mobile_api.bytes.ByteArray;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
@@ -20,6 +24,7 @@ import com.visa.cbp.sdk.facade.data.TokenStatus;
 public class PaymentCard {
     private Object currentCard;
     private CardType cardType;
+    private boolean isDefaultCard;
 
     PaymentCard(Object cardObj) {
         currentCard = cardObj;
@@ -34,7 +39,18 @@ public class PaymentCard {
         }
     }
 
-    Object getCurrentCard() {
+    /**
+     * Set flag as current card as default card.s
+     */
+    void setDefaultCard() {
+        isDefaultCard = true;
+    }
+
+    public static PaymentCard getPaymentCard(Object cardObj) {
+        return new PaymentCard(cardObj);
+    }
+
+    public Object getCurrentCard() {
         return currentCard;
     }
 
@@ -49,6 +65,7 @@ public class PaymentCard {
 
     /**
      * Returns Card number's last 4 digit.
+     *
      * @return Last 4 digit
      */
     public String getCardLast4Digit() {
@@ -65,8 +82,6 @@ public class PaymentCard {
                     TokenData tokenData = (TokenData) currentCard;
                     return tokenData.getPaymentInstrumentLast4();
             }
-
-
         } catch (Exception e) {
         }
         return null;
@@ -74,6 +89,7 @@ public class PaymentCard {
 
     /**
      * Card's current state.
+     *
      * @return Card State
      */
     public CardState getCardState() {
@@ -116,6 +132,7 @@ public class PaymentCard {
 
     /**
      * Returns Number of transaction credential i.e. how many transactions a card can perform.
+     *
      * @return Number of transaction credentials remaining
      */
     public int getTransactionCredentialsLeft() {
@@ -131,6 +148,7 @@ public class PaymentCard {
 
     /**
      * CVM reset timeout in seconds.
+     *
      * @return CVM Reset timeout
      */
     public int getCvmResetTimeout() {
@@ -145,7 +163,8 @@ public class PaymentCard {
     }
 
     /**
-     *Card's Unique Identification Number.
+     * Card's Unique Identification Number.
+     *
      * @return Unique Id
      */
     public String getCardUniqueId() {
@@ -166,21 +185,30 @@ public class PaymentCard {
 
     /**
      * Prepares card for contactless transaction.
+     *
      * @param processContactlessListener Listener to transaction events.
      */
-    public void prepareForContactlessTransaction(ProcessContactlessListener processContactlessListener){
-        if(cardType == CardType.MDES) {
+    public void prepareForContactlessTransaction(ProcessContactlessListener processContactlessListener) {
+        if (cardType == CardType.MDES) {
             McbpCardApi.prepareContactless((McbpCard) currentCard, processContactlessListener);
         }
     }
 
-    public void startContactlessTransaction() {
+    /**
+     * Starts Contactless transaction. Throws SdkException if transaction credential is not left.
+     *
+     * @throws SdkException SdkException
+     */
+    public void startContactlessTransaction() throws SdkException {
         try {
             if (cardType == CardType.MDES) {
                 McbpCard card = (McbpCard) currentCard;
                 card.startContactless(new BusinessLogicTransactionInformation());
             }
-        } catch (Exception e) {
+        } catch (McbpCryptoException | LdeNotInitialized | InvalidInput e) {
+            throw new SdkException(SdkErrorCodes.TRANSACTION_CREDENTIAL_NOT_AVAILABLE);
+        } catch (SessionKeysNotAvailable e) {
+            throw new SdkException(SdkErrorCodes.TRANSACTION_CREDENTIAL_NOT_AVAILABLE, "Internal Error");
         }
     }
 
@@ -199,10 +227,22 @@ public class PaymentCard {
 
     /**
      * Invoke this method just after user enters PIN.
+     *
      * @param pinListener PIN Listener
-     * @param pin PIN Value
+     * @param pin         PIN Value
      */
     public void pinEntered(PinListener pinListener, final String pin) {
         pinListener.pinEntered(ByteArray.of(pin.getBytes()));
     }
+
+    /**
+     * Returns that this card is default card or not.
+     *
+     * @return <code>true </code>This card is default card. <br>
+     * <code>false </code>Not a default card.
+     */
+    public boolean isDefaultCard() {
+        return isDefaultCard;
+    }
+
 }
