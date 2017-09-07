@@ -1,22 +1,69 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
- * Created by shadab.ali on 22-08-2017.
+ * Constants contains message code
  */
+@Configuration
+@PropertySource("classpath:HCEcodes.properties")
 public class HCEMessageCodes {
 
+    /** The Constant SERVICE_FAILED. */
+    public static String SERVICE_FAILED;
+    @Value("${SERVICE_FAILED}")
+    public void setServiceFailed(String serviceFailed){
+        SERVICE_FAILED = serviceFailed;
+    }
+    /** The Constant SUCCESS. */
+    public static String SUCCESS;
+    @Value("${SUCCESS}")
+    public void setSuccess(String success){
+        SUCCESS = success;
+    }
 
-    public static final String SERVICE_FAILED = "500";
-    public static final String SUCCESS = "200";
-    public static final String USER_ACTIVATION_REQUIRED = "201";
-    public static final String USER_ALREADY_REGISTERED = "202";
-    public static final String INSUFFICIENT_DATA = "300";
+    /** The Constant SUCCESS. */
+    public static String INSUFFICIENT_DATA;
+    @Value("${INSUFFICIENT_DATA}")
+    public void setInsufficientData(String insufficientData){
+        INSUFFICIENT_DATA = insufficientData;
+    }
+    /** The Constant SUCCESS. */
+    public static String INVALID_USER_AND_DEVICE;
+    @Value("${INVALID_USER_AND_DEVICE}")
+    public void setInvalidUserAndDevice(String invalidUserAndDevice){
+        INVALID_USER_AND_DEVICE = invalidUserAndDevice;
+    }
 
-    public static final Map<String,Object> ERROR_MESSAGE_MAP= ImmutableMap.of(SERVICE_FAILED,"Unable to process request",INSUFFICIENT_DATA,"");
-    public static final Map<String,Object> SUCCESS_MESSAGE_MAP= ImmutableMap.of(SUCCESS,"Transaction success",USER_ALREADY_REGISTERED,"User already  registered in the system",USER_ACTIVATION_REQUIRED,"User already  registered in the system ,Activate account with below Activaction code");
+    /** The Constant INVALID_ACTIVATION_CODE. */
+    public static String INVALID_ACTIVATION_CODE;
+    @Value("${INVALID_ACTIVATION_CODE}")
+    public void setInvalidActivationCode(String invalidActivationCode){
+        INVALID_ACTIVATION_CODE = invalidActivationCode;
+    }
+
+
+    /** The Constant USER_IS_ACTIVATED. */
+    public static  String USER_IS_ACTIVATED ;
+    @Value("${USER_IS_ACTIVATED}")
+    public void setUserIsActivated(String userIsActivated){
+        USER_IS_ACTIVATED = userIsActivated;
+    }
+    /** The Constant USER_ACTIVATION_REQUIRED. */
+    public static String USER_ACTIVATION_REQUIRED;
+    @Value("${USER_ACTIVATION_REQUIRED}")
+    public void setUserActivationRequired(String userActivationRequired){
+        USER_ACTIVATION_REQUIRED = userActivationRequired;
+    }
+
+
+    /** The Constant USER_ALREADY_REGISTERED. */
+    public static String USER_ALREADY_REGISTERED = "501";
+    @Value("${USER_ALREADY_REGISTERED}")
+    public  void setUserAlreadyRegistered(String userAlreadyRegistered){
+        USER_ALREADY_REGISTERED = userAlreadyRegistered;
+    }
+
 }

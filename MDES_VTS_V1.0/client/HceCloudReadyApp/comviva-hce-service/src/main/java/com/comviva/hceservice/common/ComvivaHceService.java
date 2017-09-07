@@ -10,6 +10,7 @@ import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.ApduResponse;
 import com.visa.cbp.sdk.facade.data.CvmMode;
+import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
 import com.visa.cbp.sdk.facade.data.VerifyingEntity;
@@ -30,8 +31,8 @@ public class ComvivaHceService {
     }
 
     private byte[] processMdes(byte[] commandApdu) {
-        ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
-        McbpCard currentCard = (McbpCard) comvivaHce.getPaymentCard().getCurrentCard();
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        McbpCard currentCard = (McbpCard) comvivaSdk.getSelectedCard();
         return currentCard.processApdu(commandApdu);
     }
 
@@ -67,6 +68,10 @@ public class ComvivaHceService {
         return apduResponse.getApduData();
     }
 
+    /**
+     * Provides Singleton instance of this class.
+     * @return Instance of ComvivaHceService
+     */
     public static ComvivaHceService getInstance() {
         if (hceService == null) {
             hceService = new ComvivaHceService();
@@ -74,9 +79,15 @@ public class ComvivaHceService {
         return hceService;
     }
 
+    /**
+     * Invoke this method when APDU is received from POS.
+     * @param commandApdu Command APDU object
+     * @param extras A bundle containing extra data. May be null.
+     * @return Response APDU
+     */
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
-        ComvivaHce comvivaHce = ComvivaHce.getInstance(null);
-        paymentCard = comvivaHce.getPaymentCard();
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        paymentCard = comvivaSdk.getSelectedCard();
         switch (paymentCard.getCardType()) {
             case MDES:
                 return processMdes(commandApdu);
@@ -89,6 +100,10 @@ public class ComvivaHceService {
         }
     }
 
+    /**
+     * Invoked on card deactivation or phone is removed from proximity field of POS.
+     * @param reason
+     */
     public void onDeactivated(int reason) {
         if(paymentCard == null) {
             return;
@@ -111,5 +126,8 @@ public class ComvivaHceService {
                 break;
         }
         paymentCard = null;
+
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        TokenData tokenData = visaPaymentSDK.getAllTokenData().get(0);
     }
 }

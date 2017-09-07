@@ -8,17 +8,12 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.NotificationCompat;
 
-import com.comviva.hceservice.common.ComvivaHce;
+import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.mdesapp.activities.HomeActivity;
-import com.mastercard.mcbp.api.McbpCardApi;
-import com.mastercard.mcbp.card.profile.ProfileState;
-import com.mastercard.mcbp.init.McbpInitializer;
-import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus;
-import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
 
 import java.util.Random;
 
@@ -33,7 +28,7 @@ public class MyHCEApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ComvivaHce.getInstance(this);
+        ComvivaSdk.getInstance(this);
         appInstance = this;
 
         mEventListener = new WalletListener();
@@ -101,22 +96,8 @@ public class MyHCEApp extends Application {
 
         @Override
         public boolean onCardAdded(final String tokenUniqueReference) {
-            publish(R.string.notification_new_card_profile_title,
-                    R.string.notification_new_card_profile_message);
-            String digitizedCardId;
-            try {
-                digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
-
-                LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
-                ProfileState cardState = ldeRemoteManagementService.getCardState(digitizedCardId);
-
-                if (!cardState.equals(ProfileState.INITIALIZED)) {
-                    boolean isActivated = McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(digitizedCardId));
-                    System.out.print(isActivated ? "Card Activated" : "Card Activation Failed");
-                }
-            } catch (InvalidInput invalidInput) {
-                invalidInput.printStackTrace();
-            }
+            publish(R.string.notification_new_card_profile_title, R.string.notification_new_card_profile_message);
+            ComvivaSdk.getInstance(null).activateCard(tokenUniqueReference);
             startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
             return true;
         }

@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
-import com.comviva.hceservice.mdes.digitizatioApi.RequestActivationCodeListener;
-import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationMethod;
-import com.comviva.hceservice.mdes.digitizatioApi.authentication.AuthenticationType;
+import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.digitizationApi.RequestActivationCodeListener;
+import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.digitizationApi.authentication.AuthenticationType;
 import com.comviva.mdesapp.R;
 
 public class SelectAuthenticationActivity extends AppCompatActivity {
@@ -67,7 +67,7 @@ public class SelectAuthenticationActivity extends AppCompatActivity {
     }
 
     public void requestActivationCode(final String tokenUniqueReference, AuthenticationMethod authenticationMethod) {
-        Digitization digitization = new Digitization();
+        Digitization digitization = Digitization.getInstance();
         digitization.requestActivationCode(tokenUniqueReference, authenticationMethod, new RequestActivationCodeListener() {
             @Override
             public void onReqActivationCodeStarted() {

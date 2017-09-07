@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
+import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.mdesapp.R;
 
 public class ChangePinActivity extends AppCompatActivity {
@@ -41,7 +41,7 @@ public class ChangePinActivity extends AppCompatActivity {
                     return;
                 }
 
-                Digitization digitization = new Digitization();
+                Digitization digitization = Digitization.getInstance();
                 digitization.changePin(null, oldPin, newPin);
             }
         });

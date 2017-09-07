@@ -24,7 +24,7 @@
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-   <!-- <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />-->
+    <!-- <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> -->
 
     <uses-feature
         android:name="android.hardware.nfc.hce"
@@ -54,24 +54,23 @@
         <activity android:name=".activities.SelectAuthenticationActivity" />
         <activity android:name=".activities.ActivateActivity" />
         <activity android:name=".activities.ChangePinActivity" />
-        <activity android:name=".activities.TransactionHistoryMdesActivity"></activity>
+        <activity android:name=".activities.TransactionHistoryMdesActivity" />
 
         <!-- Defining Services -->
-        <service android:name="com.comviva.mdesapp.MyAppFCMService">
+        <service android:name=".MyAppFCMService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name="com.comviva.mdesapp.MyAppFirebaseInstanceIDService">
+        <service android:name=".MyAppFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
         <service
-            android:name="com.comviva.mdesapp.AndroidHceService"
+            android:name=".AndroidHceService"
             android:exported="true"
-            android:permission="android.permission.BIND_NFC_SERVICE" >
+            android:permission="android.permission.BIND_NFC_SERVICE">
             <intent-filter>
                 <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
             </intent-filter>
@@ -81,7 +80,7 @@
                 android:resource="@xml/apduservice" />
         </service>
 
-
+        <activity android:name=".activities.SetPinActivity"></activity>
     </application>
 
 </manifest>
