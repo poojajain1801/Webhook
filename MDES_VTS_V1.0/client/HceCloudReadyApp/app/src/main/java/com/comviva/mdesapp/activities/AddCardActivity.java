@@ -14,8 +14,10 @@ import android.widget.EditText;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.digitizationApi.CardEligibilityRequest;
 import com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener;
+import com.comviva.hceservice.digitizationApi.ConsumerEntryMode;
 import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.digitizationApi.PanSource;
 import com.comviva.mdesapp.R;
 
 public class AddCardActivity extends AppCompatActivity {
@@ -42,6 +44,10 @@ public class AddCardActivity extends AppCompatActivity {
                 cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
                 cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
                 cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
+                cardEligibilityRequest.setConsumerEntryMode(ConsumerEntryMode.KEYENTERED);
+                cardEligibilityRequest.setLocale("en-US");
+                cardEligibilityRequest.setPanSource(PanSource.MANUALLYENTERED);
+                cardEligibilityRequest.setUserId(/*RegisterUserActivity.userId*/"u003");
 
                 final Digitization digitization = Digitization.getInstance();
                 digitization.checkCardEligibility(cardEligibilityRequest, new CheckCardEligibilityListener() {

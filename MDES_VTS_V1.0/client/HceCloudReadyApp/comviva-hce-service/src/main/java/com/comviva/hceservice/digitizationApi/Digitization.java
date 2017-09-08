@@ -499,10 +499,6 @@ public class Digitization {
                         }
 
                         @Override
-                        public void onDigitizationCompleted() {
-                        }
-
-                        @Override
                         public void onError(String message) {
                         }
 

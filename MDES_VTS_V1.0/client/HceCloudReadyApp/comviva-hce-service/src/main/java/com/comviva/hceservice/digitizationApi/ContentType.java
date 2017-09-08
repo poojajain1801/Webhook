@@ -15,7 +15,7 @@ public enum ContentType {
 
     private String type;
 
-    private ContentType(String type) {
+    ContentType(String type) {
         this.type = type;
     }
 
@@ -23,4 +23,19 @@ public enum ContentType {
         return type;
     }
 
+    public static ContentType getContentType(String contentType) {
+        if(contentType.equalsIgnoreCase(DIGITAL_CARD_ART.getType())) {
+            return DIGITAL_CARD_ART;
+        }
+        if(contentType.equalsIgnoreCase(DIGITAL_CARD_ART_BACKGROUND.getType())) {
+            return DIGITAL_CARD_ART_BACKGROUND;
+        }
+        if(contentType.equalsIgnoreCase(CARD_SYMBOL.getType())) {
+            return CARD_SYMBOL;
+        }
+        if(contentType.equalsIgnoreCase(TERMS_AND_CONDITIONS.getType())) {
+            return TERMS_AND_CONDITIONS;
+        }
+        return null;
+    }
 }

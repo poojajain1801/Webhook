@@ -360,9 +360,6 @@ class DigitizationMdes {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                if (digitizationListener != null) {
-                    digitizationListener.onDigitizationCompleted();
-                }
 
                 try {
                     if (httpResponse.getStatusCode() == 200) {

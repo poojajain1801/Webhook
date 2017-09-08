@@ -1,6 +1,7 @@
 package com.comviva.mdesapp.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,12 +18,15 @@ import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.register.RegisterUserListener;
 import com.comviva.hceservice.register.Registration;
 
+import com.comviva.hceservice.util.DeviceLockUtil;
+import com.comviva.hceservice.util.NfcSetting;
+import com.comviva.hceservice.util.NfcUtil;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.UiUtil;
 
-public class RegisterUserActivity extends AppCompatActivity {
+public class RegisterUserActivity extends Activity {
     private ProgressDialog progressDialog;
-    private String userId;
+    public static String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +41,7 @@ public class RegisterUserActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ComvivaSdk.getInstance(null).getInitializationData();
 
-                if(!UiUtil.checkPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE)) {
+                if (!UiUtil.checkPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE)) {
                     UiUtil.getPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE, 0);
                     return;
                 }
@@ -89,4 +93,9 @@ public class RegisterUserActivity extends AppCompatActivity {
                     .show();
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

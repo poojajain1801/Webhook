@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.PowerManager;
 
+import com.mastercard.mcbp.api.BuildConfig;
 import com.mastercard.mcbp.api.McbpApi;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
@@ -34,7 +35,6 @@ import com.mastercard.mcbp.card.McbpCard;
 import com.mastercard.mcbp.card.mpplite.apdu.Iso7816;
 import com.mastercard.mcbp.init.McbpInitializer;
 import com.mastercard.mcbp.listeners.FirstTapListener;
-import com.mastercard.mcbp_android.BuildConfig;
 import com.mastercard.mobile_api.bytes.ByteArray;
 
 import java.util.ArrayList;

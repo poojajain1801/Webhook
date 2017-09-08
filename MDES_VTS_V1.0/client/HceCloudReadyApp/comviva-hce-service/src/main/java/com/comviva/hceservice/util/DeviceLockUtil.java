@@ -27,7 +27,8 @@ public class DeviceLockUtil {
 
     /**
      * <p>Checks to see if the lock screen is set up with either a PIN / PASS / PATTERN</p>
-     * @return true if PIN, PASS or PATTERN set, false otherwise.
+     * @return <code>true </code>if PIN, PASS or PATTERN set<br>
+     *     <code>false </code>otherwise.
      */
     public static boolean checkLockingMech(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {

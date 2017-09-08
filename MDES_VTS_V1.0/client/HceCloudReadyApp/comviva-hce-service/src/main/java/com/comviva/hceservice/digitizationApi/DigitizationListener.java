@@ -12,11 +12,6 @@ public interface DigitizationListener {
     void onDigitizationStarted();
 
     /**
-     * Card Digitization completed successfully.
-     */
-    void onDigitizationCompleted();
-
-    /**
      * Error occurred.
      * @param message Error Message
      */

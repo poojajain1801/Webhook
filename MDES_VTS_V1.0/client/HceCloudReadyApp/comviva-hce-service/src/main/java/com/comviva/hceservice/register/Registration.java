@@ -21,17 +21,6 @@ import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.Miscellaneous;
 import com.comviva.hceservice.util.UrlUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.RSAPublicKeySpec;
-import java.util.Date;
-
 import com.comviva.hceservice.util.crypto.MessageDigestUtil;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.mastercard.mcbp.api.McbpApi;
@@ -45,6 +34,16 @@ import com.mastercard.mobile_api.bytes.ByteArray;
 import com.visa.cbp.external.common.EncDevicePersoData;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.Date;
 
 /**
  * This class contains all apis related to user registration and device enrollment.
@@ -527,9 +526,9 @@ public class Registration {
                             if (respObj.has("mdesFinalCode")) {
                                 String mdesRespCode = respObj.getString("mdesFinalCode");
                                 if (mdesRespCode.equalsIgnoreCase("200")) {
-                                    //JSONObject mdesResponse = respObj.getJSONObject("mdes");
-                                    //initializeMdes(mdesResponse);
-                                    //comvivaSdkInitData.setMdesInitState(true);
+                                    JSONObject mdesResponse = respObj.getJSONObject("mdes");
+                                    initializeMdes(mdesResponse);
+                                    comvivaSdkInitData.setMdesInitState(true);
                                 }
                             }
 

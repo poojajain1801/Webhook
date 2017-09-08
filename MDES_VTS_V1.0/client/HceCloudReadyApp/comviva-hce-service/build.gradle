@@ -20,7 +20,7 @@ android {
         release {
             minifyEnabled false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //proguardFile 'D:/MdesVts/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
+            proguardFile 'D:/MdesVts/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
         }
         debug {
             debuggable true
@@ -48,17 +48,16 @@ android {
 
 buildscript {
     repositories {
-       mavenCentral()
+        mavenCentral()
         jcenter()
-       flatDir { dirs '/lib'}
-  }
+        flatDir { dirs '/lib' }
+    }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath ':dexguard:'
     }
 }
-
 
 //task to delete the old jar
 task deleteOldJar(type: Delete) {
@@ -87,7 +86,7 @@ buildReleaseJar.dependsOn(deleteOldJar, build)
 allprojects {
     repositories {
         mavenCentral()
-        flatDir { dirs 'libs'} // this line
+        flatDir { dirs 'libs' } // this line
     }
 }
 

@@ -181,7 +181,8 @@ public class ComvivaSdk {
         List<McbpCard> mdesCards;
         List<TokenData> vtsCards;
 
-        String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
+        //String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
+        String defaultCardUniqueId = "";
         SchemeType enrollmentStatus = checkEnrolmentStatus();
         PaymentCard paymentCard;
 
@@ -280,6 +281,14 @@ public class ComvivaSdk {
      */
     public void setDefaultCard(PaymentCard paymentCard) {
         commonDb.setDefaultCard(paymentCard);
+    }
+
+    /**
+     * Returns default card set.
+     * @return Default Card
+     */
+    public PaymentCard getDefauPaymentCard() {
+        return commonDb.getDefaultCard();
     }
 
     /**

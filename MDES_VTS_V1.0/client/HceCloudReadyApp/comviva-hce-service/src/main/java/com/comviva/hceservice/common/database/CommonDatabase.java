@@ -122,13 +122,13 @@ public class CommonDatabase implements CommonDb {
             );
 
             if (cursor.moveToFirst()) {
-                initData.setInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_INITIALIZE_STATE)) == 1 ? true : false);
+                initData.setInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_INITIALIZE_STATE)) == 1);
                 RnsInfo rnsInfo = new RnsInfo();
                 rnsInfo.setRegistrationId(cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_ID)));
                 rnsInfo.setRnsType(RnsInfo.RNS_TYPE.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_TYPE))));
                 initData.setRnsInfo(rnsInfo);
-                initData.setVtsInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_VTS_INIT_STATE)) == 1 ? true : false);
-                initData.setMdesInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_MDES_INIT_STATE)) == 1 ? true : false);
+                initData.setVtsInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_VTS_INIT_STATE)) == 1);
+                initData.setMdesInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_MDES_INIT_STATE)) == 1);
             }
         } finally {
             if (cursor != null && !cursor.isClosed()) {
@@ -298,7 +298,7 @@ public class CommonDatabase implements CommonDb {
             String cardUniqueId = paymentCard.getCardUniqueId();
             ContentValues contentValues = new ContentValues();
             contentValues.put(DatabaseProperties.COL_CARD_UNIQUE_ID, cardUniqueId);
-            contentValues.put(DatabaseProperties.COL_RNS_TYPE, paymentCard.getCardType().name());
+            contentValues.put(DatabaseProperties.COL_CARD_TYPE, paymentCard.getCardType().name());
 
             switch (paymentCard.getCardType()) {
                 case MDES:
@@ -424,29 +424,25 @@ public class CommonDatabase implements CommonDb {
 }
 
 class DatabaseHelper extends SQLiteOpenHelper {
-    public static final String CREATE_TABLE_APP_PROPERTIES = "CREATE TABLE "
-            + DatabaseProperties.TBL_APP_PROPERTIES + " ("
+    public static final String CREATE_TABLE_APP_PROPERTIES = "CREATE TABLE " + DatabaseProperties.TBL_APP_PROPERTIES + " ("
             + DatabaseProperties.COL_INITIALIZE_STATE + " INTEGER, "
             + DatabaseProperties.COL_RNS_ID + " TEXT, "
             + DatabaseProperties.COL_RNS_TYPE + " TEXT, "
             + DatabaseProperties.COL_VTS_INIT_STATE + " TEXT, "
             + DatabaseProperties.COL_MDES_INIT_STATE + " TEXT);";
 
-    public static final String CREATE_TABLE_RM_PENDING_TASK = "CREATE TABLE "
-            + DatabaseProperties.TBL_RM_PENDING_TASK + " ("
+    public static final String CREATE_TABLE_RM_PENDING_TASK = "CREATE TABLE " + DatabaseProperties.TBL_RM_PENDING_TASK + " ("
             + DatabaseProperties.COL_TASK_ID + " TEXT, "
             + DatabaseProperties.COL_TOKEN_UNIQUE_REFERENCE + " TEXT);";
 
-    public static final String CREATE_TABLE_TDS_REG = "CREATE TABLE "
-            + DatabaseProperties.TBL_TDS_REG + " ("
+    public static final String CREATE_TABLE_TDS_REG = "CREATE TABLE " + DatabaseProperties.TBL_TDS_REG + " ("
             + DatabaseProperties.COL_TOKEN_UNIQUE_REFERENCE + " TEXT, "
             + DatabaseProperties.COL_TDS_REG_CODE1 + " TEXT, "
             + DatabaseProperties.COL_TDS_AUTH_CODE + " TEXT, "
             + DatabaseProperties.COL_TDS_URL + " TEXT);";
 
-    public static final String CREATE_TABLE_DEFAULT_CARD = "CREATE TABLE "
-            + DatabaseProperties.TBL_DEFAULT_CARD + " ("
-            + DatabaseProperties.COL_CARD_UNIQUE_ID + " TEXT, "
+    public static final String CREATE_TABLE_DEFAULT_CARD = "CREATE TABLE if not exists " + DatabaseProperties.TBL_DEFAULT_CARD + " ("
+            + DatabaseProperties.COL_CARD_UNIQUE_ID + " TEXT,"
             + DatabaseProperties.COL_CARD_TYPE + " TEXT);";
 
     public DatabaseHelper(final Context context, final String databaseName) {
@@ -460,8 +456,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_APP_PROPERTIES);
-        db.execSQL(CREATE_TABLE_RM_PENDING_TASK);
-        db.execSQL(CREATE_TABLE_TDS_REG);
         db.execSQL(CREATE_TABLE_DEFAULT_CARD);
+        //db.execSQL(CREATE_TABLE_RM_PENDING_TASK);
+        //db.execSQL(CREATE_TABLE_TDS_REG);
+
     }
 }

@@ -23,7 +23,7 @@ package com.mastercard.mcbp.api;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
 import com.mastercard.mcbp.utils.exceptions.McbpUncheckedException;
 import com.mastercard.mcbp.utils.exceptions.mcbpcard.McbpCardException;
-import com.mastercard.mcbp_android.BuildConfig;
+import com.mastercard.mcbp.api.BuildConfig;
 import com.mastercard.mobile_api.bytes.ByteArray;
 
 /**

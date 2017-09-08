@@ -1,7 +1,5 @@
 package com.comviva.hceservice.security;
 
-import android.content.Context;
-
 /**
  * Provides methods to detect debugger, emulator, rooted or tampering state of the device and apk.
  */

@@ -27,6 +27,13 @@ android {
     compileSdkVersion 23
     buildToolsVersion '25.0.0'
 
+    // TODO: Re-enable NDK automatic build system once Gradle has a proper support for it
+    // (i.e. support for custom Android.mk files)
+    sourceSets.main {
+        jniLibs.srcDir './jniLibs'
+        jni.srcDirs = []  //disable automatic ndk-build call
+    }
+
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
@@ -35,6 +42,35 @@ android {
 
         // Enable MPA Management APIs
         buildConfigField "boolean", "MPA_MANAGEMENT_API", "true"
+
+        // Supported SDK Protocols (DO NOT CHANGE unless you know what you are doing!)
+        buildConfigField "String[]", "FORCE_TLS_PROTOCOL", "{\"TLSv1.2\"}"
+
+        // ------------------------
+        // Configuration Parameters
+        // ------------------------
+
+        // Specify whether the SDK allows NFC exchange with screen off. Note that certain devices
+        // block this by default. In case you would like to block it also on those devices that
+        // allows NFC when the screen is OFF please keep this parameter set to false
+        buildConfigField "boolean", "SCREEN_OFF_ALLOWED", "false"
+
+        // Specify whether the SDK should support Wallet PIN (true) or Card Level Pin (false)
+        buildConfigField "boolean", "WALLET_PIN", "true"
+
+        // Specify the MPP Lite implementation to be used.
+        buildConfigField "String", "MPP_TYPE", "\"mcbp1\""
+
+        // Specify whether the crypto operations should be performed with native C++ modules (true)
+        // or using the default Java implementation (false)
+        // EXPERIMENTAL: This mode is currently experimental.
+        buildConfigField "boolean", "NATIVE_CRYPTO_SERVICE", "false"
+
+        // Here you can specify your own 'hard-coded' component for the static part of the DB key
+        buildConfigField "byte[]", "MPA_KEY", "{(byte) 0x0D, (byte) 0xBC, (byte) 0xEB, " +
+                "(byte) 0x2E, (byte) 0x0C, (byte) 0xB9, (byte) 0xB7, (byte) 0xC6, (byte) 0x6B, " +
+                "(byte) 0xDC, (byte) 0xD4, (byte) 0x30, (byte) 0x56, (byte) 0x3A, (byte) 0x43, " +
+                "(byte) 0xFC}"
     }
 
     compileOptions {
@@ -86,9 +122,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    debugCompile project(path: ':mcbp-android', configuration: 'debug')
-    releaseCompile project(path: ':mcbp-android', configuration: 'release')
-   // compile
+    compile project(':mcbp')
+    compile project(':mobile-api-core')
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
 }
 
 

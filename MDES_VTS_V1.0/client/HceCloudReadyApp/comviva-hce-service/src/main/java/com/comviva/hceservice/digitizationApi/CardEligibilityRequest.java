@@ -13,6 +13,7 @@ public class CardEligibilityRequest {
     private PanSource panSource;
     private String locale;
     private ConsumerEntryMode consumerEntryMode;
+    private String userId;
 
     /**
      * Returns locale.
@@ -174,5 +175,11 @@ public class CardEligibilityRequest {
         this.securityCode = securityCode;
     }
 
+    public String getUserId() {
+        return userId;
+    }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

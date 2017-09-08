@@ -62,13 +62,6 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onDigitizationCompleted() {
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-                    }
-
-                    @Override
                     public void onError(String message) {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();

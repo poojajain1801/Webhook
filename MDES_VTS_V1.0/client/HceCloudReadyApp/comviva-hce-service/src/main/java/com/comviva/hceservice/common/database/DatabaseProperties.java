@@ -35,6 +35,6 @@ public class DatabaseProperties {
 
     /** This table contains default card */
     public static final String TBL_DEFAULT_CARD = "default_card";
-    public static final String COL_CARD_UNIQUE_ID = "card_unique_id";
-    public static final String COL_CARD_TYPE = "card_type";
+    public static final String COL_CARD_UNIQUE_ID = "CARD_UNIQUE_ID";
+    public static final String COL_CARD_TYPE = "CARD_TYPE";
 }

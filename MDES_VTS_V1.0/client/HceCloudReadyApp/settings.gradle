@@ -1,1 +1,1 @@
-include ':app', ':comviva-hce-service', ':mobile-api-core', ':mcbp-android-api', ':mcbp', ':mcbp-android'
+include ':app', ':comviva-hce-service', ':mobile-api-core', ':mcbp-android-api', ':mcbp'

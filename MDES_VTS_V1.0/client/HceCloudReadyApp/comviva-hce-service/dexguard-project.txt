@@ -19,6 +19,8 @@
 -injars libs
 
 -keepresourcefiles jni/**/libvisacrypto.so
+-keepresourcefiles libmcbpcore-jni.so
+-keepresourcefiles libmcbpcryptoservice-jni.so
 
 -printconfiguration config.txt
 
@@ -28,6 +30,7 @@
 
 -keepattributes Exceptions
 
+###### com.comviva.hceservice.digitizationApi
 -keep public class com.comviva.hceservice.digitizationApi.Digitization {
     public public *;
 }
@@ -88,7 +91,14 @@
 -keep public interface com.comviva.hceservice.register.RegisterUserListener {
     public public *;
 }
+-keep public class com.comviva.hceservice.digitizationApi.PanSource {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ConsumerEntryMode {
+    public public *;
+}
 
+###### com.comviva.hceservice.common Package
 -keep public enum com.comviva.hceservice.common.CardType {
     public public *;
 }
@@ -116,7 +126,11 @@
 -keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
     public public *;
 }
+-keep public interface com.comviva.hceservice.security.SecurityInf {
+    public public *;
+}
 
+###### com.comviva.hceservice.tds
 -keep public interface com.comviva.hceservice.tds.TdsRegistrationListener {
     public public *;
 }
@@ -133,10 +147,12 @@
     public public *;
 }
 
+###### com.comviva.hceservice.fcm
 -keep public class com.comviva.hceservice.fcm.ComvivaFCMService {
     public public *;
 }
 
+###### MasterCard
 -keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult {
     public public *;
 }
@@ -157,7 +173,21 @@
     public public *;
 }
 
+#-keep public class com.mastercard.mcbp.hce.DefaultHceService {
+#    public public *;
+#}
+
 #-keep public class com.mastercard.mcbp.hce.AndroidHceService {
 #    public public *;
 #}
 
+###### Utility Classes
+-keep public class com.comviva.hceservice.util.DeviceLockUtil {
+    public public *;
+}
+-keep public class com.comviva.hceservice.util.NfcUtil {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.util.NfcSetting {
+    public public *;
+}

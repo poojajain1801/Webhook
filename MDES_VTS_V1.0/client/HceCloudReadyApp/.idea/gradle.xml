@@ -12,9 +12,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/comviva-hce-service" />
             <option value="$PROJECT_DIR$/mcbp" />
-            <option value="$PROJECT_DIR$/mcbp-android" />
             <option value="$PROJECT_DIR$/mcbp-android-api" />
-            <option value="$PROJECT_DIR$/mcbp-android-api-mdes-debug" />
             <option value="$PROJECT_DIR$/mobile-api-core" />
           </set>
         </option>

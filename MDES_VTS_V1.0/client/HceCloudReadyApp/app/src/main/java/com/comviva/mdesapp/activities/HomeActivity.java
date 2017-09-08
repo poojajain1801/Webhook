@@ -41,10 +41,11 @@ import com.comviva.hceservice.digitizationApi.CardLcmReasonCode;
 import com.comviva.hceservice.digitizationApi.CardLcmRequest;
 import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.tds.TdsRegistrationListener;
-import com.comviva.hceservice.tds.TransactionDetails;
 import com.comviva.hceservice.tds.TransactionDetailsListener;
 import com.comviva.hceservice.tds.TransactionHistory;
 import com.comviva.hceservice.tds.UnregisterTdsListener;
+import com.comviva.hceservice.util.NfcSetting;
+import com.comviva.hceservice.util.NfcUtil;
 import com.comviva.mdesapp.R;
 import com.mastercard.mcbp.card.cvm.PinListener;
 import com.mastercard.mcbp.listeners.ProcessContactlessListener;
@@ -402,45 +403,50 @@ public class HomeActivity extends AppCompatActivity {
         payButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentCard.getCvmResetTimeout();
-                comvivaHce.setSelectedCard(currentCard);
-                ProcessContactlessListener processContactlessListener = new ProcessContactlessListener() {
-                    @Override
-                    public void onContactlessReady() {
-                        startTransaction();
-                    }
+                // Check that NFC is enabled
+                if (!NfcUtil.isNfcEnabled(getApplicationContext())) {
+                    NfcUtil.showNfcSetting(HomeActivity.this, NfcSetting.ENABLE_NFC);
+                } else {
+                    currentCard.getCvmResetTimeout();
+                    comvivaHce.setSelectedCard(currentCard);
+                    ProcessContactlessListener processContactlessListener = new ProcessContactlessListener() {
+                        @Override
+                        public void onContactlessReady() {
+                            startTransaction();
+                        }
 
-                    @Override
-                    public void onContactlessPaymentCompleted(DisplayTransactionInfo displayTransactionInfo) {
-                        currentCard.stopContactlessTransaction();
-                        timer.cancel();
-                        updateOnPaymentCompletion();
-                    }
+                        @Override
+                        public void onContactlessPaymentCompleted(DisplayTransactionInfo displayTransactionInfo) {
+                            currentCard.stopContactlessTransaction();
+                            timer.cancel();
+                            updateOnPaymentCompletion();
+                        }
 
-                    @Override
-                    public void onContactlessPaymentAborted(DisplayTransactionInfo displayTransactionInfo) {
-                        updateOnPaymentCompletion();
-                    }
+                        @Override
+                        public void onContactlessPaymentAborted(DisplayTransactionInfo displayTransactionInfo) {
+                            updateOnPaymentCompletion();
+                        }
 
-                    @Override
-                    public void onPinRequired(PinListener pinListener) {
-                        displayPINView(pinListener);
+                        @Override
+                        public void onPinRequired(PinListener pinListener) {
+                            displayPINView(pinListener);
+                        }
+                    };
+                    currentCard.prepareForContactlessTransaction(processContactlessListener);
+                    try {
+                        currentCard.startContactlessTransaction();
+                    } catch (SdkException e) {
+                        new AlertDialog.Builder(HomeActivity.this)
+                                .setTitle("Error")
+                                .setMessage("Credentials not available please replenish")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        refreshCardList();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
                     }
-                };
-                currentCard.prepareForContactlessTransaction(processContactlessListener);
-                try {
-                    currentCard.startContactlessTransaction();
-                } catch (SdkException e) {
-                    new AlertDialog.Builder(HomeActivity.this)
-                            .setTitle("Error")
-                            .setMessage("Credentials not available please replenish")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    refreshCardList();
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
                 }
             }
         });

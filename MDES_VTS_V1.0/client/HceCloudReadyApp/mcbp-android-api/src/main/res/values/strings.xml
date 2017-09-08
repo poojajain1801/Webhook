@@ -19,6 +19,8 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="nfc_not_supported">Your device does not support NFC and cannot perform the
+        payment</string>
     <string name="app_name">MCBP Android Api</string>
     <string name="card_profile" tools:ignore="UnusedResources">card_profile</string>
     <string name="suks" tools:ignore="UnusedResources">suks</string>

@@ -11,9 +11,10 @@
     android:background="@drawable/background"
     tools:context="com.comviva.mdesapp.activities.AddCardActivity">
 
+    <!-- MasterCard-5500000000000004 Visa-4622943127007327 -->
     <EditText
         android:id="@+id/editPan"
-        android:text="5500000000000004"
+        android:text="4622943127007327"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:hint="Card Number"/>
@@ -24,9 +25,10 @@
         android:layout_height="30dp"
         android:layout_below="@+id/editPan"/>
 
+    <!-- MasterCard-688 Visa-633 -->
     <EditText
         android:id="@+id/editCvc"
-        android:text="688"
+        android:text="633"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_below="@+id/space1"
@@ -38,9 +40,10 @@
         android:layout_height="30dp"
         android:layout_below="@+id/editCvc"/>
 
+    <!-- MasterCard-07 Visa-12 -->
     <EditText
         android:id="@+id/editExpMonth"
-        android:text="07"
+        android:text="12"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:hint="Expiry Month"
@@ -52,9 +55,10 @@
         android:layout_height="30dp"
         android:layout_below="@+id/editExpMonth"/>
 
+    <!-- MasterCard-2020 Visa-2017 -->
     <EditText
         android:id="@+id/editExpYear"
-        android:text="2020"
+        android:text="2017"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:hint="Expiry Year"

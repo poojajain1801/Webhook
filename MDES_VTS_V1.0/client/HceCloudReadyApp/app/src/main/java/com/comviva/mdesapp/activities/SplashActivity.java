@@ -1,11 +1,10 @@
 package com.comviva.mdesapp.activities;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.comviva.hceservice.common.ComvivaSdk;
-
 import com.comviva.mdesapp.R;
 
 public class SplashActivity extends AppCompatActivity {
