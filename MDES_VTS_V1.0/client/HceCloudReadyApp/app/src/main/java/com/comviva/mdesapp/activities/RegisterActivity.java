@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.comviva.hceservice.common.SchemeType;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.register.RegisterParam;
 import com.comviva.hceservice.register.Registration;
 import com.comviva.hceservice.register.RegistrationListener;
@@ -31,7 +32,7 @@ public class RegisterActivity extends Activity {
         final EditText editDeviceName = (EditText) findViewById(R.id.editDeviceName);
         if (getIntent().hasExtra("userId")) {
             edUserId.setText(getIntent().getExtras().getString("userId"));
-            edActivationCode.setText(getIntent().getStringExtra("activationCode").toString());
+            edActivationCode.setText(getIntent().getStringExtra("activationCode"));
             edActivationCode.setEnabled(false);
         }
 
@@ -74,13 +75,13 @@ public class RegisterActivity extends Activity {
         }
 
         @Override
-        public void onError(String errorMessage) {
+        public void onError(SdkError sdkError) {
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             new AlertDialog.Builder(RegisterActivity.this)
                     .setTitle("Error")
-                    .setMessage(errorMessage)
+                    .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete

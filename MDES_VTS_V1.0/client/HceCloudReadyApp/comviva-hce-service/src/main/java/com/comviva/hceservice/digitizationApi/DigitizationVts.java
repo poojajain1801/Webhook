@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkErrorImpl;
+import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
@@ -380,7 +382,7 @@ class DigitizationVts {
         track2DataDec.setSvcCode(jsTrack2DataDec.getString("svcCode"));
         staticParams.setTrack2DataDec(track2DataDec);
 
-        if(jsStaticParams.has("track2DataNotDec")) {
+        if (jsStaticParams.has("track2DataNotDec")) {
             JSONObject jsTrack2DataNotDec = jsStaticParams.getJSONObject("track2DataNotDec");
             Track2DataNotDec track2DataNotDec = new Track2DataNotDec();
             track2DataNotDec.setSvcCode(jsTrack2DataNotDec.getString("svcCode"));
@@ -395,7 +397,7 @@ class DigitizationVts {
         provisionResponse.setTokenInfo(tokenInfo);
 
         // ODAdata
-        if(jsProvisionResponse.has("ODAdata")) {
+        if (jsProvisionResponse.has("ODAdata")) {
             JSONObject jsODAdata = jsProvisionResponse.getJSONObject("ODAdata");
             ODAData odaData = new ODAData();
             odaData.setCaPubKeyIndex(jsODAdata.getString("caPubKeyIndex"));
@@ -440,13 +442,50 @@ class DigitizationVts {
         return provisionResponse;
     }
 
+    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException {
+        JSONObject jsPaymentInstrument = jsGetMetaDataResponse.getJSONObject("paymentInstrument");
+        JSONObject jsExpirationDateObject = jsPaymentInstrument.getJSONObject("expirationDate");
+        JSONObject jsCardMetaDataResponseObject = jsGetMetaDataResponse.getJSONObject("cardMetaData");
+        JSONArray jsTokensArray = jsGetMetaDataResponse.getJSONArray("tokens");
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        for (int i = 0; i < jsTokensArray.length(); i++) {
+            TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(jsTokensArray.getJSONObject(i).getString("vProvisionedTokenID"));
+            visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.getTokenStatus(jsTokensArray.getJSONObject(i).getString("tokenStatus")));
+        }
+
+        String last4 = jsPaymentInstrument.getString("last4");
+        String paymentAccountReference = jsPaymentInstrument.getString("paymentAccountReference");
+
+        // Card MetaData
+        com.comviva.hceservice.digitizationApi.CardMetaData cardMetaData = new com.comviva.hceservice.digitizationApi.CardMetaData();
+        cardMetaData.setLongDescription(jsCardMetaDataResponseObject.getString("longDescription"));
+        cardMetaData.setBackgroundColor(jsCardMetaDataResponseObject.getString("backgroundColor"));
+        cardMetaData.setContactEmail(jsCardMetaDataResponseObject.getString("contactEmail"));
+        cardMetaData.setContactName(jsCardMetaDataResponseObject.getString("contactName"));
+        cardMetaData.setContactNumber(jsCardMetaDataResponseObject.getString("contactNumber"));
+        cardMetaData.setForegroundColor(jsCardMetaDataResponseObject.getString("foregroundColor"));
+        cardMetaData.setContactWebsite(jsCardMetaDataResponseObject.getString("contactWebsite"));
+        cardMetaData.setShortDescription(jsCardMetaDataResponseObject.getString("shortDescription"));
+        cardMetaData.setLabelColor(jsCardMetaDataResponseObject.getString("labelColor"));
+        cardMetaData.setTermsAndConditionsID(jsCardMetaDataResponseObject.getString("termsAndConditionsID"));
+    }
+
+    private void parseGetPanData(JSONObject jsGetPanDataResponse) throws JSONException {
+        JSONObject jsPaymentInstrument = jsGetPanDataResponse.getJSONObject("paymentInstrument");
+
+        String last4 = jsPaymentInstrument.getString("last4");
+        String cvv2PrintedInd = jsPaymentInstrument.getString("cvv2PrintedInd");
+        String expDatePrintedInd = jsPaymentInstrument.getString("expDatePrintedInd");
+    }
+
+
     /**
      * Enroll PAN with VTS.
      *
      * @param cardEligibilityRequest   Eligibility request
      * @param checkEligibilityListener Eligibility Response
      */
-    public void enrollPanVts(final CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
+    void enrollPanVts(final CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonEnrollPanReq = new JSONObject();
         try {
             JSONObject expirationDate = new JSONObject();
@@ -472,7 +511,7 @@ class DigitizationVts {
 
             jsonEnrollPanReq.put("userId", cardEligibilityRequest.getUserId());
         } catch (Exception e) {
-            checkEligibilityListener.onCheckEligibilityError("Error while preparing request");
+            checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -480,7 +519,7 @@ class DigitizationVts {
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (checkEligibilityListener != null) {
-                    checkEligibilityListener.onCheckEligibilityStarted();
+                    checkEligibilityListener.onStarted();
                 }
             }
 
@@ -498,14 +537,13 @@ class DigitizationVts {
 
                         try {
                             if (jsEnrollPanResp.getInt(Tags.RESPONSE_CODE.getTag()) != 200) {
-                                checkEligibilityListener.onCheckEligibilityError(jsEnrollPanResp.getString(Tags.MESSAGE.getTag()));
+                                checkEligibilityListener.onError(SdkErrorImpl.getInstance(jsEnrollPanResp.getInt(Tags.RESPONSE_CODE.getTag()),
+                                        jsEnrollPanResp.getString(Tags.MESSAGE.getTag())));
                                 return;
                             }
                         } catch (Exception e) {
-                            if (jsEnrollPanResp.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                                checkEligibilityListener.onCheckEligibilityError(jsEnrollPanResp.getString(Tags.MESSAGE.getTag()));
-                                return;
-                            }
+                            checkEligibilityListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION.getErrorCode(),
+                                    jsEnrollPanResp.getString(Tags.MESSAGE.getTag())));
                         }
                         enrollPanResponse = parseEnrollPanResponse(jsEnrollPanResp);
 
@@ -521,19 +559,19 @@ class DigitizationVts {
 
                             @Override
                             public void onError(String message) {
-                                checkEligibilityListener.onCheckEligibilityError("Server Error");
+                                checkEligibilityListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR.getErrorCode(), message));
                             }
                         };
                         GetTnCAssetTask getTnCAssetTask = new GetTnCAssetTask(enrollPanResponse.getCardMetaData().getTermsAndConditionsID(), getAssetListener);
                         getTnCAssetTask.execute();
                     } else {
                         if (checkEligibilityListener != null) {
-                            checkEligibilityListener.onCheckEligibilityError(httpResponse.getReqStatus().toString());
+                            checkEligibilityListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                         }
                     }
                 } catch (Exception e) {
                     if (checkEligibilityListener != null) {
-                        checkEligibilityListener.onCheckEligibilityError("Wrong data from server");
+                        checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
                     }
                 }
             }
@@ -549,7 +587,7 @@ class DigitizationVts {
      * @param digitizationRequest  Digitization Request
      * @param digitizationListener UI listener for Digitization
      */
-    public void provisionToken(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
+    void provisionToken(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
         final JSONObject provisionTokenRequestObject = new JSONObject();
         final VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         try {
@@ -636,7 +674,7 @@ class DigitizationVts {
      * @param tokenKey             TokenKey of which ODA data is to update
      * @param digitizationListener Listener
      */
-    public void replenishODADataRequest(final TokenKey tokenKey, final DigitizationListener digitizationListener) {
+    void replenishODADataRequest(final TokenKey tokenKey, final DigitizationListener digitizationListener) {
         final JSONObject replenishODADataObject = new JSONObject();
         try {
             // replenishODADataObject.put(Tags.USER_ID.getTag(), );
@@ -746,10 +784,10 @@ class DigitizationVts {
     /**
      * This API is used to Suspend, UnSuspend and Delete Token
      */
-    public void performCardLcm(final PaymentCard card,
-                               final CardLcmOperation cardLcmOperation,
-                               final CardLcmReasonCode reasonCode,
-                               final CardLcmListener cardLcmListener) {
+    void performCardLcm(final PaymentCard card,
+                        final CardLcmOperation cardLcmOperation,
+                        final CardLcmReasonCode reasonCode,
+                        final CardLcmListener cardLcmListener) {
 
         final JSONObject jsCardLcmReq = new JSONObject();
         try {
@@ -812,4 +850,105 @@ class DigitizationVts {
         CardLcmTask cardLcmTask = new CardLcmTask();
         cardLcmTask.execute();
     }
+
+    public void getCardMetaData(final PaymentCard paymentCard, final ResponseListener responseListener) {
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
+        final JSONObject jsonCardMetaDataRequest = new JSONObject();
+        try {
+            jsonCardMetaDataRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
+        } catch (Exception e) {
+            responseListener.onError("SDK Error : JSONException");
+            //checkEligibilityListener.onCheckEligibilityError("Error while preparing request");
+            return;
+        }
+        class GetCardMetaDataTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (responseListener != null) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSCardMetaDataUrl(), jsonCardMetaDataRequest.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
+                        parseGetMetaDataResponse(jsGetCardMetaDataResponse);
+                        if (responseListener != null) {
+                            responseListener.onSuccess();
+                        }
+                    } else if (responseListener != null) {
+                        responseListener.onError(httpResponse.getResponse());
+                    }
+                } catch (JSONException e) {
+                    if (responseListener != null) {
+                        responseListener.onError(e.getMessage());
+                    }
+                    // listener.onError("Wrong data from server");
+                }
+            }
+        }
+
+        GetCardMetaDataTask getCardMetaDataTask = new GetCardMetaDataTask();
+        getCardMetaDataTask.execute();
+    }
+
+    public void getPanData(final String pan, final ResponseListener responseListener) {
+        final JSONObject jsonGetPanDataRequest = new JSONObject();
+        try {
+            jsonGetPanDataRequest.put(Tags.ENC_PAYMENT_INSTRUMENT.getTag(), pan);
+        } catch (Exception e) {
+            responseListener.onError("SDK Error : JSONException");
+            //checkEligibilityListener.onCheckEligibilityError("Error while preparing request");
+            return;
+        }
+        class GetPanDataTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (responseListener != null) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSPanData(), jsonGetPanDataRequest.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
+                        parseGetPanData(jsGetCardMetaDataResponse);
+                        if (responseListener != null) {
+                            responseListener.onSuccess();
+                        }
+                    } else if (responseListener != null) {
+                        responseListener.onError(httpResponse.getResponse());
+                    }
+                } catch (JSONException e) {
+                    if (responseListener != null) {
+                        responseListener.onError(e.getMessage());
+                    }
+                    // listener.onError("Wrong data from server");
+                }
+            }
+        }
+        GetPanDataTask getPanDataTask = new GetPanDataTask();
+        getPanDataTask.execute();
+    }
+
 }

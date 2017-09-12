@@ -6,6 +6,8 @@ import android.util.Log;
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkErrorImpl;
+import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
@@ -153,15 +155,15 @@ class DigitizationMdes {
             jsonCardEligibilityReq.put("cardletId", "1.0");
         } catch (JSONException e) {
             if (checkEligibilityListener != null) {
-                checkEligibilityListener.onCheckEligibilityError("SDK Error : JSONException");
+                checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             }
         } catch (GeneralSecurityException e) {
             if (checkEligibilityListener != null) {
-                checkEligibilityListener.onCheckEligibilityError("SDK Error : Security Exception");
+                checkEligibilityListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
             }
         } catch (IOException e) {
             if (checkEligibilityListener != null) {
-                checkEligibilityListener.onCheckEligibilityError("SDK Error : IO Exception");
+                checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_IO_ERROR);
             }
         }
 
@@ -170,7 +172,7 @@ class DigitizationMdes {
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (checkEligibilityListener != null) {
-                    checkEligibilityListener.onCheckEligibilityStarted();
+                    checkEligibilityListener.onStarted();
                 }
             }
 
@@ -193,7 +195,7 @@ class DigitizationMdes {
 
                         // Card is not eligible
                         if (!respObj.has("eligibilityReceipt")) {
-                            checkEligibilityListener.onCheckEligibilityError("Card is not eligible");
+                            checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_CARD_NOT_ELIGIBLE);
                         } else {
                             // Card is eligible
                             JSONObject jsEligibilityReceipt = respObj.getJSONObject("eligibilityReceipt");
@@ -222,7 +224,7 @@ class DigitizationMdes {
 
                                     @Override
                                     public void onError(String message) {
-                                        checkEligibilityListener.onCheckEligibilityError("Server Error");
+                                        checkEligibilityListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR.getErrorCode(), message));
                                     }
                                 };
 
@@ -235,10 +237,10 @@ class DigitizationMdes {
                             checkEligibilityListener.onCheckEligibilityCompleted();
                         }
                     } else {
-                        checkEligibilityListener.onCheckEligibilityError(httpResponse.getResponse());
+                        checkEligibilityListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
                     }
                 } catch (JSONException e) {
-                    checkEligibilityListener.onCheckEligibilityError("Wrong data from server");
+                    checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
                 }
             }
         }

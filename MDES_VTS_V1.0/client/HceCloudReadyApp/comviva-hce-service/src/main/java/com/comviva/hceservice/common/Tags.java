@@ -27,7 +27,8 @@ public enum Tags {
     V_PROVISIONED_TOKEN_ID("vProvisionedTokenID"),
     TERMS_CONDITION_ID("termsAndConditionsID"),
     RESPONSE_CODE("responseCode"),
-    MESSAGE("message");
+    MESSAGE("message"),
+    ENC_PAYMENT_INSTRUMENT("encPaymentInstrument");
 
     private String tag;
 

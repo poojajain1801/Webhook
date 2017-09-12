@@ -206,9 +206,9 @@ public class PaymentCard {
                 card.startContactless(new BusinessLogicTransactionInformation());
             }
         } catch (McbpCryptoException | LdeNotInitialized | InvalidInput e) {
-            throw new SdkException(SdkErrorCodes.TRANSACTION_CREDENTIAL_NOT_AVAILABLE);
+            throw new SdkException(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
         } catch (SessionKeysNotAvailable e) {
-            throw new SdkException(SdkErrorCodes.TRANSACTION_CREDENTIAL_NOT_AVAILABLE, "Internal Error");
+            throw new SdkException(SdkErrorStandardImpl.SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE);
         }
     }
 

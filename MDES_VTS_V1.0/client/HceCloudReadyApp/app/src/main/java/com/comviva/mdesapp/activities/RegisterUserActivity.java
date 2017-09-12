@@ -6,21 +6,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.register.RegisterUserListener;
 import com.comviva.hceservice.register.Registration;
-
-import com.comviva.hceservice.util.DeviceLockUtil;
-import com.comviva.hceservice.util.NfcSetting;
-import com.comviva.hceservice.util.NfcUtil;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.UiUtil;
 
@@ -56,7 +52,7 @@ public class RegisterUserActivity extends Activity {
 
     final RegisterUserListener registerUserListener = new RegisterUserListener() {
         @Override
-        public void onRegistrationStarted() {
+        public void onStarted() {
             progressDialog = new ProgressDialog(RegisterUserActivity.this);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage("Please wait...");
@@ -77,13 +73,13 @@ public class RegisterUserActivity extends Activity {
         }
 
         @Override
-        public void onError(String errorMessage) {
+        public void onError(SdkError sdkError) {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             new AlertDialog.Builder(RegisterUserActivity.this)
                     .setTitle("Error")
-                    .setMessage(errorMessage)
+                    .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete
