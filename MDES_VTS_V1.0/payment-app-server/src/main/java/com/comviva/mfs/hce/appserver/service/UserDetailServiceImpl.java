@@ -112,11 +112,11 @@ public class UserDetailServiceImpl implements UserDetailService {
             }
         }catch(HCEActionException regUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserHCEactionException);
-            return hceControllerSupport.formResponse(regUserHCEactionException.getMessageCode());
+            throw regUserHCEactionException;
 
         }catch(Exception regUserException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserException);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
 
         LOGGER.debug("Exit UserDetailServiceImpl->registerUser");
@@ -141,8 +141,8 @@ public class UserDetailServiceImpl implements UserDetailService {
             }
              userDetails = userDetailRepository.find(activateUserRequest.getUserId());
              deviceInfo=deviceDetailRepository.find(activateUserRequest.getClientDeviceID());
-            userstatus = "userActivated";
-            devicestatus="deviceActivated";
+             userstatus = "userActivated";
+             devicestatus="deviceActivated";
 
             if((null == userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
                throw new HCEActionException(HCEMessageCodes.INVALID_USER_AND_DEVICE);
@@ -171,11 +171,11 @@ public class UserDetailServiceImpl implements UserDetailService {
              response =hceControllerSupport.formResponse(HCEMessageCodes.USER_IS_ACTIVATED);
         }catch(HCEActionException actUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->activateUser", actUserHCEactionException);
-            return hceControllerSupport.formResponse(actUserHCEactionException.getMessageCode());
+          throw actUserHCEactionException;
 
         }catch(Exception actUserException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->activateUser", actUserException);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
 
         LOGGER.debug("Exit UserDetailServiceImpl->activateUser");

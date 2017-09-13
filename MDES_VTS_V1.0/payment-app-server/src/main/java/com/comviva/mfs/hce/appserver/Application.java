@@ -30,6 +30,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by sumit.das on 12/20/2016.
@@ -43,7 +44,11 @@ import org.springframework.web.WebApplicationInitializer;
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer{
 
 
+    RestTemplate r = new RestTemplate();
+
+
     public static void main(String[] args) {
+        System.setProperty("org.apache.catalina.connector.RECYCLE_FACADES", "true");
         SpringApplication.run(Application.class, args);
 
     }
@@ -52,4 +57,7 @@ public class Application extends SpringBootServletInitializer implements WebAppl
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(Application.class);
     }
+
+
+
 }

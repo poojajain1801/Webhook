@@ -269,6 +269,38 @@
     </changeSet>
 
 
+
+    <changeSet author="tanmay.p" id="201701091533">
+        <createTable tableName="AUDIT_TRAIL">
+            <column name="REQUEST_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="REQUEST" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESPONSE" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="RESPONSE_CODE" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="CREATED_BY" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="SERVICE_TYPE" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CREATED_ON" type="Timestamp(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_AUDIT_TRAIL" tableName="AUDIT_TRAIL" />
+    </changeSet>
+
+
     <changeSet author="tanmay.p" id="sqlFileInsert">
         <sqlFile path="dbChangelog\mdes-vts.sql"/>
     </changeSet>

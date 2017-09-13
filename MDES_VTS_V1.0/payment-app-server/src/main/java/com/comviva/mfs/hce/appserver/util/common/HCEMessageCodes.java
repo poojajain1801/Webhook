@@ -60,10 +60,19 @@ public class HCEMessageCodes {
 
 
     /** The Constant USER_ALREADY_REGISTERED. */
-    public static String USER_ALREADY_REGISTERED = "501";
+    public static String USER_ALREADY_REGISTERED;
     @Value("${USER_ALREADY_REGISTERED}")
     public  void setUserAlreadyRegistered(String userAlreadyRegistered){
         USER_ALREADY_REGISTERED = userAlreadyRegistered;
     }
+
+
+    /** The Constant INVALID_PROPERTY. */
+    public static String INVALID_PROPERTY;
+    @Value("${INVALID_PROPERTY}")
+    public  void setInvalidProperty(String invalidProperty){
+        INVALID_PROPERTY = invalidProperty;
+    }
+
 
 }

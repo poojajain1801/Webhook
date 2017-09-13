@@ -54,7 +54,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -103,6 +102,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
+
+<!--Required for Audit Log-->
+       <!-- <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>1.5.2.RELEASE</version>
+        </dependency>-->
 
         <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
         <dependency>
