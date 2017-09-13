@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.register.RegistrationListener;
 import com.comviva.hceservice.register.Registration;
 
@@ -71,13 +72,13 @@ public class ActivateUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onError(String errorMessage) {
+        public void onError(SdkError sdkError) {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             new AlertDialog.Builder(ActivateUserActivity.this)
                     .setTitle("Error")
-                    .setMessage(errorMessage)
+                    .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete

@@ -123,4 +123,12 @@ public class UrlUtil {
         }
         return null;
     }
+
+    public static String getVTSCardMetaDataUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getCardMetadata";
+    }
+
+    public static String getVTSPanData() {
+         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
+    }
 }

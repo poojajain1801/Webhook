@@ -1,24 +1,15 @@
 package com.comviva.hceservice.digitizationApi;
 
+import com.comviva.hceservice.common.CommonListener;
+
 /**
  * Listener for Check Card Eligibility API.
  */
-public interface CheckCardEligibilityListener {
-    /**
-     * Check Card Eligibility is started.
-     */
-    void onCheckEligibilityStarted();
-
+public interface CheckCardEligibilityListener extends CommonListener {
     /**
      * Check Eligibility performed successfully.
      */
     void onCheckEligibilityCompleted();
-
-    /**
-     * Error Occurred.
-     * @param message Error message
-     */
-    void onCheckEligibilityError(String message);
 
     /**
      * Terms & Condition is required.

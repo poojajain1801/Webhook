@@ -3,14 +3,14 @@ package com.comviva.hceservice.digitizationApi;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
-import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
+import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.LuhnUtil;
@@ -75,7 +75,7 @@ public class Digitization {
 
         // Validate Card number
         if (cardNumber.length() < 13 || cardNumber.length() > 19 || !LuhnUtil.checkLuhn(cardNumber)) {
-            checkEligibilityListener.onCheckEligibilityError("Card Number is Invalid");
+            checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_INVALID_CARD_NUMBER);
             return;
         }
 
@@ -92,7 +92,7 @@ public class Digitization {
                 break;
 
             default:
-                checkEligibilityListener.onCheckEligibilityError("Unsupported Card Type");
+                checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
         }
     }
 

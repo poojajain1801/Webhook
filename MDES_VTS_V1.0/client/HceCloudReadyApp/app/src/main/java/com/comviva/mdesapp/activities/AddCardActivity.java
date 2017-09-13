@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 
 import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.digitizationApi.CardEligibilityRequest;
 import com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener;
 import com.comviva.hceservice.digitizationApi.ConsumerEntryMode;
@@ -52,7 +53,7 @@ public class AddCardActivity extends AppCompatActivity {
                 final Digitization digitization = Digitization.getInstance();
                 digitization.checkCardEligibility(cardEligibilityRequest, new CheckCardEligibilityListener() {
                     @Override
-                    public void onCheckEligibilityStarted() {
+                    public void onStarted() {
                         progressDialog = new ProgressDialog(AddCardActivity.this);
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                         progressDialog.setMessage("Please wait...");
@@ -69,13 +70,13 @@ public class AddCardActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCheckEligibilityError(String message) {
+                    public void onError(SdkError sdkError) {
                         if (progressDialog != null && progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
                         new AlertDialog.Builder(AddCardActivity.this)
                                 .setTitle("Error")
-                                .setMessage(message)
+                                .setMessage(sdkError.getMessage())
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // continue
