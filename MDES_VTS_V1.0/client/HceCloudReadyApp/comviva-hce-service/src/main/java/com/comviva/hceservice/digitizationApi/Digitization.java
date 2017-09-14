@@ -213,7 +213,7 @@ public class Digitization {
         final JSONObject requestSessionReq = new JSONObject();
         try {
             byte[] baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             requestSessionReq.put("paymentAppProviderId", /*comvivaSdk.getPaymentAppProviderId()*/"ComvivaWallet");
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
@@ -318,7 +318,7 @@ public class Digitization {
                                       final RequestActivationCodeListener activationCodeListener) {
         final JSONObject jsReqActCodeReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             jsReqActCodeReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsReqActCodeReq.put("tokenUniqueReference", tokenUniqueReference);
 
@@ -375,7 +375,7 @@ public class Digitization {
                          final ActivateListener activateListener) {
         final JSONObject jsActivateReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             jsActivateReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsActivateReq.put("tokenUniqueReference", tokenUniqueReference);
             switch (type) {

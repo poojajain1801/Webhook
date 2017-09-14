@@ -28,7 +28,6 @@ public class MyHCEApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ComvivaSdk.getInstance(this);
         appInstance = this;
 
         mEventListener = new WalletListener();
@@ -97,7 +96,7 @@ public class MyHCEApp extends Application {
         @Override
         public boolean onCardAdded(final String tokenUniqueReference) {
             publish(R.string.notification_new_card_profile_title, R.string.notification_new_card_profile_message);
-            ComvivaSdk.getInstance(null).activateCard(tokenUniqueReference);
+            ComvivaSdk.getInstance().activateCard(tokenUniqueReference);
             startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
             return true;
         }

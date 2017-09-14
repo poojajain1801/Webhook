@@ -60,7 +60,7 @@ class DigitizationMdes {
 
         // Encrypting AES key with Mastercard public key
         RSAPublicKey masterPubKey = CertificateUtil.getRsaPublicKey("mastercard_public.cer",
-                ComvivaSdk.getInstance(null).getApplicationContext());
+                ComvivaSdk.getInstance().getApplicationContext());
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, masterPubKey);
         byte[] encryptedKey = cipher.doFinal(oneTimeAesKey);
@@ -145,7 +145,7 @@ class DigitizationMdes {
     void checkCardEligibilityMdes(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonCardEligibilityReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             JSONObject cardInfoData = prepareCardInfo(cardEligibilityRequest);
 
             jsonCardEligibilityReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
@@ -339,7 +339,7 @@ class DigitizationMdes {
      * @param digitizationListener UI Listener
      */
     void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final JSONObject jsonContinueDigitizationReq = new JSONObject();
         try {
             JSONObject jsEligibilityReceipt = new JSONObject();
@@ -438,7 +438,7 @@ class DigitizationMdes {
         final JSONObject requestSessionReq = new JSONObject();
         try {
             byte[] baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             requestSessionReq.put("paymentAppProviderId", /*comvivaSdk.getPaymentAppProviderId()*/"ComvivaWallet");
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
@@ -481,7 +481,7 @@ class DigitizationMdes {
                                final CardLcmListener cardLcmListener) {
         final JSONObject jsCardLcmReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             jsCardLcmReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
 
             JSONArray jsArrCards = new JSONArray();
@@ -578,7 +578,7 @@ class DigitizationMdes {
                                       final RequestActivationCodeListener activationCodeListener) {
         final JSONObject jsReqActCodeReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             jsReqActCodeReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsReqActCodeReq.put("tokenUniqueReference", tokenUniqueReference);
 
@@ -636,7 +636,7 @@ class DigitizationMdes {
                          final ActivateListener activateListener) {
         final JSONObject jsActivateReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
             jsActivateReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsActivateReq.put("tokenUniqueReference", tokenUniqueReference);
             switch (type) {

@@ -44,7 +44,7 @@ public class TransactionHistory {
      * @param tdsRegistrationListener UI Listener
      */
     public static void registerWithTdsInitiate(final String tokenUniqueReference, final TdsRegistrationListener tdsRegistrationListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
         final String displayableCardNo = McbpCardApi.getDisplayablePanDigits(tokenUniqueReference);
 
@@ -114,7 +114,7 @@ public class TransactionHistory {
      * @param tdsNotificationData
      */
     public static void registerWithTdsFinish(final TdsNotificationData tdsNotificationData) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
         if (!comvivaSdk.getPaymentAppInstanceId().equalsIgnoreCase(tdsNotificationData.getPaymentAppInstanceId())) {
             // PaymentAppInstanceId is not matching
@@ -177,7 +177,7 @@ public class TransactionHistory {
      * @param transactionDetailsListener UI Listener
      */
     public static void getTransactionDetails(final String tokenUniqueReference, final TransactionDetailsListener transactionDetailsListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
 
         final JSONObject jsGetTxnDetails = new JSONObject();
         try {
@@ -276,7 +276,7 @@ public class TransactionHistory {
      * @param unregisterTdsListener UI Listener
      */
     public static void unregisterWithTds(final String tokenUniqueReference, final UnregisterTdsListener unregisterTdsListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
 
         final JSONObject jsUnregisterTds = new JSONObject();
         try {

@@ -31,7 +31,7 @@ public class ComvivaHceService {
     }
 
     private byte[] processMdes(byte[] commandApdu) {
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         McbpCard currentCard = (McbpCard) comvivaSdk.getSelectedCard();
         return currentCard.processApdu(commandApdu);
     }
@@ -86,7 +86,7 @@ public class ComvivaHceService {
      * @return Response APDU
      */
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         paymentCard = comvivaSdk.getSelectedCard();
         switch (paymentCard.getCardType()) {
             case MDES:

@@ -392,7 +392,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        comvivaHce = ComvivaSdk.getInstance(null);
+        comvivaHce = ComvivaSdk.getInstance();
 
         cards = (ViewFlipper) findViewById(R.id.viewFlipperCards);
         txtViewTokenCount = (TextView) findViewById(R.id.txtViewTokenCount);

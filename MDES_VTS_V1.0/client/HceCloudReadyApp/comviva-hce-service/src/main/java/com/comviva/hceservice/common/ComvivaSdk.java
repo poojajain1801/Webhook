@@ -58,12 +58,38 @@ public class ComvivaSdk {
         // TODO Report to Server
     }
 
+    private static void checkSecurity() throws SdkException {
+        // Check for Debug Mode
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+        if(securityInf.isDebuggable()) {
+            // Close the application
+            comvivaSdk = null;
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+        }
+
+        // Check that device is Rooted
+        if(securityInf.isDeviceRooted()) {
+            // Delete all data from SDK and inform to server
+            reportFraud();
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+        }
+
+        // Check for Tamper detection
+        if(securityInf.isApkTampered()) {
+            // Delete all data from SDK and inform to server
+            reportFraud();
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+        }
+    }
+
     /**
-     * Returns Singleton Instance of this class.
+     * <p>Returns Singleton Instance of this class.</p>
+     * <p>Note-Invoke this method for at-least once while starting the application to initialize ComvivaSdk object</p>
      * @param context Current Context
      * @return Singleton ComvivaSdk Instance
+     * @throws SdkException If appliccation is in debug mode, device is rooted or apk is tampered
      */
-    public static ComvivaSdk getInstance(Application context) {
+    public static ComvivaSdk getInstance(Application context) throws SdkException {
         if(comvivaSdk == null) {
             PropertyReader propertyReader = PropertyReader.getInstance(context);
             UrlUtil.initialize(propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER),
@@ -73,27 +99,16 @@ public class ComvivaSdk {
             comvivaSdk = new ComvivaSdk(context);
         }
 
-        // Check for Debug Mode
-        SecurityInf securityInf = comvivaSdk.getSecurityInf();
-//        if(securityInf.isDebuggable()) {
-//            // Close the application
-//            comvivaSdk = null;
-//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
-//        }
+        // Check security
+        //checkSecurity();
+        return comvivaSdk;
+    }
 
-        // Check that device is Rooted
-//        if(securityInf.isDeviceRooted()) {
-//            // Delete all data from SDK and inform to server
-//            reportFraud();
-//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
-//        }
-
-        // Check for Tamper detection
-//        if(securityInf.isApkTampered()) {
-//            // Delete all data from SDK and inform to server
-//            reportFraud();
-//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
-//        }
+    /**
+     * Use this api to get ComvivaSDK's singleton instance after calling once the getInstance(Application context) method.
+     * @return Singleton ComvivaSdk Instance
+     */
+    public static ComvivaSdk getInstance() {
         return comvivaSdk;
     }
 

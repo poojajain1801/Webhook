@@ -270,7 +270,7 @@ public class Registration {
         }
         rnsInfo.setRnsType(RnsInfo.RNS_TYPE.FCM);
         comvivaSdkInitData.setRnsInfo(rnsInfo);
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         comvivaSdk.initializeSdk(comvivaSdkInitData);
     }
 

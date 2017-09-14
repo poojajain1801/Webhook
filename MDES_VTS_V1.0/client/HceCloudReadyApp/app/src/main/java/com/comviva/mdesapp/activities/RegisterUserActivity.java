@@ -35,7 +35,7 @@ public class RegisterUserActivity extends Activity {
         btnRegUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ComvivaSdk.getInstance(null).getInitializationData();
+                ComvivaSdk.getInstance().getInitializationData();
 
                 if (!UiUtil.checkPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE)) {
                     UiUtil.getPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE, 0);
