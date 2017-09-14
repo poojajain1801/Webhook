@@ -1,8 +1,8 @@
 package com.comviva.hceservice.digitizationApi;
 
 
-interface ConfirmProvisionListener {
-    void onCompleted();
+import com.comviva.hceservice.common.CommonListener;
 
-    void onError(String errorMessage);
+interface ConfirmProvisionListener extends CommonListener {
+    void onCompleted();
 }

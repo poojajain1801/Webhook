@@ -35,6 +35,7 @@ import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.CardState;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.digitizationApi.CardLcmListener;
 import com.comviva.hceservice.digitizationApi.CardLcmReasonCode;
@@ -108,7 +109,7 @@ public class HomeActivity extends AppCompatActivity {
         Digitization digitization = Digitization.getInstance();
         digitization.performCardLcm(cardLcmRequest, new CardLcmListener() {
             @Override
-            public void onCardLcmStarted() {
+            public void onStarted() {
                 progressDialog = new ProgressDialog(HomeActivity.this);
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMessage("Please wait...");
@@ -136,13 +137,13 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String message) {
+            public void onError(SdkError sdkError) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 new AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Error")
-                        .setMessage(message)
+                        .setMessage(sdkError.getMessage())
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // continue
@@ -157,7 +158,7 @@ public class HomeActivity extends AppCompatActivity {
     private void registerWithTds(final String tokenUniqueReference) {
         TransactionHistory.registerWithTdsInitiate(tokenUniqueReference, new TdsRegistrationListener() {
             @Override
-            public void onRegistrationStarted() {
+            public void onStarted() {
                 progressDialog = new ProgressDialog(HomeActivity.this);
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMessage("Please wait...");
@@ -167,13 +168,13 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String message) {
+            public void onError(SdkError sdkError) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 new AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Error")
-                        .setMessage(message)
+                        .setMessage(sdkError.getMessage())
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 refreshCardList();
@@ -215,13 +216,13 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String message) {
+            public void onError(SdkError sdkError) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 new AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Error")
-                        .setMessage(message)
+                        .setMessage(sdkError.getMessage())
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 refreshCardList();
@@ -256,13 +257,13 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String message) {
+            public void onError(SdkError sdkError) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 new AlertDialog.Builder(HomeActivity.this)
                         .setTitle("Error")
-                        .setMessage(message)
+                        .setMessage(sdkError.getMessage())
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 refreshCardList();

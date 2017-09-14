@@ -1,22 +1,12 @@
 package com.comviva.hceservice.digitizationApi;
 
+import com.comviva.hceservice.common.CommonListener;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 
 /**
  * UI Listener for digitization API.
  */
-public interface DigitizationListener {
-    /**
-     * Card Digitization is started.
-     */
-    void onDigitizationStarted();
-
-    /**
-     * Error occurred.
-     * @param message Error Message
-     */
-    void onError(String message);
-
+public interface DigitizationListener extends CommonListener{
     /**
      * Card digitization approved.
      */

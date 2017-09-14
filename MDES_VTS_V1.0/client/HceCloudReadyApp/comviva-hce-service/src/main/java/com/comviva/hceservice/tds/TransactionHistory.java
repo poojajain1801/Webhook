@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkErrorImpl;
+import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
@@ -25,11 +27,21 @@ import java.util.ArrayList;
  * This Class contains all transaction history related APIs.
  */
 public class TransactionHistory {
+    private ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
+        String transactionScope = jsTransactionHistory.getString("transactionScope");
+        JSONArray transactionDetailsArray = jsTransactionHistory.getJSONArray("transactionDetails");
+        ArrayList<String> encTransactionInfo = new ArrayList<>();
+        for (int i = 0; i < transactionDetailsArray.length(); i++) {
+            encTransactionInfo.add(transactionDetailsArray.getJSONObject(0).getString("encTransactionInfo"));
+        }
+        return encTransactionInfo;
+    }
+
     /**
-     * Initiate registration with Transaction Details Services.
+     * <p>Initiate registration with Transaction Details Services. This API is used for MasterCard.</p>
      *
-     * @param tokenUniqueReference      The Token for which to register for transaction details
-     * @param tdsRegistrationListener   UI Listener
+     * @param tokenUniqueReference    The Token for which to register for transaction details
+     * @param tdsRegistrationListener UI Listener
      */
     public static void registerWithTdsInitiate(final String tokenUniqueReference, final TdsRegistrationListener tdsRegistrationListener) {
         final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
@@ -41,7 +53,7 @@ public class TransactionHistory {
             jsGetRegCode.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsGetRegCode.put("tokenUniqueReference", tokenUniqueReference);
         } catch (JSONException e) {
-            tdsRegistrationListener.onError("JSON Error");
+            tdsRegistrationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class GetRegCodeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -49,7 +61,7 @@ public class TransactionHistory {
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (tdsRegistrationListener != null) {
-                    tdsRegistrationListener.onRegistrationStarted();
+                    tdsRegistrationListener.onStarted();
                 }
             }
 
@@ -69,7 +81,7 @@ public class TransactionHistory {
 
                         // Error while registration
                         if (respObj.has("errorCode")) {
-                            tdsRegistrationListener.onError(respObj.getString("errorDescription"));
+                            tdsRegistrationListener.onError(SdkErrorImpl.getInstance(respObj.getInt("errorCode"), respObj.getString("errorDescription")));
                         } else {
                             // Save registration code for further completion of the TDS registration
                             String registrationCode1 = respObj.getString("registrationCode1");
@@ -81,16 +93,16 @@ public class TransactionHistory {
                             tdsRegistrationListener.onSuccess();
                         }
                     } else {
-                        tdsRegistrationListener.onError(httpResponse.getResponse());
+                        tdsRegistrationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     walletListener.onTdsRegistrationError(displayableCardNo, "JSONError");
-                    tdsRegistrationListener.onError("JSON Error");
+                    tdsRegistrationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 } catch (Exception e) {
                     e.printStackTrace();
                     walletListener.onTdsRegistrationError(displayableCardNo, "JSONError");
-                    tdsRegistrationListener.onError("JSON Error");
+                    tdsRegistrationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
@@ -158,10 +170,11 @@ public class TransactionHistory {
     }
 
     /**
-     * This API is used by the Mobile Payment App to get recent transactions for one or more Tokens.
+     * <p>This API is used by the Mobile Payment App to get recent transactions for one or more
+     * Tokens. This API is used for MasterCard.</p>
      *
-     * @param tokenUniqueReference          The Token for which to get transaction details.
-     * @param transactionDetailsListener    UI Listener
+     * @param tokenUniqueReference       The Token for which to get transaction details.
+     * @param transactionDetailsListener UI Listener
      */
     public static void getTransactionDetails(final String tokenUniqueReference, final TransactionDetailsListener transactionDetailsListener) {
         final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
@@ -171,7 +184,7 @@ public class TransactionHistory {
             jsGetTxnDetails.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsGetTxnDetails.put("tokenUniqueReference", tokenUniqueReference);
         } catch (JSONException e) {
-            transactionDetailsListener.onError("JSON Error");
+            transactionDetailsListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class GetTxnDetailsTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -199,7 +212,7 @@ public class TransactionHistory {
 
                         // Error while registration
                         if (respObj.has("errorCode")) {
-                            transactionDetailsListener.onError(respObj.getString("errorDescription"));
+                            transactionDetailsListener.onError(SdkErrorImpl.getInstance(respObj.getInt("errorCode"), respObj.getString("errorDescription")));
                         } else {
                             // If Authentication received is different from previous one, then update.
                             /*String authenticationCode = respObj.getString("authenticationCode");
@@ -245,7 +258,7 @@ public class TransactionHistory {
                         }
                     }
                 } catch (JSONException e) {
-                    transactionDetailsListener.onError("JSON Error");
+                    transactionDetailsListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }
@@ -254,7 +267,9 @@ public class TransactionHistory {
     }
 
     /**
-     * This API is used to unregister a specific Token from the Transaction Details Service, or to opt out of the Transaction Details Service altogether.
+     * <p>This API is used to unregister a specific Token from the Transaction Details Service, or
+     * to opt out of the Transaction Details Service altogether. This API is used for MasterCard.
+     * </p>
      *
      * @param tokenUniqueReference  The Token for which to unregister from transaction details.
      *                              If tokenUniqueReference is null, all Tokens for the Mobile Payment App instance will be unregistered.
@@ -270,7 +285,7 @@ public class TransactionHistory {
                 jsUnregisterTds.put("tokenUniqueReference", tokenUniqueReference);
             }
         } catch (JSONException e) {
-            unregisterTdsListener.onError("JSON Error");
+            unregisterTdsListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class UnregisterTdsTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -298,13 +313,13 @@ public class TransactionHistory {
 
                         // Error while registration
                         if (respObj.has("errorCode")) {
-                            unregisterTdsListener.onError(respObj.getString("errorDescription"));
+                            unregisterTdsListener.onError(SdkErrorImpl.getInstance(respObj.getInt("errorCode"), respObj.getString("errorDescription")));
                         } else {
                             unregisterTdsListener.onSuccess();
                         }
                     }
                 } catch (JSONException e) {
-                    unregisterTdsListener.onError("JSON Error");
+                    unregisterTdsListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }
@@ -314,12 +329,12 @@ public class TransactionHistory {
 
     /**
      * This API is used to get the transaction History .
-     * @param paymentCard  Payment Card whose transaction history needs to be fetched.
-     * @param count   Number of records to retrieve. Maximum is 10. If not specified, the maximum number of records will be returned, up to 10, inclusive.
-     * @param transactionHistoryListener   UI Listener
+     *
+     * @param paymentCard                Payment Card whose transaction history needs to be fetched.
+     * @param count                      Number of records to retrieve. Maximum is 10. If not specified, the maximum number of records will be returned, up to 10, inclusive.
+     * @param transactionHistoryListener UI Listener
      */
-    public  void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
-
+    public void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
         final JSONObject jsTransactionHistoryObject = new JSONObject();
         try {
             TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
@@ -328,14 +343,13 @@ public class TransactionHistory {
             //paymentCard.getCardUniqueId();
             jsTransactionHistoryObject.put("vProvisionedTokenID", vProvisionedTokenID);
             //jsTransactionHistoryObject.put("encryptionMetaData", encryptionMetaData);
-            if ( count <0 || count > 10 ) {
-                transactionHistoryListener.onError("Invalid Count Value");
-            }else
-            {
+            if (count < 0 || count > 10) {
+                transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
+            } else {
                 jsTransactionHistoryObject.put("Count", count);
             }
         } catch (JSONException e) {
-            transactionHistoryListener.onError("JSON Error");
+            transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class GetTransactionHistoryTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -358,10 +372,11 @@ public class TransactionHistory {
                         JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
                         ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
                         transactionHistoryListener.onSuccess(encryptedTransactionInfo);
-
+                    } else {
+                        transactionHistoryListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
-                    transactionHistoryListener.onError("JSON Error");
+                    transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }
@@ -369,15 +384,4 @@ public class TransactionHistory {
         getTransactionHistoryTask.execute();
     }
 
-    private ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
-        String transactionScope =  jsTransactionHistory.getString("transactionScope");
-        JSONArray transactionDetailsArray =  jsTransactionHistory.getJSONArray("transactionDetails");
-        ArrayList<String> encTransactionInfo = new ArrayList<>();
-        for(int i =0; i < transactionDetailsArray.length(); i ++)
-        {
-            encTransactionInfo.add(transactionDetailsArray.getJSONObject(0).getString("encTransactionInfo"));
-        }
-
-        return encTransactionInfo;
-    }
 }

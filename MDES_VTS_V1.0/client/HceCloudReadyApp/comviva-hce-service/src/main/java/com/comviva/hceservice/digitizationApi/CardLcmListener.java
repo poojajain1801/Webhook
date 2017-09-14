@@ -1,23 +1,14 @@
 package com.comviva.hceservice.digitizationApi;
 
+import com.comviva.hceservice.common.CommonListener;
+
 /**
  * UI Listener for Card Life Cycle Management Operations.
  */
-public interface CardLcmListener {
-    /**
-     * Card Life Cycle Management Operation started.
-     */
-    void onCardLcmStarted();
-
+public interface CardLcmListener extends CommonListener {
     /**
      * Card Life Cycle Management Operation successful.
-     * @param message
+     * @param message message
      */
     void onSuccess(String message);
-
-    /**
-     * Error Occurred.
-     * @param message Error Message
-     */
-    void onError(String message);
 }

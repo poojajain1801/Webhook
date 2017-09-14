@@ -1,20 +1,11 @@
 package com.comviva.hceservice.tds;
 
+import com.comviva.hceservice.common.CommonListener;
+
 /**
  * UI Listener for TDS registration.
  */
-public interface TdsRegistrationListener {
-    /**
-     * TDS registration started.
-     */
-    void onRegistrationStarted();
-
-    /**
-     * Error occurred.
-     * @param message Error Message
-     */
-    void onError(String message);
-
+public interface TdsRegistrationListener extends CommonListener {
     /**
      * Registration is successful
      */

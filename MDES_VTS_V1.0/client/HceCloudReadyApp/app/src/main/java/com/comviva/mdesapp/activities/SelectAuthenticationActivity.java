@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.digitizationApi.RequestActivationCodeListener;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
@@ -70,7 +71,7 @@ public class SelectAuthenticationActivity extends AppCompatActivity {
         Digitization digitization = Digitization.getInstance();
         digitization.requestActivationCode(tokenUniqueReference, authenticationMethod, new RequestActivationCodeListener() {
             @Override
-            public void onReqActivationCodeStarted() {
+            public void onStarted() {
                 progressDialog = new ProgressDialog(SelectAuthenticationActivity.this);
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMessage("Please wait...");
@@ -90,13 +91,13 @@ public class SelectAuthenticationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String message) {
+            public void onError(SdkError sdkError) {
                 if (progressDialog.isShowing()) {
                     progressDialog.dismiss();
                 }
                 new AlertDialog.Builder(SelectAuthenticationActivity.this)
                         .setTitle("Error")
-                        .setMessage(message)
+                        .setMessage(sdkError.getMessage())
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 // continue

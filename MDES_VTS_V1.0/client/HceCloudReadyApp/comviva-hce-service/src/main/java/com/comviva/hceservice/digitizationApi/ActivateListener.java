@@ -1,20 +1,11 @@
 package com.comviva.hceservice.digitizationApi;
 
+import com.comviva.hceservice.common.CommonListener;
+
 /**
  * UI Listener for Activate Token.
  */
-public interface ActivateListener {
-    /**
-     * Activation started.
-     */
-    void onActivationStarted();
-
-    /**
-     * Error occurred.
-     * @param message   Error Message
-     */
-    void onError(String message);
-
+public interface ActivateListener extends CommonListener {
     /** Activation was successful */
     void onSuccess();
 

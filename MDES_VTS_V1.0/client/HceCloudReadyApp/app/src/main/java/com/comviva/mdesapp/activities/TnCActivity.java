@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.Digitization;
@@ -52,7 +53,7 @@ public class TnCActivity extends AppCompatActivity {
 
                 digitization.digitize(digitizationRequest, new DigitizationListener() {
                     @Override
-                    public void onDigitizationStarted() {
+                    public void onStarted() {
                         progressDialog = new ProgressDialog(TnCActivity.this);
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                         progressDialog.setMessage("Please wait...");
@@ -62,13 +63,13 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String message) {
+                    public void onError(SdkError sdkError) {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
                         new AlertDialog.Builder(TnCActivity.this)
                                 .setTitle("Error")
-                                .setMessage(message)
+                                .setMessage(sdkError.getMessage())
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // continue

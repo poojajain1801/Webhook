@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.digitizationApi.ActivateListener;
 import com.comviva.hceservice.digitizationApi.ActivationCodeType;
 import com.comviva.hceservice.digitizationApi.Digitization;
@@ -66,7 +67,7 @@ public class ActivateActivity extends AppCompatActivity {
                         ActivationCodeType.AUTHENTICATION_CODE,
                         new ActivateListener() {
                             @Override
-                            public void onActivationStarted() {
+                            public void onStarted() {
                                 progressDialog = new ProgressDialog(ActivateActivity.this);
                                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                                 progressDialog.setMessage("Please wait...");
@@ -76,8 +77,8 @@ public class ActivateActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onError(String message) {
-                                showDialog(message);
+                            public void onError(SdkError sdkError) {
+                                showDialog(sdkError.getMessage());
                             }
 
                             @Override

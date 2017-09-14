@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.Tags;
@@ -134,7 +135,7 @@ class DigitizationVts {
             if (httpResponse.getStatusCode() == 200) {
                 listener.onCompleted();
             } else {
-                listener.onError(httpResponse.getResponse());
+                listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
             }
         }
     }
@@ -601,7 +602,7 @@ class DigitizationVts {
             provisionTokenRequestObject.put(Tags.PROTECTION_TYPE.getTag(), Constants.PROTECTION_TYPE);
             provisionTokenRequestObject.put(Tags.PRESENTATION_TYPE.getTag(), Constants.PRESENTATION_TYPE);
         } catch (JSONException e) {
-            digitizationListener.onError("SDK Error : JSONException");
+            digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -609,7 +610,7 @@ class DigitizationVts {
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (digitizationListener != null) {
-                    digitizationListener.onDigitizationStarted();
+                    digitizationListener.onStarted();
                 }
             }
 
@@ -636,13 +637,17 @@ class DigitizationVts {
                         ConfirmProvisionTask confirmProvisionTask = new ConfirmProvisionTask(provisionAckRequest, vProvisionedTokenID,
                                 new ConfirmProvisionListener() {
                                     @Override
+                                    public void onStarted() {
+                                    }
+
+                                    @Override
                                     public void onCompleted() {
                                         digitizationListener.onApproved();
                                     }
 
                                     @Override
-                                    public void onError(String errorMessage) {
-                                        digitizationListener.onError(errorMessage);
+                                    public void onError(SdkError sdkError) {
+                                        digitizationListener.onError(sdkError);
                                     }
                                 });
 
@@ -654,12 +659,12 @@ class DigitizationVts {
                         }
                     } else {
                         if (digitizationListener != null) {
-                            digitizationListener.onError(httpResponse.getResponse());
+                            digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                         }
                     }
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     if (digitizationListener != null) {
-                        digitizationListener.onError("Wrong data from server");
+                        digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
                 }
             }
@@ -680,7 +685,7 @@ class DigitizationVts {
             // replenishODADataObject.put(Tags.USER_ID.getTag(), );
             replenishODADataObject.put(Tags.ACTIVATION_CODE.getTag(), "Dummy");
         } catch (JSONException e) {
-            digitizationListener.onError("SDK Error : JSONException");
+            digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class ReplenishODADataTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -702,12 +707,12 @@ class DigitizationVts {
                         }
                     } else {
                         if (digitizationListener != null) {
-                            digitizationListener.onError(httpResponse.getResponse());
+                            digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
                         }
                     }
-                } catch (Exception e) {
+                } catch (JSONException e) {
                     if (digitizationListener != null) {
-                        digitizationListener.onError("Wrong data from server");
+                        digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
                 }
             }
@@ -795,7 +800,7 @@ class DigitizationVts {
             jsCardLcmReq.put("reasonCode", reasonCode.name());
             jsCardLcmReq.put("operation", cardLcmOperation.name());
         } catch (JSONException e) {
-            cardLcmListener.onError("SDK Exception:JSON Error");
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -803,7 +808,7 @@ class DigitizationVts {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                cardLcmListener.onCardLcmStarted();
+                cardLcmListener.onStarted();
             }
 
             @Override
@@ -820,7 +825,7 @@ class DigitizationVts {
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
                         if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
-                            cardLcmListener.onError(jsResponse.getString("message"));
+                            cardLcmListener.onError(SdkErrorImpl.getInstance(jsResponse.getInt("reasonCode"), jsResponse.getString("message")));
                             return;
                         }
 
@@ -840,10 +845,10 @@ class DigitizationVts {
                             }
                         }
                     } catch (JSONException e) {
-                        cardLcmListener.onError("Wrong data from server");
+                        cardLcmListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
                 } else {
-                    cardLcmListener.onError(httpResponse.getResponse());
+                    cardLcmListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                 }
             }
         }

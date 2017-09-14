@@ -49,6 +49,16 @@ public class ComvivaSdk {
     }
 
     /**
+     * If device is rooted or tampered we need to clear all data and report to server.
+     */
+    private static void reportFraud() {
+        comvivaSdk = null;
+        comvivaSdk.resetDevice();
+
+        // TODO Report to Server
+    }
+
+    /**
      * Returns Singleton Instance of this class.
      * @param context Current Context
      * @return Singleton ComvivaSdk Instance
@@ -62,6 +72,28 @@ public class ComvivaSdk {
                     propertyReader.getProperty(PropertyConst.KEY_PORT_CMS_D));
             comvivaSdk = new ComvivaSdk(context);
         }
+
+        // Check for Debug Mode
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+//        if(securityInf.isDebuggable()) {
+//            // Close the application
+//            comvivaSdk = null;
+//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
+//        }
+
+        // Check that device is Rooted
+//        if(securityInf.isDeviceRooted()) {
+//            // Delete all data from SDK and inform to server
+//            reportFraud();
+//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
+//        }
+
+        // Check for Tamper detection
+//        if(securityInf.isApkTampered()) {
+//            // Delete all data from SDK and inform to server
+//            reportFraud();
+//            //throw new SdkException(SdkErrorStandardImpl.SW_COMMON_DEBUG_MODE);
+//        }
         return comvivaSdk;
     }
 

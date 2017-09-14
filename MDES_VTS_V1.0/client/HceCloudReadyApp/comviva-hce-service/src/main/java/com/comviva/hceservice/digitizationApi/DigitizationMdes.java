@@ -74,11 +74,11 @@ class DigitizationMdes {
         return cardInfo;
     }
 
-    class GetTnCAssetTask extends AsyncTask<Void, Void, HttpResponse> {
+    private class GetTnCAssetTask extends AsyncTask<Void, Void, HttpResponse> {
         private Map<String, String> queryMap;
         private GetAssetListener listener;
 
-        public GetTnCAssetTask(String assetId, GetAssetListener listener) {
+        GetTnCAssetTask(String assetId, GetAssetListener listener) {
             queryMap = new HashMap<>();
             queryMap.put("assetId", assetId);
             this.listener = listener;
@@ -132,7 +132,7 @@ class DigitizationMdes {
         }
     }
 
-    public CardEligibilityResponse getCardEligibilityResponse() {
+    CardEligibilityResponse getCardEligibilityResponse() {
         return cardEligibilityResponse;
     }
 
@@ -142,7 +142,7 @@ class DigitizationMdes {
      * @param cardEligibilityRequest   Eligibility request
      * @param checkEligibilityListener Eligibility Response
      */
-    public void checkCardEligibilityMdes(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
+    void checkCardEligibilityMdes(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonCardEligibilityReq = new JSONObject();
         try {
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
@@ -195,7 +195,9 @@ class DigitizationMdes {
 
                         // Card is not eligible
                         if (!respObj.has("eligibilityReceipt")) {
-                            checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_CARD_NOT_ELIGIBLE);
+                            if (checkEligibilityListener != null) {
+                                checkEligibilityListener.onError(SdkErrorStandardImpl.COMMON_CARD_NOT_ELIGIBLE);
+                            }
                         } else {
                             // Card is eligible
                             JSONObject jsEligibilityReceipt = respObj.getJSONObject("eligibilityReceipt");
@@ -219,12 +221,16 @@ class DigitizationMdes {
 
                                     @Override
                                     public void onCompleted(ContentGuid contentGuid) {
-                                        checkEligibilityListener.onTermsAndConditionsRequired(contentGuid);
+                                        if (checkEligibilityListener != null) {
+                                            checkEligibilityListener.onTermsAndConditionsRequired(contentGuid);
+                                        }
                                     }
 
                                     @Override
                                     public void onError(String message) {
-                                        checkEligibilityListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR.getErrorCode(), message));
+                                        if (checkEligibilityListener != null) {
+                                            checkEligibilityListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR.getErrorCode(), message));
+                                        }
                                     }
                                 };
 
@@ -234,13 +240,19 @@ class DigitizationMdes {
                                 getTnCAssetTask.execute();
                                 return;
                             }
-                            checkEligibilityListener.onCheckEligibilityCompleted();
+                            if(checkEligibilityListener != null) {
+                                checkEligibilityListener.onCheckEligibilityCompleted();
+                            }
                         }
                     } else {
-                        checkEligibilityListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
+                        if(checkEligibilityListener != null) {
+                            checkEligibilityListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
+                        }
                     }
                 } catch (JSONException e) {
-                    checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+                    if(checkEligibilityListener != null) {
+                        checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+                    }
                 }
             }
         }
@@ -315,6 +327,7 @@ class DigitizationMdes {
         try {
             getAssetTask.execute().get();
         } catch (InterruptedException | ExecutionException e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
         return getAssetResponse;
     }
@@ -325,7 +338,7 @@ class DigitizationMdes {
      * @param digitizationRequest  Digitization Request
      * @param digitizationListener UI Listener
      */
-    public void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
+    void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
         final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
         final JSONObject jsonContinueDigitizationReq = new JSONObject();
         try {
@@ -341,7 +354,7 @@ class DigitizationMdes {
             jsonContinueDigitizationReq.put("termsAndConditionsAssetId", cardEligibilityResponse.getTermsAndConditionsAssetId());
             jsonContinueDigitizationReq.put("termsAndConditionsAcceptedTimestamp", digitizationRequest.getTermsAndConditionsAcceptedTimestamp());
         } catch (JSONException e) {
-            digitizationListener.onError("SDK Error : JSONException");
+            digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class DigitizeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -349,7 +362,7 @@ class DigitizationMdes {
             protected void onPreExecute() {
                 super.onPreExecute();
                 if (digitizationListener != null) {
-                    digitizationListener.onDigitizationStarted();
+                    digitizationListener.onStarted();
                 }
             }
 
@@ -391,7 +404,6 @@ class DigitizationMdes {
 
                         if (decision.equalsIgnoreCase("APPROVED")) {
                             digitizationListener.onApproved();
-                            return;
                         } else if (decision.equalsIgnoreCase("REQUIRE_ADDITIONAL_AUTHENTICATION")) {
                             JSONArray arrAuthenticationMethods = respObj.getJSONArray("authenticationMethods");
                             int noOfAuthMethods = arrAuthenticationMethods.length();
@@ -407,10 +419,10 @@ class DigitizationMdes {
                             digitizationListener.onRequireAdditionalAuthentication(tokenUniqueReference, authenticationMethods);
                         }
                     } else {
-                        digitizationListener.onError(httpResponse.getResponse());
+                        digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
-                    digitizationListener.onError("Wrong data from server");
+                    digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }
@@ -431,6 +443,7 @@ class DigitizationMdes {
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
         } catch (JSONException e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
 
         class RequestSessionTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -462,7 +475,7 @@ class DigitizationMdes {
     /**
      * This API is used to Suspend, UnSuspend and Delete Token
      */
-    public void performCardLcm(ArrayList<PaymentCard> cardList,
+    void performCardLcm(ArrayList<PaymentCard> cardList,
                                final CardLcmOperation cardLcmOperation,
                                final CardLcmReasonCode reasonCode,
                                final CardLcmListener cardLcmListener) {
@@ -482,7 +495,7 @@ class DigitizationMdes {
             jsCardLcmReq.put("reason", "Not Specified");
             jsCardLcmReq.put("operation", (cardLcmOperation == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmOperation.name());
         } catch (JSONException e) {
-            cardLcmListener.onError("SDK Exception:JSON Error");
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -490,7 +503,7 @@ class DigitizationMdes {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                cardLcmListener.onCardLcmStarted();
+                cardLcmListener.onStarted();
             }
 
             @Override
@@ -507,7 +520,7 @@ class DigitizationMdes {
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
                         if (jsResponse.has("reasonCode") && !jsResponse.getString("reasonCode").equalsIgnoreCase("200")) {
-                            cardLcmListener.onError(jsResponse.getString("message"));
+                            cardLcmListener.onError(SdkErrorImpl.getInstance(jsResponse.getInt("reasonCode"), jsResponse.getString("message")));
                             return;
                         }
 
@@ -539,11 +552,13 @@ class DigitizationMdes {
                                     break;
                             }
                         }
-                    } catch (JSONException | AlreadyInProcessException e) {
-                        cardLcmListener.onError("Wrong data from server");
+                    } catch (JSONException e) {
+                        cardLcmListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    } catch (AlreadyInProcessException e) {
+                        cardLcmListener.onError(SdkErrorStandardImpl.SDK_TASK_ALREADY_IN_PROGRESS);
                     }
                 } else {
-                    cardLcmListener.onError(httpResponse.getResponse());
+                    cardLcmListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                 }
             }
         }
@@ -573,13 +588,14 @@ class DigitizationMdes {
             jsAuthenticationMethod.put("value", authenticationMethod.getValue());
             jsReqActCodeReq.put("authenticationMethod", jsAuthenticationMethod);
         } catch (JSONException e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
 
         class ReqActivationCodeTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                activationCodeListener.onReqActivationCodeStarted();
+                activationCodeListener.onStarted();
             }
 
             @Override
@@ -596,9 +612,11 @@ class DigitizationMdes {
                     if (httpResponse.getStatusCode() == 200) {
                         activationCodeListener.onSuccess(httpResponse.getResponse());
                     } else {
-                        activationCodeListener.onError(httpResponse.getResponse());
+                        activationCodeListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (Exception e) {
+                    Log.d("ComvivaSdkError", e.getMessage());
+                    activationCodeListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
@@ -631,13 +649,14 @@ class DigitizationMdes {
                     break;
             }
         } catch (JSONException e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
 
         class ActivateTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                activateListener.onActivationStarted();
+                activateListener.onStarted();
             }
 
             @Override
@@ -679,9 +698,10 @@ class DigitizationMdes {
                                 break;
                         }
                     } else {
-                        activateListener.onError(httpResponse.getResponse());
+                        activateListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
                     }
                 } catch (Exception e) {
+                    Log.d("ComvivaSdkError", e.getMessage());
                 }
             }
         }

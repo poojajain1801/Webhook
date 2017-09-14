@@ -1,7 +1,7 @@
 package com.comviva.hceservice.common;
 
 /**
- * Exception Object thrown while invoking payment related APIs.
+ * Generic Exception Object thrown if any error found while invoking SDK APIs.
  */
 public class SdkException extends Exception {
     private int errorCode;

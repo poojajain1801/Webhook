@@ -2,24 +2,33 @@ package com.comviva.hceservice.common;
 
 public enum SdkErrorStandardImpl implements SdkError {
     // SDK Errors
-    SDK_INTERNAL_ERROR(100, "Internal error"),
-    SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE(101, "Transaction credential not available"),
-    SDK_JSON_EXCEPTION(102, "JSON Exception"),
-    SDK_RNS_REG_EXCEPTION(103, "JSON Exception"),
-    SDK_INVALID_USER(104, "Invalid User"),
-    SDK_INVALID_CARD_NUMBER(105, "Invalid Card Number"),
-    SDK_UNSUPPORTED_SCHEME(106, "Unsupported Scheme"),
-    SDK_IO_ERROR(107, "IO Error"),
-    SDK_CARD_NOT_ELIGIBLE(108, "Card is not eligible"),
+    SDK_INTERNAL_ERROR(SW_COMMON_CRYPTO_ERROR, "Internal error"),
+    SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE(SW_SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE,
+            "Transaction credential not available"),
+    SDK_JSON_EXCEPTION(SW_SDK_JSON_EXCEPTION, "JSON Exception"),
+    SDK_RNS_REG_EXCEPTION(SW_SDK_RNS_REG_EXCEPTION, "JSON Exception"),
+    SDK_INVALID_USER(SW_SDK_INVALID_USER, "Invalid User"),
+    SDK_INVALID_CARD_NUMBER(SW_SDK_INVALID_CARD_NUMBER, "Invalid Card Number"),
+    SDK_UNSUPPORTED_SCHEME(SW_SDK_UNSUPPORTED_SCHEME, "Unsupported Scheme"),
+    SDK_IO_ERROR(SW_SDK_IO_ERROR, "IO Error"),
+    SDK_CARD_ELIGIBILITY_NOT_PERFORMED(SW_SDK_CARD_ELIGIBILITY_NOT_PERFORMED, "Please invoke card eligibility first"),
+    SDK_MORE_TYPE_OF_CARD_IN_LCM(SW_SDK_MORE_TYPE_OF_CARD_IN_LCM, "Only one type of card is allowed in LCM operation at a time"),
+    SDK_ONLY_ONE_VISA_CARD_IN_LCM(SW_SDK_ONLY_ONE_VISA_CARD_IN_LCM, "Only one Visa card is allowed in LCM operation at a time"),
+    SDK_TASK_ALREADY_IN_PROGRESS(SW_SDK_TASK_ALREADY_IN_PROGRESS, "Task is already in progress"),
+    SDK_INVALID_NO_OF_TXN_RECORDS(SW_SDK_INVALID_NO_OF_TXN_RECORDS, "Invalid number of records provided to fetch for transaction history"),
 
     // Server Errors
-    SERVER_INTERNAL_ERROR(300, "Internal error"),
-    SERVER_JSON_EXCEPTION(301, "JSON Exception"),
-    SERVER_INVALID_VALUE(302, "Invalid Value from server"),
-    SERVER_NOT_RESPONDING(303, "Server is not responding"),
+    SERVER_INTERNAL_ERROR(SW_SERVER_INTERNAL_ERROR, "Internal error"),
+    SERVER_JSON_EXCEPTION(SW_SERVER_JSON_EXCEPTION, "JSON Exception"),
+    SERVER_INVALID_VALUE(SW_SERVER_INVALID_VALUE, "Invalid Value from server"),
+    SERVER_NOT_RESPONDING(SW_SERVER_NOT_RESPONDING, "Server is not responding"),
 
     // Common Errors
-    COMMON_CRYPTO_ERROR(400, "Crypto Exception");
+    COMMON_CRYPTO_ERROR(SW_COMMON_CRYPTO_ERROR, "Crypto Exception"),
+    COMMON_DEVICE_ROOTED(SW_COMMON_DEVICE_ROOTED, "Device is rooted"),
+    COMMON_APK_TAMPERED(SW_COMMON_DEVICE_ROOTED, "SDK is tampered"),
+    COMMON_CARD_NOT_ELIGIBLE(SW_COMMON_CARD_NOT_ELIGIBLE, "Card is not eligible"),
+    COMMON_DEBUG_MODE(SW_COMMON_DEBUG_MODE, "Debug is not allowed");
 
     private int errorCode;
     private String errorMessage;

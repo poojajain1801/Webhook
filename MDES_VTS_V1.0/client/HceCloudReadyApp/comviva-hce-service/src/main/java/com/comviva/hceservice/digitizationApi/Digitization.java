@@ -6,6 +6,8 @@ import android.util.Log;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
@@ -22,7 +24,6 @@ import com.mastercard.mcbp.remotemanagement.mdes.RemoteManagementHandler;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenKey;
-import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
 import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
 
 import org.json.JSONArray;
@@ -39,7 +40,6 @@ import java.util.concurrent.ExecutionException;
  */
 public class Digitization {
     private static Digitization instance;
-    private VisaPaymentSDK visaPaymentSDK;
     private DigitizationMdes digitizationMdes;
     private DigitizationVts digitizationVts;
 
@@ -162,6 +162,7 @@ public class Digitization {
         try {
             getAssetTask.execute().get();
         } catch (InterruptedException | ExecutionException e) {
+            Log.d("ComvivaSdkException", e.getMessage());
         }
         return getAssetResponse;
     }
@@ -176,14 +177,14 @@ public class Digitization {
         try {
             // Check Card Eligibility is not invoked earlier
             if (digitizationMdes == null && digitizationVts == null) {
-                digitizationListener.onError("Please check card eligibility first");
+                digitizationListener.onError(SdkErrorStandardImpl.SDK_CARD_ELIGIBILITY_NOT_PERFORMED);
                 return;
             }
 
             switch (digitizationRequest.getCardType()) {
                 case MDES:
                     if (digitizationMdes != null && digitizationMdes.getCardEligibilityResponse() == null) {
-                        digitizationListener.onError("Please check card eligibility first");
+                        digitizationListener.onError(SdkErrorStandardImpl.SDK_CARD_ELIGIBILITY_NOT_PERFORMED);
                         return;
                     }
                     digitizationMdes.digitize(digitizationRequest, digitizationListener);
@@ -191,14 +192,14 @@ public class Digitization {
 
                 case VTS:
                     if (digitizationVts != null && digitizationVts.getEnrollPanResponse() == null) {
-                        digitizationListener.onError("Please check card eligibility first");
+                        digitizationListener.onError(SdkErrorStandardImpl.SDK_CARD_ELIGIBILITY_NOT_PERFORMED);
                         return;
                     }
                     digitizationVts.provisionToken(digitizationRequest, digitizationListener);
                     break;
 
                 case UNKNOWN:
-                    digitizationListener.onError("Unsupported Card Type");
+                    digitizationListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
             }
         } finally {
             resetDigitization();
@@ -217,6 +218,7 @@ public class Digitization {
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
         } catch (JSONException e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
 
         class RequestSessionTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -269,7 +271,7 @@ public class Digitization {
                     vtsCardList.add(card);
 
                 default:
-                    cardLcmListener.onError("Card type is not supported");
+                    cardLcmListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
                     return;
             }
         }
@@ -279,13 +281,13 @@ public class Digitization {
 
         // In one method call, only one type of cards is supported.
         if (noOfVtsCards > 0 && noOfMdesCards > 0) {
-            cardLcmListener.onError("At a time either only Master Card or Visa");
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_MORE_TYPE_OF_CARD_IN_LCM);
             return;
         }
 
         // If CardList contains only Visa card then only one card is allowed.
         if (noOfVtsCards != 0 && noOfMdesCards > 1) {
-            cardLcmListener.onError("One visa card at a time can be deleted");
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_ONLY_ONE_VISA_CARD_IN_LCM);
             return;
         }
 
@@ -326,13 +328,14 @@ public class Digitization {
             jsAuthenticationMethod.put("value", authenticationMethod.getValue());
             jsReqActCodeReq.put("authenticationMethod", jsAuthenticationMethod);
         } catch (JSONException e) {
+            activationCodeListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
 
         class ReqActivationCodeTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                activationCodeListener.onReqActivationCodeStarted();
+                activationCodeListener.onStarted();
             }
 
             @Override
@@ -349,9 +352,10 @@ public class Digitization {
                     if (httpResponse.getStatusCode() == 200) {
                         activationCodeListener.onSuccess(httpResponse.getResponse());
                     } else {
-                        activationCodeListener.onError(httpResponse.getResponse());
+                        activationCodeListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (Exception e) {
+                    activationCodeListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
@@ -384,13 +388,15 @@ public class Digitization {
                     break;
             }
         } catch (JSONException e) {
+            activateListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
         }
 
         class ActivateTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                activateListener.onActivationStarted();
+                activateListener.onStarted();
             }
 
             @Override
@@ -432,9 +438,10 @@ public class Digitization {
                                 break;
                         }
                     } else {
-                        activateListener.onError(httpResponse.getResponse());
+                        activateListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
-                } catch (Exception e) {
+                } catch (JSONException e) {
+                    activateListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }
@@ -488,18 +495,18 @@ public class Digitization {
         try {
             if (tokenKey != null) {
                 long expirationTime, currentTimeStamp;
-                visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                 currentTimeStamp = System.currentTimeMillis() / 1000;
                 expirationTime = visaPaymentSDK.getODAExpirationTime(tokenKey);
 
                 if (currentTimeStamp > expirationTime) {
                     digitizationVts.replenishODADataRequest(tokenKey, new DigitizationListener() {
                         @Override
-                        public void onDigitizationStarted() {
+                        public void onStarted() {
                         }
 
                         @Override
-                        public void onError(String message) {
+                        public void onError(SdkError sdkError) {
                         }
 
                         @Override
@@ -516,8 +523,6 @@ public class Digitization {
                     });
                 }
             }
-        } catch (TokenInvalidException e) {
-            e.printStackTrace();
         } catch (VisaPaymentSDKException e) {
             e.printStackTrace();
         }
