@@ -2,6 +2,8 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * RegisterUserRequest.
@@ -11,6 +13,8 @@ import lombok.Setter;
 @Setter
 public class RegisterUserRequest {
 
+    @NotEmpty
+    @Length(max = 8, min = 2)
     private String userId;
     private String clientDeviceID;
     private String imei;

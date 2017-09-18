@@ -29,7 +29,7 @@ public class ValidateUser {
             result.put("message", "Invalid User please register");
             result.put("responseCode", "205");
             return result;
-        }else if("userActivated".equals(userDetails.get(0).getUserstatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+        }else if("userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
             List<UserDetail> userDevice = userDetailRepository.findByClientDeviceId(clientDeviceID);
             if(null !=userDevice && !userDevice.isEmpty()) {
                 for (int i = 0; i <userDetails.size(); i++){

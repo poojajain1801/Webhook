@@ -16,7 +16,7 @@ public class EncPaymentInstrument {
     private String  name;
     private ExpirationDate expirationDate;
     private BillingAddress billingAddress;
-
+    private InstrumentProvider provider;
 
     public EncPaymentInstrument(String accountNumber, String cvv2, String name, ExpirationDate expirationDate, BillingAddress billingAddress, String locale, String panSource) {
         this.accountNumber=accountNumber;
@@ -24,7 +24,7 @@ public class EncPaymentInstrument {
         this.name=name;
         this.expirationDate = expirationDate;
         this.billingAddress = billingAddress;
-
+        this.provider = provider;
     }
 
     public EncPaymentInstrument() {

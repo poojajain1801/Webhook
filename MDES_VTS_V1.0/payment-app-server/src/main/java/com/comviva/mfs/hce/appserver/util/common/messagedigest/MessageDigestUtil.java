@@ -72,4 +72,11 @@ public class MessageDigestUtil {
         byte hashData[] = md.digest();
         return ArrayUtil.getHexString(hashData);
     }
+    public static String getEmailHashAlgorithmValue(String email) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String currentHash = email.toLowerCase(); // Use a consistent case
+        for (int i=0; i<1000; ++i) {
+            currentHash = sha256Hasing(currentHash);
+        }
+        return sha256Hasing(sha256Hasing(email) + currentHash);
+    }
 }

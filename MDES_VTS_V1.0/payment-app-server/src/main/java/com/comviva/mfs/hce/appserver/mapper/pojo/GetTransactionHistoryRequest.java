@@ -11,13 +11,10 @@ import lombok.Setter;
 @Setter
 public class GetTransactionHistoryRequest {
 
-    private String userId;
-    private String activationCode;
+    private String vprovisionedTokenID;
 
-    public GetTransactionHistoryRequest(String userId, String activationCode) {
-
-        this.userId=userId;
-        this.activationCode=activationCode;
+    public GetTransactionHistoryRequest(String vprovisionedTokenID) {
+        this.vprovisionedTokenID = vprovisionedTokenID;
     }
 
     public GetTransactionHistoryRequest() {

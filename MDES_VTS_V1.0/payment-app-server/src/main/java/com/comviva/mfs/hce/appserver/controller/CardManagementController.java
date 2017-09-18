@@ -2,6 +2,8 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/card")
 public class CardManagementController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CardManagementController.class);
+
 
     @Autowired
     private CardDetailService cardDetailService;
@@ -47,17 +51,29 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/enrollPan", method = RequestMethod.POST)
     public Map<String, Object> enrollPan(@RequestBody EnrollPanRequest enrollPanRequest){
-        return cardDetailService.enrollPan(enrollPanRequest);
+        LOGGER.debug("Enter CardManagementController->enrollPan");
+        Map <String,Object> enrollPanResponse= null;
+        enrollPanResponse = cardDetailService.enrollPan(enrollPanRequest);
+        LOGGER.debug("Exit CardManagementController->enrollPan");
+        return enrollPanResponse;
     }
     @ResponseBody
     @RequestMapping(value = "/getCardMetadata",method = RequestMethod.POST)
     public Map<String,Object> getCardMetadata(@RequestBody GetCardMetadataRequest getCardMetadataRequest){
-        return cardDetailService.getCardMetadata(getCardMetadataRequest);
+        LOGGER.debug("Enter CardManagementController->getCardMetadata");
+        Map <String,Object> getCardMetadataResp= null;
+        getCardMetadataResp = cardDetailService.getCardMetadata(getCardMetadataRequest);
+        LOGGER.debug("Exit CardManagementController->getCardMetadata");
+        return  getCardMetadataResp;
     }
     @ResponseBody
     @RequestMapping(value = "/getContent",method = RequestMethod.POST)
     public Map<String,Object>getContent(@RequestBody GetContentRequest getContentRequest){
-      return cardDetailService.getContent(getContentRequest);
+        LOGGER.debug("Enter CardManagementController->getCardMetadata");
+        Map<String,Object> getContentResp = null;
+        getContentResp = cardDetailService.getContent(getContentRequest);
+        LOGGER.debug("Enter CardManagementController->getCardMetadata");
+      return getContentResp;
     }
     @ResponseBody
     @RequestMapping(value = "/getPANData",method = RequestMethod.POST)
@@ -67,7 +83,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/delete",method = RequestMethod.POST)
     public Map<String,Object>delete(@RequestBody LifeCycleManagementReq lifeCycleManagementReq){
-        return cardDetailService.deleteCard(lifeCycleManagementReq);
+        return cardDetailService.performCardLifeCycleManagement(lifeCycleManagementReq);
     }
     //Transction History APIS
     @ResponseBody
@@ -77,8 +93,8 @@ public class CardManagementController {
     }
     @ResponseBody
     @RequestMapping(value = "/getRegistrationCode", method = RequestMethod.POST)
-    public Map getRegistrationCode(@RequestBody GetregCodeReq getregCodeReq) {
-        return cardDetailService.getRegistrationCode(getregCodeReq);
+    public Map getRegistrationCode(@RequestBody GetRegCodeReq getRegCodeReq) {
+        return cardDetailService.getRegistrationCode(getRegCodeReq);
     }
     @ResponseBody
     @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
@@ -88,8 +104,9 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
     public Map registerWithTDS(@RequestBody GetTransactionHistoryReq getTransactionHistoryReq) {
-        return cardDetailService.getTransctionHistory(getTransactionHistoryReq);
+        return cardDetailService.getTransactionHistory(getTransactionHistoryReq);
     }
+
     @ResponseBody
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
     public Map getToekns(@RequestBody GetTokensRequest getTokensRequest) {
@@ -99,6 +116,17 @@ public class CardManagementController {
     @RequestMapping(value = "/searchTokens", method = RequestMethod.POST)
     public Map searchTokens(@RequestBody SearchTokensReq getTokensRequest) {
         return cardDetailService.searchTokens(getTokensRequest);
+    }
+	    @ResponseBody
+    @RequestMapping(value = "/requestActivationCode", method = RequestMethod.POST)
+    public Map requestActivationCode(@RequestBody ActivationCodeReq activationCodeReq) {
+        return cardDetailService.requestActivationCode(activationCodeReq);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
+    public Map unregisterFromTds(@RequestBody Map unregisterTdsReq) {
+        return cardDetailService.unregisterTds(unregisterTdsReq);
     }
 
 

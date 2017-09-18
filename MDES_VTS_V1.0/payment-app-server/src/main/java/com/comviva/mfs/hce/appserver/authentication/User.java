@@ -94,7 +94,7 @@ public class User implements UserDetails {
 
     public Map toMap() {
         Map map = new HashMap<>();
-        map.put("id", id);
+        map.put("registrationId", id);
         map.put("username", username);
         map.put("name", displayName);
         map.put("mobileNumber", mobileNumber);
@@ -107,7 +107,7 @@ public class User implements UserDetails {
     }
 
     public static User fromMap(Map map) {
-        String id = getString(map, "id");
+        String id = getString(map, "registrationId");
         String username = getString(map, "username");
         String name = getString(map, "name");
         String mobileNumber = getString(map, "mobileNumber");

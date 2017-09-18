@@ -3,37 +3,56 @@ package com.comviva.mfs.hce.appserver.mapper.vts;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import lombok.Setter;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Map;
 
 @Setter
 public class HitVisaServices extends VtsRequest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HitVisaServices.class);
 
     public HitVisaServices(Environment env) {
         super(env);
     }
 
     public ResponseEntity restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
+        LOGGER.debug("Inside HitVisaServices->restfulServiceConsumerVisa");
         JSONObject prepareHeaderRequest=new JSONObject();
         String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
         xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
         prepareHeaderRequest.put("xRequestId",xRequestId);
-        prepareHeaderRequest.put("queryString","apiKey="+env.getProperty("apiKey"));
+        URL objUrl = null;
+        try {
+             objUrl = new URL(url);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa");
+        }
+        String quryString = objUrl.getQuery();
+        prepareHeaderRequest.put("queryString",quryString);
         prepareHeaderRequest.put("resourcePath",resourcePath);
-        prepareHeaderRequest.put("requestBody",requestBody);
+        if(!(requestBody.equalsIgnoreCase("null"))||(requestBody.isEmpty()))
+             prepareHeaderRequest.put("requestBody",requestBody);
+
+        HttpEntity<String> entity = null;
         prepareHeader(prepareHeaderRequest);
-        final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        if (type.equalsIgnoreCase("GET"))
+            entity = new HttpEntity<>(headers);
+        else
+            entity = new HttpEntity<>(requestBody, headers);
+
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
         requestFactory.setProxy(proxy);
@@ -46,35 +65,30 @@ public class HitVisaServices extends VtsRequest {
         try {
             if("POST".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
             }else if("PUT".equals(type)){
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+            }
+            else if("GET".equalsIgnoreCase(type))
+            {
+                response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
         }catch (Exception e){
             e.printStackTrace();
             String error = ((HttpClientErrorException) e).getResponseBodyAsString();
             String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
-            strResponse = ((HttpClientErrorException)e).getResponseBodyAsString();
-            //response = strResponse;
+            HttpHeaders responseHeaders = ((HttpClientErrorException)e).getResponseHeaders();
+            HttpStatus statusCode = ((HttpClientErrorException)e).getStatusCode();
+            ResponseEntity<String> errorResponse = new ResponseEntity(error, responseHeaders ,statusCode);
+            LOGGER.debug("Exception occurred in HitVisaServices->restfulServiceConsumerVisa");
+            LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
+            return errorResponse;
+
         }
 
-
+        LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
         return response;
     }
 
-    public String restfulServiceConsumerVisaGet(String url, String requestBody) {
-        JSONObject prepareHeaderRequest=new JSONObject();
-        prepareHeaderRequest.put("xRequestId","generateXrequestId()");
-        prepareHeaderRequest.put("queryString","apiKey="+apiKey);
-        prepareHeaderRequest.put("resourcePath","vts/clients/");
-        prepareHeaderRequest.put("requestBody",requestBody);
-        prepareHeader(prepareHeaderRequest);
-        HttpHeaders headers = new HttpHeaders();
-        //headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.add("Accept", "application/json");
-        headers.add("Content-Type", "application/json");
-        final HttpEntity<Map<String,Object>> entity = new HttpEntity<Map<String,Object>>(headers);
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.postForObject(url, entity, String.class);
-    }
 
 }

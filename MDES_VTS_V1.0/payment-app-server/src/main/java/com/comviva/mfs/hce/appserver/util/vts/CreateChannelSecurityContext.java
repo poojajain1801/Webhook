@@ -31,7 +31,7 @@ public class CreateChannelSecurityContext {
 
         channelInfo.put("encryptionScheme","RSA_PKI");
 
-        vtsCert1.put("vCertificateID",deviceInfo.get(0).getVtscerts_vcertificateid_confidentiality());
+      /*  vtsCert1.put("vCertificateID",deviceInfo.get(0).getVtscerts_vcertificateid_confidentiality());
         vtsCert1.put("certUsage",deviceInfo.get(0).getVtscerts_certusage_confidentiality());
 
         vtsCert2.put("vCertificateID",deviceInfo.get(0).getVtscerts_vcertificateid_integrity());
@@ -46,7 +46,7 @@ public class CreateChannelSecurityContext {
 
         deviceCert2.put("certValue",deviceInfo.get(0).getDevicecerts_certvalue_integrity());
         deviceCert2.put("certUsage",deviceInfo.get(0).getDevicecerts_certusage_integrity());
-        deviceCert2.put("certFormat",deviceInfo.get(0).getDevicecerts_certformat_integrity());
+        deviceCert2.put("certFormat",deviceInfo.get(0).getDevicecerts_certformat_integrity());*/
 
         deviceCerts.put("deviceCert",deviceCert1);
         deviceCerts.put("deviceCert",deviceCert2);

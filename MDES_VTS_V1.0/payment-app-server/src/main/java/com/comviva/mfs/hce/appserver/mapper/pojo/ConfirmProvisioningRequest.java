@@ -10,25 +10,21 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ConfirmProvisioningRequest {
-
-    private String userId;
-    private String activationCode;
     private String api;
     private String provisioningStatus;
+    private String vprovisionedTokenId ;
     private String failureReason;
-    private String reperso;
 
-
-    public ConfirmProvisioningRequest(String userId, String activationCode, String api, String provisioningStatus, String failureReason, String reperso) {
-
-        this.userId=userId;
-        this.activationCode=activationCode;
-        this.api=api;
-        this.provisioningStatus=provisioningStatus;
-        this.failureReason=failureReason;
-        this.reperso=reperso;
+    public ConfirmProvisioningRequest(String api, String provisioningStatus, String vprovisionedTokenId, String failureReason) {
+        this.api = api;
+        this.provisioningStatus = provisioningStatus;
+        this.vprovisionedTokenId = vprovisionedTokenId;
+        this.failureReason = failureReason;
     }
 
     public ConfirmProvisioningRequest() {
+
     }
+
+
 }

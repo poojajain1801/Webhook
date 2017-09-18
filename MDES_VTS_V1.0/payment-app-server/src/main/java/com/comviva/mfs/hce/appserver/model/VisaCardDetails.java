@@ -1,48 +1,76 @@
 package com.comviva.mfs.hce.appserver.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
 
+import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
+import java.io.Serializable;
+
+
 
 /**
- * Created by Amgoth.madan on 5/15/2017.
+ * The persistent class for the CARD_DETAILS_VISA database table.
+ *
  */
 @Entity
-@Getter
-@Setter
-@Table(name = "CARD_DETAILS_VISA")
-@ToString
-@EqualsAndHashCode
-public class VisaCardDetails {
+@Table(name="CARD_DETAILS_VISA")
+public class VisaCardDetails implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private String id;
 
-    @Column(name = "user_name")
-    private String userName;
-
-    @Column(name = "CRAD_NUMBER_SUFIX")
     private String cardnumbersuffix;
 
-    @Column(name = "V_PAN_ENROLLMENT_ID")
-    private String vpanenrollmentid;
-
-    @Column(name = "STATUS")
     private String status;
 
-    public VisaCardDetails(String id, String userName,String cardnumberSuffix,String vpanenrollmentid,String status) {
-        this.id = id;
-        this.userName = userName;
-        this.cardnumbersuffix=cardnumberSuffix;
-        this.vpanenrollmentid=vpanenrollmentid;
-        this.status=status;
+    @Column(name="USER_NAME")
+    private String userName;
+
+    private String vpanenrollmentid;
+
+    public VisaCardDetails() {
     }
 
-    public VisaCardDetails(){this(null,null,null,null,null);}
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getCardnumbersuffix() {
+        return this.cardnumbersuffix;
+    }
+
+    public void setCardnumbersuffix(String cardnumbersuffix) {
+        this.cardnumbersuffix = cardnumbersuffix;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getUserName() {
+        return this.userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getVpanenrollmentid() {
+        return this.vpanenrollmentid;
+    }
+
+    public void setVpanenrollmentid(String vpanenrollmentid) {
+        this.vpanenrollmentid = vpanenrollmentid;
+    }
+
 }

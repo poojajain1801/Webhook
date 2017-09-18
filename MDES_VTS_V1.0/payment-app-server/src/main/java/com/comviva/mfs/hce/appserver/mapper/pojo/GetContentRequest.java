@@ -6,14 +6,12 @@ import lombok.Getter;
  * Created by amgoth.madan on 5/10/2017.
  */
 @Getter
-public class GetContentRequest extends PayAppServerReq{
+public class GetContentRequest{
 
-    private String userId;
-    private String activationCode;
+    private String guid;
 
-    public GetContentRequest(String userId, String activationCode) {
-        this.userId = userId;
-        this.activationCode = activationCode;
+    public GetContentRequest(String serviceId, String guid) {
+        this.guid = guid;
     }
 
     public GetContentRequest() {

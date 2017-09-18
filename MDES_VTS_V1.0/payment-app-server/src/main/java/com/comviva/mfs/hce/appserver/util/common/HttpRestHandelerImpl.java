@@ -1,11 +1,8 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,7 +14,7 @@ public class HttpRestHandelerImpl implements HttpRestHandeler {
 
     public String restfulServieceConsumer(String url, MultiValueMap parametersMap) {
         HttpHeaders headers = new HttpHeaders();
-        //headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.add("Accept", "application/json");
         headers.add("Content-Type", "application/json");
         final HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<MultiValueMap<String, Object>>(parametersMap, headers);
