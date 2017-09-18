@@ -1,9 +1,10 @@
 package com.comviva.hceservice.util;
 
-/**
- * Created by tarkeshwar.v on 3/7/2017.
- */
+import com.comviva.hceservice.common.CardLcmOperation;
 
+/**
+ * Get URL of all APIs.
+ */
 public class UrlUtil {
     // Tanmaya IP 172.19.3.167
     // Tarak Home IP 192.168.1.4
@@ -49,7 +50,85 @@ public class UrlUtil {
         return CMS_D_SERVER_ADDRESS + "requestSession";
     }
 
-    public static String getDeleteCardUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/delete";
+
+    public static String getCardLifeCycleManagementMdesUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/lifeCycleManagement";
+    }
+
+    public static String getRequestActivationCodeUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/requestActivationCode";
+    }
+
+    public static String getActivateUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/activate";
+    }
+
+    public static String getRegCodeTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getRegistrationCode";
+    }
+
+    public static String getRegisterTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/registerWithTDS";
+    }
+
+    public static String getTransactionDetailsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getTransactions";
+    }
+
+    public static String getUnregisterTdsUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/unregisterTds";
+    }
+
+    public static String getVTSTransactionHistory() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/transaction/getTransactionHistory";
+    }
+    public static String getVTSEnrollPanUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/enrollPan";
+    }
+
+    public static String getVTSProvisionTokenUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/provisionTokenWithPanEnrollmentId";
+    }
+
+    public static String getVTSReplenishTokenUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/activeAccountManagementReplenish";
+    }
+
+    public static String getVTSConfirmReplenishTokenUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/activeAccountManagementConfirmReplenishment";
+    }
+
+    public static String getVTSReplenishODADataTokenUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/replenishODAData";
+    }
+
+    public static String getVTSContentUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getContent";
+    }
+
+    public static String getVTSConfirmProvisioningUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/confirmProvisioning";
+    }
+
+    public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {
+        switch (operation) {
+            case SUSPEND:
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/suspendToken";
+
+            case RESUME:
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/resumeToken";
+
+            case DELETE:
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/deleteToken";
+        }
+        return null;
+    }
+
+    public static String getVTSCardMetaDataUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getCardMetadata";
+    }
+
+    public static String getVTSPanData() {
+         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
     }
 }

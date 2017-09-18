@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Utility class to read property value from property file.
+ */
 public class PropertyReader {
     private AssetManager assetManager;
     private static PropertyReader propertyReader;
@@ -16,6 +19,11 @@ public class PropertyReader {
         assetManager = context.getAssets();
     }
 
+    /**
+     * Creates singleton instance of this class.
+     * @param context   Current Application Contect
+     * @return Instance of PropertyReader
+     */
     public static PropertyReader getInstance(Context context) {
         if(propertyReader == null) {
             propertyReader = new PropertyReader(context);
@@ -23,6 +31,11 @@ public class PropertyReader {
         return propertyReader;
     }
 
+    /**
+     * Reads property value from property file.
+     * @param key   Key to fetch value.
+     * @return Value of given key
+     */
     public String getProperty(String key) {
         Properties properties = new Properties();
         try {

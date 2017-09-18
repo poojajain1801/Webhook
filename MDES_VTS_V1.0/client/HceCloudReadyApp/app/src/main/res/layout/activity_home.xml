@@ -12,7 +12,7 @@
     tools:context="com.comviva.mdesapp.activities.HomeActivity">
 
     <ViewFlipper
-        android:id="@+id/viewflipperCards"
+        android:id="@+id/viewFlipperCards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
@@ -20,30 +20,30 @@
     </ViewFlipper>
 
     <TextView
-        android:id="@+id/tokencount"
+        android:id="@+id/txtViewTokenCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/viewflipperCards"
+        android:layout_below="@+id/viewFlipperCards"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:hint="@string/tokenCount"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/timer"
+        android:id="@+id/txtViewTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tokencount"
+        android:layout_below="@+id/txtViewTokenCount"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageButton
-        android:id="@+id/button_pay"
+        android:id="@+id/btnPay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@+id/tokencount"
+        android:layout_below="@+id/txtViewTokenCount"
         android:layout_marginTop="40dp"
         android:background="@android:color/transparent"
         android:src="@drawable/btn_pay_selector"
@@ -55,7 +55,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button_pay"
+        android:layout_below="@+id/btnPay"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:text="@string/tapHere"

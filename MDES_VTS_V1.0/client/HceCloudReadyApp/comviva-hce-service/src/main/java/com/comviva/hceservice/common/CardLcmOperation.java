@@ -1,11 +1,21 @@
 package com.comviva.hceservice.common;
 
 /**
- * Created by tarkeshwar.v on 6/14/2017.
+ * Card Life Cycle Management Operations.
  */
-
 public enum CardLcmOperation {
+    /**
+     * Delete Token Operation.
+     */
     DELETE,
+
+    /**
+     * Suspend Token Operation.
+     */
     SUSPEND,
+
+    /**
+     * Resume Card Operation
+     */
     RESUME
 }

@@ -44,6 +44,7 @@ public class Application extends SpringBootServletInitializer implements WebAppl
 
 
     public static void main(String[] args) {
+        System.setProperty("org.apache.catalina.connector.RECYCLE_FACADES", "true");
         SpringApplication.run(Application.class, args);
 
     }

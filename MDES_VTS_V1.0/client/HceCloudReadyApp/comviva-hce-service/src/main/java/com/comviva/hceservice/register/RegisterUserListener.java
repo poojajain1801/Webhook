@@ -1,14 +1,13 @@
 package com.comviva.hceservice.register;
 
+import com.comviva.hceservice.common.CommonListener;
 
-import com.comviva.hceservice.common.RestResponse;
-
-public interface RegisterUserListener {
-    void onRegistrationStarted();
-
+/**
+ * UI listener for Register User.
+ */
+public interface RegisterUserListener extends CommonListener {
+    /**
+     * User registration successful.
+     */
     void onRegistrationCompeted();
-
-    void onError();
-
-    void setRegisterUserResponse(RegisterUserResponse registerUserResponse);
 }

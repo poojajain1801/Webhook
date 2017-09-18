@@ -22,7 +22,14 @@ public interface RemoteNotificationService {
         CHANGE_PIN,
         DELETE,
         REPLENISH,
-        GET_TASK_STATUS
+        GET_TASK_STATUS,
+        RESET_MOBILE_PIN
+    }
+
+    enum PENDING_TASK_STATUS {
+        NEW,
+        IN_PROGRESS,
+        COMPLETE
     }
 
     /**

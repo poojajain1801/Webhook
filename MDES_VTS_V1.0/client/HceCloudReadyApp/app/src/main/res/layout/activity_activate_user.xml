@@ -34,7 +34,8 @@
         android:layout_below="@+id/space1"
         android:hint="Activation Code"
         tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="0dp" />
+        tools:layout_editor_absoluteX="0dp"
+        android:text="40"/>
 
     <Space
         android:id="@+id/space3"

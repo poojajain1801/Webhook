@@ -161,7 +161,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceactionException);
             return hceControllerSupport.formResponse(regDeviceactionException.getMessageCode());
 
-        }catch(Exception regDeviceException){ 
+        }catch(Exception regDeviceException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceException);
             return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }

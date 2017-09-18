@@ -1,29 +1,28 @@
 package com.comviva.mdesapp.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.comviva.hceservice.common.ComvivaHce;
+import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.register.RegisterUserListener;
-import com.comviva.hceservice.register.RegisterUserResponse;
 import com.comviva.hceservice.register.Registration;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.iid.FirebaseInstanceId;
-
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.UiUtil;
 
-public class RegisterUserActivity extends AppCompatActivity {
+public class RegisterUserActivity extends Activity {
     private ProgressDialog progressDialog;
-    private String userId;
+    public static String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,24 +35,24 @@ public class RegisterUserActivity extends AppCompatActivity {
         btnRegUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ComvivaHce.getInstance(null).getInitializationData();
+                ComvivaSdk.getInstance().getInitializationData();
 
-                if(!UiUtil.checkPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE)) {
+                if (!UiUtil.checkPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE)) {
                     UiUtil.getPermission(RegisterUserActivity.this, Manifest.permission.READ_PHONE_STATE, 0);
                     return;
                 }
                 userId = edUserId.getText().toString();
-                Registration registration = new Registration();
-                registration.registerUser(userId, registerUserListener);
+                Registration registration = Registration.getInstance();
+                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+
+                registration.registerUser(userId, imei, registerUserListener);
             }
         });
     }
 
     final RegisterUserListener registerUserListener = new RegisterUserListener() {
-        private RegisterUserResponse registerUserResponse;
-
         @Override
-        public void onRegistrationStarted() {
+        public void onStarted() {
             progressDialog = new ProgressDialog(RegisterUserActivity.this);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage("Please wait...");
@@ -69,18 +68,18 @@ public class RegisterUserActivity extends AppCompatActivity {
             }
             Intent actUser = new Intent(RegisterUserActivity.this, ActivateUserActivity.class);
             actUser.putExtra("userId", userId);
-            actUser.putExtra("activationCode", registerUserResponse.getActivationCode());
+            //actUser.putExtra("activationCode", registerUserResponse.getActivationCode());
             startActivity(actUser);
         }
 
         @Override
-        public void onError() {
+        public void onError(SdkError sdkError) {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             new AlertDialog.Builder(RegisterUserActivity.this)
                     .setTitle("Error")
-                    .setMessage(registerUserResponse.getResponseMessage())
+                    .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete
@@ -89,10 +88,10 @@ public class RegisterUserActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-
-        @Override
-        public void setRegisterUserResponse(RegisterUserResponse registerUserResponse) {
-            this.registerUserResponse = registerUserResponse;
-        }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

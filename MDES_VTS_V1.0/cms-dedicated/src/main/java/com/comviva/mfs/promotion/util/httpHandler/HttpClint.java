@@ -10,14 +10,12 @@ import java.net.URL;
 /**
  * Created by Tanmay.Patel on 1/20/2017.
  */
-public class HttpClint{
-
-    public String postHttpRequest(byte[] requestData,String url) {
-
+public class HttpClint {
+    public static final int TIMEOUT = 20*1000;
+    public String postHttpRequest(byte[] requestData, String url) {
         int responseCode = -1;
         String responseBody = null;
-        try
-        {
+        try {
             System.setProperty("http.proxyHost", "172.19.7.180");
             System.setProperty("http.proxyPort", "8080");
             System.setProperty("http.proxyUser", "tarkeshwar.v");
@@ -32,11 +30,11 @@ public class HttpClint{
             byte[] postData = requestData;
 
             URL urlObj = new URL(url);
-            HttpURLConnection httpURLConnection = (HttpURLConnection)urlObj.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) urlObj.openConnection();
 
-            //set timeputs to 10 seconds
-            httpURLConnection.setConnectTimeout(10000);
-            httpURLConnection.setReadTimeout(10000);
+            // Set timeout to 10 seconds
+            httpURLConnection.setConnectTimeout(TIMEOUT);
+            httpURLConnection.setReadTimeout(TIMEOUT);
 
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setUseCaches(false);
@@ -49,43 +47,29 @@ public class HttpClint{
             out.close();
             responseCode = httpURLConnection.getResponseCode();
             //success
-            if (responseCode == HttpStatus.SC_OK)
-            {
+            if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpURLConnection.getInputStream());
                 System.out.println("FCM message sent : " + responseBody);
-            }
-            //failure
-            else
-            {
+            } else { //failure
                 responseBody = convertStreamToString(httpURLConnection.getErrorStream());
-
             }
-        }
-        catch (IOException ioe)
-        {
-
+        } catch (IOException ioe) {
             ioe.printStackTrace();
-        }
-        catch (Exception e)
-        {
-
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return responseBody;
     }
 
-    public String convertStreamToString(InputStream inStream) throws Exception
-    {
+    public String convertStreamToString(InputStream inStream) throws Exception {
         InputStreamReader inputStream = new InputStreamReader(inStream);
         BufferedReader bReader = new BufferedReader(inputStream);
 
         StringBuilder sb = new StringBuilder();
         String line;
-        while((line = bReader.readLine()) != null)
-        {
+        while ((line = bReader.readLine()) != null) {
             sb.append(line);
         }
-
         return sb.toString();
     }
 

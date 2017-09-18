@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -14,7 +15,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class RegisterUserRequest {
 
     @NotEmpty
-    @Length(max = 8, min = 2)
+    @Length(max = 8, min = 4)
     private String userId;
     private String clientDeviceID;
     private String imei;
@@ -22,7 +23,7 @@ public class RegisterUserRequest {
     private String device_model;
 
 
-    public RegisterUserRequest(String userId,String clientDeviceID,String imei,String os_name,String device_model) {
+    public RegisterUserRequest(String userId, String clientDeviceID, String imei, String os_name, String device_model) {
 
         this.userId=userId;
         this.clientDeviceID=clientDeviceID;

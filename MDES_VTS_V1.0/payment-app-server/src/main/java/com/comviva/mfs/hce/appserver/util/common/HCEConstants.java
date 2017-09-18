@@ -25,6 +25,14 @@ public class HCEConstants {
     /** The Constant CHANGE_DEVICE. */
     public static final String INTERNAL_SERVER_ERROR ="Inernal server error";
     public static final String DEFAULT_LANGAUAGE_CODE = "1";
+    /** The Constant START_TIME. */
+    public static final String START_TIME = "startTime";
+    /** The Constant REQUEST_OBJECT. */
+    public static final String REQUEST_OBJECT = "requestObject";
+    /** The Constant RESPONSE_OBJECT. */
+    public static final String RESPONSE_OBJECT = "responseObject";
+
+
 
 
 

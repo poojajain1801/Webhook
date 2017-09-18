@@ -143,7 +143,7 @@ public class RegisterDeviceServiceImpl implements RegisterDeviceService {
             // 6. Store device initialization parameters
             String transportKey = ArrayUtil.getHexString(objTransportKey.getEncoded());
             String macKey = ArrayUtil.getHexString(objMacKey.getEncoded());
-            int pinTryCounter =0;
+            int pinTryCounter = Constants.MAX_PIN_TRY_COUNTER;
             String dataEncryptionKey = ArrayUtil.getHexString(objDataEncryptionKey.getEncoded());
             appInstInfoRepository.save(new ApplicationInstanceInfo(null,
                     deviceRegParam.getPaymentAppId(),

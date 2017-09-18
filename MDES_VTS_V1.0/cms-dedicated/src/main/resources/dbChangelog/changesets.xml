@@ -8,7 +8,7 @@
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="now()" dbms="postgresql"/>
 
-    <changeSet author="mahindracomviva" id="201701091530" >
+    <changeSet author="mahindracomviva" id="201701091530">
 
         <!-- ****************************************************************************************
              ****************  This relation contains list of application providers *****************
@@ -18,10 +18,11 @@
             <column name="id" type="int" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="payment_app_provider_id" type="VARCHAR(64)" />
-            <column name="payment_app_provider_name" type="VARCHAR(255)"/>
+            <column name="payment_app_provider_id" type="VARCHAR2(255)"/>
+            <column name="payment_app_provider_name" type="VARCHAR2(255)"/>
         </createTable>
-        <addUniqueConstraint columnNames="payment_app_provider_id" constraintName="uc_payment_app_providers" deferrable="true" tableName="PAYMENT_APP_PROVIDER_LIST"/>
+        <addUniqueConstraint columnNames="payment_app_provider_id" constraintName="uc_payment_app_providers"
+                             deferrable="true" tableName="PAYMENT_APP_PROVIDER_LIST"/>
         <createIndex tableName="PAYMENT_APP_PROVIDER_LIST" indexName="pay_app_provider_id" unique="true">
             <column name="id"/>
             <column name="payment_app_provider_id"/>
@@ -42,34 +43,35 @@
              ************************************************************************************ -->
         <createTable tableName="APPLICATION_INSTANCE_INFO">
             <!-- Unique ID -->
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
 
-            <column name="payment_app_id" type="VARCHAR(255)">
+            <column name="payment_app_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="device_fingerprint" type="TEXT">
+            <column name="device_fingerprint" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="mobile_pin" type="TEXT"/>
+            <column name="mobile_pin" type="VARCHAR2(255)"/>
             <column name="pin_try_counter" type="int"/>
 
-            <column name="mobile_keyset_id" type="TEXT"/>
-            <column name="transport_key" type="TEXT"/>
-            <column name="mac_key" type="TEXT"/>
-            <column name="data_encryption_key" type="TEXT"/>
-            <column name="rns_registration_id" type="TEXT"/>
+            <column name="mobile_keyset_id" type="VARCHAR2(255)"/>
+            <column name="transport_key" type="VARCHAR2(255)"/>
+            <column name="mac_key" type="VARCHAR2(255)"/>
+            <column name="data_encryption_key" type="VARCHAR2(255)"/>
+            <column name="rns_registration_id" type="VARCHAR2(1024)"/>
 
         </createTable>
 
-        <addUniqueConstraint columnNames="payment_app_instance_id" constraintName="unique_constraints" deferrable="true" tableName="APPLICATION_INSTANCE_INFO"/>
+        <addUniqueConstraint columnNames="payment_app_instance_id" constraintName="unique_constraints" deferrable="true"
+                             tableName="APPLICATION_INSTANCE_INFO"/>
         <createIndex tableName="APPLICATION_INSTANCE_INFO" indexName="mobile_env_id" unique="true">
             <column name="id"/>
             <column name="payment_app_instance_id"/>
@@ -80,40 +82,41 @@
              ************************************************************************************ -->
         <createTable tableName="TOKEN_INFO">
             <!-- Unique ID -->
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
 
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="token_unique_reference" type="TEXT">
+            <column name="token_unique_reference" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="token_type" type="TEXT">
+            <column name="token_type" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="card_profile" type="VARCHAR(4098)">
+            <column name="card_profile" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="icc_kek" type="TEXT">
+            <column name="icc_kek" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="kek_id" type="TEXT">
+            <column name="kek_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
 
-            <column name="state" type="TEXT">
+            <column name="state" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addUniqueConstraint columnNames="token_unique_reference" constraintName="token_unique_reference_constraints" deferrable="true" tableName="TOKEN_INFO"/>
+        <addUniqueConstraint columnNames="token_unique_reference" constraintName="token_reference_constraints"
+                             deferrable="true" tableName="TOKEN_INFO"/>
         <createIndex tableName="TOKEN_INFO" indexName="token_vault_id" unique="true">
             <column name="id"/>
             <column name="payment_app_instance_id"/>
@@ -125,27 +128,27 @@
              ************************************************************************************ -->
         <createTable tableName="SESSION_INFO">
             <!-- Unique ID -->
-            <column name="id" type="VARCHAR(255)">
+            <column name="id" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="session_code" type="VARCHAR(64)">
+            <column name="session_code" type="VARCHAR2(64)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="payment_app_instance_id" type="TEXT">
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="authentication_code" type="VARCHAR(64)">
+            <column name="authentication_code" type="VARCHAR2(64)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="expiry_time_stamp" type="TEXT"/>
+            <column name="expiry_time_stamp" type="VARCHAR2(255)"/>
             <column name="valid_for_seconds" type="int"/>
-            <column name="token_unique_reference" type="TEXT"/>
-            <column name="mobile_session_key_conf" type="VARCHAR(32)"/>
-            <column name="mobile_session_key_mac" type="VARCHAR(32)"/>
+            <column name="token_unique_reference" type="VARCHAR2(255)"/>
+            <column name="mobile_session_key_conf" type="VARCHAR2(32)"/>
+            <column name="mobile_session_key_mac" type="VARCHAR2(32)"/>
             <column name="m2c_counter" type="int"/>
             <column name="c2m_counter" type="int"/>
             <!-- The time when session is first time used -->
-            <column name="session_first_use_time" type="TEXT"/>
+            <column name="session_first_use_time" type="VARCHAR2(255)"/>
         </createTable>
 
         <createIndex tableName="SESSION_INFO" indexName="session_info_id" unique="true">
@@ -154,8 +157,26 @@
             <column name="payment_app_instance_id"/>
             <column name="authentication_code"/>
         </createIndex>
+
+        <!-- This table contains pending action for an payment app instance id -->
+        <createTable tableName="PENDING_TASK">
+            <!-- Unique ID -->
+            <column name="id" type="VARCHAR2(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="payment_app_instance_id" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_unique_reference" type="VARCHAR2(255)"/>
+            <column name="action" type="VARCHAR2(255)"/>
+            <column name="timestamp" type="VARCHAR2(255)"/>
+            <column name="status" type="VARCHAR2(255)"/>
+        </createTable>
+        <createIndex tableName="PENDING_TASK" indexName="pending_task_id" unique="true">
+            <column name="id"/>
+            <column name="payment_app_instance_id"/>
+            <column name="token_unique_reference"/>
+        </createIndex>
     </changeSet>
-
-
 </databaseChangeLog>
 

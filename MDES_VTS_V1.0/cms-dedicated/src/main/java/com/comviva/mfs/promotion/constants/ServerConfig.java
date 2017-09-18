@@ -14,5 +14,8 @@ public class ServerConfig {
         public static final String CMSD_IP = "http://localhost";
         public static final String CMSD_PORT = "9099";
         public static final String responseHost = "www.mahindracomviva.com";
+
+        public static final String PAYMENT_APP_SERVER_IP = "http://localhost";
+        public static final String PAYMENT_APP_SERVER_PORT = "9176";
     }
 

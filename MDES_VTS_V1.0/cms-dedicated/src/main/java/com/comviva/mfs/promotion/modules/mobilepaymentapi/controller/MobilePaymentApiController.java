@@ -53,7 +53,7 @@ public class MobilePaymentApiController {
         return managementServiceApi.replenish(remoteManagementReqMpa);
     }
     @ResponseBody
-    @RequestMapping(value = "/setOrChangeMpin", method = RequestMethod.POST)
+    @RequestMapping(value = "/changeMobilePin", method = RequestMethod.POST)
     public RmResponseMpa setOrChangeMobilePin(@RequestBody SetOrChangeMpinReq setOrChangeMpinReq) {
         return managementServiceApi.setOrChangeMpin(setOrChangeMpinReq);
     }

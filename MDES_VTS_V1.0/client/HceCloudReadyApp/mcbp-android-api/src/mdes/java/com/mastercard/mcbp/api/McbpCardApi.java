@@ -38,7 +38,7 @@ import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
 import com.mastercard.mcbp.utils.exceptions.mcbpcard.McbpCardNotFound;
 import com.mastercard.mcbp.utils.logs.McbpLogger;
 import com.mastercard.mcbp.utils.logs.McbpLoggerFactory;
-import com.mastercard.mcbp_android.BuildConfig;
+import com.mastercard.mcbp.api.BuildConfig;
 import com.mastercard.mobile_api.bytes.ByteArray;
 
 import java.util.List;

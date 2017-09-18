@@ -11,12 +11,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityRequest;
-import com.comviva.hceservice.mdes.digitizatioApi.CardEligibilityResponse;
-import com.comviva.hceservice.mdes.digitizatioApi.CheckCardEligibilityListener;
-import com.comviva.hceservice.mdes.digitizatioApi.Digitization;
-import com.comviva.hceservice.mdes.digitizatioApi.asset.GetAssetResponse;
-import com.comviva.hceservice.register.RegisterParam;
+import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.digitizationApi.CardEligibilityRequest;
+import com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener;
+import com.comviva.hceservice.digitizationApi.ConsumerEntryMode;
+import com.comviva.hceservice.digitizationApi.ContentGuid;
+import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.digitizationApi.PanSource;
 import com.comviva.mdesapp.R;
 
 public class AddCardActivity extends AppCompatActivity {
@@ -33,20 +35,25 @@ public class AddCardActivity extends AppCompatActivity {
         final EditText etExpYear = (EditText) findViewById(R.id.editExpYear);
         final EditText etCardHolderName = (EditText) findViewById(R.id.editCardHolderName);
         final CardEligibilityRequest cardEligibilityRequest = new CardEligibilityRequest();
-        cardEligibilityRequest.setAccountNumber(etPan.getText().toString());
-        cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
-        cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
-        cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
-        cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
 
         Button digiCard = (Button) findViewById(R.id.btnDigCard);
         digiCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Digitization digitization = new Digitization();
+                cardEligibilityRequest.setAccountNumber(etPan.getText().toString());
+                cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
+                cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
+                cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
+                cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
+                cardEligibilityRequest.setConsumerEntryMode(ConsumerEntryMode.KEYENTERED);
+                cardEligibilityRequest.setLocale("en-US");
+                cardEligibilityRequest.setPanSource(PanSource.MANUALLYENTERED);
+                cardEligibilityRequest.setUserId(/*RegisterUserActivity.userId*/"u003");
+
+                final Digitization digitization = Digitization.getInstance();
                 digitization.checkCardEligibility(cardEligibilityRequest, new CheckCardEligibilityListener() {
                     @Override
-                    public void onCheckEligibilityStarted() {
+                    public void onStarted() {
                         progressDialog = new ProgressDialog(AddCardActivity.this);
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                         progressDialog.setMessage("Please wait...");
@@ -63,13 +70,13 @@ public class AddCardActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCheckEligibilityError(String message) {
-                        if (progressDialog.isShowing()) {
+                    public void onError(SdkError sdkError) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
                         new AlertDialog.Builder(AddCardActivity.this)
                                 .setTitle("Error")
-                                .setMessage(message)
+                                .setMessage(sdkError.getMessage())
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         // continue
@@ -80,10 +87,11 @@ public class AddCardActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onTermsAndConditionsRequired(CardEligibilityResponse cardEligibilityResponse) {
+                    public void onTermsAndConditionsRequired(ContentGuid cardEligibilityResponse) {
                         try {
                             Intent intent = new Intent(AddCardActivity.this, TnCActivity.class);
                             intent.putExtra("eligibilityResponse", cardEligibilityResponse);
+                            intent.putExtra("CardType", CardType.checkCardType(etPan.getText().toString()));
                             startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();

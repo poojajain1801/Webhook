@@ -15,8 +15,6 @@ import org.json.JSONObject;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.util.Map;
 
 @Setter

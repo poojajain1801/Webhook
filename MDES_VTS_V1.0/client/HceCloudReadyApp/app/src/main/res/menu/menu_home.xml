@@ -26,4 +26,24 @@
         android:id="@+id/deleteCard"
         android:orderInCategory="100"
         android:title="Delete Card" />
+
+    <item
+        android:id="@+id/changePin"
+        android:orderInCategory="100"
+        android:title="Change Pin" />
+
+    <item
+        android:id="@+id/registerTds"
+        android:orderInCategory="100"
+        android:title="Register TDS" />
+
+    <item
+        android:id="@+id/transactionDetails"
+        android:orderInCategory="100"
+        android:title="Transaction History" />
+
+    <item
+        android:id="@+id/unregisterTds"
+        android:orderInCategory="100"
+        android:title="Unregister TDS" />
 </menu>

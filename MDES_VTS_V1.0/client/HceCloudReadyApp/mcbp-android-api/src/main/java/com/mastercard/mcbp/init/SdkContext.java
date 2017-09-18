@@ -38,7 +38,7 @@ import com.mastercard.mcbp.utils.logs.AndroidMcbpLoggerFactory;
 import com.mastercard.mcbp.utils.logs.McbpLoggerFactory;
 import com.mastercard.mcbp.utils.task.AndroidMcbpAsyncTaskFactory;
 import com.mastercard.mcbp.utils.task.McbpTaskFactory;
-import com.mastercard.mcbp_android.BuildConfig;
+import com.mastercard.mcbp.api.BuildConfig;
 
 public class SdkContext {
 

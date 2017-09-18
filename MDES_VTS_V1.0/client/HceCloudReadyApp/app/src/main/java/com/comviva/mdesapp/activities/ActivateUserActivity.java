@@ -1,18 +1,19 @@
 package com.comviva.mdesapp.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.comviva.hceservice.common.RestResponse;
-import com.comviva.hceservice.register.ActivateUserListener;
+import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.register.RegistrationListener;
 import com.comviva.hceservice.register.Registration;
 
 import com.comviva.mdesapp.R;
@@ -32,25 +33,25 @@ public class ActivateUserActivity extends AppCompatActivity {
         final EditText edActivationCode = (EditText) findViewById(R.id.editActivationCode);
         if (getIntent().hasExtra("userId")) {
             userId = getIntent().getExtras().getString("userId");
-            activationCode = getIntent().getStringExtra("activationCode").toString();
+            activationCode = edActivationCode.getText().toString();
             edUserId.setText(userId);
-            edActivationCode.setText(activationCode);
         }
 
-        final Registration registration = new Registration();
+        final Registration registration = Registration.getInstance();
 
         Button btnActUser = (Button) findViewById(R.id.btnActUser);
         btnActUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), activateUserListener);
+                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), imei, activateUserListener);
             }
         });
     }
 
-    ActivateUserListener activateUserListener = new ActivateUserListener() {
+    RegistrationListener activateUserListener = new RegistrationListener() {
         @Override
-        public void onActivationStarted() {
+        public void onStarted() {
             progressDialog = new ProgressDialog(ActivateUserActivity.this);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progressDialog.setMessage("Please wait...");
@@ -60,7 +61,7 @@ public class ActivateUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onActivationCompeted() {
+        public void onCompleted() {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
@@ -71,13 +72,13 @@ public class ActivateUserActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onError(String errorMessage) {
+        public void onError(SdkError sdkError) {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
             new AlertDialog.Builder(ActivateUserActivity.this)
                     .setTitle("Error")
-                    .setMessage(errorMessage)
+                    .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // continue with delete

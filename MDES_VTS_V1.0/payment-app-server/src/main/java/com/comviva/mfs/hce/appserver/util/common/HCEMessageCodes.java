@@ -60,25 +60,34 @@ public class HCEMessageCodes {
 
 
     /** The Constant USER_ALREADY_REGISTERED. */
-    public static String USER_ALREADY_REGISTERED = "501";
+    public static String USER_ALREADY_REGISTERED;
     @Value("${USER_ALREADY_REGISTERED}")
     public  void setUserAlreadyRegistered(String userAlreadyRegistered){
         USER_ALREADY_REGISTERED = userAlreadyRegistered;
-
     }
-    /** The Constant USER_NOT_ACTIVE. */
-    public static String INVALID_USER = "205";
-    @Value("${INVALID_USER}")
 
+
+    /** The Constant INVALID_PROPERTY. */
+    public static String INVALID_PROPERTY;
+    @Value("${INVALID_PROPERTY}")
+    public  void setInvalidProperty(String invalidProperty){
+        INVALID_PROPERTY = invalidProperty;
+    }
+
+
+    /** The Constant USER_NOT_ACTIVE. */
+    public static String INVALID_USER ;
+    @Value("${INVALID_USER}")
     public static String getInvalidUser() {
         return INVALID_USER;
     }
 
     /** The Constant INVALID_OPERATION. */
-    public static String INVALID_OPERATION = "262";
-    @Value("${INVALID_OPERATION}")
+    public static String INVALID_OPERATION;
 
+    @Value("${INVALID_OPERATION}")
     public static String getInvalidOperation() {
         return INVALID_OPERATION;
     }
+
 }
