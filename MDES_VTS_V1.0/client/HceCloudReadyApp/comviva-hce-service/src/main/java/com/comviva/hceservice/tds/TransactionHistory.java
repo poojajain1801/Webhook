@@ -1,6 +1,8 @@
 package com.comviva.hceservice.tds;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.comviva.hceservice.common.ComvivaSdk;
@@ -8,7 +10,9 @@ import com.comviva.hceservice.common.ComvivaWalletListener;
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
+import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
@@ -44,16 +48,20 @@ public class TransactionHistory {
      * @param tdsRegistrationListener UI Listener
      */
     public static void registerWithTdsInitiate(final String tokenUniqueReference, final TdsRegistrationListener tdsRegistrationListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
         final String displayableCardNo = McbpCardApi.getDisplayablePanDigits(tokenUniqueReference);
 
         final JSONObject jsGetRegCode = new JSONObject();
         try {
+            final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsGetRegCode.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsGetRegCode.put("tokenUniqueReference", tokenUniqueReference);
         } catch (JSONException e) {
             tdsRegistrationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            tdsRegistrationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class GetRegCodeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -83,13 +91,6 @@ public class TransactionHistory {
                         if (respObj.has("errorCode")) {
                             tdsRegistrationListener.onError(SdkErrorImpl.getInstance(respObj.getInt("errorCode"), respObj.getString("errorDescription")));
                         } else {
-                            // Save registration code for further completion of the TDS registration
-                            String registrationCode1 = respObj.getString("registrationCode1");
-
-                            TdsRegistrationData tdsRegistrationData = new TdsRegistrationData();
-                            tdsRegistrationData.setTokenUniqueReference(tokenUniqueReference);
-                            tdsRegistrationData.setTdsRegistrationCode1(registrationCode1);
-                            //comvivaSdk.getCommonDb().saveTdsRegistrationCode(tdsRegistrationData);
                             tdsRegistrationListener.onSuccess();
                         }
                     } else {
@@ -111,11 +112,20 @@ public class TransactionHistory {
     }
 
     /**
-     * @param tdsNotificationData
+     * TDS Notification data having second part of registration code 2 to complete TDS registration.
+     * @param tdsNotificationData Tds Notification Data
      */
     public static void registerWithTdsFinish(final TdsNotificationData tdsNotificationData) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final ComvivaWalletListener walletListener = ComvivaFCMService.getWalletEventListener();
+
+        final ComvivaSdk comvivaSdk;
+        try {
+            comvivaSdk = ComvivaSdk.getInstance(null);
+        }  catch (SdkException e) {
+            walletListener.onTdsRegistrationError(tdsNotificationData.getTokenUniqueReference(), e.getMessage());
+            return;
+        }
+
         if (!comvivaSdk.getPaymentAppInstanceId().equalsIgnoreCase(tdsNotificationData.getPaymentAppInstanceId())) {
             // PaymentAppInstanceId is not matching
             walletListener.onTdsRegistrationError(tdsNotificationData.getTokenUniqueReference(), "PaymentAppInstanceId is wrong");
@@ -128,6 +138,7 @@ public class TransactionHistory {
             jsGetRegCode.put("tokenUniqueReference", tdsNotificationData.getTokenUniqueReference());
         } catch (JSONException e) {
             walletListener.onTdsRegistrationError(tdsNotificationData.getTokenUniqueReference(), "JSON Error, wrong data from server");
+            return;
         }
 
         class RegisterTdsTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -151,12 +162,11 @@ public class TransactionHistory {
                         JSONObject respObj = new JSONObject(httpResponse.getResponse());
 
                         if (!respObj.has("errorCode")) {
-                            TdsRegistrationData tdsRegistrationData = new TdsRegistrationData();
-                            tdsRegistrationData.setTokenUniqueReference(tdsNotificationData.getTokenUniqueReference());
-                            tdsRegistrationData.setAuthenticationCode(respObj.getString("authenticationCode"));
-                            tdsRegistrationData.setTdsUrl(respObj.getString("tdsUrl"));
-                            //comvivaSdk.getCommonDb().saveTdsRegistrationCode(tdsRegistrationData);
-
+                            SharedPreferences sharedPrefConf = comvivaSdk.getApplicationContext().getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPrefConf.edit();
+                            editor.putBoolean(Constants.KEY_MDES_TDS_REG_STATUS, true);
+                            editor.putString(Constants.KEY_TDS_REG_TOKEN_UNIQUE_REF, tdsNotificationData.getTokenUniqueReference());
+                            editor.commit();
                             walletListener.onTdsRegistrationSuccess(McbpCardApi.getDisplayablePanDigits(tdsNotificationData.getTokenUniqueReference()));
                         }
                     }
@@ -177,14 +187,17 @@ public class TransactionHistory {
      * @param transactionDetailsListener UI Listener
      */
     public static void getTransactionDetails(final String tokenUniqueReference, final TransactionDetailsListener transactionDetailsListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
-
         final JSONObject jsGetTxnDetails = new JSONObject();
         try {
+            final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsGetTxnDetails.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsGetTxnDetails.put("tokenUniqueReference", tokenUniqueReference);
         } catch (JSONException e) {
             transactionDetailsListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            transactionDetailsListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class GetTxnDetailsTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -276,16 +289,19 @@ public class TransactionHistory {
      * @param unregisterTdsListener UI Listener
      */
     public static void unregisterWithTds(final String tokenUniqueReference, final UnregisterTdsListener unregisterTdsListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
-
         final JSONObject jsUnregisterTds = new JSONObject();
         try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsUnregisterTds.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             if (tokenUniqueReference != null) {
                 jsUnregisterTds.put("tokenUniqueReference", tokenUniqueReference);
             }
         } catch (JSONException e) {
             unregisterTdsListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            unregisterTdsListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class UnregisterTdsTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -350,6 +366,7 @@ public class TransactionHistory {
             }
         } catch (JSONException e) {
             transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
         }
 
         class GetTransactionHistoryTask extends AsyncTask<Void, Void, HttpResponse> {

@@ -42,6 +42,7 @@ import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
+import com.visa.cbp.sdk.facade.exception.CryptoException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -665,6 +666,14 @@ class DigitizationVts {
                 } catch (JSONException e) {
                     if (digitizationListener != null) {
                         digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                } catch (CryptoException e) {
+                    if (digitizationListener != null) {
+                        digitizationListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                    }
+                } catch (Exception e) {
+                    if (digitizationListener != null) {
+                        digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,6 +49,7 @@ import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.NfcSetting;
 import com.comviva.hceservice.util.NfcUtil;
 import com.comviva.mdesapp.R;
+import com.comviva.mdesapp.constant.Constants;
 import com.mastercard.mcbp.card.cvm.PinListener;
 import com.mastercard.mcbp.listeners.ProcessContactlessListener;
 import com.mastercard.mcbp.userinterface.DisplayTransactionInfo;
@@ -392,7 +394,14 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        comvivaHce = ComvivaSdk.getInstance();
+        TextView txtViewUserId = (TextView) findViewById(R.id.tvUserId);
+        SharedPreferences userPref = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        txtViewUserId.setText("Welcome " + userPref.getString(Constants.KEY_USER_ID, null) + "...");
+
+        try {
+            comvivaHce = ComvivaSdk.getInstance(null);
+        } catch (SdkException e) {
+        }
 
         cards = (ViewFlipper) findViewById(R.id.viewFlipperCards);
         txtViewTokenCount = (TextView) findViewById(R.id.txtViewTokenCount);
@@ -505,7 +514,7 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
 
             case R.id.registerTds:
-                if (comvivaHce.isTdsRegistered(tokenUniqueReference)) {
+                if (comvivaHce.isTdsRegistered()) {
                     Toast.makeText(HomeActivity.this, "Token is already registered for transaction history", Toast.LENGTH_LONG).show();
                     return true;
                 }

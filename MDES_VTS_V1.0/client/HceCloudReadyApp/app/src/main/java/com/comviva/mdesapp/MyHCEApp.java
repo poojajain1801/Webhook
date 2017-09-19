@@ -10,6 +10,7 @@ import android.support.v7.app.NotificationCompat;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.mdesapp.activities.HomeActivity;
 import com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult;
@@ -95,9 +96,13 @@ public class MyHCEApp extends Application {
 
         @Override
         public boolean onCardAdded(final String tokenUniqueReference) {
-            publish(R.string.notification_new_card_profile_title, R.string.notification_new_card_profile_message);
-            ComvivaSdk.getInstance().activateCard(tokenUniqueReference);
-            startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
+            try {
+                publish(R.string.notification_new_card_profile_title, R.string.notification_new_card_profile_message);
+                ComvivaSdk.getInstance(null).activateCard(tokenUniqueReference);
+                startActivity(new Intent(MyHCEApp.this, HomeActivity.class));
+            } catch (SdkException e) {
+                return true;
+            }
             return true;
         }
 

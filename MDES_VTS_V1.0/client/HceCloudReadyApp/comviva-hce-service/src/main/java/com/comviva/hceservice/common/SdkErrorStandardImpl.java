@@ -2,7 +2,7 @@ package com.comviva.hceservice.common;
 
 public enum SdkErrorStandardImpl implements SdkError {
     // SDK Errors
-    SDK_INTERNAL_ERROR(SW_COMMON_CRYPTO_ERROR, "Internal error"),
+    SDK_INTERNAL_ERROR(SW_SDK_INTERNAL_ERROR, "Internal error"),
     SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE(SW_SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE,
             "Transaction credential not available"),
     SDK_JSON_EXCEPTION(SW_SDK_JSON_EXCEPTION, "JSON Exception"),
@@ -26,7 +26,7 @@ public enum SdkErrorStandardImpl implements SdkError {
     // Common Errors
     COMMON_CRYPTO_ERROR(SW_COMMON_CRYPTO_ERROR, "Crypto Exception"),
     COMMON_DEVICE_ROOTED(SW_COMMON_DEVICE_ROOTED, "Device is rooted"),
-    COMMON_APK_TAMPERED(SW_COMMON_DEVICE_ROOTED, "SDK is tampered"),
+    COMMON_APK_TAMPERED(SW_COMMON_APK_TAMPERED, "SDK is tampered"),
     COMMON_CARD_NOT_ELIGIBLE(SW_COMMON_CARD_NOT_ELIGIBLE, "Card is not eligible"),
     COMMON_DEBUG_MODE(SW_COMMON_DEBUG_MODE, "Debug is not allowed");
 
@@ -48,43 +48,80 @@ public enum SdkErrorStandardImpl implements SdkError {
         return errorCode;
     }
 
+    /**
+     * Returns error enum instance corresponding to given error code.
+     * @param errorCode Error Code
+     * @return SdkError instance
+     */
     public static SdkError getError(int errorCode) {
         switch (errorCode) {
-            case 100:
+            case SW_SDK_INTERNAL_ERROR:
                 return SDK_INTERNAL_ERROR;
 
-            case 101:
+            case SW_SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE:
                 return SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE;
 
-            case 102:
+            case SW_SDK_JSON_EXCEPTION:
                 return SDK_JSON_EXCEPTION;
 
-            case 103:
+            case SW_SDK_RNS_REG_EXCEPTION:
                 return SDK_RNS_REG_EXCEPTION;
 
-            case 104:
+            case SW_SDK_INVALID_USER:
                 return SDK_INVALID_USER;
 
-            case 105:
+            case SW_SDK_INVALID_CARD_NUMBER:
                 return SDK_INVALID_CARD_NUMBER;
 
-            case 106:
+            case SW_SDK_UNSUPPORTED_SCHEME:
                 return SDK_UNSUPPORTED_SCHEME;
 
-            case 107:
+            case SW_SDK_IO_ERROR:
                 return SDK_IO_ERROR;
 
-            case 300:
+            case SW_SDK_CARD_ELIGIBILITY_NOT_PERFORMED:
+                return SDK_CARD_ELIGIBILITY_NOT_PERFORMED;
+
+            case SW_SDK_MORE_TYPE_OF_CARD_IN_LCM:
+                return SDK_MORE_TYPE_OF_CARD_IN_LCM;
+
+            case SW_SDK_ONLY_ONE_VISA_CARD_IN_LCM:
+                return SDK_ONLY_ONE_VISA_CARD_IN_LCM;
+
+            case SW_SDK_TASK_ALREADY_IN_PROGRESS:
+                return SDK_TASK_ALREADY_IN_PROGRESS;
+
+            case SW_SDK_INVALID_NO_OF_TXN_RECORDS:
+                return SDK_INVALID_NO_OF_TXN_RECORDS;
+
+                // Server Errors
+            case SW_SERVER_INTERNAL_ERROR:
                 return SERVER_INTERNAL_ERROR;
 
-            case 301:
+            case SW_SERVER_JSON_EXCEPTION:
                 return SERVER_JSON_EXCEPTION;
 
-            case 302:
+            case SW_SERVER_INVALID_VALUE:
                 return SERVER_INVALID_VALUE;
 
-            case 303:
+            case SW_SERVER_NOT_RESPONDING:
                 return SERVER_NOT_RESPONDING;
+
+                // Common Errors
+            case SW_COMMON_CRYPTO_ERROR:
+                return COMMON_CRYPTO_ERROR;
+
+            case SW_COMMON_DEVICE_ROOTED:
+                return COMMON_DEVICE_ROOTED;
+
+            case SW_COMMON_APK_TAMPERED:
+                return COMMON_APK_TAMPERED;
+
+            case SW_COMMON_CARD_NOT_ELIGIBLE:
+                return COMMON_CARD_NOT_ELIGIBLE;
+
+            case SW_COMMON_DEBUG_MODE:
+                return COMMON_DEBUG_MODE;
 
             default:
                 return null;

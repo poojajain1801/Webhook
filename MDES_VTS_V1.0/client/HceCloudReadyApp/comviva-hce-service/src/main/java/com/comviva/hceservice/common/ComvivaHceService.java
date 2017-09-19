@@ -31,7 +31,12 @@ public class ComvivaHceService {
     }
 
     private byte[] processMdes(byte[] commandApdu) {
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+        ComvivaSdk comvivaSdk;
+        try {
+            comvivaSdk = ComvivaSdk.getInstance(null);
+        } catch (SdkException e) {
+            return new byte[]{0x6F, 0x00};
+        }
         McbpCard currentCard = (McbpCard) comvivaSdk.getSelectedCard();
         return currentCard.processApdu(commandApdu);
     }
@@ -86,7 +91,13 @@ public class ComvivaHceService {
      * @return Response APDU
      */
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+        ComvivaSdk comvivaSdk;
+        try {
+            comvivaSdk = ComvivaSdk.getInstance(null);
+        } catch (SdkException e) {
+            return new byte[]{0x6F, 0x00};
+        }
+
         paymentCard = comvivaSdk.getSelectedCard();
         switch (paymentCard.getCardType()) {
             case MDES:
@@ -102,7 +113,7 @@ public class ComvivaHceService {
 
     /**
      * Invoked on card deactivation or phone is removed from proximity field of POS.
-     * @param reason
+     * @param reason Reason Code
      */
     public void onDeactivated(int reason) {
         if(paymentCard == null) {

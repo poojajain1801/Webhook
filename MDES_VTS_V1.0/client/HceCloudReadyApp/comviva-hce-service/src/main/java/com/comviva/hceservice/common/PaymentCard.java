@@ -1,5 +1,7 @@
 package com.comviva.hceservice.common;
 
+import android.util.Log;
+
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.card.BusinessLogicTransactionInformation;
 import com.mastercard.mcbp.card.McbpCard;
@@ -83,6 +85,7 @@ public class PaymentCard {
                     return tokenData.getPaymentInstrumentLast4();
             }
         } catch (Exception e) {
+            Log.d("ComvivaSdkError", e.getMessage());
         }
         return null;
     }
