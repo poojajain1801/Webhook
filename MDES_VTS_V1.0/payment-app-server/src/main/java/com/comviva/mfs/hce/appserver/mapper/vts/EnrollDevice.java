@@ -4,6 +4,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
+import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
 import com.visa.cbp.encryptionutils.common.CertMetaData;
 import com.visa.cbp.encryptionutils.common.DeviceKeyPair;
@@ -14,6 +15,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -24,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.security.GeneralSecurityException;
@@ -39,6 +43,8 @@ public class EnrollDevice extends VtsRequest {
    // private String apiKey;
     //private String clientDeviceID;
     private DevicePersoData devicePersoData;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDevice.class);
+
 
     private static final long CERTIFICATE_EXPIRY_DURATION = 2l * 365 * 24 * 60 * 60 * 1000l;
 
@@ -54,16 +60,29 @@ public class EnrollDevice extends VtsRequest {
      * @return Device Information in JSON format.
      */
     private JSONObject prepareDeviceInfo(VtsDeviceInfoRequest devInfo) {
+        LOGGER.debug("Inside EnrollDevice->prepareDeviceInfo");
         JSONObject devInfoVts = new JSONObject();
-        devInfoVts.put("osType", devInfo.getOsType());
-        devInfoVts.put("deviceType", devInfo.getDeviceType());
-        devInfoVts.put("deviceName", devInfo.getDeviceName());
-        devInfoVts.put("osVersion",devInfo.getOsVersion());
-        devInfoVts.put("osBuildID",devInfo.getOsBuildID());
-        devInfoVts.put("deviceIDType",devInfo.getDeviceIDType());
-        devInfoVts.put("deviceManufacturer",devInfo.getDeviceManufacturer());
-        devInfoVts.put("deviceBrand",devInfo.getDeviceBrand());
-        devInfoVts.put("deviceModel",devInfo.getDeviceModel());
+        String deviceName;
+        byte[] b64data;
+        try {
+
+            devInfoVts.put("osType", devInfo.getOsType());
+            devInfoVts.put("deviceType", devInfo.getDeviceType());
+            deviceName = devInfo.getDeviceName();
+            b64data = Base64.encodeBase64URLSafe(deviceName.getBytes());
+            devInfoVts.put("deviceName", new String(b64data, "UTF-8"));
+
+            devInfoVts.put("osVersion", devInfo.getOsVersion());
+            devInfoVts.put("osBuildID", devInfo.getOsBuildID());
+            devInfoVts.put("deviceIDType", devInfo.getDeviceIDType());
+            devInfoVts.put("deviceManufacturer", devInfo.getDeviceManufacturer());
+            devInfoVts.put("deviceBrand", devInfo.getDeviceBrand());
+            devInfoVts.put("deviceModel", devInfo.getDeviceModel());
+
+        }catch (Exception e){
+            e.printStackTrace();
+            LOGGER.debug("Exit EnrollDevice->prepareDeviceInfo");
+        }
         return devInfoVts;
     }
 
@@ -73,10 +92,12 @@ public class EnrollDevice extends VtsRequest {
      * @return deviceInitParam in JSON format
      */
     private JSONObject createDeviceInitParam() {
+        LOGGER.debug("Inside EnrollDevice->createDeviceInitParam");
         JSONObject deviceInitParams = new JSONObject();
         deviceInitParams.put("sdkUsageType", SdkUsageType.Android_With_WBC.name());
         JSONObject regDevParams = new JSONObject();
         regDevParams.put("deviceInitParams", deviceInitParams);
+        LOGGER.debug("Exit EnrollDevice->createDeviceInitParam");
         return regDevParams;
     }
 
@@ -90,6 +111,7 @@ public class EnrollDevice extends VtsRequest {
         return devicePersoData;
     }
     public String enrollDevice(VtsDeviceInfoRequest deviceInfo,String clientDeviceID) throws IOException, GeneralSecurityException {
+        LOGGER.debug("Inside EnrollDevice->enrollDevice");
         /* Device Information & Init Param */
         JSONObject jsDeviceInfo = prepareDeviceInfo(deviceInfo);
         JSONObject jsDevInitParams = createDeviceInitParam();
@@ -102,7 +124,7 @@ public class EnrollDevice extends VtsRequest {
         // VTS Encryption Key Pair
         var.put("certUsage", CertUsage.CONFIDENTIALITY.name());
         var.put("vCertificateID", vtsCertificateIDConf);
-        //var.put("vCertificateID","f1606e98");
+       // var.put("vCertificateID","8302bc7f");
         vtsCerts.put(0, var);
 
         // VTS Signature Key Pair
@@ -126,6 +148,7 @@ public class EnrollDevice extends VtsRequest {
         try {
             issuerName = new JcaX509CertificateHolder(masterCertificate).getSubject();
         } catch (CertificateEncodingException e) {
+            LOGGER.debug("Exception occured in VTS->enrollDevice");
         }
         certMetaData.setIssuer(issuerName);
         certMetaData.setSerial("2");
@@ -140,16 +163,16 @@ public class EnrollDevice extends VtsRequest {
         var = new JSONObject();
         var.put("certFormat", "X509");
         var.put("certUsage", CertUsage.CONFIDENTIALITY);
-        byte[] b64data = Base64.encodeBase64URLSafe(devEncKeyPair.getCertificate().getBytes());
-        var.put("certValue",new String(b64data));
+        byte[] b64EncCert = Base64.encodeBase64URLSafe(devEncKeyPair.getCertificate().getBytes());
+        var.put("certValue",new String(b64EncCert));
         deviceCerts.put(0,var);
 
         // Device Encryption Certificate
         var = new JSONObject();
         var.put("certFormat", "X509");
         var.put("certUsage", CertUsage.INTEGRITY);
-        byte[] twoencodedBytes = Base64.encodeBase64URLSafe(devSignKeyPair.getCertificate().getBytes());
-        var.put("certValue",new String(twoencodedBytes));
+        byte[] b64SignCert = Base64.encodeBase64URLSafe(devSignKeyPair.getCertificate().getBytes());
+        var.put("certValue",new String(b64SignCert));
         deviceCerts.put(1,var);
 
         JSONObject encryptionScheme=new JSONObject();
@@ -191,10 +214,10 @@ public class EnrollDevice extends VtsRequest {
             jsonResponse.put("statusMessage",String.valueOf(response.getStatusCode().getReasonPhrase()));
             result=response.getBody();
             jsonObject=new JSONObject(result);
-            jsonObject.put("devEncKeyPair",devEncKeyPair);
-            jsonObject.put("devEncCertificate",new String(b64data));
-            jsonObject.put("devSignKeyPair",devSignKeyPair);
-            jsonObject.put("devSignCertificate",new String(twoencodedBytes));
+            jsonObject.put("devEncKeyPair",devEncKeyPair.getPrivateKeyHex());
+            jsonObject.put("devEncCertificate",new String(b64EncCert));
+            jsonObject.put("devSignKeyPair",devSignKeyPair.getPrivateKeyHex());
+            jsonObject.put("devSignCertificate",new String(b64SignCert));
 
             jsonObject.put("vtsCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY.name());
             jsonObject.put("vtsCerts-vCertificateID-confidentiality",vtsCertificateIDConf);
@@ -204,16 +227,19 @@ public class EnrollDevice extends VtsRequest {
 
             jsonObject.put("deviceCerts-certFormat-confidentiality","X509");
             jsonObject.put("deviceCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY);
-            jsonObject.put("deviceCerts-certValue-confidentiality",new String(b64data));
+            jsonObject.put("deviceCerts-certValue-confidentiality",new String(b64EncCert));
 
             jsonObject.put("deviceCerts-certFormat-integrity","X509");
             jsonObject.put("deviceCerts-certUsage-integrity",CertUsage.INTEGRITY);
-            jsonObject.put("deviceCerts-certValue-integrity",new String(twoencodedBytes));
+            jsonObject.put("deviceCerts-certValue-integrity",new String(b64SignCert));
 
 
             jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
            // ((HttpClientErrorException)e).getResponseBodyAsString();
+            LOGGER.debug("Exception Occurred EnrollDevice->enrollDevice");
+            String error = ((HttpClientErrorException) e).getResponseBodyAsString();
+            String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
             jsonResponse=new JSONObject();
             jsonResponse.put("statusCode",e.getMessage());
             jsonResponse.put("statusMessage","unauthorised");

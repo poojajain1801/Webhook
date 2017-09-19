@@ -6,16 +6,15 @@ import lombok.Getter;
  * Created by amgoth.madan on 5/10/2017.
  */
 @Getter
-public class GetTokenStatusRequest extends PayAppServerReq{
+public class GetTokenStatusRequest {
 
-    private String userId;
-    private String activationCode;
+    private String vprovisionedTokenID;
 
-    public GetTokenStatusRequest(String userId, String activationCode) {
-        this.userId = userId;
-        this.activationCode = activationCode;
+    public GetTokenStatusRequest(String vprovisionedTokenID) {
+        this.vprovisionedTokenID = vprovisionedTokenID;
     }
 
     public GetTokenStatusRequest() {
+
     }
 }

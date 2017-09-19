@@ -75,4 +75,19 @@ public class HCEMessageCodes {
     }
 
 
+    /** The Constant USER_NOT_ACTIVE. */
+    public static String INVALID_USER ;
+    @Value("${INVALID_USER}")
+    public static String getInvalidUser() {
+        return INVALID_USER;
+    }
+
+    /** The Constant INVALID_OPERATION. */
+    public static String INVALID_OPERATION;
+
+    @Value("${INVALID_OPERATION}")
+    public static String getInvalidOperation() {
+        return INVALID_OPERATION;
+    }
+
 }

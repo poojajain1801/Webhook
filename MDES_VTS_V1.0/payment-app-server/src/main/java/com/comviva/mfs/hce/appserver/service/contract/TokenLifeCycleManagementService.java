@@ -10,7 +10,5 @@ import java.util.Map;
 public interface TokenLifeCycleManagementService {
     Map<String,Object>getPaymentDataGivenTokenID( GetPaymentDataGivenTokenIDRequest getPaymentDataGivenTokenIDRequest);
     Map<String,Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest);
-    Map<String,Object>suspendToken(SuspendTokenRequest suspendTokenRequest);
-    Map<String,Object>resumeToken(ResumeTokenRequest resumeTokenRequest);
-    Map<String,Object>deleteToken(DeleteTokenRequest deleteTokenRequest);
+    Map<String,Object>lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest);
 }

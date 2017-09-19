@@ -11,12 +11,10 @@ import lombok.Setter;
 @Setter
 public class GetCardMetadataRequest {
 
-    private String userId;
-    private String activationCode;
-    public GetCardMetadataRequest(String userId, String activationCode) {
+    private String vpanEnrollmentID;
 
-        this.userId=userId;
-        this.activationCode=activationCode;
+    public GetCardMetadataRequest(String vpanEnrollmentID) {
+        this.vpanEnrollmentID = vpanEnrollmentID;
     }
 
     public GetCardMetadataRequest() {

@@ -2,12 +2,15 @@ package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
+import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
 import lombok.Setter;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -46,6 +49,8 @@ public class EnrollDeviceVts {
     private EncDevicePersoData encDevicePersoData;
     private EnrollDeviceRequest enrollDeviceRequest;
     private DevicePersoData devicePersoData;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDeviceVts.class);
+
 
     public EnrollDeviceVts () {
         devicePersoData=new DevicePersoData();
@@ -54,6 +59,7 @@ public class EnrollDeviceVts {
         return encDevicePersoData;
     }
      public String register(final String vClientID) {
+         LOGGER.debug("Inside EnrollDeviceVts->Register");
         EnrollDevice enrollDevice = new EnrollDevice(env);
         enrollDevice.setVClientID(vClientID);
         String response="";
@@ -61,15 +67,19 @@ public class EnrollDeviceVts {
             response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID());
         } catch (IOException e) {
             e.printStackTrace();
+            LOGGER.debug("Exception occurred in EnrollDeviceVts->register");
         } catch (GeneralSecurityException e) {
+            LOGGER.debug("Exception occurred in EnrollDeviceVts->register");
             e.printStackTrace();
         }
+         LOGGER.debug("Exit EnrollDeviceVts->register");
          return encDevicePersoData(response);
     }
 
 
     //method to create encDevicePersoData
     public String encDevicePersoData(String inputString){
+        LOGGER.debug("Inside EnrollDeviceVts->encDevicePersoData");
         JSONObject jsonObject=new JSONObject(inputString);
         if("200".equals(jsonObject.get("statusCode"))) {
             devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
@@ -91,6 +101,7 @@ public class EnrollDeviceVts {
                 jsonObject.put("statusCode", "444");
                 jsonObject.put("statusMessage", "Error while Encrypting Device PersoData");
                 jsonObject.put("Error Message", e.getMessage());
+                LOGGER.debug("Exception occurred in EnrollDeviceVts->encDevicePersoData");
                 return jsonObject.toString();
             }
             JSONObject devicePersoDataObject = new JSONObject();
@@ -103,6 +114,7 @@ public class EnrollDeviceVts {
             devicePersoDataObject.put("encCert", encDevicePersoData.getEncCert());
             jsonObject.put("encDevicePersoData", devicePersoDataObject);
         }
+        LOGGER.debug("Exit EnrollDeviceVts->encDevicePersoData");
         return jsonObject.toString();
     }
     //end

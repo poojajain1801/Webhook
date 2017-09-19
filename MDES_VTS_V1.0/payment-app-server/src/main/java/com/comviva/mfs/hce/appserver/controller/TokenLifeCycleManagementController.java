@@ -3,6 +3,8 @@ package com.comviva.mfs.hce.appserver.controller;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/token")
 public class TokenLifeCycleManagementController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenLifeCycleManagementController.class);
 
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
@@ -31,21 +34,18 @@ public class TokenLifeCycleManagementController {
     @ResponseBody
     @RequestMapping(value = "/getTokenStatus",method = RequestMethod.POST)
     public Map<String,Object>getTokenStatus(@RequestBody GetTokenStatusRequest getTokenStatusRequest){
-        return tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequest);
+        LOGGER.debug("Enter TokenLifeCycleManagementController->getTokenStatus");
+        Map<String,Object> getTokenStatus = tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequest);
+        LOGGER.debug("Exit TokenLifeCycleManagementController->getTokenStatus");
+        return getTokenStatus;
     }
+
     @ResponseBody
-    @RequestMapping(value = "/suspendToken",method = RequestMethod.POST)
-    public Map<String,Object>suspendToken(@RequestBody SuspendTokenRequest suspendTokenRequest){
-        return tokenLifeCycleManagementService.suspendToken(suspendTokenRequest);
-    }
-    @ResponseBody
-    @RequestMapping(value = "/resumeToken",method = RequestMethod.POST)
-    public Map<String,Object>resumeToken(@RequestBody ResumeTokenRequest resumeTokenRequest){
-        return tokenLifeCycleManagementService.resumeToken(resumeTokenRequest);
-    }
-    @ResponseBody
-    @RequestMapping(value = "/deleteToken",method = RequestMethod.POST)
-    public Map<String,Object>deleteToken(@RequestBody DeleteTokenRequest deleteTokenRequest){
-        return tokenLifeCycleManagementService.deleteToken(deleteTokenRequest);
+    @RequestMapping(value = "/lifeCycleManagementVisa",method = RequestMethod.POST)
+    public Map<String,Object>lifeCycleManagementVisa(@RequestBody LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest){
+        LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
+        Map <String,Object> deleteTokenResp =  tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
+        LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
+        return deleteTokenResp;
     }
 }
