@@ -48,6 +48,7 @@ import com.comviva.hceservice.tds.TransactionHistory;
 import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.NfcSetting;
 import com.comviva.hceservice.util.NfcUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.constant.Constants;
 import com.mastercard.mcbp.card.cvm.PinListener;
@@ -389,6 +390,55 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private void replenish() {
+        Digitization digitization = Digitization.getInstance();
+        digitization.replenishTransactionCredential(currentCard, new ResponseListener() {
+            @Override
+            public void onStarted() {
+                progressDialog = new ProgressDialog(HomeActivity.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+
+            @Override
+            public void onSuccess() {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Success")
+                        .setMessage("Replenishment Successfully")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            @Override
+            public void onError(SdkError sdkError) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Error")
+                        .setMessage(sdkError.getMessage())
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -527,6 +577,10 @@ public class HomeActivity extends AppCompatActivity {
 
             case R.id.unregisterTds:
                 unregisterFromTds(tokenUniqueReference);
+                return true;
+
+            case R.id.replenish:
+                replenish();
                 return true;
 
             default:

@@ -87,9 +87,9 @@ public class ComvivaSdk {
 
     private void loadConfiguration() {
         Context ctx = application.getApplicationContext();
+        PropertyReader propertyReader = PropertyReader.getInstance(ctx);
         SharedPreferences sharedPrefConf = ctx.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         if (!sharedPrefConf.contains(Constants.KEY_PAYMENT_APP_SERVER_IP)) {
-            PropertyReader propertyReader = PropertyReader.getInstance(ctx);
             String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER);
             String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER);
             String cmsdServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_CMS_D);
@@ -277,7 +277,7 @@ public class ComvivaSdk {
             vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
             for (TokenData tokenData : vtsCards) {
                 paymentCard = new PaymentCard(tokenData);
-                if (tokenData.getTokenKey().getTokenId() == Long.parseLong(defaultCardUniqueId)) {
+                if (defaultCardUniqueId.equalsIgnoreCase(String.format("%d", tokenData.getTokenKey().getTokenId()))) {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);

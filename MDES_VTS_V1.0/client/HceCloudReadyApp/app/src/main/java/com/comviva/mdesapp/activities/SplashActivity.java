@@ -12,20 +12,48 @@ import com.comviva.mdesapp.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private void changeConfiguration() {
-        ComvivaSdk comvivaSdk;
-        try {
-            Intent intent = new Intent(this, ConfigurationActivity.class);
-            comvivaSdk = ComvivaSdk.getInstance(getApplication());
-            if (!comvivaSdk.isSdkInitialized()) {
-                startActivity(intent);
-                finish();
-                return;
-            }
-            // Check that application is registered
-            intent = new Intent(this, HomeActivity.class);
+    private void changeConfiguration(ComvivaSdk comvivaSdk) {
+        Intent intent = new Intent(this, ConfigurationActivity.class);
+        if (!comvivaSdk.isSdkInitialized()) {
             startActivity(intent);
-            this.finish();
+            finish();
+            return;
+        }
+        // Check that application is registered
+        intent = new Intent(this, HomeActivity.class);
+        startActivity(intent);
+        this.finish();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
+
+        final ComvivaSdk comvivaSdk;
+
+        try {
+            comvivaSdk = ComvivaSdk.getInstance(getApplication());
+
+            if(!comvivaSdk.isSdkInitialized()) {
+                new AlertDialog.Builder(SplashActivity.this)
+                        .setTitle("Configuration")
+                        .setMessage("Do you want to change Configuration")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                changeConfiguration(comvivaSdk);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(SplashActivity.this, RegisterUserActivity.class));
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            } else {
+                startActivity(new Intent(SplashActivity.this, HomeActivity.class));
+            }
         } catch (SdkException e) {
             new AlertDialog.Builder(SplashActivity.this)
                     .setTitle("Error")
@@ -37,30 +65,5 @@ public class SplashActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
-
-        new AlertDialog.Builder(SplashActivity.this)
-                .setTitle("Configuration")
-                .setMessage("Do you want to change Configuration")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        changeConfiguration();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(SplashActivity.this, RegisterUserActivity.class));
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
-
-
-
     }
 }

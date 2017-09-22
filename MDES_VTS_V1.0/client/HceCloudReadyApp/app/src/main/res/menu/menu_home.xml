@@ -46,4 +46,9 @@
         android:id="@+id/unregisterTds"
         android:orderInCategory="100"
         android:title="Unregister TDS" />
+
+    <item
+        android:id="@+id/replenish"
+        android:orderInCategory="100"
+        android:title="Replenish" />
 </menu>

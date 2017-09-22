@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
 
+import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.common.SdkErrorImpl;
+import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.Tags;
-import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
 import com.visa.cbp.external.aam.ReplenishAckRequest;
 import com.visa.cbp.external.aam.ReplenishRequest;
@@ -49,8 +52,8 @@ public class ActiveAccountManagementService extends Service {
                         }
 
                         @Override
-                        public void onError(String error) {
-                            sendNotification(false, tokenKey, error);
+                        public void onError(SdkError sdkError) {
+                            sendNotification(false, tokenKey, sdkError.getMessage());
                         }
                     });
                    /* ReplenishProvider replenishProvider = new ReplenishProviderImpl(vProvisionTokenId);
@@ -74,7 +77,7 @@ public class ActiveAccountManagementService extends Service {
             replenishTokenRequestObject.put(Tags.ENCRYPTION_META_DATA.getTag(), replenishRequest.getEncryptionMetaData());
 
         } catch (Exception e) {
-            responseListener.onError("Error while preparing request");
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -92,19 +95,18 @@ public class ActiveAccountManagementService extends Service {
                         confirmReplenishment(responseListener, tokenKey);
                     } else {
                         if (responseListener != null) {
-                            responseListener.onError(httpResponse.getResponse());
+                            responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                         }
                     }
                 } catch (Exception e) {
                     if (responseListener != null) {
-                        responseListener.onError("Wrong data from server");
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
         }
         ReplenishTokenRequest replenishTokenRequest = new ReplenishTokenRequest();
         replenishTokenRequest.execute();
-
     }
 
     private void confirmReplenishment(final ResponseListener responseListener, TokenKey tokenKey) {
@@ -115,7 +117,7 @@ public class ActiveAccountManagementService extends Service {
             // confirmReplenishTokenRequestObject.put(Tags.ACTIVATION_CODE.getTag(),replenishRequest.get);
             confirmReplenishTokenRequestObject.put(Tags.TOKEN_INFO.getTag(), replenishAckRequest.getTokenInfo());
         } catch (Exception e) {
-            responseListener.onError("Error while preparing request");
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -132,12 +134,12 @@ public class ActiveAccountManagementService extends Service {
                         responseListener.onSuccess();
                     } else {
                         if (responseListener != null) {
-                            responseListener.onError(httpResponse.getResponse());
+                            responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                         }
                     }
                 } catch (Exception e) {
                     if (responseListener != null) {
-                        responseListener.onError("Wrong data from server");
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }

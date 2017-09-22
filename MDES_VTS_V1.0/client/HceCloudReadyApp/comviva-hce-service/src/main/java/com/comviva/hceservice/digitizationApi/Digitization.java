@@ -18,6 +18,7 @@ import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.LuhnUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.MdesMcbpWalletApi;
@@ -225,7 +226,7 @@ public class Digitization {
             Log.d("ComvivaSdkError", e.getMessage());
             return;
         } finally {
-            if(baMobKeySetId != null) {
+            if (baMobKeySetId != null) {
                 Arrays.fill(baMobKeySetId, Constants.DEFAULT_FILL_VALUE);
             }
         }
@@ -278,6 +279,7 @@ public class Digitization {
 
                 case VTS:
                     vtsCardList.add(card);
+                    break;
 
                 default:
                     cardLcmListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
@@ -540,6 +542,33 @@ public class Digitization {
             }
         } catch (VisaPaymentSDKException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Replenish Transaction Credential for the given token.
+     * @param paymentCard   Token to be replenished
+     * @param listener      UI Lister
+     */
+    public void replenishTransactionCredential(PaymentCard paymentCard, ResponseListener listener) {
+        switch (paymentCard.getCardType()) {
+            case VTS:
+                DigitizationVts digitizationVts = new DigitizationVts();
+                digitizationVts.replenishLuk(paymentCard, listener);
+                break;
+
+            case MDES:
+                ComvivaSdk comvivaSdk;
+                try {
+                    comvivaSdk = ComvivaSdk.getInstance(null);
+                    comvivaSdk.replenishCard(paymentCard.getCardUniqueId());
+                } catch (SdkException e) {
+
+                }
+                break;
+
+            default:
+                // Unsupported Card
         }
     }
 }

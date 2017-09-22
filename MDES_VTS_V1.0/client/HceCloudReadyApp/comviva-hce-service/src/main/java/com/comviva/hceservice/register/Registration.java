@@ -101,7 +101,6 @@ public class Registration {
             JSONObject jsDeviceInfo = getDeviceInfoInJson();
             regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(jsDeviceInfo.getString("imei")));
 
-
             // VTS
             if (registerParam.getSchemeType().equals(SchemeType.ALL) || registerParam.getSchemeType().equals(SchemeType.VISA)) {
                 // VTS Registration Parameters
@@ -511,7 +510,7 @@ public class Registration {
                     try {
                         JSONObject respObj = new JSONObject(httpResponse.getResponse());
                         int respCode = respObj.getInt("responseCode");
-                        if (respCode != 204) {
+                        if (respCode != 200) {
                             registrationListener.onError(SdkErrorImpl.getInstance(respCode, respObj.getString("message")));
                             return;
                         }

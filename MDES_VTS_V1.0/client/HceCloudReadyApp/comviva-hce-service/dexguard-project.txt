@@ -16,11 +16,9 @@
 -dontwarn org.apache.cordova.*
 -dontwarn com.guardsquare.dexguard.runtime.encryption.*
 
--injars libs
+#-injars libs
 
--keepresourcefiles jni/**/libvisacrypto.so
--keepresourcefiles libmcbpcore-jni.so
--keepresourcefiles libmcbpcryptoservice-jni.so
+#-keepresourcefiles jni/**/*.so
 
 -printconfiguration config.txt
 
@@ -107,7 +105,7 @@
     public public *;
 }
 
-###### com.comviva.hceservice.common Package
+###### com.comviva.hceservice.common
 -keep public enum com.comviva.hceservice.common.CardType {
     public public *;
 }
@@ -135,7 +133,18 @@
 -keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
     public public *;
 }
+-keep public interface com.comviva.hceservice.common.SdkError {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.common.CommonListener {
+    public public *;
+}
+
+###### com.comviva.hceservice.security
 -keep public interface com.comviva.hceservice.security.SecurityInf {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.security.DeviceStatus {
     public public *;
 }
 
