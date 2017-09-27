@@ -334,7 +334,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 VisaCardDetails visaCardDetails = new VisaCardDetails();
                 visaCardDetails.setUserName(enrollPanRequest.getUserId());
                 visaCardDetails.setCardnumbersuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
-                visaCardDetails.setVpanenrollmentid((String) jsonResponse.get("vPanEnrollmentID"));
+                visaCardDetails.setvPanEnrollmentId((String) jsonResponse.get("vPanEnrollmentID"));
                 visaCardDetails.setStatus("Y");
                 visaCardDetailRepository.save(visaCardDetails);
                 // responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());

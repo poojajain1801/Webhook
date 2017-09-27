@@ -75,7 +75,7 @@ public class VtsRequest {
     }
 
     protected void prepareHeader(JSONObject prepareHeaderRequest) {
-        headers.add("x-request-registrationId", (String) prepareHeaderRequest.get("xRequestId"));
+        headers.add("x-request-id", (String) prepareHeaderRequest.get("xRequestId"));
         headers.add("x-pay-token", generateXPayToken(prepareHeaderRequest));
         try {
          //   headers.add("Content-Length",String.valueOf(requestBody.getBytes("UTF-8").length));
@@ -96,7 +96,7 @@ public class VtsRequest {
         //String resource_path="vts/clients/vClientID/devices/clientDeviceID";
         //String hashInput = (utcTimestamp+resource_path+query_string+object.toString());
         String hashInput = (utcTimestamp+(String)prepareHeaderRequest.get("resourcePath")+prepareHeaderRequest.get("queryString")+prepareHeaderRequest.get("requestBody"));
-        System.out.println("hashInput:   "+hashInput);
+        System.out.println("hashInput:"+hashInput);
         try {
             byte[] bHmacSha256 = MessageDigestUtil.hMacSha256(hashInput.getBytes("UTF-8"),sharedSecret);
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();

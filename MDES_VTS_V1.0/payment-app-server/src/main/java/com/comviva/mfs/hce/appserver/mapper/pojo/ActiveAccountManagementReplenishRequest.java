@@ -3,6 +3,9 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Array;
+import java.util.List;
+
 /**
  * ActiveAccountManagementReplenishRequest.
  * Created by Amgoth.madan on 4/25/2017.
@@ -11,24 +14,18 @@ import lombok.Setter;
 @Setter
 public class ActiveAccountManagementReplenishRequest {
 
-    private String userId;
-    private String activationCode;
     private String mac;
     private String api;
     private String sc;
-    private String tvl;
-    private String encryptionMetaData;
+    private Array[] tvl;
+    private String vprovisionedTokenID;
 
-
-    public ActiveAccountManagementReplenishRequest(String userId, String activationCode, String mac, String api, String sc, String tvl,String encryptionMetaData) {
-
-        this.userId=userId;
-        this.activationCode=activationCode;
-        this.mac=mac;
-        this.api=api;
-        this.sc=sc;
-        this.tvl=tvl;
-        this.encryptionMetaData=encryptionMetaData;
+    public ActiveAccountManagementReplenishRequest(String mac, String api, String sc, Array[] tvl, String vprovisionedTokenID) {
+        this.mac = mac;
+        this.api = api;
+        this.sc = sc;
+        this.tvl = tvl;
+        this.vprovisionedTokenID = vprovisionedTokenID;
     }
 
     public ActiveAccountManagementReplenishRequest() {

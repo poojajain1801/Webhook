@@ -28,7 +28,20 @@ public class VisaCardDetails implements Serializable {
     @Column(name="USER_NAME")
     private String userName;
 
-    private String vpanenrollmentid;
+    @Column(name = "V_PAN_ENROLLMENT_ID")
+    private String vPanEnrollmentId;
+
+    @Column(name="V_PROVISIONED_TOKEN_ID")
+    private String vProvisionedTokenId;
+
+    public VisaCardDetails(String id, String cardnumbersuffix, String status, String userName, String vPanEnrollmentId, String vProvisionedTokenId) {
+        this.id = id;
+        this.cardnumbersuffix = cardnumbersuffix;
+        this.status = status;
+        this.userName = userName;
+        this.vPanEnrollmentId = vPanEnrollmentId;
+        this.vProvisionedTokenId = vProvisionedTokenId;
+    }
 
     public VisaCardDetails() {
     }
@@ -65,12 +78,19 @@ public class VisaCardDetails implements Serializable {
         this.userName = userName;
     }
 
-    public String getVpanenrollmentid() {
-        return this.vpanenrollmentid;
+    public String getvPanEnrollmentId() {
+        return vPanEnrollmentId;
     }
 
-    public void setVpanenrollmentid(String vpanenrollmentid) {
-        this.vpanenrollmentid = vpanenrollmentid;
+    public String getvProvisionedTokenId() {
+        return vProvisionedTokenId;
     }
 
+    public void setvPanEnrollmentId(String vPanEnrollmentId) {
+        this.vPanEnrollmentId = vPanEnrollmentId;
+    }
+
+    public void setvProvisionedTokenId(String vProvisionedTokenId) {
+        this.vProvisionedTokenId = vProvisionedTokenId;
+    }
 }

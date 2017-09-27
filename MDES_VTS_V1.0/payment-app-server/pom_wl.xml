@@ -451,6 +451,30 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>echodir</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <tasks>
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.40.1.jar" />
+                                </copy>
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="VisaMapUtil-SBX-4.6.1.jar" />
+                                </copy>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
