@@ -3,23 +3,22 @@ package com.comviva.mdesapp.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.SdkError;
-import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.digitizationApi.DigitizationListener;
 import com.comviva.hceservice.digitizationApi.DigitizationRequest;
+import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 public class TnCActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -36,7 +35,7 @@ public class TnCActivity extends AppCompatActivity {
         // Get the Value of Terms And Conditions
         final ContentGuid tncContent = (ContentGuid) getIntent().getSerializableExtra("eligibilityResponse");
         MediaContent[] mediaContents = tncContent.getContent();
-        if(mediaContents.length != 0) {
+        if (mediaContents.length != 0) {
             etTnC.setText(mediaContents[0].getData());
         }
         final CardType cardType = (CardType) getIntent().getSerializableExtra("CardType");
@@ -86,18 +85,20 @@ public class TnCActivity extends AppCompatActivity {
                         }
 
                         // Request Session
-                        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-
-                        new AlertDialog.Builder(TnCActivity.this)
-                                .setTitle("Error")
-                                .setMessage("Card will Added Soon")
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        digitization.requestSession();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
+                        if (cardType == CardType.MDES) {
+                            new AlertDialog.Builder(TnCActivity.this)
+                                    .setTitle("Error")
+                                    .setMessage("Card will Added Soon")
+                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            digitization.requestSession();
+                                        }
+                                    })
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                        } else if(cardType == CardType.VTS) {
+                            startActivity(new Intent(TnCActivity.this, HomeActivity.class));
+                        }
                     }
 
                     @Override

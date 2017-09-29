@@ -2,6 +2,7 @@ package com.comviva.hceservice.common;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
@@ -11,6 +12,7 @@ import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.security.DexGuardSecurity;
 import com.comviva.hceservice.security.SecurityInf;
+import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
@@ -46,6 +48,7 @@ public class ComvivaSdk {
         commonDb = new CommonDatabase(application.getApplicationContext());
         VisaPaymentSDKImpl.initialize(application.getApplicationContext());
         McbpInitializer.setup(application, null);
+        loadConfiguration();
     }
 
     /**
@@ -61,41 +64,63 @@ public class ComvivaSdk {
     private static void checkSecurity() throws SdkException {
         // Check for Debug Mode
         SecurityInf securityInf = comvivaSdk.getSecurityInf();
-        if(securityInf.isDebuggable()) {
+        if (securityInf.isDebuggable()) {
             // Close the application
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
 
         // Check that device is Rooted
-        if(securityInf.isDeviceRooted()) {
+        if (securityInf.isDeviceRooted()) {
             // Delete all data from SDK and inform to server
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
 
         // Check for Tamper detection
-        if(securityInf.isApkTampered()) {
+        if (securityInf.isApkTampered()) {
             // Delete all data from SDK and inform to server
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
     }
 
+    private void loadConfiguration() {
+        Context ctx = application.getApplicationContext();
+        PropertyReader propertyReader = PropertyReader.getInstance(ctx);
+        SharedPreferences sharedPrefConf = ctx.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        if (!sharedPrefConf.contains(Constants.KEY_PAYMENT_APP_SERVER_IP)) {
+            String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER);
+            String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER);
+            String cmsdServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_CMS_D);
+            String cmsdServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_CMS_D);
+
+            SharedPreferences.Editor editor = sharedPrefConf.edit();
+            editor.putString(Constants.KEY_PAYMENT_APP_SERVER_IP, paymentAppServerIp);
+            editor.putString(Constants.KEY_PAYMENT_APP_SERVER_PORT, paymentAppServerPort);
+            editor.putString(Constants.KEY_CMS_D_SERVER_IP, cmsdServerIp);
+            editor.putString(Constants.KEY_CMS_D_SERVER_PORT, cmsdServerPort);
+            editor.putBoolean(Constants.KEY_MDES_TDS_REG_STATUS, false);
+            editor.putString(Constants.KEY_TDS_REG_TOKEN_UNIQUE_REF, null);
+            editor.apply();
+        }
+
+        UrlUtil.initialize(sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_IP, null),
+                sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_PORT, null),
+                sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_IP, null),
+                sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null));
+    }
+
     /**
      * <p>Returns Singleton Instance of this class.</p>
      * <p>Note-Invoke this method for at-least once while starting the application to initialize ComvivaSdk object</p>
+     *
      * @param context Current Context
      * @return Singleton ComvivaSdk Instance
-     * @throws SdkException If appliccation is in debug mode, device is rooted or apk is tampered
+     * @throws SdkException If debug mode is on, device is rooted or apk is tampered
      */
     public static ComvivaSdk getInstance(Application context) throws SdkException {
-        if(comvivaSdk == null) {
-            PropertyReader propertyReader = PropertyReader.getInstance(context);
-            UrlUtil.initialize(propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER),
-                    propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER),
-                    propertyReader.getProperty(PropertyConst.KEY_IP_CMS_D),
-                    propertyReader.getProperty(PropertyConst.KEY_PORT_CMS_D));
+        if (comvivaSdk == null) {
             comvivaSdk = new ComvivaSdk(context);
         }
 
@@ -105,18 +130,10 @@ public class ComvivaSdk {
     }
 
     /**
-     * Use this api to get ComvivaSDK's singleton instance after calling once the getInstance(Application context) method.
-     * @return Singleton ComvivaSdk Instance
-     */
-    public static ComvivaSdk getInstance() {
-        return comvivaSdk;
-    }
-
-    /**
      * Checks that SDK is initialized of not.
      *
      * @return <code>true </code> SDK is initialized <br>
-     *     <code>false </code> SDK is uninitialized
+     * <code>false </code> SDK is uninitialized
      */
     public boolean isSdkInitialized() {
         return commonDb.getInitializationData().isInitState();
@@ -124,6 +141,7 @@ public class ComvivaSdk {
 
     /**
      * Returns Remote Notification Detail.
+     *
      * @return RnsInfo object
      */
     public RnsInfo getRnsInfo() {
@@ -132,6 +150,7 @@ public class ComvivaSdk {
 
     /**
      * Saves Remote Notification Detail
+     *
      * @param rnsInfo
      */
     public void saveRnsInfo(RnsInfo rnsInfo) {
@@ -140,6 +159,7 @@ public class ComvivaSdk {
 
     /**
      * Initialize ComvivaSdk with initial data.
+     *
      * @param initData Initialization data
      */
     public void initializeSdk(ComvivaSdkInitData initData) {
@@ -148,6 +168,7 @@ public class ComvivaSdk {
 
     /**
      * Returns Initialization Data.
+     *
      * @return Initialization data
      */
     public ComvivaSdkInitData getInitializationData() {
@@ -156,6 +177,7 @@ public class ComvivaSdk {
 
     /**
      * Returns Application context
+     *
      * @return Application Context
      */
     public Context getApplicationContext() {
@@ -164,6 +186,7 @@ public class ComvivaSdk {
 
     /**
      * Returns PaymentAppInstanceId
+     *
      * @return PaymentAppInstanceId
      */
     public String getPaymentAppInstanceId() {
@@ -172,6 +195,7 @@ public class ComvivaSdk {
 
     /**
      * Returns PaymentAppProviderId
+     *
      * @return PaymentAppProviderId
      */
     public String getPaymentAppProviderId() {
@@ -180,7 +204,8 @@ public class ComvivaSdk {
 
     /**
      * replenish new Transaction credentials for given Token
-     * @param tokenUniqueReference  TokenUniqueReference which needs to be replenished.
+     *
+     * @param tokenUniqueReference TokenUniqueReference which needs to be replenished.
      */
     public void replenishCard(String tokenUniqueReference) {
         try {
@@ -192,16 +217,18 @@ public class ComvivaSdk {
 
     /**
      * Checks that given token is registered for given token or not.
-     * @param tokenUniqueReference Token Unique Reference to checked.
+     *
      * @return <code>true </code>Registered for TDS<br>
-     *     <code>false </code>Not registered yet for TDS
+     * <code>false </code>Not registered yet for TDS
      */
-    public boolean isTdsRegistered(final String tokenUniqueReference) {
-        return commonDb.getTdsRegistrationData(tokenUniqueReference) != null;
+    public boolean isTdsRegistered() {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        return sharedPrefConf.getBoolean(Constants.KEY_MDES_TDS_REG_STATUS, false);
     }
 
     /**
      * Returns currently Selected Cards
+     *
      * @return Selected Card
      */
     public PaymentCard getSelectedCard() {
@@ -210,17 +237,19 @@ public class ComvivaSdk {
 
     /**
      * Set currently selected card
+     *
      * @param paymentCard Card to be selected
      */
     public void setSelectedCard(PaymentCard paymentCard) {
         this.selectedCard = paymentCard;
-        if(selectedCard.getCardType() == CardType.MDES) {
+        if (selectedCard.getCardType() == CardType.MDES) {
             McbpWalletApi.setCurrentCard((McbpCard) selectedCard.getCurrentCard());
         }
     }
 
     /**
      * Returns all card stored in in the SDK.
+     *
      * @return List of cards
      */
     public ArrayList<PaymentCard> getAllCards() {
@@ -233,22 +262,22 @@ public class ComvivaSdk {
         SchemeType enrollmentStatus = checkEnrolmentStatus();
         PaymentCard paymentCard;
 
-        if(enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.MASTERCARD) {
+        if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.MASTERCARD) {
             mdesCards = McbpWalletApi.getCards(true);
             for (McbpCard mcbpCard : mdesCards) {
                 paymentCard = new PaymentCard(mcbpCard);
-                if(mcbpCard.getDigitizedCardId().equalsIgnoreCase(defaultCardUniqueId)) {
+                if (mcbpCard.getDigitizedCardId().equalsIgnoreCase(defaultCardUniqueId)) {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);
             }
         }
 
-        if(enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
+        if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
             vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
-            for (TokenData tokenData :  vtsCards) {
+            for (TokenData tokenData : vtsCards) {
                 paymentCard = new PaymentCard(tokenData);
-                if(tokenData.getTokenKey().getTokenId() == Long.parseLong(defaultCardUniqueId)) {
+                if (defaultCardUniqueId.equalsIgnoreCase(String.format("%d", tokenData.getTokenKey().getTokenId()))) {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);
@@ -260,9 +289,10 @@ public class ComvivaSdk {
     /**
      * Activates a card recently added.<br>
      * Invoke this method within public boolean onCardAdded(final String tokenUniqueReference) method of ComvivaWalletListener.
+     *
      * @param tokenUniqueReference TokenUniqueReference received in onCardAdded method as parameter..
      * @return <code>true </code>If card is activated successfully<br>
-     *     <code>false </code>Card is not activated
+     * <code>false </code>Card is not activated
      */
     public boolean activateCard(final String tokenUniqueReference) {
         try {
@@ -283,6 +313,7 @@ public class ComvivaSdk {
 
     /**
      * Checks Enrollment status of device with all supported scheme.
+     *
      * @return Enrollment status
      */
     public SchemeType checkEnrolmentStatus() {
@@ -290,15 +321,15 @@ public class ComvivaSdk {
         boolean isVtsInitialized = initData.isVtsInitialized();
         boolean isMdesInitialized = initData.isMdesInitialized();
 
-        if(isMdesInitialized && isVtsInitialized) {
+        if (isMdesInitialized && isVtsInitialized) {
             return SchemeType.ALL;
         }
 
-        if(isVtsInitialized) {
+        if (isVtsInitialized) {
             return SchemeType.VISA;
         }
 
-        if(isMdesInitialized) {
+        if (isMdesInitialized) {
             return SchemeType.MASTERCARD;
         }
         return SchemeType.NONE;
@@ -306,8 +337,9 @@ public class ComvivaSdk {
 
     /**
      * Clears all data andd reset device to un-initialized state.
+     *
      * @return <code>true </code>Reset device successful <br>
-     *     <code>false </code>Reset device failed
+     * <code>false </code>Reset device failed
      */
     public boolean resetDevice() {
         // Clear MDES related data.
@@ -324,6 +356,7 @@ public class ComvivaSdk {
 
     /**
      * Set default card.
+     *
      * @param paymentCard Payment Card to be set as default card
      */
     public void setDefaultCard(PaymentCard paymentCard) {
@@ -332,6 +365,7 @@ public class ComvivaSdk {
 
     /**
      * Returns default card set.
+     *
      * @return Default Card
      */
     public PaymentCard getDefauPaymentCard() {
@@ -340,6 +374,7 @@ public class ComvivaSdk {
 
     /**
      * Returns SecurityInf instance.
+     *
      * @return SecurityInf Instance
      */
     public SecurityInf getSecurityInf() {
@@ -348,9 +383,72 @@ public class ComvivaSdk {
 
     /**
      * Set SecurityInf instance.
+     *
      * @param securityInf SecurityInf Instance
      */
     public void setSecurityInf(SecurityInf securityInf) {
         this.securityInf = securityInf;
+    }
+
+    /**
+     * Update Payment App Server IP & Port Number.
+     * @param paymentAppServerIp Server IP
+     * @param port Port Number
+     */
+    public void setPaymentAppServerConfiguration(String paymentAppServerIp, int port) {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPrefConf.edit();
+        editor.putString(Constants.KEY_PAYMENT_APP_SERVER_IP, paymentAppServerIp);
+        editor.putString(Constants.KEY_PAYMENT_APP_SERVER_PORT, String.format("%d", port));
+        editor.commit();
+    }
+
+    /**
+     * Update CMS-D Server IP & Port Number.
+     * @param cmsDServerIp Server IP
+     * @param port Port Number
+     */
+    public void setCmsDServerConfiguration(String cmsDServerIp, int port) {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPrefConf.edit();
+        editor.putString(Constants.KEY_CMS_D_SERVER_IP, cmsDServerIp);
+        editor.putString(Constants.KEY_CMS_D_SERVER_PORT, String.format("%d", port));
+        editor.commit();
+    }
+
+    /**
+     * Return Payment Server IP address.
+     * @return IP Address
+     */
+    public String getPaymentAppServerIP() {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        return sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_IP, null);
+    }
+
+    /**
+     * Return Payment Server Port Number.
+     * @return Port Number
+     */
+    public String getPaymentAppServerPort() {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        return sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_PORT, null);
+    }
+
+    /**
+     * Return CMS-D Server IP address.
+     * @return IP Address
+     */
+    public String getCmsDServerIP() {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        return sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_IP, null);
+    }
+
+    /**
+     * Return CMS-D Server Port Number.
+     * @return Port Number
+     */
+    public String getCmsDServerPort() {
+        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+        return sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null);
     }
 }

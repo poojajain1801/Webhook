@@ -8,12 +8,14 @@ import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationType;
 import com.comviva.hceservice.util.ArrayUtil;
+import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -41,37 +44,57 @@ class DigitizationMdes {
     private CardEligibilityResponse cardEligibilityResponse;
 
     private JSONObject prepareCardInfo(CardEligibilityRequest cardEligibilityRequest) throws JSONException,
-            GeneralSecurityException, IOException {
-        JSONObject cardInfo = new JSONObject();
-        JSONObject cardInfoData = new JSONObject();
-        // Preparing Card Info Data
-        cardInfoData.put("accountNumber", cardEligibilityRequest.getAccountNumber());
-        cardInfoData.put("expiryMonth", cardEligibilityRequest.getExpiryMonth());
-        cardInfoData.put("expiryYear", cardEligibilityRequest.getExpiryYear());
-        cardInfoData.put("source", cardEligibilityRequest.getSource());
-        cardInfoData.put("cardholderName", cardEligibilityRequest.getCardholderName());
-        cardInfoData.put("securityCode", cardEligibilityRequest.getSecurityCode());
+            GeneralSecurityException, IOException, SdkException {
+        byte[] oneTimeAesKey = null;
+        byte[] oneTimeIv = null;
+        byte[] encryptedKey = null;
+        byte[] baEncryptedData = null;
+        RSAPublicKey masterPubKey = null;
+        try {
+            JSONObject cardInfo = new JSONObject();
+            JSONObject cardInfoData = new JSONObject();
+            // Preparing Card Info Data
+            cardInfoData.put("accountNumber", cardEligibilityRequest.getAccountNumber());
+            cardInfoData.put("expiryMonth", cardEligibilityRequest.getExpiryMonth());
+            cardInfoData.put("expiryYear", cardEligibilityRequest.getExpiryYear());
+            cardInfoData.put("source", cardEligibilityRequest.getSource());
+            cardInfoData.put("cardholderName", cardEligibilityRequest.getCardholderName());
+            cardInfoData.put("securityCode", cardEligibilityRequest.getSecurityCode());
 
-        // Generating one time AES key & IV and encrypting card info data with AES key
-        byte[] oneTimeAesKey = ArrayUtil.getRandomNumber(16);
-        byte[] oneTimeIv = ArrayUtil.getRandomNumber(16);
-        byte[] baEncryptedData = AESUtil.cipherCBC(cardInfoData.toString().getBytes(), oneTimeAesKey,
-                oneTimeIv, AESUtil.Padding.PKCS5Padding, true);
+            // Generating one time AES key & IV and encrypting card info data with AES key
+            oneTimeAesKey = ArrayUtil.getRandomNumber(16);
+            oneTimeIv = ArrayUtil.getRandomNumber(16);
+            baEncryptedData = AESUtil.cipherCBC(cardInfoData.toString().getBytes(), oneTimeAesKey,
+                    oneTimeIv, AESUtil.Padding.PKCS5Padding, true);
 
-        // Encrypting AES key with Mastercard public key
-        RSAPublicKey masterPubKey = CertificateUtil.getRsaPublicKey("mastercard_public.cer",
-                ComvivaSdk.getInstance().getApplicationContext());
-        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, masterPubKey);
-        byte[] encryptedKey = cipher.doFinal(oneTimeAesKey);
+            // Encrypting AES key with Mastercard public key
+            masterPubKey = CertificateUtil.getRsaPublicKey("mastercard_public.cer",
+                    ComvivaSdk.getInstance(null).getApplicationContext());
+            Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, masterPubKey);
+            encryptedKey = cipher.doFinal(oneTimeAesKey);
 
-        // Preparing Card Info
-        cardInfo.put("encryptedData", ArrayUtil.getHexString(baEncryptedData));
-        cardInfo.put("encryptedKey", ArrayUtil.getHexString(encryptedKey));
-        cardInfo.put("iv", ArrayUtil.getHexString(oneTimeIv));
-        // TODO
-        cardInfo.put("publicKeyFingerPrint", "");
-        return cardInfo;
+            // Preparing Card Info
+            cardInfo.put("encryptedData", ArrayUtil.getHexString(baEncryptedData));
+            cardInfo.put("encryptedKey", ArrayUtil.getHexString(encryptedKey));
+            cardInfo.put("iv", ArrayUtil.getHexString(oneTimeIv));
+            // TODO
+            cardInfo.put("publicKeyFingerPrint", "");
+            return cardInfo;
+        } finally {
+            if (oneTimeAesKey != null) {
+                Arrays.fill(oneTimeAesKey, Constants.DEFAULT_FILL_VALUE);
+            }
+            if (oneTimeIv != null) {
+                Arrays.fill(oneTimeIv, Constants.DEFAULT_FILL_VALUE);
+            }
+            if (encryptedKey != null) {
+                Arrays.fill(encryptedKey, Constants.DEFAULT_FILL_VALUE);
+            }
+            if (baEncryptedData != null) {
+                Arrays.fill(baEncryptedData, Constants.DEFAULT_FILL_VALUE);
+            }
+        }
     }
 
     private class GetTnCAssetTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -145,7 +168,7 @@ class DigitizationMdes {
     void checkCardEligibilityMdes(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonCardEligibilityReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             JSONObject cardInfoData = prepareCardInfo(cardEligibilityRequest);
 
             jsonCardEligibilityReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
@@ -164,6 +187,10 @@ class DigitizationMdes {
         } catch (IOException e) {
             if (checkEligibilityListener != null) {
                 checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_IO_ERROR);
+            }
+        } catch (SdkException e) {
+            if (checkEligibilityListener != null) {
+                checkEligibilityListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
             }
         }
 
@@ -240,17 +267,17 @@ class DigitizationMdes {
                                 getTnCAssetTask.execute();
                                 return;
                             }
-                            if(checkEligibilityListener != null) {
+                            if (checkEligibilityListener != null) {
                                 checkEligibilityListener.onCheckEligibilityCompleted();
                             }
                         }
                     } else {
-                        if(checkEligibilityListener != null) {
+                        if (checkEligibilityListener != null) {
                             checkEligibilityListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
                         }
                     }
                 } catch (JSONException e) {
-                    if(checkEligibilityListener != null) {
+                    if (checkEligibilityListener != null) {
                         checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
                     }
                 }
@@ -339,9 +366,9 @@ class DigitizationMdes {
      * @param digitizationListener UI Listener
      */
     void digitize(DigitizationRequest digitizationRequest, final DigitizationListener digitizationListener) {
-        final ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
         final JSONObject jsonContinueDigitizationReq = new JSONObject();
         try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             JSONObject jsEligibilityReceipt = new JSONObject();
             EligibilityReceipt eligibilityReceipt = cardEligibilityResponse.getEligibilityReceipt();
             jsEligibilityReceipt.put("value", eligibilityReceipt.getValue());
@@ -355,6 +382,10 @@ class DigitizationMdes {
             jsonContinueDigitizationReq.put("termsAndConditionsAcceptedTimestamp", digitizationRequest.getTermsAndConditionsAcceptedTimestamp());
         } catch (JSONException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            digitizationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class DigitizeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -390,18 +421,6 @@ class DigitizationMdes {
                         final String tokenUniqueReference = respObj.getString("tokenUniqueReference");
                         final String panUniqueReference = respObj.getString("panUniqueReference");
 
-                        // TODO need to think, where to store
-                        // authenticationMethods auth req only
-                        // productConfig Obj
-                        // tokenInfo Obj
-                        // tdsRegistrationUrl conditional if supported
-
-                        // Insert this task into pending list
-                        /*RmPendingTask rmPendingTask = new RmPendingTask();
-                        rmPendingTask.setTaskId("123456");
-                        rmPendingTask.setTokenUniqueReference(tokenUniqueReference);
-                        comvivaSdk.getCommonDb().saveRmPendingTask(rmPendingTask);*/
-
                         if (decision.equalsIgnoreCase("APPROVED")) {
                             digitizationListener.onApproved();
                         } else if (decision.equalsIgnoreCase("REQUIRE_ADDITIONAL_AUTHENTICATION")) {
@@ -435,15 +454,21 @@ class DigitizationMdes {
      * Request new session to complete pending task.
      */
     public void requestSession() {
+        byte[] baMobKeySetId = null;
         final JSONObject requestSessionReq = new JSONObject();
         try {
-            byte[] baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             requestSessionReq.put("paymentAppProviderId", /*comvivaSdk.getPaymentAppProviderId()*/"ComvivaWallet");
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
-        } catch (JSONException e) {
+        } catch (JSONException | SdkException e) {
             Log.d("ComvivaSdkError", e.getMessage());
+            return;
+        } finally {
+            if (baMobKeySetId != null) {
+                Arrays.fill(baMobKeySetId, Constants.DEFAULT_FILL_VALUE);
+            }
         }
 
         class RequestSessionTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -476,12 +501,12 @@ class DigitizationMdes {
      * This API is used to Suspend, UnSuspend and Delete Token
      */
     void performCardLcm(ArrayList<PaymentCard> cardList,
-                               final CardLcmOperation cardLcmOperation,
-                               final CardLcmReasonCode reasonCode,
-                               final CardLcmListener cardLcmListener) {
+                        final CardLcmOperation cardLcmOperation,
+                        final CardLcmReasonCode reasonCode,
+                        final CardLcmListener cardLcmListener) {
         final JSONObject jsCardLcmReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsCardLcmReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
 
             JSONArray jsArrCards = new JSONArray();
@@ -496,6 +521,9 @@ class DigitizationMdes {
             jsCardLcmReq.put("operation", (cardLcmOperation == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmOperation.name());
         } catch (JSONException e) {
             cardLcmListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            cardLcmListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
             return;
         }
 
@@ -578,7 +606,7 @@ class DigitizationMdes {
                                       final RequestActivationCodeListener activationCodeListener) {
         final JSONObject jsReqActCodeReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsReqActCodeReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsReqActCodeReq.put("tokenUniqueReference", tokenUniqueReference);
 
@@ -588,7 +616,12 @@ class DigitizationMdes {
             jsAuthenticationMethod.put("value", authenticationMethod.getValue());
             jsReqActCodeReq.put("authenticationMethod", jsAuthenticationMethod);
         } catch (JSONException e) {
+            activationCodeListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             Log.d("ComvivaSdkError", e.getMessage());
+            return;
+        } catch (SdkException e) {
+            activationCodeListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class ReqActivationCodeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -636,7 +669,7 @@ class DigitizationMdes {
                          final ActivateListener activateListener) {
         final JSONObject jsActivateReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsActivateReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsActivateReq.put("tokenUniqueReference", tokenUniqueReference);
             switch (type) {
@@ -649,7 +682,12 @@ class DigitizationMdes {
                     break;
             }
         } catch (JSONException e) {
+            activateListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             Log.d("ComvivaSdkError", e.getMessage());
+            return;
+        } catch (SdkException e) {
+            activateListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class ActivateTask extends AsyncTask<Void, Void, HttpResponse> {

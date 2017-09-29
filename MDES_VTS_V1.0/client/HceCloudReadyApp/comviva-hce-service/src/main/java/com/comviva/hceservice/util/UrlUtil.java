@@ -107,7 +107,7 @@ public class UrlUtil {
     }
 
     public static String getVTSConfirmProvisioningUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/confirmProvisioning";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/confirmProvisioning";
     }
 
     public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {

@@ -80,7 +80,8 @@
                 android:resource="@xml/apduservice" />
         </service>
 
-        <activity android:name=".activities.SetPinActivity"></activity>
+        <activity android:name=".activities.SetPinActivity" />
+        <activity android:name=".activities.ConfigurationActivity"></activity>
     </application>
 
 </manifest>

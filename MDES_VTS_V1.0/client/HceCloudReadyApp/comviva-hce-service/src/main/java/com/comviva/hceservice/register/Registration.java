@@ -50,6 +50,7 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -100,7 +101,6 @@ public class Registration {
             JSONObject jsDeviceInfo = getDeviceInfoInJson();
             regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(jsDeviceInfo.getString("imei")));
 
-
             // VTS
             if (registerParam.getSchemeType().equals(SchemeType.ALL) || registerParam.getSchemeType().equals(SchemeType.VISA)) {
                 // VTS Registration Parameters
@@ -119,17 +119,20 @@ public class Registration {
                 mdesRegDevJson.put("paymentAppInstanceId", paymentAppInstanceId);
                 mdesRegDevJson.put("publicKeyFingerprint", registerParam.getPublicKeyFingerprint());
 
+                byte[] encRgk = null;
+                byte[] encMobPin = null;
+                ByteArray publicKey = null;
                 try {
                     // Encrypt RGK
-                    ByteArray publicKey = ByteArray.of(getPublicKey());
+                    publicKey = ByteArray.of(getPublicKey());
                     CryptoService cryptoService = CryptoServiceFactory.getDefaultCryptoService();
-                    byte[] encRgk = cryptoService.buildRgkForRegistrationRequest(publicKey).getBytes();
+                    encRgk = cryptoService.buildRgkForRegistrationRequest(publicKey).getBytes();
                     String strEncRgk = ArrayUtil.getHexString(encRgk);
                     Log.d("Encrypted RGK(PIN)", strEncRgk);
 
                     // Encrypting Mobile PIN
                     ByteArray mobPin = ByteArray.of(registerParam.getMobilePin().getBytes());
-                    byte[] encMobPin = cryptoService.encryptPinBlockUsingRgk(mobPin, paymentAppInstanceId).getBytes();
+                    encMobPin = cryptoService.encryptPinBlockUsingRgk(mobPin, paymentAppInstanceId).getBytes();
                     String strEncMobPin = ArrayUtil.getHexString(encMobPin);
                     mdesRegDevJson.put("mobilePin", strEncMobPin);
                     mdesRegDevJson.put("rgk", strEncRgk);
@@ -138,6 +141,17 @@ public class Registration {
                 } catch (McbpCryptoException e) {
                     Log.d(Constants.LOGGER_TAG_SDK_ERROR, "Crypto Exception while encrypting Mobile PIN " + e.getMessage());
                     throw new SdkException(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                } finally {
+                    // RGK & Encrypted PIN
+                    if(encRgk != null) {
+                        Arrays.fill(encRgk, Constants.DEFAULT_FILL_VALUE);
+                    }
+                    if(encMobPin != null) {
+                        Arrays.fill(encMobPin, Constants.DEFAULT_FILL_VALUE);
+                    }
+                    if(publicKey != null) {
+                        publicKey.clear();
+                    }
                 }
                 regDevParam.put("mdes", mdesRegDevJson);
             }
@@ -255,7 +269,7 @@ public class Registration {
         return deviceFingerprint;
     }
 
-    private void initializeComvivaSdk(ComvivaSdkInitData comvivaSdkInitData, String rnsRegistrationId) {
+    private void initializeComvivaSdk(ComvivaSdkInitData comvivaSdkInitData, String rnsRegistrationId) throws SdkException {
         // If anyone of MDES/VTS initialized successfully, keep comviva sdk initialization state true
         if (comvivaSdkInitData.isMdesInitialized() || comvivaSdkInitData.isVtsInitialized()) {
             comvivaSdkInitData.setInitState(true);
@@ -270,7 +284,7 @@ public class Registration {
         }
         rnsInfo.setRnsType(RnsInfo.RNS_TYPE.FCM);
         comvivaSdkInitData.setRnsInfo(rnsInfo);
-        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
         comvivaSdk.initializeSdk(comvivaSdkInitData);
     }
 
@@ -373,6 +387,9 @@ public class Registration {
             registerUser.put("device_model", Build.MODEL);
         } catch (JSONException e) {
             regUserListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            regUserListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
         }
 
         class RegisterUserTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -458,6 +475,10 @@ public class Registration {
             activateUserReq.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(imei));
         } catch (JSONException e) {
             registrationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            registrationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         // Activate User
@@ -597,16 +618,18 @@ public class Registration {
                         }
 
                         if (comvivaSdkInitData.isMdesInitialized() || comvivaSdkInitData.isVtsInitialized()) {
+                            // Initialize Comviva SDK with common data for all schemes
+                            initializeComvivaSdk(comvivaSdkInitData, fcmRegistrationToken);
                             registrationListener.onCompleted();
                         } else {
                             registrationListener.onError(sdkError);
+                            return;
                         }
                     } catch (JSONException e) {
                         Log.d(Constants.LOGGER_TAG_SERVER_ERROR, e.getMessage());
                         registrationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-                    } finally {
-                        // Initialize Comviva SDK with common data for all schemes
-                        initializeComvivaSdk(comvivaSdkInitData, fcmRegistrationToken);
+                    } catch (SdkException e) {
+                        registrationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                     }
                 }
             }

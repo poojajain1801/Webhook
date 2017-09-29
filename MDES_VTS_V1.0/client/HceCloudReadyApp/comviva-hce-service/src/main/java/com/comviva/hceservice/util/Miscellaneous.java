@@ -3,6 +3,7 @@ package com.comviva.hceservice.util;
 import android.provider.Settings;
 
 import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.SdkException;
 
 /**
  * Miscellaneous utility methods.
@@ -20,8 +21,8 @@ public class Miscellaneous {
         return paddedData.toString();
     }
 
-    public static String getUniqueClientDeviceId(String imei) {
-        String androidId = Settings.Secure.getString(ComvivaSdk.getInstance().getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    public static String getUniqueClientDeviceId(String imei) throws SdkException {
+        String androidId = Settings.Secure.getString(ComvivaSdk.getInstance(null).getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         if(androidId == null) {
             androidId = imei;
         }

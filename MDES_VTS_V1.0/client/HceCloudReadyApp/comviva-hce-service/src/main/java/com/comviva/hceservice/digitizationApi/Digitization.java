@@ -9,13 +9,16 @@ import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.LuhnUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.MdesMcbpWalletApi;
@@ -31,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -211,14 +215,20 @@ public class Digitization {
      */
     public void requestSession() {
         final JSONObject requestSessionReq = new JSONObject();
+        byte[] baMobKeySetId = null;
         try {
-            byte[] baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            baMobKeySetId = RemoteManagementHandler.getInstance().getLdeRemoteManagementService().getMobileKeySetIdAsByteArray().getBytes();
             requestSessionReq.put("paymentAppProviderId", /*comvivaSdk.getPaymentAppProviderId()*/"ComvivaWallet");
             requestSessionReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             requestSessionReq.put("mobileKeysetId", new String(baMobKeySetId));
-        } catch (JSONException e) {
+        } catch (JSONException | SdkException e) {
             Log.d("ComvivaSdkError", e.getMessage());
+            return;
+        } finally {
+            if (baMobKeySetId != null) {
+                Arrays.fill(baMobKeySetId, Constants.DEFAULT_FILL_VALUE);
+            }
         }
 
         class RequestSessionTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -269,6 +279,7 @@ public class Digitization {
 
                 case VTS:
                     vtsCardList.add(card);
+                    break;
 
                 default:
                     cardLcmListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
@@ -318,7 +329,7 @@ public class Digitization {
                                       final RequestActivationCodeListener activationCodeListener) {
         final JSONObject jsReqActCodeReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsReqActCodeReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsReqActCodeReq.put("tokenUniqueReference", tokenUniqueReference);
 
@@ -329,6 +340,10 @@ public class Digitization {
             jsReqActCodeReq.put("authenticationMethod", jsAuthenticationMethod);
         } catch (JSONException e) {
             activationCodeListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            activationCodeListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
         }
 
         class ReqActivationCodeTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -375,7 +390,7 @@ public class Digitization {
                          final ActivateListener activateListener) {
         final JSONObject jsActivateReq = new JSONObject();
         try {
-            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance();
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             jsActivateReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
             jsActivateReq.put("tokenUniqueReference", tokenUniqueReference);
             switch (type) {
@@ -389,6 +404,9 @@ public class Digitization {
             }
         } catch (JSONException e) {
             activateListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            activateListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
             return;
         }
 
@@ -461,13 +479,12 @@ public class Digitization {
         } catch (AlreadyInProcessException e) {
             e.printStackTrace();
         } finally {
-
             RemoteManagementHandler.getInstance().clearPendingAction();
         }
     }
 
     /**
-     * Set Mobiile PIN if it is not already set.
+     * Set Mobile PIN if it is not already set.
      *
      * @param tokenUniqueReference TokenUniqueReference of which PIN is to set. If not provided wallet level PIN will be set.
      * @param newPin               New Mobile PIN
@@ -525,6 +542,33 @@ public class Digitization {
             }
         } catch (VisaPaymentSDKException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Replenish Transaction Credential for the given token.
+     * @param paymentCard   Token to be replenished
+     * @param listener      UI Lister
+     */
+    public void replenishTransactionCredential(PaymentCard paymentCard, ResponseListener listener) {
+        switch (paymentCard.getCardType()) {
+            case VTS:
+                DigitizationVts digitizationVts = new DigitizationVts();
+                digitizationVts.replenishLuk(paymentCard, listener);
+                break;
+
+            case MDES:
+                ComvivaSdk comvivaSdk;
+                try {
+                    comvivaSdk = ComvivaSdk.getInstance(null);
+                    comvivaSdk.replenishCard(paymentCard.getCardUniqueId());
+                } catch (SdkException e) {
+
+                }
+                break;
+
+            default:
+                // Unsupported Card
         }
     }
 }

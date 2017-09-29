@@ -62,4 +62,13 @@
         android:hint="@string/tapHere"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <TextView
+        android:id="@+id/tvUserId"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Welcome Tarkeshwar"
+        android:textSize="12pt"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"/>
+
 </RelativeLayout>

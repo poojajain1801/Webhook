@@ -24,7 +24,7 @@ public enum Tags {
     REPERSO("reperso"),
     ENCRYPTION_META_DATA("encryptionMetaData"),
     VPAN_ENROLLMENT_ID("vPanEnrollmentID"),
-    V_PROVISIONED_TOKEN_ID("vProvisionedTokenID"),
+    V_PROVISIONED_TOKEN_ID("vprovisionedTokenID"),
     TERMS_CONDITION_ID("termsAndConditionsID"),
     RESPONSE_CODE("responseCode"),
     MESSAGE("message"),

@@ -3,6 +3,7 @@ package com.comviva.mdesapp.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.digitizationApi.PanSource;
 import com.comviva.mdesapp.R;
+import com.comviva.mdesapp.constant.Constants;
 
 public class AddCardActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -48,7 +50,8 @@ public class AddCardActivity extends AppCompatActivity {
                 cardEligibilityRequest.setConsumerEntryMode(ConsumerEntryMode.KEYENTERED);
                 cardEligibilityRequest.setLocale("en-US");
                 cardEligibilityRequest.setPanSource(PanSource.MANUALLYENTERED);
-                cardEligibilityRequest.setUserId(/*RegisterUserActivity.userId*/"u003");
+                SharedPreferences userPref = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+                cardEligibilityRequest.setUserId(userPref.getString(Constants.KEY_USER_ID, null));
 
                 final Digitization digitization = Digitization.getInstance();
                 digitization.checkCardEligibility(cardEligibilityRequest, new CheckCardEligibilityListener() {

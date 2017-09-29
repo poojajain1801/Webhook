@@ -1,5 +1,7 @@
 package com.comviva.hceservice.util;
 
+import com.comviva.hceservice.common.SdkError;
+
 /**
  * Generic listener.
  */
@@ -17,7 +19,7 @@ public interface ResponseListener {
     /**
      * Error while performing task.
      *
-     * @param error Error Message
+     * @param sdkError Error
      */
-    void onError(String error);
+    void onError(SdkError sdkError);
 }

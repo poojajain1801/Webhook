@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,7 +48,9 @@ import com.comviva.hceservice.tds.TransactionHistory;
 import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.NfcSetting;
 import com.comviva.hceservice.util.NfcUtil;
+import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.mdesapp.R;
+import com.comviva.mdesapp.constant.Constants;
 import com.mastercard.mcbp.card.cvm.PinListener;
 import com.mastercard.mcbp.listeners.ProcessContactlessListener;
 import com.mastercard.mcbp.userinterface.DisplayTransactionInfo;
@@ -387,12 +390,68 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private void replenish() {
+        Digitization digitization = Digitization.getInstance();
+        digitization.replenishTransactionCredential(currentCard, new ResponseListener() {
+            @Override
+            public void onStarted() {
+                progressDialog = new ProgressDialog(HomeActivity.this);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+
+            @Override
+            public void onSuccess() {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Success")
+                        .setMessage("Replenishment Successfully")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
+            @Override
+            public void onError(SdkError sdkError) {
+                if (progressDialog != null && progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Error")
+                        .setMessage(sdkError.getMessage())
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                refreshCardList();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+        });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        comvivaHce = ComvivaSdk.getInstance();
+        TextView txtViewUserId = (TextView) findViewById(R.id.tvUserId);
+        SharedPreferences userPref = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
+        txtViewUserId.setText("Welcome " + userPref.getString(Constants.KEY_USER_ID, null) + "...");
+
+        try {
+            comvivaHce = ComvivaSdk.getInstance(null);
+        } catch (SdkException e) {
+        }
 
         cards = (ViewFlipper) findViewById(R.id.viewFlipperCards);
         txtViewTokenCount = (TextView) findViewById(R.id.txtViewTokenCount);
@@ -505,7 +564,7 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
 
             case R.id.registerTds:
-                if (comvivaHce.isTdsRegistered(tokenUniqueReference)) {
+                if (comvivaHce.isTdsRegistered()) {
                     Toast.makeText(HomeActivity.this, "Token is already registered for transaction history", Toast.LENGTH_LONG).show();
                     return true;
                 }
@@ -518,6 +577,10 @@ public class HomeActivity extends AppCompatActivity {
 
             case R.id.unregisterTds:
                 unregisterFromTds(tokenUniqueReference);
+                return true;
+
+            case R.id.replenish:
+                replenish();
                 return true;
 
             default:
