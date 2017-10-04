@@ -48,9 +48,6 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     public TransactionManagementServiceImpl(HCEControllerSupport hceControllerSupport) {
         this.hceControllerSupport = hceControllerSupport;
     }
-
-    @Autowired
-
     public Map<String, Object> getTransactionHistory(GetTransactionHistoryRequest getTransactionHistoryRequest) {
         LOGGER.debug("Enter TransactionManagementServiceImpl->getTransactionHistory");
         HitVisaServices hitVisaServices = new HitVisaServices(env);
@@ -76,6 +73,9 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             }
             if (responseEntity.getStatusCode().value() == 200) {
                 LOGGER.debug("Exit Exit TransactionManagementServiceImpl->getTransactionHistory");
+                response.put("responseCode", HCEMessageCodes.SUCCESS);
+                response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+
                 return response;
 
             } else {

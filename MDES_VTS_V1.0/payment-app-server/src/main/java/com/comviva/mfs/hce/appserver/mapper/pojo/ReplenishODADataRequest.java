@@ -11,13 +11,10 @@ import lombok.Setter;
 @Setter
 public class ReplenishODADataRequest {
 
-    private String userId;
-    private String activationCode;
+   private String vprovisionedTokenID;
 
-    public ReplenishODADataRequest(String userId, String activationCode) {
-
-        this.userId=userId;
-        this.activationCode=activationCode;
+    public ReplenishODADataRequest(String vprovisionedTokenID) {
+        this.vprovisionedTokenID = vprovisionedTokenID;
     }
 
     public ReplenishODADataRequest() {

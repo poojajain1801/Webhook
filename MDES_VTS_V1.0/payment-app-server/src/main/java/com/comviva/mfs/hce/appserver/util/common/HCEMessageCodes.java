@@ -84,7 +84,6 @@ public class HCEMessageCodes {
 
     /** The Constant INVALID_OPERATION. */
     public static String INVALID_OPERATION;
-
     @Value("${INVALID_OPERATION}")
     public static String getInvalidOperation() {
         return INVALID_OPERATION;

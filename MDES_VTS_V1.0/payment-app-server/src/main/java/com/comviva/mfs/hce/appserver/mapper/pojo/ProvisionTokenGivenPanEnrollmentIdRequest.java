@@ -18,7 +18,7 @@ private String protectionType;
 private String presentationType;
 private String panEnrollmentID;
 private String clientDeviceID;
-private String  termsAndConditionsID;
+private String termsAndConditionsID;
 
     public ProvisionTokenGivenPanEnrollmentIdRequest(String clientAppId, String clientWalletAccountId, String emailAddress, String protectionType, String presentationType, String panEnrollmentID, String clientDeviceID, String termsAndConditionsID) {
         this.clientAppId = clientAppId;

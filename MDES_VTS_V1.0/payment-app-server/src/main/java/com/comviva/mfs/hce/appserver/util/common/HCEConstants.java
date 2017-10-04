@@ -32,6 +32,13 @@ public class HCEConstants {
     /** The Constant RESPONSE_OBJECT. */
     public static final String RESPONSE_OBJECT = "responseObject";
 
+    public static final String TOKEN_CREATED = "TOKEN_CREATED";
+    public static final String TOKEN_STATUS_UPDATED = "TOKEN_STATUS_UPDATED";
+    public static final String KEY_STATUS_UPDATED = "KEY_STATUS_UPDATED";
+    public static final String OPERATION = "operation";
+    public static final String UPDATE_CARD_METADATA = "UPDATE_CARD_METADATA";
+    public static final String UPDATE_TXN_HISTORY = "UPDATE_TXN_HISTORY";
+
 
 
 

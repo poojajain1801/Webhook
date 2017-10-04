@@ -50,7 +50,7 @@ public class ProvisionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/activeAccountManagementReplenish",method = RequestMethod.POST)
-    public Map<String ,Object>activeAccountManagementReplenish(ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest){
+    public Map<String ,Object>activeAccountManagementReplenish( @RequestBody ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest){
         return provisionManagementService.ActiveAccountManagementReplenish(activeAccountManagementReplenishRequest);
     }
     @ResponseBody

@@ -200,8 +200,14 @@ public class EnrollDevice extends VtsRequest {
         prepareHeader(prepareHeaderRequest);
         final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
-        requestFactory.setProxy(proxy);
+        if(env.getProperty("is.proxy.required").equals("Y"))
+        {
+            String proxyip = env.getProperty("proxyip");
+            int proxyport = Integer.parseInt(env.getProperty("proxyport"));
+            Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
+            requestFactory.setProxy(proxy);
+
+        }
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
@@ -237,6 +243,7 @@ public class EnrollDevice extends VtsRequest {
             jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
            // ((HttpClientErrorException)e).getResponseBodyAsString();
+            e.printStackTrace();
             LOGGER.debug("Exception Occurred EnrollDevice->enrollDevice");
             String error = ((HttpClientErrorException) e).getResponseBodyAsString();
             String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();

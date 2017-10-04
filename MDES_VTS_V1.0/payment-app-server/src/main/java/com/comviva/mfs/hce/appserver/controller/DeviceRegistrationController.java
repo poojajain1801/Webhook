@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/api/device/")
 public class DeviceRegistrationController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserRegistrationController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceRegistrationController.class);
 
     @Autowired
     private DeviceDetailService deviceDetailService;
@@ -32,10 +32,10 @@ public class DeviceRegistrationController {
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
 
     public Map<String,Object> registerDevice(@RequestBody EnrollDeviceRequest enrollDeviceRequest) {
-        LOGGER.debug("Enter UserRegistrationController->registerUser");
+        LOGGER.debug("Enter DeviceRegistrationController->registerDevice");
         Map<String,Object> registerDeviceResponse = null;
         registerDeviceResponse =  deviceDetailService.registerDevice(enrollDeviceRequest);
-        LOGGER.debug("Exit UserRegistrationController->registerUser");
+        LOGGER.debug("Exit DeviceRegistrationController->registerDevice");
         return registerDeviceResponse;
     }
 

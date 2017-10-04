@@ -93,10 +93,13 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 response = JsonUtil.jsonStringToHashMap(strResponse);
 
             }
-            if(responseEntity.getStatusCode().value()==200 || responseEntity.getStatusCode().value()==201)
+            if(responseEntity.getStatusCode().value()==200)
             {
 
                 LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
+                response.put("responseCode", HCEMessageCodes.SUCCESS);
+                response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+
                 return response;
             }
             else

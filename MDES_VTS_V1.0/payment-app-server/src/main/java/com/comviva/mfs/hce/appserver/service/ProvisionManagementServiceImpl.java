@@ -31,6 +31,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
@@ -47,16 +48,19 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
+    private final VisaCardDetailRepository visaCardDetailRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionManagementServiceImpl.class);
 
 
     @Autowired
     public ProvisionManagementServiceImpl(UserDetailService userDetailService,UserDetailRepository userDetailRepository,
-                                          DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport) {
+                                          DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport,
+                                          VisaCardDetailRepository visaCardDetailRepository) {
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
         this.deviceDetailRepository=deviceDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
+        this.visaCardDetailRepository = visaCardDetailRepository;
     }
 
     public Map<String, Object> ProvisionTokenGivenPanEnrollmentId (ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest) {
@@ -74,6 +78,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject jsonResponse= null;
         ResponseEntity responseEntity =null;
         String response = null;
+        VisaCardDetails visaCardDetails= null;
 
         try {
             emailHash = MessageDigestUtil.getEmailHashAlgorithmValue(emailAdress);
@@ -110,6 +115,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
+                visaCardDetails = new VisaCardDetails();
+                visaCardDetails = visaCardDetailRepository.findByVPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID()).get();
+                visaCardDetails.setvProvisionedTokenId(jsonResponse.getString("vProvisionedTokenID"));
+                visaCardDetailRepository.save(visaCardDetails);
                 return JsonUtil.jsonStringToHashMap(jsonResponse.toString());
             }
             else
@@ -213,10 +222,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 jsonResponse = new JSONObject(response);
             }
 
-            if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
+            if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
-                return JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
 
             }
             else
@@ -239,95 +248,195 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
     }
 
     public Map<String, Object> ActiveAccountManagementReplenish (ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(activeAccountManagementReplenishRequest.getUserId()))) {
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(activeAccountManagementReplenishRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("mac", activeAccountManagementReplenishRequest.getMac());
-        map.add("api", activeAccountManagementReplenishRequest.getApi());
-        map.add("sc", activeAccountManagementReplenishRequest.getSc());
-        map.add("tvl", activeAccountManagementReplenishRequest.getTvl());
-        map.add("encryptionMetaData", activeAccountManagementReplenishRequest.getEncryptionMetaData());
-        ObjectMapper objectMapper = new ObjectMapper();
-        HitVisaServices hitVisaServices = new HitVisaServices(env);
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        //      response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
-        try {
+        //TODO:Check vProvisonID is valid or not
+        if (!validatevProvisionedID(activeAccountManagementReplenishRequest.getVprovisionedTokenID()))
+            //return Invalid vprovisonID.
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
+        String vProvisionedTokenID = "";
+        HitVisaServices hitVisaServices =null;
+        JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
+        String response = null;
+        JSONObject requestMap = new JSONObject();
+        JSONObject signature = new JSONObject();
+        JSONObject tokenInfo = new JSONObject();
+        JSONObject hceData = new JSONObject();
+        JSONObject dynParams = new JSONObject();
+        JSONArray tvl = new JSONArray();
+        Map responseMap = new LinkedHashMap();
+        Array[] tvlData = activeAccountManagementReplenishRequest.getTvl();
+
+        try{
+
+            signature.put("mac",activeAccountManagementReplenishRequest.getMac());
+            requestMap.put("signature" ,signature);
+            dynParams.put("api",activeAccountManagementReplenishRequest.getApi());
+            dynParams.put("sc",activeAccountManagementReplenishRequest.getSc());
+
+            for(int i=0;i<tvlData.length;i++)
+            {
+                tvl.put(tvlData[i]);
+            }
+            dynParams.put("tvl",tvl);
+            hceData.put("dynParams",dynParams);
+            tokenInfo.put("hceData",hceData);
+            requestMap.put("tokenInfo",tokenInfo);
+            vProvisionedTokenID = activeAccountManagementReplenishRequest.getVprovisionedTokenID();
+            //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
+            String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/replenish" + "?apiKey=" + env.getProperty("apiKey");
+            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/replenish";
+            hitVisaServices = new HitVisaServices(env);
+            responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "POST");
+            if (responseEntity.hasBody())
+            {
+                response = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(response);
+                responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+
+            }
+
+            if (responseEntity.getStatusCode().value() == 200) {
+                //TODO:Store the vProvisonTokenID in the DB
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
+                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                return responseMap;
+
+            }
+            else
+            {
+                Map errorMap = new LinkedHashMap();
+                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
+                return errorMap;
+
+            }
+
+
+        }catch (Exception e)
+        {
+            LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
+            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }
-        return result;
+
     }
 
     public Map<String, Object> ActiveAccountManagementConfirmReplenishment(ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(activeAccountManagementConfirmReplenishmentRequest.getUserId()))) {
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(activeAccountManagementConfirmReplenishmentRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("tokenInfo", activeAccountManagementConfirmReplenishmentRequest.getTokenInfo());
-        ObjectMapper objectMapper = new ObjectMapper();
-        HitVisaServices hitVisaServices = new HitVisaServices(env);
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        //      response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
-        try {
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        //TODO:Check vProvisonID is valid or not
+        LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
+        String vProvisionedTokenID = "";
+        HitVisaServices hitVisaServices =null;
+        JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
+        String response = null;
+        JSONObject requestMap = new JSONObject();
+        JSONObject tokenInfo = new JSONObject();
+        JSONObject hceData = new JSONObject();
+        JSONObject dynParams = new JSONObject();
+        JSONArray tvl = new JSONArray();
+        Map responseMap = new LinkedHashMap();
+
+        try{
+            dynParams.put("api",activeAccountManagementConfirmReplenishmentRequest.getApi());
+            dynParams.put("sc",activeAccountManagementConfirmReplenishmentRequest.getSc());
+            hceData.put("dynParams",dynParams);
+            tokenInfo.put("hceData",hceData);
+            requestMap.put("tokenInfo",tokenInfo);
+
+            vProvisionedTokenID = activeAccountManagementConfirmReplenishmentRequest.getVprovisionedTokenID();
+            //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
+            String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmReplenishment" + "?apiKey=" + env.getProperty("apiKey");
+            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/confirmReplenishment";
+            hitVisaServices = new HitVisaServices(env);
+            responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
+
+            if (responseEntity.hasBody())
+            {
+                response = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(response);
+
+            }
+            if (responseEntity.getStatusCode().value() == 200) {
+                //TODO:Store the vProvisonTokenID in the DB
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
+                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+
+            }
+            else
+            {
+                Map errorMap = new LinkedHashMap();
+                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
+                return errorMap;
+
+            }
+
+
         }
-        return result;
+        catch (Exception e)
+        {
+            LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
+            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+        }
+
     }
     public Map<String, Object> ReplenishODAData(ReplenishODADataRequest replenishODADataRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(replenishODADataRequest.getUserId()))) {
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(replenishODADataRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        HitVisaServices hitVisaServices = new HitVisaServices(env);
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        //      response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
-        try {
+        LOGGER.debug("Enter ProvisionManagementServiceImpl->ReplenishODAData");
+        String vProvisionedTokenID = "";
+        HitVisaServices hitVisaServices =null;
+        JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
+        String response = null;
+        String  request = "";
+        Map responseMap = new LinkedHashMap();
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        try{
+
+            vProvisionedTokenID = replenishODADataRequest.getVprovisionedTokenID();
+            //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
+            String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/replenishODA" + "?apiKey=" + env.getProperty("apiKey");
+            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/replenishODA";
+            hitVisaServices = new HitVisaServices(env);
+            responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "POST");
+
+            if (responseEntity.hasBody())
+            {
+                response = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(response);
+                responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+
+            }
+
+            if (responseEntity.getStatusCode().value() == 200) {
+                //TODO:Store the vProvisonTokenID in the DB
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ReplenishODAData");
+                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                return responseMap;
+
+            }            else
+            {
+                Map errorMap = new LinkedHashMap();
+                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ReplenishODAData");
+                return errorMap;
+
+            }
+
+
         }
-        return result;
+        catch (Exception e)
+        {
+            LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
+            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+        }
+
+
     }
     public Map<String, Object> submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest) {
         if ((!userDetailService.checkIfUserExistInDb(submitIDandVStepupMethodRequest.getUserId()))) {
@@ -463,5 +572,12 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             e.printStackTrace();
         }
         return result;
+    }
+    public boolean validatevProvisionedID(String vProvisionedTokenID)
+    {
+        if (visaCardDetailRepository.findByVProvisionedTokenId(vProvisionedTokenID).isPresent())
+            return true;
+        else
+            return false;
     }
 }

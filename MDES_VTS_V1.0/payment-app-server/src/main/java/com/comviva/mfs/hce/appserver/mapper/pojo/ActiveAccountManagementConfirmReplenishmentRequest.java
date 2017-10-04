@@ -10,14 +10,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ActiveAccountManagementConfirmReplenishmentRequest {
-    private String userId;
-    private String activationCode;
-    private TokennInfo tokenInfo;
+    private String api;
+    private String sc;
+    private String vprovisionedTokenID;
 
-    public ActiveAccountManagementConfirmReplenishmentRequest(String userId, String activationCode, TokennInfo tokenInfo) {
-        this.userId=userId;
-        this.activationCode=activationCode;
-        this.tokenInfo=tokenInfo;
+    public ActiveAccountManagementConfirmReplenishmentRequest(String api, String sc, String vprovisionedTokenID) {
+        this.api = api;
+        this.sc = sc;
+        this.vprovisionedTokenID = vprovisionedTokenID;
     }
 
     public ActiveAccountManagementConfirmReplenishmentRequest() {

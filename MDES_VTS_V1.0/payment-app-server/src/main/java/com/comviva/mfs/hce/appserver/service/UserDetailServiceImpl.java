@@ -75,20 +75,20 @@ public class UserDetailServiceImpl implements UserDetailService {
 
 
             if ((null == userDetails || userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())) {
-                 userstatus = "userRegistered";
+                 userstatus = "userActivated";
                  activationCode = generateActivationCode();
                  clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
                  savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
                         clientWalletAccountid,registerUserRequest.getClientDeviceID(), null));
-                 deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+                 deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceActivated",null,null,null,null,null,null,null,null,null,null,null));
                 response =  prepareResponseMap(HCEMessageCodes.SUCCESS,savedUser,activationCode);
             }else if((null != userDetails || !userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())){
-                deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceRegistered",null,null,null,null,null,null,null,null,null,null,null));
+                deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceActivated",null,null,null,null,null,null,null,null,null,null,null));
                 userDetails.get(0).setClientDeviceId(registerUserRequest.getClientDeviceID());
                 userDetailRepository.save(userDetails.get(0));
                 response =  prepareResponseMap(HCEMessageCodes.SUCCESS,userDetails.get(0),userDetails.get(0).getActivationCode());
             }else if ((null == userDetails || userDetails.isEmpty()) && (null !=deviceInfo || !deviceInfo.isEmpty())){
-                userstatus = "userRegistered";
+                userstatus = "userActivated";
                  activationCode = generateActivationCode();
                  clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
                 savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
@@ -96,11 +96,11 @@ public class UserDetailServiceImpl implements UserDetailService {
                 response =  prepareResponseMap(HCEMessageCodes.SUCCESS,savedUser,activationCode);
             }
             else {
-                if("userRegistered".equals(userDetails.get(0).getUserStatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+                if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
                     response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
-                }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceRegistered".equals(deviceInfo.get(0).getDeviceStatus())){
+                }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
                     response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
-                }else if("userRegistered".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
+                }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
                     response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
                 }else{
                     if(userDetails.get(0).getClientDeviceId().equals(deviceInfo.get(0).getClientDeviceId()) && "userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus()) ){
@@ -168,7 +168,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo.get(0));
                 }
             }
-             response =hceControllerSupport.formResponse(HCEMessageCodes.USER_IS_ACTIVATED);
+             response =hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
         }catch(HCEActionException actUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->activateUser", actUserHCEactionException);
           throw actUserHCEactionException;

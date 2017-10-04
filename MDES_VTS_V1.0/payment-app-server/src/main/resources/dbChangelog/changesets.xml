@@ -200,20 +200,21 @@
             <column name="cardnumberSuffix" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="vpanenrollmentid" type="VARCHAR2(255)">
+            <column name="V_PAN_ENROLLMENT_ID" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="V_PROVISIONED_TOKEN_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="STATUS" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="vpanenrollmentid" constraintName="vpanenrollmentid_constraints"
-                             deferrable="true"
-                             tableName="CARD_DETAILS_VISA"/>
         <createIndex tableName="CARD_DETAILS_VISA" indexName="visa_card_info_id" unique="true">
             <column name="id"/>
             <column name="user_name"/>
-            <column name="vpanenrollmentid"/>
+            <column name="V_PAN_ENROLLMENT_ID"/>
             <column name="cardnumberSuffix"/>
         </createIndex>
 

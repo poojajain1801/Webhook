@@ -48,20 +48,27 @@ public class HitVisaServices extends VtsRequest {
 
         HttpEntity<String> entity = null;
         prepareHeader(prepareHeaderRequest);
-        if (type.equalsIgnoreCase("GET"))
+        if (type.equalsIgnoreCase("GET")||(requestBody.equalsIgnoreCase(null))||(requestBody.isEmpty()))
             entity = new HttpEntity<>(headers);
         else
             entity = new HttpEntity<>(requestBody, headers);
 
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress("172.19.7.180",8080));
-        requestFactory.setProxy(proxy);
+        if(env.getProperty("is.proxy.required").equals("Y"))
+        {
+            String proxyip = env.getProperty("proxyip");
+            int proxyport = Integer.parseInt(env.getProperty("proxyport"));
+            Proxy proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
+            requestFactory.setProxy(proxy);
+
+        }
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         String result="";
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
         ResponseEntity<String> response=null;
         String strResponse =null;
+        System.out.println("Request = "+entity.getBody());
         try {
             if("POST".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
@@ -85,7 +92,7 @@ public class HitVisaServices extends VtsRequest {
             return errorResponse;
 
         }
-
+        System.out.println("Response = "+response.getBody());
         LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
         return response;
     }
