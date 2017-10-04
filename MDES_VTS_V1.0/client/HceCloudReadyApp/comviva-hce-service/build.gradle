@@ -9,8 +9,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -20,7 +20,7 @@ android {
         release {
             minifyEnabled false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile 'D:/MdesVts/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
+            proguardFile 'D:/GITServer/HceCloudReadyApp/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
         }
         debug {
             debuggable true

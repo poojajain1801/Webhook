@@ -124,7 +124,10 @@ public class CommonDatabase implements CommonDb {
                 initData.setInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_INITIALIZE_STATE)) == 1);
                 RnsInfo rnsInfo = new RnsInfo();
                 rnsInfo.setRegistrationId(cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_ID)));
-                rnsInfo.setRnsType(RnsInfo.RNS_TYPE.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_TYPE))));
+                String rnsType = cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_TYPE));
+                if (rnsType != null) {
+                    rnsInfo.setRnsType(RnsInfo.RNS_TYPE.valueOf(rnsType));
+                }
                 initData.setRnsInfo(rnsInfo);
                 initData.setVtsInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_VTS_INIT_STATE)) == 1);
                 initData.setMdesInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_MDES_INIT_STATE)) == 1);

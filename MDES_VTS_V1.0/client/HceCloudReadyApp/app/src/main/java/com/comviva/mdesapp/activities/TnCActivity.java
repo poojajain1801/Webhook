@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import com.comviva.hceservice.digitizationApi.DigitizationRequest;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
+
+import java.nio.charset.StandardCharsets;
 
 public class TnCActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -36,7 +39,9 @@ public class TnCActivity extends AppCompatActivity {
         final ContentGuid tncContent = (ContentGuid) getIntent().getSerializableExtra("eligibilityResponse");
         MediaContent[] mediaContents = tncContent.getContent();
         if (mediaContents.length != 0) {
-            etTnC.setText(mediaContents[0].getData());
+            byte[] data = Base64.decode(mediaContents[0].getData(), Base64.DEFAULT);
+            String text = new String(data, StandardCharsets.UTF_8);
+            etTnC.setText(text);
         }
         final CardType cardType = (CardType) getIntent().getSerializableExtra("CardType");
 

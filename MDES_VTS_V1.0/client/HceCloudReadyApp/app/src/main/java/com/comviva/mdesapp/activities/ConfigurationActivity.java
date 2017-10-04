@@ -18,7 +18,6 @@ public class ConfigurationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configuration);
-
         final EditText etPayAppServerIp = (EditText) findViewById(R.id.etPayAppServerIp);
         final EditText etPayAppServerPort = (EditText) findViewById(R.id.etPayAppServerPort);
         final EditText etCmsDIp = (EditText) findViewById(R.id.etCmsDIp);
@@ -40,11 +39,8 @@ public class ConfigurationActivity extends AppCompatActivity {
         btnUpdateConfig.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                comvivaSdk.setPaymentAppServerConfiguration(etPayAppServerIp.getText().toString(),
-                        Integer.parseInt(etPayAppServerPort.getText().toString()));
-
-                comvivaSdk.setCmsDServerConfiguration(etCmsDIp.getText().toString(),
-                        Integer.parseInt(etCmsDPort.getText().toString()));
+                comvivaSdk.setPaymentAppServerConfiguration(etPayAppServerIp.getText().toString(), Integer.parseInt(etPayAppServerPort.getText().toString()));
+                comvivaSdk.setCmsDServerConfiguration(etCmsDIp.getText().toString(), Integer.parseInt(etCmsDPort.getText().toString()));
                 startActivity(new Intent(ConfigurationActivity.this, RegisterUserActivity.class));
             }
         });

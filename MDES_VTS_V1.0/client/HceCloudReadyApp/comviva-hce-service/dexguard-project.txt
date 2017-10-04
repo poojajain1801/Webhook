@@ -18,7 +18,7 @@
 
 #-injars libs
 
-#-keepresourcefiles jni/**/*.so
+-keepresourcefiles jni/**/*.so
 
 -printconfiguration config.txt
 
@@ -75,6 +75,14 @@
     public public *;
 }
 
+-keep public interface com.comviva.hceservice.tds.TransactionHistoryListener
+{
+    public public *;
+}
+-keep public interface  com.comviva.hceservice.util.ResponseListener
+  {
+      public public *;
+  }
 -keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
     public public *;
 }
@@ -208,4 +216,22 @@
 }
 -keep public enum com.comviva.hceservice.util.NfcSetting {
     public public *;
+}
+-keep public interface com.comviva.hceservice.util.ResponseListener {
+    public public *;
+}
+
+# Visa Packages
+-keep public class com.visa.cbp.sdk.crypto.JniCrypto {
+   public public *;
+}
+-keep public class com.visa.cbp.external.BuildConfig {
+   public public *;
+}
+-keep public class com.visa.cbp.sdk.facade.util.UtilityFunctions {
+public public *;
+}
+
+-keep public class com.visa.cbp.sdk.facade.** {
+public public *;
 }

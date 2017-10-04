@@ -308,8 +308,7 @@ public class Registration {
         visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
     }
 
-    private void initializeSdkForMdes(final JSONObject jsRegDevResp,
-                                      final ComvivaSdkInitData comvivaSdkInitData) throws SdkException {
+    private void initializeSdkForMdes(final JSONObject jsRegDevResp, final ComvivaSdkInitData comvivaSdkInitData) throws SdkException {
         try {
             if (jsRegDevResp.has("mdesFinalCode")) {
                 String mdesRespCode = jsRegDevResp.getString("mdesFinalCode");

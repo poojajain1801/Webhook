@@ -401,6 +401,7 @@ public class ComvivaSdk {
         editor.putString(Constants.KEY_PAYMENT_APP_SERVER_IP, paymentAppServerIp);
         editor.putString(Constants.KEY_PAYMENT_APP_SERVER_PORT, String.format("%d", port));
         editor.commit();
+        loadConfiguration();
     }
 
     /**

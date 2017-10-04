@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,7 @@ import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.UiUtil;
 import com.comviva.mdesapp.constant.Constants;
 
-public class RegisterUserActivity extends Activity {
+public class RegisterUserActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     public String userId;
     private EditText edUserId;

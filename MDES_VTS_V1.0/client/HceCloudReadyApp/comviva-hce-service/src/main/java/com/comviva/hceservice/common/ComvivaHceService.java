@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.mastercard.mcbp.card.McbpCard;
+import com.mastercard.mcbp.listeners.ProcessContactlessListener;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.ApduResponse;
@@ -68,6 +69,10 @@ public class ComvivaHceService {
         if (cbpError != null && cbpError.getErrorCode() == SDKErrorType.CVM_VERIFICATION_REQUIRED.getCode()) {
             Log.d(TAG, "CVM Required in VcpcsService");
             Log.d(TAG, "apduResponse.getApduData().length = " + apduResponse.getApduData().length + " \n cbp error - " + cbpError.getErrorCode() + " " + cbpError.getErrorMessage());
+            ProcessContactlessListener processContactlessListener = paymentCard.getProcessContactlessListener();
+            if(processContactlessListener != null) {
+                processContactlessListener.onContactlessPaymentAborted(null);
+            }
         }
 
         return apduResponse.getApduData();
@@ -134,6 +139,10 @@ public class ComvivaHceService {
 
             case VTS:
                 visaPaymentSDK.processTransactionComplete(visaPaymentSDK.getSelectedCard());
+                ProcessContactlessListener processContactlessListener = paymentCard.getProcessContactlessListener();
+                if(processContactlessListener != null) {
+                    processContactlessListener.onContactlessPaymentCompleted(null);
+                }
                 break;
         }
         paymentCard = null;

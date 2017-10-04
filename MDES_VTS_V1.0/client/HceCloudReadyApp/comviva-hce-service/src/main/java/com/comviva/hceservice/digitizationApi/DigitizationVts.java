@@ -754,14 +754,14 @@ class DigitizationVts {
     /**
      * Replenish ODA data.
      *
-     * @param tokenKey             TokenKey of which ODA data is to update
+     * @param paymentCard   Payment Card need to be checked.
      * @param digitizationListener Listener
      */
-    void replenishODADataRequest(final TokenKey tokenKey, final DigitizationListener digitizationListener) {
+    void replenishODADataRequest(final PaymentCard paymentCard, final DigitizationListener digitizationListener) {
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
         final JSONObject replenishODADataObject = new JSONObject();
         try {
-            // replenishODADataObject.put(Tags.USER_ID.getTag(), );
-            replenishODADataObject.put(Tags.ACTIVATION_CODE.getTag(), "Dummy");
+             replenishODADataObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(),tokenData.getVProvisionedTokenID());
         } catch (JSONException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
@@ -774,23 +774,28 @@ class DigitizationVts {
 
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-
-                try {
-                    if (httpResponse.getStatusCode() == 200) {
-                        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                if (httpResponse.getStatusCode() == 200) {
+                    try {
                         JSONObject replenishODADataResponse = new JSONObject(httpResponse.getResponse());
-                        visaPaymentSDK.processODAReplenishResponse(tokenKey, parseReplenishODADataResponse(replenishODADataResponse));
-                        if (digitizationListener != null) {
+                        if (replenishODADataResponse.has(Tags.RESPONSE_CODE.getTag()) && !replenishODADataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            digitizationListener.onError(SdkErrorImpl.getInstance(replenishODADataResponse.getInt(Tags.RESPONSE_CODE.getTag()), replenishODADataResponse.getString("message")));
+                            return;
+                        }
+                        if (replenishODADataResponse.has(Tags.RESPONSE_CODE.getTag()) && replenishODADataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                            visaPaymentSDK.processODAReplenishResponse(tokenData.getTokenKey(), parseReplenishODADataResponse(replenishODADataResponse));
+                            if (digitizationListener != null) {
                             digitizationListener.onApproved();
                         }
-                    } else {
+                        }
+                    } catch (JSONException e) {
                         if (digitizationListener != null) {
-                            digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
+                            digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
                     }
-                } catch (JSONException e) {
+                } else {
                     if (digitizationListener != null) {
-                        digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getResponse()));
                     }
                 }
             }
@@ -805,7 +810,7 @@ class DigitizationVts {
      * @param guid             GUID of the resource
      * @param getAssetListener Listener
      */
-    public void getContent(final String guid, GetAssetListener getAssetListener) {
+    void getContent(final String guid, GetAssetListener getAssetListener) {
         GetTnCAssetTask getTnCAssetTask = new GetTnCAssetTask(guid, getAssetListener);
         getTnCAssetTask.execute();
     }
@@ -852,10 +857,8 @@ class DigitizationVts {
                             responseListener.onSuccess();
                         }
 
-                    } else {
-                        if (responseListener != null) {
+                    } else if (responseListener != null) {
                             responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                        }
                     }
                 } catch (JSONException e) {
                     if (responseListener != null) {
@@ -911,7 +914,7 @@ class DigitizationVts {
 
                         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                         TokenKey tokenKey = ((TokenData) card.getCurrentCard()).getTokenKey();
-                        if (jsResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                        if (jsResponse.has(Tags.RESPONSE_CODE.getTag()) && jsResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
                             switch (cardLcmOperation) {
                                 case DELETE:
                                     visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.DELETED);
@@ -946,6 +949,10 @@ class DigitizationVts {
         final JSONObject jsonCardMetaDataRequest = new JSONObject();
         try {
             jsonCardMetaDataRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
+
+            VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+            
+
         } catch (Exception e) {
             responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
@@ -1025,10 +1032,8 @@ class DigitizationVts {
                         if (responseListener != null) {
                             responseListener.onSuccess();
                         }
-                    } else {
-                        if (responseListener != null) {
+                    } else if (responseListener != null) {
                             responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                        }
                     }
                 } catch (JSONException e) {
                     if (responseListener != null) {

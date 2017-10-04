@@ -11,6 +11,7 @@ import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
  * This Class contains all transaction history related APIs.
  */
 public class TransactionHistory {
-    private ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
+    private static ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
         String transactionScope = jsTransactionHistory.getString("transactionScope");
         JSONArray transactionDetailsArray = jsTransactionHistory.getJSONArray("transactionDetails");
         ArrayList<String> encTransactionInfo = new ArrayList<>();
@@ -350,14 +351,14 @@ public class TransactionHistory {
      * @param count                      Number of records to retrieve. Maximum is 10. If not specified, the maximum number of records will be returned, up to 10, inclusive.
      * @param transactionHistoryListener UI Listener
      */
-    public void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
+    public static void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
         final JSONObject jsTransactionHistoryObject = new JSONObject();
         try {
             TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
             String vProvisionedTokenID = tokenData.getVProvisionedTokenID();
             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
             //paymentCard.getCardUniqueId();
-            jsTransactionHistoryObject.put("vProvisionedTokenID", vProvisionedTokenID);
+            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionedTokenID);
             //jsTransactionHistoryObject.put("encryptionMetaData", encryptionMetaData);
             if (count < 0 || count > 10) {
                 transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
@@ -384,17 +385,25 @@ public class TransactionHistory {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                try {
                     if (httpResponse.getStatusCode() == 200) {
-                        JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
-                        ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
-                        transactionHistoryListener.onSuccess(encryptedTransactionInfo);
+                        try {
+                            JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
+                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                                transactionHistoryListener.onError(SdkErrorImpl.getInstance(jsTransactionHistoryResponse.getInt("reasonCode"), jsTransactionHistoryResponse.getString("message")));
+                                return;
+                            }
+                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                                ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
+                                if (transactionHistoryListener != null) {
+                                    transactionHistoryListener.onSuccess(encryptedTransactionInfo);
+                                }
+                            }
+                        } catch (JSONException e) {
+                    transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        }
                     } else {
                         transactionHistoryListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
-                } catch (JSONException e) {
-                    transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-                }
             }
         }
         GetTransactionHistoryTask getTransactionHistoryTask = new GetTransactionHistoryTask();

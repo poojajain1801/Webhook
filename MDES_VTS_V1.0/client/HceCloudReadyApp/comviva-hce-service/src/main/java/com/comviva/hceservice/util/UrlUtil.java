@@ -113,13 +113,13 @@ public class UrlUtil {
     public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {
         switch (operation) {
             case SUSPEND:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/suspendToken";
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
 
             case RESUME:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/resumeToken";
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
 
             case DELETE:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/deleteToken";
+                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
         }
         return null;
     }
@@ -130,5 +130,8 @@ public class UrlUtil {
 
     public static String getVTSPanData() {
          return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
+    }
+    public static String getVTSTokenStatus() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/token/getTokenStatus";
     }
 }

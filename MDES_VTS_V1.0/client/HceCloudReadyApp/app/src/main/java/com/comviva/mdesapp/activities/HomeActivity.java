@@ -45,6 +45,7 @@ import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.tds.TdsRegistrationListener;
 import com.comviva.hceservice.tds.TransactionDetailsListener;
 import com.comviva.hceservice.tds.TransactionHistory;
+import com.comviva.hceservice.tds.TransactionHistoryListener;
 import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.NfcSetting;
 import com.comviva.hceservice.util.NfcUtil;
@@ -65,6 +66,8 @@ public class HomeActivity extends AppCompatActivity {
     private PaymentCard currentCard;
     private ProgressDialog progressDialog;
     private String tokenUniqueReference;
+    private Digitization digitization;
+    private final int transactionHistoryCount = 5;
 
     private ComvivaSdk comvivaHce;
 
@@ -109,11 +112,12 @@ public class HomeActivity extends AppCompatActivity {
         cardLcmRequest.setPaymentCards(cardList);
         cardLcmRequest.setCardLcmOperation(operation);
 
-        Digitization digitization = Digitization.getInstance();
+
+
         digitization.performCardLcm(cardLcmRequest, new CardLcmListener() {
             @Override
             public void onStarted() {
-                progressDialog = new ProgressDialog(HomeActivity.this);
+
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setMessage("Please wait...");
                 progressDialog.setIndeterminate(true);
@@ -379,7 +383,16 @@ public class HomeActivity extends AppCompatActivity {
                 CardState cardState = currentCard.getCardState();
                 tokenUniqueReference = currentCard.getCardUniqueId();
 
-                setFlipperImage(R.drawable.mastercardimg, i++, cardNum, cardState.equals(CardState.SUSPENDED));
+                switch (card.getCardType()) {
+                    case MDES:
+                        setFlipperImage(R.drawable.mastercardimg, i++, cardNum, cardState.equals(CardState.SUSPENDED));
+                        break;
+
+                    case VTS:
+                        setFlipperImage(R.drawable.large_visa_card, i++, cardNum, cardState.equals(CardState.SUSPENDED));
+                        break;
+                }
+
                 txtViewTokenCount.setText(txtViewTokenCount.getHint() + ": " + sukCount);
 
                 // Replenish Card if it has no transaction credential
@@ -443,7 +456,8 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        digitization = Digitization.getInstance();
+        progressDialog = new ProgressDialog(HomeActivity.this);
         TextView txtViewUserId = (TextView) findViewById(R.id.tvUserId);
         SharedPreferences userPref = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
         txtViewUserId.setText("Welcome " + userPref.getString(Constants.KEY_USER_ID, null) + "...");
@@ -492,9 +506,9 @@ public class HomeActivity extends AppCompatActivity {
                             displayPINView(pinListener);
                         }
                     };
-                    currentCard.prepareForContactlessTransaction(processContactlessListener);
+                    //currentCard.prepareForContactlessTransaction(processContactlessListener);
                     try {
-                        currentCard.startContactlessTransaction();
+                        currentCard.startContactlessTransaction(processContactlessListener);
                     } catch (SdkException e) {
                         new AlertDialog.Builder(HomeActivity.this)
                                 .setTitle("Error")
@@ -579,6 +593,99 @@ public class HomeActivity extends AppCompatActivity {
                 unregisterFromTds(tokenUniqueReference);
                 return true;
 
+            case R.id.get_content:
+                //digitization.getContent( );
+                return true;
+
+            case R.id.replenish_oda_data:
+                digitization.replenishODAData(currentCard);
+                return true;
+
+
+            case R.id.get_metatdata:
+                digitization.getCardMetaData(currentCard, new ResponseListener() {
+                    @Override
+                    public void onStarted() {
+
+                    }
+
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(SdkError sdkError) {
+
+                    }
+                });
+                return true;
+
+            case R.id.transaction_history:
+                TransactionHistory.getTransactionHistory(currentCard, transactionHistoryCount, new TransactionHistoryListener() {
+                    @Override
+                    public void onSuccess(ArrayList transactionInfo) {
+                    }
+
+                    @Override
+                    public void onStarted() {
+                    }
+
+                    @Override
+                    public void onError(SdkError sdkError) {
+                    }
+
+                });
+                return true;
+
+            case R.id.token_status:
+                digitization.getTokenStatus(currentCard, new ResponseListener() {
+                    @Override
+                    public void onStarted() {
+                        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progressDialog.setMessage("Please wait...");
+                        progressDialog.setIndeterminate(true);
+                        progressDialog.setCancelable(false);
+                        progressDialog.show();
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                        new AlertDialog.Builder(HomeActivity.this)
+                                .setTitle("Success")
+                                .setMessage("Card Get Status Success")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+
+                    }
+
+                    @Override
+                    public void onError(SdkError sdkError) {
+
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                        new AlertDialog.Builder(HomeActivity.this)
+                                .setTitle("Error")
+                                .setMessage(sdkError.getMessage())
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // continue
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                });
+                return true;
+
             case R.id.replenish:
                 replenish();
                 return true;
@@ -619,7 +726,6 @@ public class HomeActivity extends AppCompatActivity {
         }
         int tagCard = Integer.parseInt(cards.getCurrentView().getTag().toString());
         currentCard = cardList.get(tagCard);
-
         comvivaHce.setSelectedCard(currentCard);
         tokenUniqueReference = currentCard.getCardUniqueId();
         int sukCount = currentCard.getTransactionCredentialsLeft();
