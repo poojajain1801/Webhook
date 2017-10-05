@@ -16,11 +16,17 @@
 -dontwarn org.apache.cordova.*
 -dontwarn com.guardsquare.dexguard.runtime.encryption.*
 
-#-injars libs
-
+-injars libs
 -keepresourcefiles jni/**/*.so
 
 -printconfiguration config.txt
+
+-libraryjars libs/VisaDigitalSDK.jar
+#-keep class com.visa.cbp.** { *; }
+#-dontwarn com.visa.cbp.**
+#-keepclassmembers class * {
+#    private <fields>;
+#}
 
 ##############################################################################
 # Remove logging code.
@@ -75,14 +81,12 @@
     public public *;
 }
 
--keep public interface com.comviva.hceservice.tds.TransactionHistoryListener
-{
+-keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
     public public *;
 }
--keep public interface  com.comviva.hceservice.util.ResponseListener
-  {
+-keep public interface  com.comviva.hceservice.util.ResponseListener {
       public public *;
-  }
+ }
 -keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
     public public *;
 }
@@ -221,6 +225,11 @@
     public public *;
 }
 
+# Firebase
+#-keep public class com.google.firebase.iid.FirebaseInstanceId {
+#    public public *;
+#}
+
 # Visa Packages
 -keep public class com.visa.cbp.sdk.crypto.JniCrypto {
    public public *;
@@ -229,9 +238,16 @@
    public public *;
 }
 -keep public class com.visa.cbp.sdk.facade.util.UtilityFunctions {
-public public *;
+    public public *;
 }
+-keep public class com.visa.cbp.sdk.facade.data.StorageKeys {
+   public public *;
+}
+#-keepclassmembernames class com.visa.cbp.sdk.facade.data.StorageKeys {
+#   private String dar;
+#   private String sdar;
+#}
 
--keep public class com.visa.cbp.sdk.facade.** {
-public public *;
+-keepclassmembers class com.visa.cbp.sdk.facade.data.StorageKeys {
+    private <fields>;
 }

@@ -204,7 +204,7 @@ public class PaymentCard {
      */
     /*public void prepareForContactlessTransaction(ProcessContactlessListener processContactlessListener) {
         if (cardType == CardType.MDES) {
-           // McbpCardApi.prepareContactless((McbpCard) currentCard, processContactlessListener);
+            McbpCardApi.prepareContactless((McbpCard) currentCard, processContactlessListener);
         }
     }*/
 

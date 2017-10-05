@@ -34,5 +34,13 @@ public class RnsInfo {
         this.rnsType = rnsType;
     }
 
-
+    public static RNS_TYPE getRnsType(String rnsType) {
+        if(rnsType != null && rnsType.equalsIgnoreCase(RNS_TYPE.GCM.name())) {
+            return RNS_TYPE.GCM;
+        }
+        if(rnsType != null && rnsType.equalsIgnoreCase(RNS_TYPE.FCM.name())) {
+            return RNS_TYPE.FCM;
+        }
+        return null;
+    }
 }

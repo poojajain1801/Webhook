@@ -20,7 +20,7 @@ android {
         release {
             minifyEnabled false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile 'D:/GITServer/HceCloudReadyApp/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
+            proguardFile 'D:/MdesVts/Latest/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
         }
         debug {
             debuggable true

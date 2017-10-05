@@ -422,7 +422,7 @@ public class Registration {
                         respCode = respObj.getInt("responseCode");
 
                         // If success then retrieve activation code
-                        if (respCode == 200) {
+                        if (respCode == 200 || respCode == 201) {
                             regUserListener.onRegistrationCompeted();
                         } else {
                             if (regUserListener != null) {

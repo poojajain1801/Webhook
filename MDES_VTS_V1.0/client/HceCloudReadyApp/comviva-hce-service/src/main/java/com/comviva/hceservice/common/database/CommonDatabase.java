@@ -126,7 +126,7 @@ public class CommonDatabase implements CommonDb {
                 rnsInfo.setRegistrationId(cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_ID)));
                 String rnsType = cursor.getString(cursor.getColumnIndex(DatabaseProperties.COL_RNS_TYPE));
                 if (rnsType != null) {
-                    rnsInfo.setRnsType(RnsInfo.RNS_TYPE.valueOf(rnsType));
+                    rnsInfo.setRnsType(RnsInfo.getRnsType(rnsType));
                 }
                 initData.setRnsInfo(rnsInfo);
                 initData.setVtsInitState(cursor.getInt(cursor.getColumnIndex(DatabaseProperties.COL_VTS_INIT_STATE)) == 1);
