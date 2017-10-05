@@ -31,7 +31,6 @@
 
         </android.support.design.widget.TextInputLayout>
 
-
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,14 +43,13 @@
                 android:hint="Payment App Server Port" />
         </android.support.design.widget.TextInputLayout>
 
-
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp">
+            android:paddingTop="10dp"
+            android:visibility="gone">
 
             <EditText
-
                 android:id="@+id/etCmsDIp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,11 +57,11 @@
 
         </android.support.design.widget.TextInputLayout>
 
-
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp">
+            android:paddingTop="10dp"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/etCmsDPort"
@@ -73,7 +71,6 @@
                 android:hint="Cms-D Port" />
 
         </android.support.design.widget.TextInputLayout>
-
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/btnUpdateConfig"

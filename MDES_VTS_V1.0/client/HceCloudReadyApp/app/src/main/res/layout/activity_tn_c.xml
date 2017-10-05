@@ -11,17 +11,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.comviva.mdesapp.activities.TnCActivity">
 
-    <TextView
-        android:id="@+id/etTnC"
+    <ScrollView
+        android:layout_above="@+id/accept_decline_lay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Please accept all terms and conditions" />
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/etTnC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please accept all terms and conditions" />
+
+        </LinearLayout>
+    </ScrollView>
+
 
     <LinearLayout
+        android:id="@+id/accept_decline_lay"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:weightSum="100"
+        android:padding="10dp"
         android:layout_alignParentBottom="true">
 
 
@@ -32,7 +48,6 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_weight="50"
-            android:layout_marginTop="30dp"
             android:backgroundTint="@color/colorPrimary"
             android:text="Accept"
             android:textColor="@android:color/white" />
@@ -46,7 +61,6 @@
             android:layout_weight="50"
             android:layout_marginLeft="4dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
             android:backgroundTint="@color/colorPrimary"
             android:text="Decline"
             android:textColor="@android:color/white" />

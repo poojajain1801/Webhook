@@ -16,7 +16,7 @@ public class UrlUtil {
                                   final String payAppServerPort,
                                   final String cmsDIp,
                                   final String cmsDPort) {
-        PAYMENT_APP_SERVER_ADDRESS = "http://" + payAppServerIp + ":" + payAppServerPort + "/payment-app/";
+        PAYMENT_APP_SERVER_ADDRESS = "https://" + payAppServerIp + ":" + payAppServerPort + "/payment-app/";
 
         //http://localhost:9099/mdes/paymentapp/1/0/requestSession
         CMS_D_SERVER_ADDRESS = "http://" + cmsDIp + ":" + cmsDPort + "/mdes/paymentapp/1/0/";

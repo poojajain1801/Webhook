@@ -28,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -65,6 +66,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView txtViewTimer;
     private PaymentCard currentCard;
     private ProgressDialog progressDialog;
+    private LinearLayout payLayout, noCardAddedLay;
     private String tokenUniqueReference;
     private Digitization digitization;
     private final int transactionHistoryCount = 5;
@@ -74,6 +76,8 @@ public class HomeActivity extends AppCompatActivity {
     private CountDownTimer timer;
 
     private void setFlipperImage(int res, int tag, String cardNumber, boolean isBlur) {
+
+
         ImageView image = new ImageView(getApplicationContext());
         Bitmap bm = BitmapFactory.decodeResource(getResources(), res);
         Bitmap.Config config = bm.getConfig();
@@ -94,7 +98,7 @@ public class HomeActivity extends AppCompatActivity {
         c.drawText(cardNumber, x, y, paint);
 
         image.setImageBitmap(newImage);
-        image.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        image.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         cards.addView(image);
         image.setTag(tag);
         if (isBlur) {
@@ -111,7 +115,6 @@ public class HomeActivity extends AppCompatActivity {
         cardLcmRequest.setReasonCode(CardLcmReasonCode.ACCOUNT_CLOSED);
         cardLcmRequest.setPaymentCards(cardList);
         cardLcmRequest.setCardLcmOperation(operation);
-
 
 
         digitization.performCardLcm(cardLcmRequest, new CardLcmListener() {
@@ -371,9 +374,13 @@ public class HomeActivity extends AppCompatActivity {
         cardList = comvivaHce.getAllCards();
 
         if (cardList.isEmpty()) {
-            setFlipperImage(R.drawable.loading_card_profile_white, 0, "", false);
+            setFlipperImage(R.drawable.no_card_added, 0, "", false);
+            noCardAddedLay.setVisibility(View.VISIBLE);
             txtViewTokenCount.setText("");
+            payLayout.setVisibility(View.INVISIBLE);
         } else {
+            payLayout.setVisibility(View.VISIBLE);
+            noCardAddedLay.setVisibility(View.GONE);
             int i = 0;
             for (PaymentCard card : cardList) {
                 currentCard = card;
@@ -457,6 +464,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         digitization = Digitization.getInstance();
+        payLayout = (LinearLayout) findViewById(R.id.pay_lay);
+        noCardAddedLay = (LinearLayout)findViewById(R.id.no_card_added_lay) ;
         progressDialog = new ProgressDialog(HomeActivity.this);
         TextView txtViewUserId = (TextView) findViewById(R.id.tvUserId);
         SharedPreferences userPref = getSharedPreferences(Constants.SHARED_PREF_USER, MODE_PRIVATE);
@@ -697,39 +706,43 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent touchevent) {
-        float lastX = 0;
-        switch (touchevent.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                lastX = touchevent.getX();
-                break;
+        if (cardList.isEmpty()) {
+            startActivity(new Intent(this, AddCardActivity.class));
+        } else {
+            float lastX = 0;
+            switch (touchevent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    lastX = touchevent.getX();
+                    break;
 
-            case MotionEvent.ACTION_UP:
-                float currentX = touchevent.getX();
-                if (lastX < currentX) {
-                    if (cards.getChildCount() == 1) {
-                        break;
+                case MotionEvent.ACTION_UP:
+                    float currentX = touchevent.getX();
+                    if (lastX < currentX) {
+                        if (cards.getChildCount() == 1) {
+                            break;
+                        }
+                        cards.setInAnimation(this, R.anim.slide_in_from_left);
+                        cards.setOutAnimation(this, R.anim.slide_out_to_right);
+                        cards.showNext();
                     }
-                    cards.setInAnimation(this, R.anim.slide_in_from_left);
-                    cards.setOutAnimation(this, R.anim.slide_out_to_right);
-                    cards.showNext();
-                }
 
-                if (lastX > currentX) {
-                    if (cards.getChildCount() == 1) {
-                        break;
+                    if (lastX > currentX) {
+                        if (cards.getChildCount() == 1) {
+                            break;
+                        }
+                        cards.setInAnimation(this, R.anim.slide_in_from_right);
+                        cards.setOutAnimation(this, R.anim.slide_out_to_left);
+                        cards.showPrevious();
                     }
-                    cards.setInAnimation(this, R.anim.slide_in_from_right);
-                    cards.setOutAnimation(this, R.anim.slide_out_to_left);
-                    cards.showPrevious();
-                }
-                break;
+                    break;
+            }
+            int tagCard = Integer.parseInt(cards.getCurrentView().getTag().toString());
+            currentCard = cardList.get(tagCard);
+            comvivaHce.setSelectedCard(currentCard);
+            tokenUniqueReference = currentCard.getCardUniqueId();
+            int sukCount = currentCard.getTransactionCredentialsLeft();
+            txtViewTokenCount.setText(txtViewTokenCount.getHint() + ": " + sukCount);
         }
-        int tagCard = Integer.parseInt(cards.getCurrentView().getTag().toString());
-        currentCard = cardList.get(tagCard);
-        comvivaHce.setSelectedCard(currentCard);
-        tokenUniqueReference = currentCard.getCardUniqueId();
-        int sukCount = currentCard.getTransactionCredentialsLeft();
-        txtViewTokenCount.setText(txtViewTokenCount.getHint() + ": " + sukCount);
         return false;
     }
 

@@ -10,7 +10,8 @@
     <item
         android:id="@+id/setPin"
         android:orderInCategory="100"
-        android:title="Set PIN" />
+        android:title="Set PIN"
+        android:visible="false"/>
 
     <item
         android:id="@+id/suspendCard"
@@ -30,22 +31,26 @@
     <item
         android:id="@+id/changePin"
         android:orderInCategory="100"
-        android:title="Change Pin" />
+        android:title="Change Pin"
+        android:visible="false"/>
 
     <item
         android:id="@+id/registerTds"
         android:orderInCategory="100"
-        android:title="Register TDS" />
+        android:title="Register TDS"
+        android:visible="false"/>
 
     <item
         android:id="@+id/transactionDetails"
         android:orderInCategory="100"
-        android:title="Transaction History" />
+        android:title="Transaction History"
+        android:visible="false"/>
 
     <item
         android:id="@+id/unregisterTds"
         android:orderInCategory="100"
-        android:title="Unregister TDS" />
+        android:title="Unregister TDS"
+        android:visible="false"/>
 
     <item
         android:id="@+id/replenish"

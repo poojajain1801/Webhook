@@ -18,49 +18,77 @@
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"/>
 
-    <TextView
-        android:id="@+id/txtViewTokenCount"
-        android:layout_width="wrap_content"
+    <LinearLayout
+
+        android:id="@+id/pay_lay"
+        android:visibility="invisible"
+        android:layout_below="@+id/viewFlipperCards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtViewTokenCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/viewFlipperCards"
+            android:layout_centerHorizontal="true"
+            android:hint="@string/tokenCount"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/txtViewTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtViewTokenCount"
+            android:textColor="@color/black_color"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ImageButton
+            android:id="@+id/btnPay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtViewTokenCount"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Pay Button"
+            android:src="@drawable/btn_pay_selector"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnPay"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:hint="@string/tapHere"
+            android:text="@string/tapHere"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/no_card_added_lay"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/viewFlipperCards"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:hint="@string/tokenCount"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:gravity="center"
+        android:visibility="invisible"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txtViewTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtViewTokenCount"
-        android:textColor="@color/black_color"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ImageButton
-        android:id="@+id/btnPay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtViewTokenCount"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="40dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Pay Button"
-        android:src="@drawable/btn_pay_selector"
-        android:textColor="@android:color/black" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btnPay"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:hint="@string/tapHere"
-        android:text="@string/tapHere"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black_color"
+            android:text="No Card Added. Please add a card"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvUserId"
