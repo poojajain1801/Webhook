@@ -91,6 +91,9 @@ public class AddCardActivity extends AppCompatActivity {
 
                     @Override
                     public void onTermsAndConditionsRequired(ContentGuid cardEligibilityResponse) {
+                        if (progressDialog != null && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
                         try {
                             Intent intent = new Intent(AddCardActivity.this, TnCActivity.class);
                             intent.putExtra("eligibilityResponse", cardEligibilityResponse);

@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         SignConfig {
-            keyAlias 'Wallet'
+            keyAlias 'MdesVtsSignKey'
             keyPassword 'Wallet@123'
-            storeFile file('C:/Keystoree/keystore')
+            storeFile file('D:/AndroidSignKey/MdesVtsSigningKey.jks')
             storePassword 'Wallet@123'
         }
     }

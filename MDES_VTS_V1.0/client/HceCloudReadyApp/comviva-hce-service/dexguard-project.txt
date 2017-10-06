@@ -21,7 +21,7 @@
 
 -printconfiguration config.txt
 
--libraryjars libs/VisaDigitalSDK.jar
+#-libraryjars libs/VisaDigitalSDK.jar
 #-keep class com.visa.cbp.** { *; }
 #-dontwarn com.visa.cbp.**
 #-keepclassmembers class * {
