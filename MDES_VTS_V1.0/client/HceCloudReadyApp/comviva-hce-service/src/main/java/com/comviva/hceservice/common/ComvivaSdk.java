@@ -368,7 +368,7 @@ public class ComvivaSdk {
      *
      * @return Default Card
      */
-    public PaymentCard getDefauPaymentCard() {
+    public PaymentCard getDefaultPaymentCard() {
         return commonDb.getDefaultCard();
     }
 

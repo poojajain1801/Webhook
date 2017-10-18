@@ -24,7 +24,6 @@ public class ConfigurationActivity extends AppCompatActivity {
         final EditText etCmsDPort = (EditText) findViewById(R.id.etCmsDPort);
         final Button btnUpdateConfig = (Button) findViewById(R.id.btnUpdateConfig);
 
-        comvivaSdk = null;
         try {
             comvivaSdk = ComvivaSdk.getInstance(null);
         } catch (SdkException e) {

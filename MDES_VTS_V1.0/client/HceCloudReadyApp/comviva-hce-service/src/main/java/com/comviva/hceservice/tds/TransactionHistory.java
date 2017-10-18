@@ -18,9 +18,6 @@ import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
-import com.visa.cbp.sdk.facade.VisaPaymentSDK;
-import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
-import com.visa.cbp.sdk.facade.data.TokenData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -354,19 +351,18 @@ public class TransactionHistory {
     public static void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
         final JSONObject jsTransactionHistoryObject = new JSONObject();
         try {
-            TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
-            String vProvisionedTokenID = tokenData.getVProvisionedTokenID();
-            VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-            //paymentCard.getCardUniqueId();
-            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionedTokenID);
-            //jsTransactionHistoryObject.put("encryptionMetaData", encryptionMetaData);
+            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId());
             if (count < 0 || count > 10) {
+                if(transactionHistoryListener != null) {
                 transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
+                }
             } else {
                 jsTransactionHistoryObject.put("Count", count);
             }
         } catch (JSONException e) {
+            if(transactionHistoryListener != null) {
             transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            }
             return;
         }
 
@@ -374,6 +370,9 @@ public class TransactionHistory {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                if(transactionHistoryListener != null) {
+                    transactionHistoryListener.onStarted();
+                }
             }
 
             @Override
@@ -389,7 +388,9 @@ public class TransactionHistory {
                         try {
                             JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
                             if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            if(transactionHistoryListener != null) {
                                 transactionHistoryListener.onError(SdkErrorImpl.getInstance(jsTransactionHistoryResponse.getInt("reasonCode"), jsTransactionHistoryResponse.getString("message")));
+                            }
                                 return;
                             }
                             if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
@@ -399,11 +400,15 @@ public class TransactionHistory {
                                 }
                             }
                         } catch (JSONException e) {
-                    transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        if(transactionHistoryListener != null) {
+                            transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
+                    }
                     } else {
+                    if(transactionHistoryListener != null) {
                         transactionHistoryListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
+                }
             }
         }
         GetTransactionHistoryTask getTransactionHistoryTask = new GetTransactionHistoryTask();

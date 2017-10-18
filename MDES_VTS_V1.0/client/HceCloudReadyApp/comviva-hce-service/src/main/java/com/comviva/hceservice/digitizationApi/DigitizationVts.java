@@ -1,6 +1,7 @@
 package com.comviva.hceservice.digitizationApi;
 
 import android.os.AsyncTask;
+import android.util.Base64;
 
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.PaymentCard;
@@ -46,6 +47,7 @@ import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
 import com.visa.cbp.sdk.facade.exception.CryptoException;
+import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -201,7 +203,7 @@ class DigitizationVts {
         for (int i = 0; i < jsArrContent.length(); i++) {
             jsContent = jsArrContent.getJSONObject(0);
             mediaContents[i] = new MediaContent();
-            mediaContents[i].setData(jsContent.getString("encodedData"));
+            mediaContents[i].setData(new String(Base64.decode(jsContent.getString("encodedData"), Base64.DEFAULT)));
             String contentType = jsContent.getString("mimeType");
             if (contentType.equalsIgnoreCase("image/pdf")) {
                 mediaContents[i].setAssetType(AssetType.APPLICATION_PDF);
@@ -742,7 +744,8 @@ class DigitizationVts {
                     }
                 } catch (Exception e) {
                     if (digitizationListener != null) {
-                        digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                        digitizationListener.onError(SdkErrorImpl.getInstance(10, e.getMessage()));
+                        //digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -1052,14 +1055,13 @@ class DigitizationVts {
      * @param listener UI Listener
      */
     void replenishLuk(final PaymentCard paymentCard, final ResponseListener listener) {
-        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
-
         final VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
         final TokenKey tokenKey = tokenData.getTokenKey();
-        ReplenishRequest replenishRequest = visaPaymentSDK.constructReplenishRequest(tokenKey);
-
         final JSONObject jsReplenishReq = new JSONObject();
+
         try {
+            ReplenishRequest replenishRequest = visaPaymentSDK.constructReplenishRequest(tokenKey);
             jsReplenishReq.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
             jsReplenishReq.put(Tags.MAC.getTag(), replenishRequest.getSignature().getMac());
             jsReplenishReq.put(Tags.API.getTag(), replenishRequest.getTokenInfo().getHceData().getDynParams().getApi());
@@ -1074,7 +1076,14 @@ class DigitizationVts {
         } catch (JSONException e) {
             listener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
+        } catch (TokenInvalidException e) {
+            listener.onError(SdkErrorStandardImpl.SDK_INVALID_CARD_NUMBER);
+            return;
+        } catch (CryptoException e) {
+            listener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+            return;
         }
+
         class GetPanDataTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
             protected void onPreExecute() {
