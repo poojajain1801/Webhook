@@ -38,6 +38,7 @@ public class HttpClintImpl implements HttpClint {
             httpURLConnection.setUseCaches(false);
             httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
+
             httpURLConnection.setRequestProperty("Content-Length", Integer.toString(postData.length));
 
             OutputStream out = httpURLConnection.getOutputStream();

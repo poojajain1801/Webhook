@@ -116,7 +116,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 visaCardDetails = new VisaCardDetails();
-                visaCardDetails = visaCardDetailRepository.findByVPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID()).get();
+                visaCardDetails = visaCardDetailRepository.findByVPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID()).get(0);
                 visaCardDetails.setvProvisionedTokenId(jsonResponse.getString("vProvisionedTokenID"));
                 visaCardDetailRepository.save(visaCardDetails);
                 return JsonUtil.jsonStringToHashMap(jsonResponse.toString());
