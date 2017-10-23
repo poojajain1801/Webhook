@@ -16,6 +16,7 @@ import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
 import com.mastercard.mcbp.utils.exceptions.lde.LdeNotInitialized;
 import com.mastercard.mcbp.utils.exceptions.lde.SessionKeysNotAvailable;
 import com.mastercard.mobile_api.bytes.ByteArray;
+import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
 
@@ -27,6 +28,7 @@ public class PaymentCard {
     private Object currentCard;
     private CardType cardType;
     private boolean isDefaultCard;
+    private ProcessContactlessListener processContactlessListener;
 
     PaymentCard(Object cardObj) {
         currentCard = cardObj;
@@ -46,6 +48,10 @@ public class PaymentCard {
      */
     void setDefaultCard() {
         isDefaultCard = true;
+    }
+
+    ProcessContactlessListener getProcessContactlessListener() {
+        return processContactlessListener;
     }
 
     public static PaymentCard getPaymentCard(Object cardObj) {
@@ -124,6 +130,9 @@ public class PaymentCard {
                         case SUSPENDED:
                             return CardState.SUSPENDED;
 
+                        case RESUME:
+                            return CardState.INITIALIZED;
+
                         default:
                             return null;
                     }
@@ -144,8 +153,10 @@ public class PaymentCard {
                 return ((McbpCard) currentCard).numberPaymentsLeft();
 
             case VTS:
-            default:
                 return 1;
+
+            default:
+                return 0;
         }
     }
 
@@ -179,7 +190,7 @@ public class PaymentCard {
                     return ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId());
 
                 case VTS:
-                    return Long.toString(((TokenData) currentCard).getTokenKey().getTokenId());
+                    return (((TokenData) currentCard).getVProvisionedTokenID());
             }
         } catch (Exception e) {
         }
@@ -191,22 +202,31 @@ public class PaymentCard {
      *
      * @param processContactlessListener Listener to transaction events.
      */
-    public void prepareForContactlessTransaction(ProcessContactlessListener processContactlessListener) {
+    /*public void prepareForContactlessTransaction(ProcessContactlessListener processContactlessListener) {
         if (cardType == CardType.MDES) {
             McbpCardApi.prepareContactless((McbpCard) currentCard, processContactlessListener);
         }
-    }
+    }*/
 
     /**
      * Starts Contactless transaction. Throws SdkException if transaction credential is not left.
      *
      * @throws SdkException SdkException
      */
-    public void startContactlessTransaction() throws SdkException {
+    public void startContactlessTransaction(ProcessContactlessListener processContactlessListener) throws SdkException {
         try {
-            if (cardType == CardType.MDES) {
-                McbpCard card = (McbpCard) currentCard;
-                card.startContactless(new BusinessLogicTransactionInformation());
+            this.processContactlessListener = processContactlessListener;
+            switch (cardType) {
+                case MDES:
+                    McbpCard card = (McbpCard) currentCard;
+                    McbpCardApi.prepareContactless((McbpCard) currentCard, processContactlessListener);
+                    card.startContactless(new BusinessLogicTransactionInformation());
+                    break;
+
+                case VTS:
+                    VisaPaymentSDKImpl.getInstance().selectCard(((TokenData)currentCard).getTokenKey());
+                    processContactlessListener.onContactlessReady();
+                    break;
             }
         } catch (McbpCryptoException | LdeNotInitialized | InvalidInput e) {
             throw new SdkException(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);

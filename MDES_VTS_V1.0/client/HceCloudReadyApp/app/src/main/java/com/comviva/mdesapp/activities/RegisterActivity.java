@@ -36,23 +36,31 @@ public class RegisterActivity extends Activity {
             edActivationCode.setEnabled(false);
         }
 
-        final RegisterParam registerParam = new RegisterParam();
-        registerParam.setPaymentAppId("ComvivaWallet");
-        registerParam.setPublicKeyFingerprint("1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E");
+        try {
+            final RegisterParam registerParam = new RegisterParam();
+            registerParam.setPaymentAppId("ComvivaWallet");
+            registerParam.setPublicKeyFingerprint("1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E");
 
-        final Registration registration = Registration.getInstance();
+            final Registration registration = Registration.getInstance();
 
-        Button btnReg = (Button) findViewById(R.id.btnReg);
-        btnReg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerParam.setUserId(edUserId.getText().toString());
-                registerParam.setMobilePin(editMobilePin.getText().toString());
-                registerParam.setDeviceName(editDeviceName.getText().toString());
-                registerParam.setSchemeType(SchemeType.ALL);
-                registration.registerDevice(registerParam, regDeviceListener);
-            }
-        });
+            Button btnReg = (Button) findViewById(R.id.btnReg);
+            btnReg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    registerParam.setUserId(edUserId.getText().toString());
+                    registerParam.setMobilePin(editMobilePin.getText().toString());
+                    registerParam.setDeviceName(editDeviceName.getText().toString());
+                    registerParam.setSchemeType(SchemeType.ALL);
+                    try {
+                        registration.registerDevice(registerParam, regDeviceListener);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     RegistrationListener regDeviceListener = new RegistrationListener() {

@@ -20,6 +20,7 @@ public enum Tags {
     SC("sc"),
     TV1("tvl"),
     PROVISIONING_STATUS("provisioningStatus"),
+    GUID("guid"),
     FAILURE_REASON("failureReason"),
     REPERSO("reperso"),
     ENCRYPTION_META_DATA("encryptionMetaData"),

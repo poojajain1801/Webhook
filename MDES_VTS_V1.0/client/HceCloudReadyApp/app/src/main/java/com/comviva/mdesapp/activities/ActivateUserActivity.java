@@ -37,16 +37,20 @@ public class ActivateUserActivity extends AppCompatActivity {
             edUserId.setText(userId);
         }
 
-        final Registration registration = Registration.getInstance();
+        try {
+            final Registration registration = Registration.getInstance();
 
-        Button btnActUser = (Button) findViewById(R.id.btnActUser);
-        btnActUser.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-                registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), imei, activateUserListener);
-            }
-        });
+            Button btnActUser = (Button) findViewById(R.id.btnActUser);
+            btnActUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                    registration.activateUser(edUserId.getText().toString(), edActivationCode.getText().toString(), imei, activateUserListener);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     RegistrationListener activateUserListener = new RegistrationListener() {

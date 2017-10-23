@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,24 +10,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.comviva.mdesapp.activities.RegisterUserActivity">
 
-    <EditText
-        android:id="@+id/editUserIdRegUser"
-        android:layout_width="350dp"
-        android:layout_height="50dp"
-        android:hint="User Id" />
-
-    <Space
-        android:id="@+id/space1"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_password"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@+id/editUserIdRegUser" />
+        android:layout_height="wrap_content">
 
-    <Button
+        <EditText
+            android:id="@+id/editUserIdRegUser"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:hint="User Id" />
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.v7.widget.AppCompatButton
         android:id="@+id/btnRegUser"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_below="@+id/space1"
+        style="@style/AppTheme.RoundedCornerMaterialButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Register" />
+        android:layout_marginTop="100dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="Register"
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>

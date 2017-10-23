@@ -10,6 +10,7 @@ import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
@@ -24,9 +25,15 @@ import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.MdesMcbpWalletApi;
 import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
 import com.mastercard.mcbp.remotemanagement.mdes.RemoteManagementHandler;
+import com.visa.cbp.external.common.DynParams;
+import com.visa.cbp.external.common.ExpirationDate;
+import com.visa.cbp.external.common.HceData;
+import com.visa.cbp.external.common.TokenInfo;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
+import com.visa.cbp.sdk.facade.data.TokenStatus;
 import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
 
 import org.json.JSONArray;
@@ -38,6 +45,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import flexjson.JSONDeserializer;
 
 /**
  * Contains all Digitization APIs.
@@ -379,6 +388,194 @@ public class Digitization {
     }
 
     /**
+     * Checks token's current status and update accordingly.
+     * <p>
+     * Note- This API is only applicable for VISA .
+     *
+     * @param paymentCard      Payment Card need to be checked
+     * @param responseListener Listener
+     */
+    public void getTokenStatus(final PaymentCard paymentCard, final ResponseListener responseListener) {
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
+        final JSONObject jsonTokenStatusRequest = new JSONObject();
+        try {
+            jsonTokenStatusRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
+        } catch (Exception e) {
+            //checkEligibilityListener.onCheckEligibilityError("Error while preparing request");
+            return;
+        }
+
+        class GetTokenStatus extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (responseListener != null) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSTokenStatus(), jsonTokenStatusRequest.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                if (httpResponse.getStatusCode() == 200) {
+                    try {
+                        JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
+                        if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) &&
+                                !jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            responseListener.onError(SdkErrorImpl.getInstance(jsGetTokenResponse.getInt(Tags.RESPONSE_CODE.getTag()),
+                                    jsGetTokenResponse.getString("message")));
+                            return;
+                        }
+                        if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) && jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
+                            if (responseListener != null) {
+                                responseListener.onSuccess();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                } else {
+                    responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }
+        }
+
+        GetTokenStatus getTokenStatus = new GetTokenStatus();
+        getTokenStatus.execute();
+    }
+
+    /**
+     * This API allows clients to retrieve metadata related to the token.
+     * <p>
+     * Note- This API is only applicable for VISA .
+     *
+     * @param paymentCard      Payment Card need to be checked
+     * @param responseListener Listener
+     */
+
+    public void getCardMetaData(final PaymentCard paymentCard, final ResponseListener responseListener) {
+        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
+        final JSONObject jsonCardMetaDataRequest = new JSONObject();
+        try {
+            //jsonCardMetaDataRequest.put(Tags.VPAN_ENROLLMENT_ID.getTag(), paymentCard.pr);
+        } catch (Exception e) {
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        }
+        class GetCardMetaDataTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if (responseListener != null) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSCardMetaDataUrl(), jsonCardMetaDataRequest.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                if (httpResponse.getStatusCode() == 200) {
+                    try {
+                        JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
+                        if (jsGetCardMetaDataResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsGetCardMetaDataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            responseListener.onError(SdkErrorImpl.getInstance(jsGetCardMetaDataResponse.getInt(Tags.RESPONSE_CODE.getTag()),
+                                    jsGetCardMetaDataResponse.getString("message")));
+                            return;
+                        }
+                        if (jsGetCardMetaDataResponse.has(Tags.RESPONSE_CODE.getTag()) && jsGetCardMetaDataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            parseGetMetaDataResponse(jsGetCardMetaDataResponse);
+                            if (responseListener != null) {
+                                responseListener.onSuccess();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                } else {
+                    responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }
+        }
+
+        GetCardMetaDataTask getCardMetaDataTask = new GetCardMetaDataTask();
+        getCardMetaDataTask.execute();
+    }
+
+    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException {
+        JSONObject jsPaymentInstrument = jsGetMetaDataResponse.getJSONObject("paymentInstrument");
+        JSONObject jsExpirationDateObject = jsPaymentInstrument.getJSONObject("expirationDate");
+        JSONObject jsCardMetaDataResponseObject = jsGetMetaDataResponse.getJSONObject("cardMetaData");
+        JSONArray jsTokensArray = jsGetMetaDataResponse.getJSONArray("tokens");
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        for (int i = 0; i < jsTokensArray.length(); i++) {
+            TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(jsTokensArray.getJSONObject(i).getString("vProvisionedTokenID"));
+            visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.getTokenStatus(jsTokensArray.getJSONObject(i).getString("tokenStatus")));
+        }
+
+        String last4 = jsPaymentInstrument.getString("last4");
+        String paymentAccountReference = jsPaymentInstrument.getString("paymentAccountReference");
+
+        // Card MetaData
+        com.comviva.hceservice.digitizationApi.CardMetaData cardMetaData = new com.comviva.hceservice.digitizationApi.CardMetaData();
+        cardMetaData.setLongDescription(jsCardMetaDataResponseObject.getString("longDescription"));
+        cardMetaData.setBackgroundColor(jsCardMetaDataResponseObject.getString("backgroundColor"));
+        cardMetaData.setContactEmail(jsCardMetaDataResponseObject.getString("contactEmail"));
+        cardMetaData.setContactName(jsCardMetaDataResponseObject.getString("contactName"));
+        cardMetaData.setContactNumber(jsCardMetaDataResponseObject.getString("contactNumber"));
+        cardMetaData.setForegroundColor(jsCardMetaDataResponseObject.getString("foregroundColor"));
+        cardMetaData.setContactWebsite(jsCardMetaDataResponseObject.getString("contactWebsite"));
+        cardMetaData.setShortDescription(jsCardMetaDataResponseObject.getString("shortDescription"));
+        cardMetaData.setLabelColor(jsCardMetaDataResponseObject.getString("labelColor"));
+        cardMetaData.setTermsAndConditionsID(jsCardMetaDataResponseObject.getString("termsAndConditionsID"));
+    }
+
+
+    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException {
+
+        JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
+        JSONObject jsExpirationDateObject = jsTokenInfoObject.getJSONObject("expirationDate");
+        JSONObject jsHCEDataObject = jsTokenInfoObject.getJSONObject("hceData");
+        JSONObject jsDynParamsObject = jsHCEDataObject.getJSONObject("dynParams");
+
+
+        ExpirationDate expirationDate = new ExpirationDate();
+        expirationDate.setMonth(jsExpirationDateObject.getString("month"));
+        expirationDate.setYear(jsExpirationDateObject.getString("year"));
+        com.visa.cbp.external.common.ParamsStatus paramsStatus = (com.visa.cbp.external.common.ParamsStatus) new JSONDeserializer<>().deserialize(jsDynParamsObject.toString(), com.visa.cbp.external.common.ParamsStatus.class);
+        /*com.visa.cbp.external.common.ParamsStatus paramsStatus = new com.visa.cbp.external.common.ParamsStatus();
+        paramsStatus.*/
+
+        DynParams dynParams = new DynParams();
+        dynParams.setParamsStatus(paramsStatus);
+        dynParams.setApi(jsDynParamsObject.getString("api"));
+
+        HceData hceData = new HceData();
+        hceData.setDynParams(dynParams);
+
+        TokenInfo tokenInfo = new TokenInfo();
+        tokenInfo.setHceData(hceData);
+        tokenInfo.setExpirationDate(expirationDate);
+        tokenInfo.setTokenStatus(jsTokenInfoObject.getString("tokenStatus"));
+
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.getTokenStatus(jsTokenInfoObject.getString("tokenStatus")));
+        return tokenInfo;
+    }
+
+    /**
      * This API is used to activate a Token for first-time use if the digitization decision was to "Require Additional Authentication" in the Digitize response
      *
      * @param tokenUniqueReference The Token to be activated.
@@ -506,9 +703,11 @@ public class Digitization {
     /**
      * Replenish ODA Data.
      *
-     * @param tokenKey TokenKey that identifies the certificate.
+     * @param paymentCard Payment Card need to be checked.
      */
-    public void replenishODAData(final TokenKey tokenKey) {
+    public void replenishODAData(final PaymentCard paymentCard) {
+
+        final TokenKey tokenKey = ((TokenData) paymentCard.getCurrentCard()).getTokenKey();
         try {
             if (tokenKey != null) {
                 long expirationTime, currentTimeStamp;
@@ -517,7 +716,8 @@ public class Digitization {
                 expirationTime = visaPaymentSDK.getODAExpirationTime(tokenKey);
 
                 if (currentTimeStamp > expirationTime) {
-                    digitizationVts.replenishODADataRequest(tokenKey, new DigitizationListener() {
+                    digitizationVts = new DigitizationVts();
+                    digitizationVts.replenishODADataRequest(paymentCard, new DigitizationListener() {
                         @Override
                         public void onStarted() {
                         }
@@ -547,8 +747,9 @@ public class Digitization {
 
     /**
      * Replenish Transaction Credential for the given token.
-     * @param paymentCard   Token to be replenished
-     * @param listener      UI Lister
+     *
+     * @param paymentCard Token to be replenished
+     * @param listener    UI Lister
      */
     public void replenishTransactionCredential(PaymentCard paymentCard, ResponseListener listener) {
         switch (paymentCard.getCardType()) {
@@ -571,4 +772,18 @@ public class Digitization {
                 // Unsupported Card
         }
     }
+
+    /**
+     * Fetches content value of the given GUID identified by GUID.
+     *
+     * @param guid             GUID of the resource
+     * @param getAssetListener Listener
+     */
+    public void getContent(final String guid, GetAssetListener getAssetListener) {
+        if (digitizationVts == null) {
+            digitizationVts = new DigitizationVts();
+        }
+        digitizationVts.getContent(guid, getAssetListener);
+    }
+
 }

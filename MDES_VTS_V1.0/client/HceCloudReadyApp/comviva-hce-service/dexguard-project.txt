@@ -1,7 +1,6 @@
 ##############################################################################
 # General settings.
 ##############################################################################
-
 -dontwarn
 -verbose
 
@@ -10,15 +9,9 @@
 
 -dontshrink
 -dontoptimize
-
 -dontwarn com.mastercard.**
-
 -dontwarn org.apache.cordova.*
 -dontwarn com.guardsquare.dexguard.runtime.encryption.*
-
-#-injars libs
-
-#-keepresourcefiles jni/**/*.so
 
 -printconfiguration config.txt
 
@@ -34,8 +27,19 @@
     public static int e(...);
 }
 
-
+###### Common Rules
+-keepresourcefiles jni/**/*.so
 -keepattributes Exceptions
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
 
 ###### com.comviva.hceservice.digitizationApi
 -keep public class com.comviva.hceservice.digitizationApi.Digitization {
@@ -75,6 +79,12 @@
     public public *;
 }
 
+-keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
+    public public *;
+}
+-keep public interface  com.comviva.hceservice.util.ResponseListener {
+      public public *;
+ }
 -keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
     public public *;
 }
@@ -209,3 +219,16 @@
 -keep public enum com.comviva.hceservice.util.NfcSetting {
     public public *;
 }
+-keep public interface com.comviva.hceservice.util.ResponseListener {
+    public public *;
+}
+
+# Firebase
+-keep public class com.google.firebase.iid.FirebaseInstanceId {
+    public public *;
+}
+
+# Visa Packages
+-keep class com.visa.cbp.** { *; }
+-dontwarn com.visa.cbp.**
+

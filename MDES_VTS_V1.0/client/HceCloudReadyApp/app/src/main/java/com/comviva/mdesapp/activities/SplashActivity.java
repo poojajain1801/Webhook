@@ -44,6 +44,7 @@ public class SplashActivity extends AppCompatActivity {
                                 changeConfiguration(comvivaSdk);
                             }
                         })
+                        .setCancelable(false)
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(new Intent(SplashActivity.this, RegisterUserActivity.class));

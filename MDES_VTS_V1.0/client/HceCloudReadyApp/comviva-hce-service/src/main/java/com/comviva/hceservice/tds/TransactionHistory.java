@@ -11,15 +11,13 @@ import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.fcm.ComvivaFCMService;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
-import com.visa.cbp.sdk.facade.VisaPaymentSDK;
-import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
-import com.visa.cbp.sdk.facade.data.TokenData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +29,7 @@ import java.util.ArrayList;
  * This Class contains all transaction history related APIs.
  */
 public class TransactionHistory {
-    private ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
+    private static ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
         String transactionScope = jsTransactionHistory.getString("transactionScope");
         JSONArray transactionDetailsArray = jsTransactionHistory.getJSONArray("transactionDetails");
         ArrayList<String> encTransactionInfo = new ArrayList<>();
@@ -350,22 +348,21 @@ public class TransactionHistory {
      * @param count                      Number of records to retrieve. Maximum is 10. If not specified, the maximum number of records will be returned, up to 10, inclusive.
      * @param transactionHistoryListener UI Listener
      */
-    public void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
+    public static void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
         final JSONObject jsTransactionHistoryObject = new JSONObject();
         try {
-            TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
-            String vProvisionedTokenID = tokenData.getVProvisionedTokenID();
-            VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-            //paymentCard.getCardUniqueId();
-            jsTransactionHistoryObject.put("vProvisionedTokenID", vProvisionedTokenID);
-            //jsTransactionHistoryObject.put("encryptionMetaData", encryptionMetaData);
+            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId());
             if (count < 0 || count > 10) {
+                if(transactionHistoryListener != null) {
                 transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
+                }
             } else {
                 jsTransactionHistoryObject.put("Count", count);
             }
         } catch (JSONException e) {
+            if(transactionHistoryListener != null) {
             transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            }
             return;
         }
 
@@ -373,6 +370,9 @@ public class TransactionHistory {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                if(transactionHistoryListener != null) {
+                    transactionHistoryListener.onStarted();
+                }
             }
 
             @Override
@@ -384,16 +384,30 @@ public class TransactionHistory {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                try {
                     if (httpResponse.getStatusCode() == 200) {
-                        JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
-                        ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
-                        transactionHistoryListener.onSuccess(encryptedTransactionInfo);
+                        try {
+                            JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
+                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                            if(transactionHistoryListener != null) {
+                                transactionHistoryListener.onError(SdkErrorImpl.getInstance(jsTransactionHistoryResponse.getInt("reasonCode"), jsTransactionHistoryResponse.getString("message")));
+                            }
+                                return;
+                            }
+                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                                ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
+                                if (transactionHistoryListener != null) {
+                                    transactionHistoryListener.onSuccess(encryptedTransactionInfo);
+                                }
+                            }
+                        } catch (JSONException e) {
+                        if(transactionHistoryListener != null) {
+                            transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        }
+                    }
                     } else {
+                    if(transactionHistoryListener != null) {
                         transactionHistoryListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
-                } catch (JSONException e) {
-                    transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 }
             }
         }

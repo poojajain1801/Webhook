@@ -1,13 +1,23 @@
 package com.comviva.hceservice.fcm;
 
 import com.comviva.hceservice.common.ComvivaWalletListener;
+import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.tds.TdsNotificationData;
 import com.comviva.hceservice.tds.TransactionHistory;
+import com.comviva.hceservice.tds.TransactionHistoryListener;
+import com.comviva.hceservice.util.ResponseListener;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mastercard.mcbp.api.McbpCardApi;
 import com.mastercard.mcbp.api.McbpNotificationApi;
 import com.mastercard.mcbp.api.McbpWalletApi;
+import com.visa.cbp.sdk.facade.VisaPaymentSDK;
+import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenData;
+import com.visa.cbp.sdk.facade.data.TokenKey;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -16,18 +26,25 @@ import java.util.Map;
 public class ComvivaFCMService {
     private static final String MESSAGE_TAG = "notificationData";
     private static final String KEY_NOTIFICATION_TYPE = "notificationType";
+    private static final String OPERATION = "OPERATION";
+    private static final String TOKEN_STATUS_UPDATED = "TOKEN_STATUS_UPDATED";
+    private static final String KEY_STATUS_UPDATED = "KEY_STATUS_UPDATED";
+    private static final String UPDATE_CARD_META_DATA = "UPDATE_CARD_METADATA";
+    private static final String UPDATE_TXN_HISTORY = "UPDATE_TXN_HISTORY";
     private static final String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";
     private static final String TYPE_TDS_NOTIFICATION = "notificationTds";
+    private Digitization digitization;
 
     private static ComvivaWalletListener walletEventListener;
     private static ComvivaFCMService comvivaFCMService;
 
     /**
      * Returns Singleton Instance of this class.
+     *
      * @return ComvivaFCMService instance
      */
     public static ComvivaFCMService getInstance() {
-        if(comvivaFCMService == null) {
+        if (comvivaFCMService == null) {
             comvivaFCMService = new ComvivaFCMService();
         }
         return comvivaFCMService;
@@ -35,6 +52,7 @@ public class ComvivaFCMService {
 
     /**
      * Invoke this API when FCM notification comes.
+     *
      * @param remoteMessage RemoteMessage object received through FCM notification
      */
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -88,7 +106,73 @@ public class ComvivaFCMService {
                         }
                     }
                 } else if (type.equalsIgnoreCase("VTS")) { // Remote Notifications for VTS
+                    digitization = Digitization.getInstance();
+                    if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(TOKEN_STATUS_UPDATED)) {
+                        String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
+                        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                        TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
+                        TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
+                        PaymentCard paymentCard = PaymentCard.getPaymentCard(tokenData);
 
+                        digitization.getTokenStatus(paymentCard, new ResponseListener() {
+                            @Override
+                            public void onStarted() {
+                            }
+
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onError(SdkError sdkError) {
+                            }
+                        });
+
+                        // call get Token status
+                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(KEY_STATUS_UPDATED)) {
+                        String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
+                        //Call replenish, conform replenish and replenish ODA data
+                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(UPDATE_CARD_META_DATA)) {
+                        String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
+                        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                        TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
+                        TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
+                        PaymentCard paymentCard = PaymentCard.getPaymentCard(tokenData);
+                        digitization.getCardMetaData(paymentCard, new ResponseListener() {
+                            @Override
+                            public void onStarted() {
+                            }
+
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onError(SdkError sdkError) {
+                            }
+                        });
+                        //UPDATE_CARD_METADATA
+                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(UPDATE_TXN_HISTORY)) {
+                        String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
+                        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                        TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
+                        TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
+                        PaymentCard paymentCard = PaymentCard.getPaymentCard(tokenData);
+                        TransactionHistory.getTransactionHistory(paymentCard, 4, new TransactionHistoryListener() {
+                            @Override
+                            public void onSuccess(ArrayList transactionInfo) {
+                            }
+
+                            @Override
+                            public void onStarted() {
+                            }
+
+                            @Override
+                            public void onError(SdkError sdkError) {
+                            }
+                        });
+                        //Call getTransctionHistory and update txnHistory
+                    }
                 }
             }
         } catch (Exception e) {
@@ -106,6 +190,7 @@ public class ComvivaFCMService {
 
     /**
      * Returns Wallet Event Listener
+     *
      * @return Wallet Event Listener
      */
     public static ComvivaWalletListener getWalletEventListener() {

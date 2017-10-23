@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MDESApp</string>
+    <string name="app_name">ComvivaHceApp</string>
     <string name="welcome">Welcome....</string>
     <string name="notification_new_card_profile_title">New Card Received</string>
     <string name="notification_new_card_profile_message">You have received a new card</string>

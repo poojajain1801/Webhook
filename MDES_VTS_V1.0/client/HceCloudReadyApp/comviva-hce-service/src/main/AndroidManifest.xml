@@ -3,9 +3,9 @@
     package="com.mastercard.mcbp_android">
 
     <application
-        android:allowBackup="true"
-        android:label="@string/app_name">
+        android:allowBackup="false">
 
+        <service android:name="com.comviva.hceservice.digitizationApi.ActiveAccountManagementService" />
     </application>
 
 </manifest>

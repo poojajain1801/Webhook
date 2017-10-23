@@ -11,34 +11,61 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.comviva.mdesapp.activities.TnCActivity">
 
-    <TextView
-        android:id="@+id/etTnC"
+    <ScrollView
+        android:layout_above="@+id/accept_decline_lay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Please accept all terms and conditions" />
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <RelativeLayout
+            <TextView
+                android:id="@+id/etTnC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please accept all terms and conditions" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+        android:id="@+id/accept_decline_lay"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:weightSum="100"
+        android:padding="10dp"
         android:layout_alignParentBottom="true">
 
-        <Button
-            android:id="@+id/btnAcceptTnC"
-            android:layout_width="150dp"
-            android:layout_height="60dp"
-            android:text="Accept"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="30dp"/>
 
-        <Button
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btnAcceptTnC"
+            style="@style/AppTheme.RoundedCornerMaterialButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="50"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Accept"
+            android:textColor="@android:color/white" />
+
+
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/btnDeclineTnC"
-            android:layout_width="150dp"
-            android:layout_height="60dp"
+            style="@style/AppTheme.RoundedCornerMaterialButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:layout_marginLeft="4dp"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="@color/colorPrimary"
             android:text="Decline"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="30dp"/>
-    </RelativeLayout>
+            android:textColor="@android:color/white" />
+
+
+    </LinearLayout>
 
 </RelativeLayout>

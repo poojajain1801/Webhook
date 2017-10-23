@@ -22,17 +22,18 @@ import com.visa.cbp.sdk.facade.data.NotificationAction;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * Service performs replenishment when transaction credential is expired or number of allowed transactions is consumed.
  * Created by amit.randhawa on 29-Aug-17.
  */
-
-
 public class ActiveAccountManagementService extends Service {
-    private static final String TAG = ActiveAccountManagementService.class.getSimpleName();
     private VisaPaymentSDK visaPaymentSDK;
 
     private void callReplenish(final TokenKey tokenKey) {
@@ -40,6 +41,7 @@ public class ActiveAccountManagementService extends Service {
             try {
                 ReplenishRequest replenishRequestPayload = visaPaymentSDK.constructReplenishRequest(tokenKey);
                 replenishRequestPayload.setEncryptionMetaData(null);
+
                 if (replenishRequestPayload != null) {
                     replenishTokenRequest(tokenKey, replenishRequestPayload, new ResponseListener() {
                         @Override
@@ -56,8 +58,6 @@ public class ActiveAccountManagementService extends Service {
                             sendNotification(false, tokenKey, sdkError.getMessage());
                         }
                     });
-                   /* ReplenishProvider replenishProvider = new ReplenishProviderImpl(vProvisionTokenId);
-                    replenishProvider.doRequest(replenishRequestPayload, new ReplenishResponseCallback(vProvisionTokenId,tokenKey));*/
                 }
             } catch (TokenInvalidException e) {
                 sendNotification(false, tokenKey, e.getMessage());
@@ -66,33 +66,36 @@ public class ActiveAccountManagementService extends Service {
     }
 
     private void replenishTokenRequest(final TokenKey tokenKey, ReplenishRequest replenishRequest, final ResponseListener responseListener) {
-        final JSONObject replenishTokenRequestObject = new JSONObject();
+        final String vProvisionTokenId = visaPaymentSDK.getTokenData(tokenKey).getVProvisionedTokenID();
+        final JSONObject jsReplenishReq = new JSONObject();
         try {
-            //replenishTokenRequestObject.put(Tags.USER_ID.getTag(),replenishRequest.get)
-            //replenishTokenRequestObject.put(Tags.ACTIVATION_CODE.getTag(),replenishRequest.get)
-            replenishTokenRequestObject.put(Tags.MAC.getTag(), replenishRequest.getSignature());
-            // replenishTokenRequestObject.put(Tags.API.getTag(),replenishRequest.)
-            replenishTokenRequestObject.put(Tags.SC.getTag(), replenishRequest.getSignature());
-            replenishTokenRequestObject.put(Tags.TV1.getTag(), replenishRequest.getTvls());
-            replenishTokenRequestObject.put(Tags.ENCRYPTION_META_DATA.getTag(), replenishRequest.getEncryptionMetaData());
+            jsReplenishReq.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionTokenId);
+            jsReplenishReq.put(Tags.MAC.getTag(), replenishRequest.getSignature().getMac());
+            jsReplenishReq.put(Tags.API.getTag(), replenishRequest.getTokenInfo().getHceData().getDynParams().getApi());
+            jsReplenishReq.put(Tags.SC.getTag(), replenishRequest.getTokenInfo().getHceData().getDynParams().getSc());
 
-        } catch (Exception e) {
-            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            JSONArray jsArrTvl = new JSONArray();
+            List<String> tvls = replenishRequest.getTvls();
+            for (int i = 0; i < tvls.size(); i++) {
+                jsArrTvl.put(i, tvls.get(i));
+            }
+            jsReplenishReq.put("tvl", jsArrTvl);
+        } catch (JSONException e) {
+            // TODO Error
             return;
         }
 
         class ReplenishTokenRequest extends AsyncTask<Void, Void, HttpResponse> {
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSReplenishTokenUrl(), replenishTokenRequestObject.toString());
+                return httpUtil.postRequest(UrlUtil.getVTSReplenishTokenUrl(), jsReplenishReq.toString());
             }
 
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
                 try {
                     if (httpResponse.getStatusCode() == 200) {
-                        String vProvisionTokenId = visaPaymentSDK.getTokenData(tokenKey).getVProvisionedTokenID();
-                        confirmReplenishment(responseListener, tokenKey);
+                        confirmReplenishment(tokenKey, vProvisionTokenId, responseListener);
                     } else {
                         if (responseListener != null) {
                             responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
@@ -109,13 +112,14 @@ public class ActiveAccountManagementService extends Service {
         replenishTokenRequest.execute();
     }
 
-    private void confirmReplenishment(final ResponseListener responseListener, TokenKey tokenKey) {
+    private void confirmReplenishment(TokenKey tokenKey, final String vProvisionedTokenID, final ResponseListener responseListener) {
         ReplenishAckRequest replenishAckRequest = visaPaymentSDK.constructReplenishAcknowledgementRequest(tokenKey);
-        final JSONObject confirmReplenishTokenRequestObject = new JSONObject();
+        final JSONObject jsConfirmReplenishment = new JSONObject();
         try {
-            // confirmReplenishTokenRequestObject.put(Tags.USER_ID.getTag(),replenishAckRequest.get)
-            // confirmReplenishTokenRequestObject.put(Tags.ACTIVATION_CODE.getTag(),replenishRequest.get);
-            confirmReplenishTokenRequestObject.put(Tags.TOKEN_INFO.getTag(), replenishAckRequest.getTokenInfo());
+            jsConfirmReplenishment.put(Tags.TOKEN_INFO.getTag(), replenishAckRequest.getTokenInfo());
+            jsConfirmReplenishment.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionedTokenID);
+            jsConfirmReplenishment.put(Tags.API.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getApi());
+            jsConfirmReplenishment.put(Tags.SC.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getSc());
         } catch (Exception e) {
             responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
@@ -124,7 +128,7 @@ public class ActiveAccountManagementService extends Service {
         class ConfirmReplenishmentRequest extends AsyncTask<Void, Void, HttpResponse> {
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSConfirmReplenishTokenUrl(), confirmReplenishTokenRequestObject.toString());
+                return httpUtil.postRequest(UrlUtil.getVTSConfirmReplenishTokenUrl(), jsConfirmReplenishment.toString());
             }
 
             protected void onPostExecute(HttpResponse httpResponse) {
@@ -175,16 +179,12 @@ public class ActiveAccountManagementService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (visaPaymentSDK == null) {
-            // walletApplication = (WalletApplication) getApplicationContext();
             visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-            //  visaPaymentSDK = walletApplication.getVisaPaymentSDK();
-            // commonService = RestAdapterManager.getInstance().getCommonService();
         }
         if (intent != null && intent.hasExtra(Constants.REPLENISH_TOKENS_KEY)) {
             ArrayList<TokenKey> tokens = intent.getParcelableArrayListExtra(Constants.REPLENISH_TOKENS_KEY);
             for (final TokenKey tokenKey : tokens) {
                 callReplenish(tokenKey);
-
             }
         }
         return START_NOT_STICKY;
