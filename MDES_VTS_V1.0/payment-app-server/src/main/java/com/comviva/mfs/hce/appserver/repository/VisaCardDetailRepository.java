@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface VisaCardDetailRepository extends JpaRepository<VisaCardDetails, String>{
 
-    Optional<VisaCardDetails> findByVPanEnrollmentId(String VPanEnrollmentId);
+    List<VisaCardDetails> findByVPanEnrollmentId(String VPanEnrollmentId);
     Optional<VisaCardDetails> findByVProvisionedTokenId(String VProvisionedtokenid);
 
 }

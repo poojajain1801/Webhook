@@ -8,15 +8,22 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class VtsRequest {
     protected static final String PATH_SEPARATOR = "/";
@@ -60,18 +67,24 @@ public class VtsRequest {
         this.env = env;
         vtsUrl = env.getProperty("visaBaseUrlSandbox");
         apiKey = env.getProperty("apiKey");
-        sharedSecret = env.getProperty("sharedSecret").getBytes();
+        sharedSecret = env.getProperty("sharedSecret").getBytes(Charset.forName("UTF-8"));
         queryString = new StringBuilder();
         jsonRequest = new JSONObject();
 
         // Initializing Header
         headers = new HttpHeaders();
-        headers.add("Accept", "application/json");
-        headers.add("Content-Type", "application/json");
-        headers.add("Accept-Encoding","deflate");
-        headers.add("Host","sandbox.digital.visa.com");
-        headers.add("Connection","Keep-Alive");
-        headers.add("User-Agent", "Apache-HttpClient/4.1.1");
+        List<MediaType> mediaTypeList = new ArrayList<MediaType>();
+        mediaTypeList.add(MediaType.APPLICATION_JSON);
+        headers.setAccept(mediaTypeList);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        //headers.add("Accept", "application/json");
+        //headers.add("Content-Type", "application/json");
+        //headers.add("Accept-Charset","UTF8");
+        //headers.add("Accept-Encoding","deflate");
+        //headers.add("Host","sandbox.digital.visa.com");
+        //headers.add("Connection","Keep-Alive");
+        //headers.add("User-Agent", "Apache-HttpClient/4.1.1");
     }
 
     protected void prepareHeader(JSONObject prepareHeaderRequest) {
@@ -79,8 +92,9 @@ public class VtsRequest {
         headers.add("x-pay-token", generateXPayToken(prepareHeaderRequest));
         try {
          //   headers.add("Content-Length",String.valueOf(requestBody.getBytes("UTF-8").length));
-            headers.add("Content-Length",String.valueOf(prepareHeaderRequest.get("requestBody").toString().getBytes("UTF-8").length));
-        } catch (UnsupportedEncodingException e) {
+            //String contentlength = String.valueOf(prepareHeaderRequest.getString("requestBody").length());
+           // headers.add("Content-Length",contentlength);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -90,7 +104,13 @@ public class VtsRequest {
     protected String generateXPayToken(JSONObject prepareHeaderRequest) {
         String hmacSha256 ="";
        // JSONObject object=new JSONObject(prepareHeaderRequest.get("requestBody"));
-        long utcTimestamp = System.currentTimeMillis() / 1000L;
+
+/*        ZonedDateTime utc = ZonedDateTime.now(ZoneOffset.UTC);
+
+        Date date = Date.from(utc.toInstant());
+        long utcTimestamp = utc.toEpochSecond();*/
+
+       long utcTimestamp = System.currentTimeMillis() / 1000L;
         String xPayToken = "xv2:" + utcTimestamp + ":";
         //String query_string = "apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc";
         //String resource_path="vts/clients/vClientID/devices/clientDeviceID";
