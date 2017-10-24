@@ -213,7 +213,7 @@ public class EnrollDevice extends VtsRequest {
         prepareHeaderRequest.put("queryString","apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc");
         prepareHeaderRequest.put("resourcePath","vts/clients/"+vClientID+"/devices/"+clientDeviceID);
         prepareHeaderRequest.put("requestBody",requestBody);
-        prepareHeader(prepareHeaderRequest);
+        /*prepareHeader(prepareHeaderRequest);
         final HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         if(env.getProperty("is.proxy.required").equals("Y"))
@@ -224,20 +224,22 @@ public class EnrollDevice extends VtsRequest {
             requestFactory.setProxy(proxy);
 
         }
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);*/
         final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
         try {
-            LOGGER.debug("Register device request header = " + entity.getHeaders().getContentLength() +
+           /* LOGGER.debug("Register device request header = " + entity.getHeaders().getContentLength() +
                     " ;Request Header\n" + entity.getHeaders().toString() + "\nRequest Body\n" + entity.getBody().toString());
 
-            ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);*/
+           SendReqest sendReqest = new SendReqest();
+            result= sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
             jsonResponse=new JSONObject();
-            jsonResponse.put("statusCode",String.valueOf(response.getStatusCode().value()));
-            jsonResponse.put("statusMessage",String.valueOf(response.getStatusCode().getReasonPhrase()));
-            result=response.getBody();
+            jsonResponse.put("statusCode","200");
+            jsonResponse.put("statusMessage","Success");
+            //result=response.getBody();
             jsonObject=new JSONObject(result);
             jsonObject.put("devEncKeyPair",devEncKeyPair.getPrivateKeyHex());
             jsonObject.put("devEncCertificate",new String(b64EncCert));

@@ -88,5 +88,6 @@ public class DeviceRegistrationController {
         hCEControllerSupport.prepareRequest(unRegisterReq,unRegisterResponse,httpRequest);
         return unRegisterResponse;
     }
+
 }
 

@@ -79,6 +79,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         ResponseEntity responseEntity =null;
         String response = null;
         VisaCardDetails visaCardDetails= null;
+        Map<String,Object> responseMap = null;
 
         try {
             emailHash = MessageDigestUtil.getEmailHashAlgorithmValue(emailAdress);
@@ -119,7 +120,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 visaCardDetails = visaCardDetailRepository.findByVPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID()).get(0);
                 visaCardDetails.setvProvisionedTokenId(jsonResponse.getString("vProvisionedTokenID"));
                 visaCardDetailRepository.save(visaCardDetails);
-                return JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                responseMap= JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                return responseMap;
             }
             else
             {
