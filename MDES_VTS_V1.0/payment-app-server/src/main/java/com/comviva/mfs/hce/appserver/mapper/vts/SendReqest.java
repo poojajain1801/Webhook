@@ -34,7 +34,8 @@ public class SendReqest {
         hceControllerSupport = new HCEControllerSupport();
         int responseCode = -1;
         String responseBody = null;
-        JSONObject responseJson =null;
+        JSONObject responseJson = new JSONObject();
+        JSONObject response = null;
         try {
 
             if(env.getProperty("is.proxy.required").equals("Y")) {
@@ -88,11 +89,13 @@ public class SendReqest {
             out.close();
             responseCode = httpsURLConnection.getResponseCode();
             //success
+
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
-                responseJson = new JSONObject(responseBody);
+                response = new JSONObject(responseBody);
+                responseJson.put("response",response);
                 responseJson.put("statusCode", HCEMessageCodes.SUCCESS);
-                responseJson.put("statusMessage",hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                responseJson.put("statusMessage","Success");
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -100,9 +103,10 @@ public class SendReqest {
             } else {
                 //failure
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
-                responseJson = new JSONObject(responseBody);
+                response = new JSONObject(responseBody);
+                responseJson.put("response",response);
                 responseJson.put("statusCode",responseCode);
-                responseJson.put("statusMessage",responseJson.getJSONObject("errorResponse").get("message"));
+                responseJson.put("statusMessage",response.getJSONObject("errorResponse").get("message"));
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -133,7 +137,7 @@ public class SendReqest {
 
     protected String generateXPayToken(JSONObject prepareHeaderRequest) {
         String hmacSha256 ="";
-        String sharedSecret = "SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2";
+        String sharedSecret = env.getProperty("sharedSecret");
         byte[] bsharedSecret = sharedSecret.getBytes();
         // JSONObject object=new JSONObject(prepareHeaderRequest.get("requestBody"));
         long utcTimestamp = System.currentTimeMillis() / 1000L;

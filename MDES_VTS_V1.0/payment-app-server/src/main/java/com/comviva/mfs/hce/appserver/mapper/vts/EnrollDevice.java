@@ -217,7 +217,8 @@ public class EnrollDevice extends VtsRequest {
         requestBody=object.toString();
         JSONObject prepareHeaderRequest=new JSONObject();
         prepareHeaderRequest.put("xRequestId",generateXrequestId());
-        prepareHeaderRequest.put("queryString","apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc");
+        String queryString = "apiKey="+env.getProperty("apiKey");
+        prepareHeaderRequest.put("queryString",queryString);
         prepareHeaderRequest.put("resourcePath","vts/clients/"+vClientID+"/devices/"+clientDeviceID);
         prepareHeaderRequest.put("requestBody",requestBody);
         /*prepareHeader(prepareHeaderRequest);
@@ -235,20 +236,24 @@ public class EnrollDevice extends VtsRequest {
         final String sandBoxUrl = vtsUrl + PATH_SEPARATOR + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" + apiKey;
         String result="";
         JSONObject jsonObject = null;
-        JSONObject jsonResponse=null;
+        JSONObject jsonResponse=new JSONObject();
+        JSONObject response = null;
         try {
            /* LOGGER.debug("Register device request header = " + entity.getHeaders().getContentLength() +
                     " ;Request Header\n" + entity.getHeaders().toString() + "\nRequest Body\n" + entity.getBody().toString());
 
             ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);*/
            SendReqest sendReqest = new SendReqest(env);
-            jsonResponse= sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
+            response= sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
             /*jsonResponse=new JSONObject();
             jsonResponse.put("statusCode","200");
             jsonResponse.put("statusMessage","Success");*/
             //result=response.getBody();
-            if (jsonResponse.getInt("statusCode")== HttpStatus.SC_OK) {
-                jsonObject = new JSONObject(result);
+
+            if (response.getInt("statusCode")== HttpStatus.SC_OK) {
+                jsonResponse.put("statusCode",String.valueOf(response.getInt("statusCode")));
+                jsonResponse.put("statusMessage",response.getString("statusMessage"));
+                jsonObject = response.getJSONObject("response");
                 jsonObject.put("devEncKeyPair", devEncKeyPair.getPrivateKeyHex());
                 jsonObject.put("devEncCertificate", new String(b64EncCert));
                 jsonObject.put("devSignKeyPair", devSignKeyPair.getPrivateKeyHex());
@@ -272,20 +277,15 @@ public class EnrollDevice extends VtsRequest {
                 jsonResponse.put("responseBody", jsonObject);
             }
             else {
-                jsonResponse.put("statusCode",String.valueOf(jsonResponse.getInt("statusCode")));
-                jsonResponse.put("statusMessage",jsonResponse.getString("statusMessage"));
+                jsonResponse.put("statusCode",String.valueOf(response.getInt("statusCode")));
+                jsonResponse.put("statusMessage",response.getString("statusMessage"));
 
             }
         }catch (Exception e){
             // ((HttpClientErrorException)e).getResponseBodyAsString();
             e.printStackTrace();
             LOGGER.debug("Exception Occurred EnrollDevice->enrollDevice");
-            String error = ((HttpClientErrorException) e).getResponseBodyAsString();
-            String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
-            jsonResponse=new JSONObject();
-            jsonResponse.put("statusCode",e.getMessage());
-            jsonResponse.put("statusMessage","unauthorised");
-            return jsonResponse.toString();
+
         }
         return jsonResponse.toString();
     }
