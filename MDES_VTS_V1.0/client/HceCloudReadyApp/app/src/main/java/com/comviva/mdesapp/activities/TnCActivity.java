@@ -36,7 +36,11 @@ public class TnCActivity extends AppCompatActivity {
         final ContentGuid tncContent = (ContentGuid) getIntent().getSerializableExtra("eligibilityResponse");
         MediaContent[] mediaContents = tncContent.getContent();
         if (mediaContents.length != 0) {
-            etTnC.setText(mediaContents[0].getData());
+            switch (mediaContents[0].getAssetType()) {
+                case TEXT_PLAIN:
+                    etTnC.setText(mediaContents[0].getData());
+                    break;
+            }
         }
         final CardType cardType = (CardType) getIntent().getSerializableExtra("CardType");
 

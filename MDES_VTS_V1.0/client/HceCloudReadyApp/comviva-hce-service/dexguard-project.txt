@@ -75,6 +75,9 @@
 -keep public class com.comviva.hceservice.digitizationApi.ContentGuid {
     public public *;
 }
+-keep public enum com.comviva.hceservice.digitizationApi.ContentType {
+    public public *;
+}
 -keep public interface com.comviva.hceservice.digitizationApi.RequestActivationCodeListener {
     public public *;
 }
@@ -86,6 +89,9 @@
       public public *;
  }
 -keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.asset.AssetType {
     public public *;
 }
 
