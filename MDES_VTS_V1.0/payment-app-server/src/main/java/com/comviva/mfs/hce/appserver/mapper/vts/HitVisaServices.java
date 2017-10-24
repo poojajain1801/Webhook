@@ -87,6 +87,8 @@ public class HitVisaServices extends VtsRequest {
             HttpHeaders responseHeaders = ((HttpClientErrorException)e).getResponseHeaders();
             HttpStatus statusCode = ((HttpClientErrorException)e).getStatusCode();
             ResponseEntity<String> errorResponse = new ResponseEntity(error, responseHeaders ,statusCode);
+            LOGGER.debug(" HitVisaServices->xCorrelationId : "+xCorrelationId);
+            LOGGER.debug(" HitVisaServices->error: "+error);
             LOGGER.debug("Exception occurred in HitVisaServices->restfulServiceConsumerVisa");
             LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
             return errorResponse;
