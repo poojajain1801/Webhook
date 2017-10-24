@@ -1,9 +1,11 @@
 package com.comviva.mfs.hce.appserver.util.vts;
 
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
 import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
@@ -50,42 +52,37 @@ import java.util.Calendar;
 @Component
 public class EnrollDeviceVts {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDeviceVts.class);
     @Autowired
     public Environment env;
-    private EncDevicePersoData encDevicePersoData;
-    private EnrollDeviceRequest enrollDeviceRequest;
-    private DevicePersoData devicePersoData;
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDeviceVts.class);
-
-
     public EnrollDeviceVts () {
-        devicePersoData=new DevicePersoData();
     }
-    public EncDevicePersoData getEncDevicePersoData() {
-        return encDevicePersoData;
-    }
-    public String register(final String vClientID) {
-        LOGGER.debug("Inside EnrollDeviceVts->Register");
+
+    public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
         EnrollDevice enrollDevice = new EnrollDevice(env);
         enrollDevice.setVClientID(vClientID);
         String response="";
         try {
+            LOGGER.debug("Enter EnrollDeviceVts->register");
             response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID());
-        } catch (IOException e) {
-            e.printStackTrace();
-            LOGGER.debug("Exception occurred in EnrollDeviceVts->register");
-        } catch (GeneralSecurityException e) {
-            LOGGER.debug("Exception occurred in EnrollDeviceVts->register");
-            e.printStackTrace();
+            LOGGER.debug("Exit EnrollDeviceVts->register");
+        } catch (HCEActionException regHceActionException) {
+            LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
+            throw regHceActionException;
+        } catch (Exception regException) {
+            LOGGER.error("Exception occured in EnrollDeviceVts->register", regException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-        LOGGER.debug("Exit EnrollDeviceVts->register");
         return encDevicePersoData(response);
     }
 
 
-    //method to create encDevicePersoData
+   /* //method to create encDevicePersoData
     public String encDevicePersoData(String inputString){
         LOGGER.debug("Inside EnrollDeviceVts->encDevicePersoData");
+
+        DevicePersoData devicePersoData = new DevicePersoData();
+        EncDevicePersoData encDevicePersoData = new EncDevicePersoData();
         JSONObject jsonObject=new JSONObject(inputString);
         if("200".equals(jsonObject.get("statusCode"))) {
             devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
@@ -122,10 +119,59 @@ public class EnrollDeviceVts {
         }
         LOGGER.debug("Exit EnrollDeviceVts->encDevicePersoData");
         return jsonObject.toString();
-    }
-    //end
-    private void enrollDevice() {
+    }*/
 
+
+
+    //method to create encDevicePersoData
+    public String encDevicePersoData(String inputString){
+
+        DevicePersoData devicePersoData =null;
+        EncDevicePersoData encDevicePersoData = null;
+        JSONObject jsonObject=null;
+
+        try {
+            LOGGER.debug("Enter EnrollDeviceVts->encDevicePersoData");
+            devicePersoData = new DevicePersoData();
+            encDevicePersoData = new EncDevicePersoData();
+            jsonObject=new JSONObject(inputString);
+
+            if("200".equals(jsonObject.get("statusCode"))) {
+
+                devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
+                String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());
+                DeviceSalt = DeviceSalt + ArrayUtil.getHexString(ArrayUtil.getRandom(9));
+                devicePersoData.setDeviceSalt(DeviceSalt);
+                devicePersoData.setMapKey(env.getProperty("mapKey"));
+                devicePersoData.setMapSalt(env.getProperty("mapSalt"));
+                devicePersoData.setWalletAccountId(env.getProperty("walletAccountId"));
+                devicePersoData.setServerEntropy((String) jsonObject.getJSONObject("responseBody").get("vServerNonce"));
+                devicePersoData.setEncExpoHex((String) jsonObject.getJSONObject("responseBody").get("devEncKeyPair"));
+                devicePersoData.setEncCert((String) jsonObject.getJSONObject("responseBody").get("devEncCertificate"));
+                devicePersoData.setSignExpoHex((String) jsonObject.getJSONObject("responseBody").get("devSignKeyPair"));
+                devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
+
+                encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
+
+                JSONObject devicePersoDataObject = new JSONObject();
+                devicePersoDataObject.put("deviceId", encDevicePersoData.getDeviceId());
+                devicePersoDataObject.put("walletAccountId", encDevicePersoData.getWalletAccountId());
+                devicePersoDataObject.put("encryptedDPM", encDevicePersoData.getEncryptedDPM());
+                devicePersoDataObject.put("signExpo", encDevicePersoData.getSignExpo());
+                devicePersoDataObject.put("encExpo", encDevicePersoData.getEncExpo());
+                devicePersoDataObject.put("signCert", encDevicePersoData.getSignCert());
+                devicePersoDataObject.put("encCert", encDevicePersoData.getEncCert());
+                jsonObject.put("encDevicePersoData", devicePersoDataObject);
+            }
+            LOGGER.debug("Exit EnrollDeviceVts->encDevicePersoData");
+        } catch (HCEActionException regHceActionException) {
+            LOGGER.error("Exception occured in EnrollDeviceVts->encDevicePersoData", regHceActionException);
+            throw regHceActionException;
+        } catch (Exception regException) {
+            LOGGER.error("Exception occured in EnrollDeviceVts->encDevicePersoData", regException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }
+        return jsonObject.toString();
     }
 
 
