@@ -89,4 +89,29 @@ public class HCEMessageCodes {
         return INVALID_OPERATION;
     }
 
+
+    /** The Constant CLIENT_DEVICEID_EXIST. */
+    public static String CLIENT_DEVICEID_EXIST;
+    @Value("${CLIENT_DEVICEID_EXIST}")
+    public static String getClientDeviceidExist() {
+        return CLIENT_DEVICEID_EXIST;
+    }
+
+    /** The Constant INVALID_CLIENT_DEVICE_ID. */
+    public static String INVALID_CLIENT_DEVICE_ID;
+    @Value("${INVALID_CLIENT_DEVICE_ID}")
+    public static String getInvalidClientDeviceId() {
+        return INVALID_CLIENT_DEVICE_ID;
+    }
+
+    /** The Constant VISA_FINAL_CODE. */
+    public static String VISA_FINAL_CODE;
+    @Value("${VISA_FINAL_CODE}")
+    public static String getVisaFinalCode() {
+        return VISA_FINAL_CODE;
+    }
+
+
+
+
 }

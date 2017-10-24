@@ -11,6 +11,7 @@ import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
@@ -36,16 +37,19 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private final UserDetailRepository userDetailRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceDetailServiceImpl.class);
     private final HCEControllerSupport hceControllerSupport;
-
+    private final DeviceRegistrationMdes deviceRegistrationMdes;
+    private final EnrollDeviceVts enrollDeviceVts;
     @Autowired
     private Environment env;
 
     @Autowired
-    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport) {
+    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts ) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
+        this.deviceRegistrationMdes = deviceRegistrationMdes;
+        this.enrollDeviceVts = enrollDeviceVts;
     }
 
     /**
@@ -55,155 +59,110 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Override
     @Transactional
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
-        LOGGER.debug("Inside DeviceDetailServiceImpl->registerDevice");
         String vClientID = env.getProperty("vClientID");
         Map<String, Object> response = new HashMap();
-        EnrollDeviceVts enrollDeviceVts = new EnrollDeviceVts();
+
         Map mdesRespMap = new HashMap();
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
         DeviceRegistrationResponse devRegRespMdes = null;
+        UserDetail userDetail;
+        DeviceInfo deviceInfo;
         try {
-            List<UserDetail> userDetails = userDetailRepository.find(enrollDeviceRequest.getUserId());
-            List<DeviceInfo> deviceInfo = deviceDetailRepository.find(enrollDeviceRequest.getClientDeviceID());
-            deviceInfo.get(0).setRnsRegistrationId(enrollDeviceRequest.getGcmRegistrationId());
-            response = validate(enrollDeviceRequest, userDetails, deviceInfo);
-            if (!response.get("responseCode").equals("200")) {
-                return response;
+
+            LOGGER.debug("Enter DeviceDetailServiceImpl->registerDevice");
+            List<UserDetail> userDetails = userDetailRepository.findByUserIdandStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
+
+            if(userDetails!=null && !userDetails.isEmpty()){
+                userDetail = userDetails.get(0);
+                List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdandStatus(enrollDeviceRequest.getClientDeviceID(),HCEConstants.INITIATE);
+                if(deviceInfos!=null && !deviceInfos.isEmpty()){
+                    deviceInfo = deviceInfos.get(0);
+                    if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
+                        throw new HCEActionException(HCEMessageCodes.INVALID_USER_AND_DEVICE);
+                    }
+                }else{
+                    throw new HCEActionException(HCEMessageCodes.INVALID_CLIENT_DEVICE_ID);
+                }
+
+            }else{
+                throw new HCEActionException(HCEMessageCodes.INVALID_USER);
             }
+            deviceInfo.setRnsRegistrationId(enrollDeviceRequest.getGcmRegistrationId());
+
+
             // *********************MDES : Check device eligibility from MDES api.************************
             // MDES : Check device eligibility from MDES api.
             //JSONObject mdesResponse=new JSONObject();
-            DeviceRegistrationMdes devRegMdes = new DeviceRegistrationMdes();
-            devRegMdes.setEnrollDeviceRequest(enrollDeviceRequest);
-            isMdesDevElib = devRegMdes.checkDeviceEligibility();
-            if (!isMdesDevElib) {
-                //throw error device not eligible.
-                mdesRespMap.put("mdesMessage", "Device is not eligible");
-                mdesRespMap.put("mdesResponseCode", "207");
-                response.put("mdesFinalCode", "201");
-                response.put("mdesFinalMessage", "NOTOK");
-                response.put("mdes", mdesRespMap);
-            }
+            deviceRegistrationMdes.setEnrollDeviceRequest(enrollDeviceRequest);
+            isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility();
 
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
-                devRegRespMdes = devRegMdes.registerDevice();
-                respCodeMdes = devRegRespMdes.getResponse().get("responseCode").toString();
+                devRegRespMdes = deviceRegistrationMdes.registerDevice();
+                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString();
                 // If registration fails for MDES return error
                 if (!respCodeMdes.equalsIgnoreCase("200")) {
-                    mdesRespMap.put("mdesResponseCode", devRegRespMdes.getResponse().get("responseCode").toString());
-                    mdesRespMap.put("mdesMessage", devRegRespMdes.getResponse().get("message").toString());
-                    response.put("mdesFinalCode", "201");
-                    response.put("mdesFinalMessage", "NOTOK");
-                    response.put("mdes", mdesRespMap);
+                    mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString());
+                    mdesRespMap.put(HCEConstants.MDES_MESSAGE, devRegRespMdes.getResponse().get(HCEConstants.MESSAGE).toString());
+                    response.put(HCEConstants.MDES_FINAL_CODE, "201");
+                    response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
+                    response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
 
                 } else {
-                    // Save PaymentAppInstanceId mapping with user
-                    UserDetail userDetail = userDetails.get(0);
-                    userDetail.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
-                    userDetailRepository.save(userDetail);
-
-                    response.put("mdes", devRegRespMdes.getResponse());
-                    response.put("mdesFinalCode", "200");
-                    response.put("mdesFinalMessage", "OK");
-                    deviceInfo.get(0).setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
-                    deviceInfo.get(0).setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
-                    deviceInfo.get(0).setMastercardEnabled("Y");
-                    deviceInfo.get(0).setMastercardMessage("OK");
-                    deviceDetailRepository.save(deviceInfo.get(0));
+                    response.put(HCEConstants.MDES_RESPONSE_MAP, devRegRespMdes.getResponse());
+                    response.put(HCEConstants.MDES_FINAL_CODE, "200");
+                    response.put(HCEConstants.MDES_FINAL_MESSAGE, "OK");
+                    deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+                    deviceInfo.setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
+                    deviceInfo.setIsMastercardEnabled(HCEConstants.ACTIVE);
+                    deviceDetailRepository.save(deviceInfo);
                 }
 
-            }
+            }else{
 
+                //throw error device not eligible.
+                mdesRespMap.put(HCEConstants.MDES_MESSAGE, "Device is not eligible");
+                mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, "207");
+                response.put(HCEConstants.MDES_FINAL_CODE, "201");
+                response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
+                response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
+
+            }
             // *******************VTS : Register with VTS Start**********************
 
-
-            enrollDeviceVts.setEnv(env);
             enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
             String vtsResp = enrollDeviceVts.register(vClientID);
             JSONObject vtsJsonObject = new JSONObject(vtsResp);
             if (!vtsJsonObject.get("statusCode").equals("200")) {
-                vtsRespMap.put("vtsMessage", vtsJsonObject.get("statusMessage"));
-                vtsRespMap.put("vtsResponseCode", vtsJsonObject.get("statusCode"));
-                response.put("visaFinalCode", "201");
-                response.put("visaFinalMessage", "NOTOK");
-                response.put("vts", vtsRespMap);
+                vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.MESSAGE));
+                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.STATUS_CODE));
+                response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.VISA_FINAL_CODE);
+                response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
+                response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             } else {
-                response.put("vts", vtsResp);
-                //DeviceInfo deviceInfo=new DeviceInfo();
-
-                deviceInfo.get(0).setVisaEnabled("Y");
-                deviceInfo.get(0).setVisaMessage("OK");
-
-           /* deviceInfo.get(0).setVtscerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-confidentiality"));
-            deviceInfo.get(0).setVtscerts_vcertificateid_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-vCertificateID-confidentiality"));
-
-            deviceInfo.get(0).setVtscerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-certUsage-integrity"));
-            deviceInfo.get(0).setVtscerts_vcertificateid_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("vtsCerts-vCertificateID-integrity"));
-
-            deviceInfo.get(0).setDevicecerts_certformat_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certFormat-confidentiality"));
-            deviceInfo.get(0).setDevicecerts_certusage_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certUsage-confidentiality"));
-            deviceInfo.get(0).setDevicecerts_certvalue_confidentiality((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-confidentiality"));
-
-            deviceInfo.get(0).setDevicecerts_certformat_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certFormat-integrity"));
-            deviceInfo.get(0).setDevicecerts_certusage_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certUsage-integrity"));
-            deviceInfo.get(0).setDevicecerts_certvalue_integrity((String) vtsJsonObject.getJSONObject("responseBody").get("deviceCerts-certValue-integrity"));*/
-
-                deviceInfo.get(0).setVClientId(vClientID);
-                deviceDetailRepository.save(deviceInfo.get(0));
-                response.put("visaFinalCode", "200");
-                response.put("visaFinalMessage", "OK");
+                response.put(HCEConstants.VTS_RESPONSE_MAP, vtsResp);
+                deviceInfo.setIsVisaEnabled("Y");
+                deviceInfo.setVClientId(vClientID);
+                deviceDetailRepository.save(deviceInfo);
+                response.put(HCEConstants.VISA_FINAL_CODE, "200");
+                response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
             }
+
+            LOGGER.debug("Exit DeviceDetailServiceImpl->registerDevice");
+            //******************VTS :Register with END***********************************
+            return response;
         }
         catch(HCEActionException regDeviceactionException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceactionException);
-            return hceControllerSupport.formResponse(regDeviceactionException.getMessageCode());
+            throw regDeviceactionException;
 
         }catch(Exception regDeviceException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceException);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
 
-        LOGGER.debug("Exit DeviceDetailServiceImpl->registerDevice");
-        //******************VTS :Register with END***********************************
-        return response;
+
     }
-
-    private Map<String, Object> validate(EnrollDeviceRequest enrollDeviceRequest, List<UserDetail> userDetails, List<DeviceInfo> deviceInfo) {
-        Map<String, Object> result = new HashMap();
-        List<UserDetail> userDevice;
-        try {
-            if ((null == userDetails || userDetails.isEmpty()) || (null == deviceInfo || deviceInfo.isEmpty())) {
-                throw new HCEActionException(HCEMessageCodes.INVALID_USER);
-            } else if ("userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())) {
-                userDevice = userDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
-                if (null != userDevice && !userDevice.isEmpty()) {
-                    for (int i = 0; i < userDetails.size(); i++) {
-                        if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
-                            userDevice.get(i).setClientDeviceId("CD");
-                            userDetailRepository.save(userDevice.get(i));
-                        }
-                    }
-                }
-                userDetails.get(0).setClientDeviceId(enrollDeviceRequest.getClientDeviceID());
-                userDetailRepository.save(userDetails.get(0));
-                result.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
-                result.put("responseCode", HCEMessageCodes.SUCCESS);
-                return result;
-            } else {
-                throw new HCEActionException(HCEMessageCodes.INVALID_USER);
-            }
-        }
-        catch(HCEActionException regDeviceactionException){
-            LOGGER.error("Exception occured in DeviceDetailServiceImpl->validate", regDeviceactionException);
-            return hceControllerSupport.formResponse(regDeviceactionException.getMessageCode());
-
-        }catch(Exception regDeviceException){
-            LOGGER.error("Exception occured in DeviceDetailServiceImpl->validate", regDeviceException);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
-        }
-    }
-
 }

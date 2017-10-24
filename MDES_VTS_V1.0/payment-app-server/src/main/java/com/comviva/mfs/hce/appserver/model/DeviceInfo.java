@@ -6,7 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 import java.io.Serializable;
-
+import java.sql.Timestamp;
 
 
 /**
@@ -19,29 +19,28 @@ public class DeviceInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private String id;
-
     @Column(name="CLIENT_DEVICE_ID")
     private String clientDeviceId;
 
+    @Column(name="CREATED_ON")
+    private Timestamp createdOn;
+
     @Column(name="DEVICE_MODEL")
     private String deviceModel;
-
-    @Column(name="DEVICE_STATUS")
-    private String deviceStatus;
 
     @Column(name="HOST_DEVICE_ID")
     private String hostDeviceId;
 
     private String imei;
 
-    @Column(name="MASTERCARD_ENABLED")
-    private String mastercardEnabled;
+    @Column(name="IS_MASTERCARD_ENABLED")
+    private String isMastercardEnabled;
 
-    @Column(name="MASTERCARD_MESSAGE")
-    private String mastercardMessage;
+    @Column(name="IS_VISA_ENABLED")
+    private String isVisaEnabled;
+
+    @Column(name="MODIFIED_ON")
+    private Timestamp modifiedOn;
 
     @Column(name="NFC_CAPABLE")
     private String nfcCapable;
@@ -61,57 +60,37 @@ public class DeviceInfo implements Serializable {
     @Column(name="RNS_REGISTRATION_ID")
     private String rnsRegistrationId;
 
+    private String status;
+
     @Column(name="V_CLIENT_ID")
     private String vClientId;
 
-    @Column(name="VISA_ENABLED")
-    private String visaEnabled;
-
-    @Column(name="VISA_MESSAGE")
-    private String visaMessage;
-
-    @Column(name="VSERVER_NONCE")
-    private String vserverNonce;
+    //bi-directional many-to-one association to UserDetail
+    @ManyToOne
+    @JoinColumn(name="CLIENT_WALLET_ACCOUNT_ID")
+    private UserDetail userDetail;
 
     public DeviceInfo() {
     }
 
-
-    public DeviceInfo(String id,String paymentAppInstanceId, String paymentAppId,String rnsId, String osName, String osVersion, String nfcCapable,
-                      String imei, String clientDeviceId, String vClientId, String deviceModel,
-                      String hostDeviceID,String visaEnabled,String mastercardEnabled,String visaMessage,String mastercardMessage,String deviceStatus,
-                      String vtscerts_vcertificateid_confidentiality,String vtscerts_certusage_confidentiality,String vtscerts_vcertificateid_integrity,
-                      String vtscerts_certusage_integrity, String devicecerts_certvalue_confidentiality, String devicecerts_certusage_confidentiality,
-                      String devicecerts_certformat_confidentiality, String devicecerts_certvalue_integrity,    String devicecerts_certusage_integrity,
-                      String devicecerts_certformat_integrity,String vserver_nonce) {
-        this.id = id;
-        // this.userName=userName;
-        this.paymentAppInstanceId = paymentAppInstanceId;
-        this.paymentAppId=paymentAppId;
-        this.rnsRegistrationId = rnsId;
+    public DeviceInfo(String clientDeviceId, Timestamp createdOn, String deviceModel, String hostDeviceId, String imei, String isMastercardEnabled, String isVisaEnabled, Timestamp modifiedOn, String nfcCapable, String osName, String osVersion, String paymentAppId, String paymentAppInstanceId, String rnsRegistrationId, String status, String vClientId, UserDetail userDetail) {
+        this.clientDeviceId = clientDeviceId;
+        this.createdOn = createdOn;
+        this.deviceModel = deviceModel;
+        this.hostDeviceId = hostDeviceId;
+        this.imei = imei;
+        this.isMastercardEnabled = isMastercardEnabled;
+        this.isVisaEnabled = isVisaEnabled;
+        this.modifiedOn = modifiedOn;
+        this.nfcCapable = nfcCapable;
         this.osName = osName;
         this.osVersion = osVersion;
-        this.nfcCapable = nfcCapable;
-        this.imei = imei;
-        this.clientDeviceId = clientDeviceId;
+        this.paymentAppId = paymentAppId;
+        this.paymentAppInstanceId = paymentAppInstanceId;
+        this.rnsRegistrationId = rnsRegistrationId;
+        this.status = status;
         this.vClientId = vClientId;
-        this.deviceModel = deviceModel;
-        this.hostDeviceId = hostDeviceID;
-        this.visaEnabled=visaEnabled;
-        this.mastercardEnabled=mastercardEnabled;
-        this.visaMessage=visaMessage;
-        this.mastercardMessage=mastercardMessage;
-        this.deviceStatus=deviceStatus;
-
-        this.vserverNonce=vserver_nonce;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.userDetail = userDetail;
     }
 
     public String getClientDeviceId() {
@@ -122,20 +101,20 @@ public class DeviceInfo implements Serializable {
         this.clientDeviceId = clientDeviceId;
     }
 
+    public Timestamp getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
+
     public String getDeviceModel() {
         return this.deviceModel;
     }
 
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
-    }
-
-    public String getDeviceStatus() {
-        return this.deviceStatus;
-    }
-
-    public void setDeviceStatus(String deviceStatus) {
-        this.deviceStatus = deviceStatus;
     }
 
     public String getHostDeviceId() {
@@ -154,20 +133,28 @@ public class DeviceInfo implements Serializable {
         this.imei = imei;
     }
 
-    public String getMastercardEnabled() {
-        return this.mastercardEnabled;
+    public String getIsMastercardEnabled() {
+        return this.isMastercardEnabled;
     }
 
-    public void setMastercardEnabled(String mastercardEnabled) {
-        this.mastercardEnabled = mastercardEnabled;
+    public void setIsMastercardEnabled(String isMastercardEnabled) {
+        this.isMastercardEnabled = isMastercardEnabled;
     }
 
-    public String getMastercardMessage() {
-        return this.mastercardMessage;
+    public String getIsVisaEnabled() {
+        return this.isVisaEnabled;
     }
 
-    public void setMastercardMessage(String mastercardMessage) {
-        this.mastercardMessage = mastercardMessage;
+    public void setIsVisaEnabled(String isVisaEnabled) {
+        this.isVisaEnabled = isVisaEnabled;
+    }
+
+    public Timestamp getModifiedOn() {
+        return this.modifiedOn;
+    }
+
+    public void setModifiedOn(Timestamp modifiedOn) {
+        this.modifiedOn = modifiedOn;
     }
 
     public String getNfcCapable() {
@@ -218,6 +205,14 @@ public class DeviceInfo implements Serializable {
         this.rnsRegistrationId = rnsRegistrationId;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getVClientId() {
         return this.vClientId;
     }
@@ -226,28 +221,12 @@ public class DeviceInfo implements Serializable {
         this.vClientId = vClientId;
     }
 
-    public String getVisaEnabled() {
-        return this.visaEnabled;
+    public UserDetail getUserDetail() {
+        return this.userDetail;
     }
 
-    public void setVisaEnabled(String visaEnabled) {
-        this.visaEnabled = visaEnabled;
-    }
-
-    public String getVisaMessage() {
-        return this.visaMessage;
-    }
-
-    public void setVisaMessage(String visaMessage) {
-        this.visaMessage = visaMessage;
-    }
-
-    public String getVserverNonce() {
-        return this.vserverNonce;
-    }
-
-    public void setVserverNonce(String vserverNonce) {
-        this.vserverNonce = vserverNonce;
+    public void setUserDetail(UserDetail userDetail) {
+        this.userDetail = userDetail;
     }
 
 }

@@ -22,5 +22,8 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
     Optional<DeviceInfo> findByImei(String imei);
     Optional<DeviceInfo> findByPaymentAppInstanceId(String payment_app_instance_id);
     Optional<DeviceInfo> findByClientDeviceId(String clientDeviceId);
+    List<DeviceInfo> findByImeiandStatus(String imei,String status);
+    List<DeviceInfo> findByClientDeviceIdandStatus(String clientDeviceId,String status);
+
 
 }

@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.Map;
 public class HCEUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
+    private static SecureRandom secureRandom = null;
     @Autowired
     private CommonRepository commonRepository;
 
@@ -102,6 +106,45 @@ public class HCEUtil {
         Gson gson = new Gson() ;
         response = gson.toJson(responseMap);
         return response;
+    }
+
+    public static String generateRandomId(String prefix) throws NoSuchAlgorithmException {
+        return prefix + (new SimpleDateFormat("yyMMdd").format(new Date()))+ (new SimpleDateFormat("HHmm").format(new Date()))
+                + generateRandomValue(12);
+    }
+
+    /**
+     * This method will generate a random integer value by taking double value.
+     *
+     * @param power
+     *            the power
+     * @return int
+     * @throws NoSuchAlgorithmException
+     *             the no such algorithm exception
+     */
+    public static int generateRandomValue(int power) throws NoSuchAlgorithmException {
+        LOGGER.info("generateRandomValue Entered....");
+
+        int seedByteCount = power;
+        if (secureRandom == null) {
+            SecureRandom secureRandomGenerator = SecureRandom.getInstance("SHA1PRNG");
+            byte[] seed = secureRandomGenerator.generateSeed(seedByteCount);
+
+            secureRandom = SecureRandom.getInstance("SHA1PRNG");
+            secureRandom.setSeed(seed);
+        }
+        int ramdongen = 0;
+
+        ramdongen = secureRandom.nextInt((int) Math.pow(10, power));
+
+        String strRan = "" + ramdongen;
+        while (strRan.length() < power) {
+            ramdongen = secureRandom.nextInt((int) Math.pow(10, power));
+            strRan = "" + ramdongen;
+        }
+        LOGGER.info("generateRandomValue Exit....");
+        return ramdongen;
+
     }
 
     public CommonRepository getCommonRepository(){

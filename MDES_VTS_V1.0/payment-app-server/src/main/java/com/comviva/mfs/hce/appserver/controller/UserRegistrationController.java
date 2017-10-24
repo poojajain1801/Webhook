@@ -57,28 +57,4 @@ public class UserRegistrationController {
     }
 
 
-    @ResponseBody
-    @RequestMapping(value = "/activateUser", method = RequestMethod.POST)
-    public Map<String,Object> activateUser(@RequestBody String activateUserRequest, HttpServletRequest httpServletRequest) {
-        Map<String,Object> activateUser = null;
-        ActivateUserRequest activateUserRequestPojo = null;
-        try{
-            LOGGER.debug("Enter UserRegistrationController->activateUser");
-            activateUserRequestPojo =(ActivateUserRequest) hCEControllerSupport.requestFormation(activateUserRequest,ActivateUserRequest.class);
-            activateUser = userDetailService.activateUser(activateUserRequestPojo);
-        }catch (HCEValidationException registerUserValidationException){
-            LOGGER.error("Exception Occured in  UserRegistrationController->activateUser",registerUserValidationException);
-            activateUser = hCEControllerSupport.formResponse(registerUserValidationException.getMessageCode(),registerUserValidationException.getMessage());
-        }catch (HCEActionException regUserHCEActionException){
-            LOGGER.error("Exception Occured in Enter UserRegistrationController->activateUser",regUserHCEActionException);
-            activateUser = hCEControllerSupport.formResponse(regUserHCEActionException.getMessageCode());
-        }catch (Exception regUserException) {
-            LOGGER.error(" Exception Occured in Enter UserRegistrationController->activateUser", regUserException);
-            activateUser = hCEControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
-        }
-        hCEControllerSupport.prepareRequest(activateUserRequest,activateUser,httpServletRequest);
-        LOGGER.debug("Exit UserRegistrationController->registerUser");
-
-        return activateUser;
-    }
 }

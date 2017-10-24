@@ -19,9 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
+
 import com.comviva.mfs.hce.appserver.exception.*;
 
 /**
@@ -53,63 +54,86 @@ public class UserDetailServiceImpl implements UserDetailService {
 
         Map <String, Object> response;
         List<UserDetail> userDetails;
-        List<DeviceInfo> deviceInfo;
+        List<DeviceInfo> deviceInfos;
         String activationCode;
         String clientWalletAccountid;
-        UserDetail savedUser;
+        UserDetail userDetail;
+        DeviceInfo deviceInfo;
         String userstatus;
         String devicestatus;
+        String userId ;
+        String imei;
 
 
         try{
             LOGGER.debug("Enter UserDetailServiceImpl->registerUser");
+            userId = registerUserRequest.getUserId();
+            imei = registerUserRequest.getImei();
 
-            if(registerUserRequest.getUserId()==null || registerUserRequest.getUserId().isEmpty()
-                    || registerUserRequest.getClientDeviceID()==null || registerUserRequest.getClientDeviceID().isEmpty()){
-
-               throw  new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
+            if(isClientDeviceIdExist(registerUserRequest.getClientDeviceID())){
+                throw new HCEActionException(HCEMessageCodes.CLIENT_DEVICEID_EXIST);
             }
 
-            userDetails = userDetailRepository.find(registerUserRequest.getUserId());
-            deviceInfo=deviceDetailRepository.find(registerUserRequest.getClientDeviceID());
-
-
-            if ((null == userDetails || userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())) {
-                 userstatus = "userActivated";
-                 activationCode = generateActivationCode();
-                 clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
-                 savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
-                        clientWalletAccountid,registerUserRequest.getClientDeviceID(), null));
-                 deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceActivated",null,null,null,null,null,null,null,null,null,null,null));
-                response =  prepareResponseMap(HCEMessageCodes.SUCCESS,savedUser,activationCode);
-            }else if((null != userDetails || !userDetails.isEmpty()) && (null==deviceInfo || deviceInfo.isEmpty())){
-                deviceDetailRepository.save(new DeviceInfo(null,null,null, null,registerUserRequest.getOs_name(),null,null,registerUserRequest.getImei(),registerUserRequest.getClientDeviceID(),null,registerUserRequest.getDevice_model(), null,"N","N","Not Registered with visa","Not Registered with Master Card","deviceActivated",null,null,null,null,null,null,null,null,null,null,null));
-                userDetails.get(0).setClientDeviceId(registerUserRequest.getClientDeviceID());
-                userDetailRepository.save(userDetails.get(0));
-                response =  prepareResponseMap(HCEMessageCodes.SUCCESS,userDetails.get(0),userDetails.get(0).getActivationCode());
-            }else if ((null == userDetails || userDetails.isEmpty()) && (null !=deviceInfo || !deviceInfo.isEmpty())){
-                userstatus = "userActivated";
-                 activationCode = generateActivationCode();
-                 clientWalletAccountid =generatelCientWalletAccountid(registerUserRequest.getUserId());
-                savedUser = userDetailRepository.save(new UserDetail(null,registerUserRequest.getUserId(),activationCode, userstatus,
-                        clientWalletAccountid,registerUserRequest.getClientDeviceID(), deviceInfo.get(0).getPaymentAppInstanceId()));
-                response =  prepareResponseMap(HCEMessageCodes.SUCCESS,savedUser,activationCode);
-            }
-            else {
-                if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
-                    response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
-                }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
-                    response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
-                }else if("userActivated".equals(userDetails.get(0).getUserStatus())&& "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus())){
-                    response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
-                }else{
-                    if(userDetails.get(0).getClientDeviceId().equals(deviceInfo.get(0).getClientDeviceId()) && "userActivated".equals(userDetails.get(0).getUserStatus()) && "deviceActivated".equals(deviceInfo.get(0).getDeviceStatus()) ){
-                        response =  prepareResponseMap(HCEMessageCodes.USER_ALREADY_REGISTERED,userDetails.get(0),userDetails.get(0).getActivationCode());
+            userDetails = userDetailRepository.findByUserIdandStatus(userId,HCEConstants.ACTIVE);
+            if(userDetails!=null && !userDetails.isEmpty()){
+                userDetail = userDetails.get(0);
+                deviceInfos = deviceDetailRepository.findByImeiandStatus(imei,HCEConstants.ACTIVE);
+                if(deviceInfos!=null && !deviceInfos.isEmpty()){
+                    deviceInfo = deviceInfos.get(0);
+                    if(userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
+                        throw new HCEActionException(HCEMessageCodes.USER_ALREADY_REGISTERED);
                     }else{
-                        response =  prepareResponseMap(HCEMessageCodes.USER_ACTIVATION_REQUIRED,userDetails.get(0),userDetails.get(0).getActivationCode());
+
+                        deactivateDevice(deviceInfo);
+                        deviceInfo.setStatus(HCEConstants.INACTIVE);
+                        deviceDetailRepository.save(deviceInfo);
+                        updateUserStatusIfOneDeviceIsLinked(deviceInfo);
+                        deviceInfos = saveDeviceInfo(registerUserRequest);
+                        userDetail.setDeviceInfos(deviceInfos);
+                        userDetailRepository.save(userDetail);
+                        // Register New Device
+                        //update Old device with N and if owner of that user is having one device then make user status N too. and register device.
                     }
+                }else{
+
+                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    userDetail.setDeviceInfos(deviceInfos);
+                    userDetailRepository.save(userDetail);
+                    //Register Device
+
+                }
+
+            }else{
+
+                deviceInfos = deviceDetailRepository.findByImeiandStatus(imei,HCEConstants.ACTIVE);
+                if(deviceInfos!=null && !deviceInfos.isEmpty()){
+                    deviceInfo = deviceInfos.get(0);
+                    deactivateDevice(deviceInfo);
+                    deviceInfo.setStatus(HCEConstants.INACTIVE);
+                    deviceDetailRepository.save(deviceInfo);
+                    updateUserStatusIfOneDeviceIsLinked(deviceInfo);
+                    userDetail = saveUserDetails(registerUserRequest);
+                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    userDetail.setDeviceInfos(deviceInfos);
+                    userDetailRepository.save(userDetail);
+
+
+                    //update Old device with N and if owner of that user is having one device then make user status N too. and register device and user.
+
+                }else{
+
+                    userDetail = saveUserDetails(registerUserRequest);
+                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    userDetail.setDeviceInfos(deviceInfos);
+                    userDetailRepository.save(userDetail);
+                    // RegisterUser and Register Device
+
                 }
             }
+            response = prepareResponseMap(HCEMessageCodes.SUCCESS,userDetail,null);
+
+            LOGGER.debug("Exit UserDetailServiceImpl->registerUser");
+
         }catch(HCEActionException regUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserHCEactionException);
             throw regUserHCEactionException;
@@ -123,109 +147,64 @@ public class UserDetailServiceImpl implements UserDetailService {
         return response;
     }
 
-    public Map<String,Object> activateUser(ActivateUserRequest activateUserRequest) {
-        String userstatus ;
-        String devicestatus;
+
+
+    private UserDetail saveUserDetails(RegisterUserRequest registerUserRequest) throws Exception{
+
+        UserDetail userDetail = new UserDetail();
+        userDetail.setStatus(HCEConstants.ACTIVE);
+        userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
+        userDetail.setUserId(registerUserRequest.getUserId());
+        return userDetail;
+    }
+    private List<DeviceInfo> saveDeviceInfo(RegisterUserRequest registerUserRequest){
+        DeviceInfo deviceInfo = new DeviceInfo();
+        List<DeviceInfo> deviceInfoList = new ArrayList<DeviceInfo>();
+        deviceInfo.setStatus(HCEConstants.INITIATE);
+        deviceInfo.setIsVisaEnabled(HCEConstants.INACTIVE);
+        deviceInfo.setIsMastercardEnabled(HCEConstants.INACTIVE);
+        deviceInfo.setClientDeviceId(registerUserRequest.getClientDeviceID());
+        deviceInfo.setDeviceModel(registerUserRequest.getDevice_model());
+        deviceInfo.setOsName(registerUserRequest.getOs_name());
+        deviceInfo.setImei(registerUserRequest.getImei());
+        deviceInfo.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        deviceInfoList.add(deviceInfo);
+        return deviceInfoList;
+
+    }
+
+    private void updateUserStatusIfOneDeviceIsLinked(DeviceInfo deviceInfo) {
         List<UserDetail> userDetails;
-        List<DeviceInfo> deviceInfo;
-        Map<String, Object> response;
-        List<UserDetail> userDevice;
-
-        try{
-
-            LOGGER.debug("Enter UserDetailServiceImpl->activateUser");
-            if(activateUserRequest.getUserId()==null || activateUserRequest.getActivationCode()==null ||
-                    activateUserRequest.getUserId().isEmpty() || activateUserRequest.getActivationCode().isEmpty()){
-                throw new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
-
+        UserDetail userDetail;
+        userDetails = (List<UserDetail>) deviceInfo.getUserDetail();
+        if(userDetails!=null && !userDetails.isEmpty()){
+            userDetail = userDetails.get(0);
+            if(userDetail.getDeviceInfos().size()==1){
+                userDetail.setStatus(HCEConstants.INACTIVE);
+                userDetailRepository.save(userDetail);
             }
-             userDetails = userDetailRepository.find(activateUserRequest.getUserId());
-             deviceInfo=deviceDetailRepository.find(activateUserRequest.getClientDeviceID());
-             userstatus = "userActivated";
-             devicestatus="deviceActivated";
-
-            if((null == userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
-               throw new HCEActionException(HCEMessageCodes.INVALID_USER_AND_DEVICE);
-            }
-            else {
-                if(!userDetails.get(0).getActivationCode().equals(activateUserRequest.getActivationCode())){
-                    //activaction code problem.
-                   throw new HCEActionException(HCEMessageCodes.INVALID_ACTIVATION_CODE);
-                }else{
-                     userDevice = userDetailRepository.findByClientDeviceId(activateUserRequest.getClientDeviceID());
-                    if(null !=userDevice && !userDevice.isEmpty()) {
-                        for (int i = 0; i <userDetails.size(); i++){
-                            if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
-                                userDevice.get(i).setClientDeviceId(HCEConstants.CHANGE_DEVICE);
-                                userDetailRepository.save(userDevice.get(i));
-                            }
-                        }
-                    }
-                    userDetails.get(0).setUserStatus(userstatus);
-                    userDetails.get(0).setClientDeviceId(activateUserRequest.getClientDeviceID());
-                    userDetailRepository.save(userDetails.get(0));
-                    deviceInfo.get(0).setDeviceStatus(devicestatus);
-                    deviceDetailRepository.save(deviceInfo.get(0));
-                }
-            }
-             response =hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
-        }catch(HCEActionException actUserHCEactionException){
-            LOGGER.error("Exception occured in UserDetailServiceImpl->activateUser", actUserHCEactionException);
-          throw actUserHCEactionException;
-
-        }catch(Exception actUserException){
-            LOGGER.error("Exception occured in UserDetailServiceImpl->activateUser", actUserException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-
-        LOGGER.debug("Exit UserDetailServiceImpl->activateUser");
-
-        return response;
-    }
-    /**
-     * Implementation for generating activation code is required
-     *
-     * @return
-     */
-    private String generateActivationCode() {
-        String activationCode = "40";
-        return activationCode;
     }
 
-    private  String generatelCientWalletAccountid(String id){
-           String cientWalletAccountid = String.format("%032X", Calendar.getInstance().getTime().getTime());
-        cientWalletAccountid = id+ArrayUtil.getHexString(ArrayUtil.getRandom(5))+cientWalletAccountid ;
-            return cientWalletAccountid.substring(0, Math.min(cientWalletAccountid.length(), 23));
+
+    public boolean isClientDeviceIdExist(String clientDeviceId){
+        List<DeviceInfo> deviceInfoList = deviceDetailRepository.findByClientDeviceIdandStatus(clientDeviceId,HCEConstants.ACTIVE);
+        if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
-     * Implementation for checking if user is exist in DB
      *
-     * @return
+     * @param deviceInfo
      */
-    public boolean checkIfUserExistInDb(String userName) {
-        boolean isUserPresentInDb = userDetailRepository.findByUserName(userName).isPresent();
-        return isUserPresentInDb;
-    }
-    public boolean checkIfClientDeviceIDExistInDb(String clientDeviceID){
-        boolean isClientDeviceIDPresentInDb=deviceDetailRepository.findByClientDeviceId(clientDeviceID).isPresent();
-        return isClientDeviceIDPresentInDb;
-    }
-    public String getUserstatus(String userName) {
-        String userStaus = userDetailRepository.findByUserName(userName).get().getUserStatus();
-        return userStaus;
-    }
+    public void deactivateDevice(DeviceInfo deviceInfo){
 
-    /**
-     * Implementation for checking if user is exist in DB
-     *
-     * @return
-     */
-    public String getActivationCode(String userName) {
-        String strActivationCode = userDetailRepository.findByUserName(userName).get().getActivationCode();
-        return strActivationCode;
+        // call deactivate User
     }
-
     /**
      *
      * @param responseCode

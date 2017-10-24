@@ -3,6 +3,8 @@ package com.comviva.mfs.hce.appserver.model;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * The persistent class for the USER_DETAILS database table.
@@ -14,48 +16,39 @@ public class UserDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private String id;
+    @Column(name="CLIENT_WALLET_ACCOUNT_ID")
+    private String clientWalletAccountId;
 
     @Column(name="ACTIVATION_CODE")
     private String activationCode;
 
-    @Column(name="CLIENT_DEVICE_ID")
-    private String clientDeviceId;
+    @Column(name="CREATED_ON")
+    private Timestamp createdOn;
 
-    @Column(name="CLIENT_WALLET_ACCOUNT_ID")
-    private String clientWalletAccountId;
+    @Column(name="MODIFIED_ON")
+    private Timestamp modifiedOn;
 
-    @Column(name="PAYMENT_APP_INSTANCE_ID")
-    private String paymentAppInstanceId;
+    private String status;
 
-    @Column(name="USER_NAME")
-    private String userName;
+    @Column(name="USER_ID")
+    private String userId;
 
-    @Column(name="USER_STATUS")
-    private String userStatus;
+    //bi-directional many-to-one association to DeviceInfo
+    @OneToMany(mappedBy="userDetail")
+    private List<DeviceInfo> deviceInfos;
 
     public UserDetail() {
     }
 
-    public UserDetail(String id, String userName, String activationCode, String userstatus,String clientWalletAccountid, String clientDeviceId, String paymentAppInstId) {
-        this.id = id;
-        this.userName = userName;
-        this.activationCode = activationCode;
-        this.userStatus = userstatus;
-        this.clientWalletAccountId=clientWalletAccountid;
-        this.clientDeviceId=clientDeviceId;
-        this.paymentAppInstanceId = paymentAppInstId;
+
+
+
+    public String getClientWalletAccountId() {
+        return this.clientWalletAccountId;
     }
 
-
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public void setClientWalletAccountId(String clientWalletAccountId) {
+        this.clientWalletAccountId = clientWalletAccountId;
     }
 
     public String getActivationCode() {
@@ -66,44 +59,57 @@ public class UserDetail implements Serializable {
         this.activationCode = activationCode;
     }
 
-    public String getClientDeviceId() {
-        return this.clientDeviceId;
+    public Timestamp getCreatedOn() {
+        return this.createdOn;
     }
 
-    public void setClientDeviceId(String clientDeviceId) {
-        this.clientDeviceId = clientDeviceId;
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
     }
 
-    public String getClientWalletAccountId() {
-        return this.clientWalletAccountId;
+    public Timestamp getModifiedOn() {
+        return this.modifiedOn;
     }
 
-    public void setClientWalletAccountId(String clientWalletAccountId) {
-        this.clientWalletAccountId = clientWalletAccountId;
+    public void setModifiedOn(Timestamp modifiedOn) {
+        this.modifiedOn = modifiedOn;
     }
 
-    public String getPaymentAppInstanceId() {
-        return this.paymentAppInstanceId;
+    public String getStatus() {
+        return this.status;
     }
 
-    public void setPaymentAppInstanceId(String paymentAppInstanceId) {
-        this.paymentAppInstanceId = paymentAppInstanceId;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getUserName() {
-        return this.userName;
+    public String getUserId() {
+        return this.userId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getUserStatus() {
-        return this.userStatus;
+    public List<DeviceInfo> getDeviceInfos() {
+        return this.deviceInfos;
     }
 
-    public void setUserStatus(String userStatus) {
-        this.userStatus = userStatus;
+    public void setDeviceInfos(List<DeviceInfo> deviceInfos) {
+        this.deviceInfos = deviceInfos;
     }
 
+    public DeviceInfo addDeviceInfo(DeviceInfo deviceInfo) {
+        getDeviceInfos().add(deviceInfo);
+        deviceInfo.setUserDetail(this);
+
+        return deviceInfo;
+    }
+
+    public DeviceInfo removeDeviceInfo(DeviceInfo deviceInfo) {
+        getDeviceInfos().remove(deviceInfo);
+        deviceInfo.setUserDetail(null);
+
+        return deviceInfo;
+    }
 }

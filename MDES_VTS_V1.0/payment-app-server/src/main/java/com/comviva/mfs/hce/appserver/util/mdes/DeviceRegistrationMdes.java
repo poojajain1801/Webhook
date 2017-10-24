@@ -12,12 +12,14 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandelerImpl;
 import com.google.common.collect.ImmutableMap;
 import lombok.Setter;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
 
 @Setter
+@Component
 public class DeviceRegistrationMdes {
     private EnrollDeviceRequest enrollDeviceRequest;
 

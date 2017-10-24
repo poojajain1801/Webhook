@@ -9,9 +9,4 @@ import java.util.Map;
  */
 public interface UserDetailService {
     Map<String,Object>registerUser(RegisterUserRequest registerUserRequest);
-    Map<String,Object> activateUser(ActivateUserRequest activateUserRequest);
-    boolean checkIfUserExistInDb(String userName);
-    boolean checkIfClientDeviceIDExistInDb(String clientDeviceID);
-    String getActivationCode(String userName);
-    String getUserstatus(String userName);
 }

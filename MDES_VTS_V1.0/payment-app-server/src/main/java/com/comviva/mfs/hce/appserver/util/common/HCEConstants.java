@@ -19,8 +19,12 @@ public class HCEConstants {
     public static final String ACTIVE = "Y";
     /** The Constant INACTIVE. */
     public static final String INACTIVE = "N";
+    /** The Constant INITIATE. */
+    public static final String INITIATE = "I";
        /** The Constant CHANGE_DEVICE. */
     public static final String CHANGE_DEVICE ="CD";
+    /** The Constant USER_PREFIX. */
+    public static final String USER_PREFIX = "PT";
 
     /** The Constant CHANGE_DEVICE. */
     public static final String INTERNAL_SERVER_ERROR ="Inernal server error";
@@ -38,16 +42,26 @@ public class HCEConstants {
     public static final String OPERATION = "operation";
     public static final String UPDATE_CARD_METADATA = "UPDATE_CARD_METADATA";
     public static final String UPDATE_TXN_HISTORY = "UPDATE_TXN_HISTORY";
+    /** The Constant MDES_RESPONSE_CODE. */
+    public static final String MDES_RESPONSE_CODE = "mdesResponseCode";
+    /** The Constant MDES_RESPONSE_CODE. */
+    public static final String MDES_MESSAGE = "mdesMessage";
+    /** The Constant MDES_FINAL_CODE. */
+    public static final String MDES_FINAL_CODE = "mdesFinalCode";
+    /** The Constant MDES_FINAL_MESSAGE. */
+    public static final String MDES_FINAL_MESSAGE = "mdesFinalMessage";
+    /** The Constant MDES_RESPONSE_MAP. */
+    public static final String MDES_RESPONSE_MAP = "mdes";
 
-
-
-
-
-
-
-
-
-
-
+    /** The Constant VTS_MESSAGE. */
+    public static final String VTS_MESSAGE = "vtsMessage";
+    /** The Constant VTS_RESPONSE_CODE. */
+    public static final String VTS_RESPONSE_CODE = "vtsResponseCode";
+    /** The Constant VISA_FINAL_CODE. */
+    public static final String VISA_FINAL_CODE = "visaFinalCode";
+    /** The Constant VISA_FINAL_MESSAGE. */
+    public static final String VISA_FINAL_MESSAGE = "visaFinalMessage";
+    /** The Constant VTS_RESPONSE_MAP. */
+    public static final String VTS_RESPONSE_MAP = "vts";
 
 }
