@@ -64,14 +64,29 @@ public class DeviceRegistrationController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/unRegister", method = RequestMethod.POST)
-    public Map<String,Object> unRegister(@RequestBody UnRegisterReq unRegisterReq) {
-        LOGGER.debug("Enter DeviceRegistrationController->unRegister");
+    @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
+
+    public Map<String,Object> unRegister(@RequestBody String unRegisterReq, HttpServletRequest httpRequest) {
+
         Map<String,Object> unRegisterResponse = null;
-        unRegisterResponse =  deviceDetailService.unRegisterDevice(unRegisterReq);
-        LOGGER.debug("Exit DeviceRegistrationController->unRegister");
+        UnRegisterReq unRegisterReqPojo = null;
+        try{
+            LOGGER.debug("Enter DeviceRegistrationController->unRegister");
+            unRegisterReqPojo =(UnRegisterReq) hCEControllerSupport.requestFormation(unRegisterReq,UnRegisterReq.class);
+            unRegisterResponse = deviceDetailService.unRegisterDevice(unRegisterReqPojo);
+            LOGGER.debug("Exit DeviceRegistrationController->unRegister");
+        }catch (HCEValidationException deRegValidationException){
+            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",deRegValidationException);
+            unRegisterResponse = hCEControllerSupport.formResponse(deRegValidationException.getMessageCode(),deRegValidationException.getMessage());
+        }catch (HCEActionException deRegHCEActionException){
+            LOGGER.error("Exception Occured in Enter DeviceRegistrationController->registerDevice",deRegHCEActionException);
+            unRegisterResponse = hCEControllerSupport.formResponse(deRegHCEActionException.getMessageCode());
+        }catch (Exception deRegException) {
+            LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->registerDevice", deRegException);
+            unRegisterResponse = hCEControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+        }
+        hCEControllerSupport.prepareRequest(unRegisterReq,unRegisterResponse,httpRequest);
         return unRegisterResponse;
     }
-
 }
 

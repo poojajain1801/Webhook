@@ -105,10 +105,10 @@ public class HCEMessageCodes {
     }
 
     /** The Constant VISA_FINAL_CODE. */
-    public static String VISA_FINAL_CODE;
-    @Value("${VISA_FINAL_CODE}")
-    public static String getVisaFinalCode() {
-        return VISA_FINAL_CODE;
+    public static String DEVICE_REGISTRATION_FAILED;
+    @Value("${DEVICE_REGISTRATION_FAILED}")
+    public static String getDeviceRegistrationFailed() {
+        return DEVICE_REGISTRATION_FAILED;
     }
 
 

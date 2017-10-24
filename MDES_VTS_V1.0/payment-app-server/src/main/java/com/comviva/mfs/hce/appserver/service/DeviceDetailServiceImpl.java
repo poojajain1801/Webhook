@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.service;
 
+import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.controller.UserRegistrationController;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
@@ -67,7 +68,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         String vClientID = env.getProperty("vClientID");
         Map<String, Object> response = new HashMap();
-
         Map mdesRespMap = new HashMap();
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
@@ -104,21 +104,22 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             deviceRegistrationMdes.setEnrollDeviceRequest(enrollDeviceRequest);
             isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility();
 
+
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
                 devRegRespMdes = deviceRegistrationMdes.registerDevice();
                 respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString();
                 // If registration fails for MDES return error
-                if (!respCodeMdes.equalsIgnoreCase("200")) {
+                if (!HCEMessageCodes.SUCCESS.equalsIgnoreCase(respCodeMdes)) {
                     mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString());
                     mdesRespMap.put(HCEConstants.MDES_MESSAGE, devRegRespMdes.getResponse().get(HCEConstants.MESSAGE).toString());
-                    response.put(HCEConstants.MDES_FINAL_CODE, "201");
+                    response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.DEVICE_REGISTRATION_FAILED);
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                     response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
 
                 } else {
                     response.put(HCEConstants.MDES_RESPONSE_MAP, devRegRespMdes.getResponse());
-                    response.put(HCEConstants.MDES_FINAL_CODE, "200");
+                    response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.SUCCESS);
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "OK");
                     deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
                     deviceInfo.setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
@@ -131,7 +132,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 //throw error device not eligible.
                 mdesRespMap.put(HCEConstants.MDES_MESSAGE, "Device is not eligible");
                 mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, "207");
-                response.put(HCEConstants.MDES_FINAL_CODE, "201");
+                response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.DEVICE_REGISTRATION_FAILED);
                 response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
 
@@ -141,18 +142,18 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
             String vtsResp = enrollDeviceVts.register(vClientID);
             JSONObject vtsJsonObject = new JSONObject(vtsResp);
-            if (!vtsJsonObject.get("statusCode").equals("200")) {
+            if (!vtsJsonObject.get(HCEConstants.RESPONSE_CODE).equals(HCEMessageCodes.SUCCESS)) {
                 vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.MESSAGE));
-                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.STATUS_CODE));
-                response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.VISA_FINAL_CODE);
+                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.RESPONSE_CODE));
+                response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.DEVICE_REGISTRATION_FAILED);
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             } else {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsResp);
-                deviceInfo.setIsVisaEnabled("Y");
+                deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                 deviceInfo.setVClientId(vClientID);
                 deviceDetailRepository.save(deviceInfo);
-                response.put(HCEConstants.VISA_FINAL_CODE, "200");
+                response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.SUCCESS);
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
             }
 
@@ -241,4 +242,3 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 
     }
-}

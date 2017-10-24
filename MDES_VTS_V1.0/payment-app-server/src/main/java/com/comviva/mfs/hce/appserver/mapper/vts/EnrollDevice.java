@@ -45,15 +45,12 @@ import java.util.List;
 
 @Setter
 public class EnrollDevice extends VtsRequest {
-    private String vClientID;
-    // private String apiKey;
-    //private String clientDeviceID;
-    private DevicePersoData devicePersoData;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDevice.class);
 
-
+    private String vClientID;
+    private DevicePersoData devicePersoData;
     private ResourceLoader resourceLoader;
-
     private static final long CERTIFICATE_EXPIRY_DURATION = 2l * 365 * 24 * 60 * 60 * 1000l;
 
 
