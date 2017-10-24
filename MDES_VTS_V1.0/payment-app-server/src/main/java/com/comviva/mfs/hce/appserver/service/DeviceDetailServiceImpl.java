@@ -3,12 +3,16 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.controller.UserRegistrationController;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
@@ -20,12 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -162,6 +168,76 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceException);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
+    }
+    @Override
+    @Transactional
+    public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
+
+        JSONObject jsonRequest  = null;
+        String url = null;
+        HitMasterCardService hitMasterCardService = null;
+        ResponseEntity responseEntity = null;
+        String paymentAppInstanceID = null;
+        Optional<DeviceInfo> deviceInfoOptional = null;
+        String userID = null;
+
+        String clintDeviceID = null;
+        String imei = null;
+
+        try {
+            userID = unRegisterReq.getUserId();
+            imei = unRegisterReq.getImei();
+            clintDeviceID = unRegisterReq.getClientDeviceID();
+            paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();
+
+            //If user id and imei is null and paymentAppInstanceID or clint device is is null throw Insuficiant input data
+            if(((imei.isEmpty()||imei ==null)&&(userID.isEmpty()||userID==null))
+                    ||((clintDeviceID.isEmpty()||clintDeviceID==null)||((paymentAppInstanceID.isEmpty()||paymentAppInstanceID==null))))
+            {
+                //Retrun Insufucaiant input data
+            }
+
+            jsonRequest = new JSONObject();
+            deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceID);
+
+
+            //Fatch all the card details and mark the satus as deleted
+
+            //call master cad unregister API
+            if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
+
+                //Validate payment app instance ID
+                if (!deviceInfoOptional.isPresent()) {
+                    //Return In valid paymentApp Instance ID
+                }
+
+                jsonRequest.put("responseHost", ServerConfig.RESPONSE_HOST);
+                jsonRequest.put("requestId", "12343443");
+                jsonRequest.put("paymentAppInstanceId",paymentAppInstanceID);
+                url = ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/mpamanagement/1/0/unregister";
+                hitMasterCardService = new HitMasterCardService();
+                responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST");
+            }
+
+            if (!(clintDeviceID.isEmpty()||clintDeviceID.equalsIgnoreCase(null)))
+            {
+                //Validate clint device ID
+                if (deviceDetailRepository.findByClientDeviceId(unRegisterReq.getClientDeviceID()).isPresent())
+                {
+                    //Return Invalid ClintDeviceID
+                }
+            }
+
+            //Validate all the vProvison ID and call delete card API of the VISA.
+
+
+        }catch (HCEActionException unRegisterException)
+        {
+            unRegisterException.printStackTrace();
+        }
+        return  null;
+
+    }
 
 
     }

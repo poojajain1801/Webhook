@@ -17,16 +17,22 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -40,13 +46,16 @@ import java.util.List;
 @Setter
 public class EnrollDevice extends VtsRequest {
     private String vClientID;
-   // private String apiKey;
+    // private String apiKey;
     //private String clientDeviceID;
     private DevicePersoData devicePersoData;
     private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDevice.class);
 
 
+    private ResourceLoader resourceLoader;
+
     private static final long CERTIFICATE_EXPIRY_DURATION = 2l * 365 * 24 * 60 * 60 * 1000l;
+
 
     public EnrollDevice(Environment env) {
         super(env);
@@ -124,7 +133,7 @@ public class EnrollDevice extends VtsRequest {
         // VTS Encryption Key Pair
         var.put("certUsage", CertUsage.CONFIDENTIALITY.name());
         var.put("vCertificateID", vtsCertificateIDConf);
-       // var.put("vCertificateID","8302bc7f");
+        // var.put("vCertificateID","8302bc7f");
         vtsCerts.put(0, var);
 
         // VTS Signature Key Pair
@@ -136,13 +145,23 @@ public class EnrollDevice extends VtsRequest {
 
         /* Device Certificates */
         // Fetch master private key from PEM file
-        ClassLoader classLoader = getClass().getClassLoader();
+       /* ClassLoader classLoader = getClass().getClassLoader();
         File masterKeyFile = new File(classLoader.getResource("master_keyPkcs8.key").getFile());
         PrivateKey masterPrivateKey = CertificateUtil.getRsaPrivateKey(masterKeyFile.getAbsolutePath());
 
         // Create the metadata required for cert creation.
         File masterCertificateFile = new File(classLoader.getResource("master_cert.pem").getFile());
-        X509Certificate masterCertificate = CertificateUtil.getCertificate(masterCertificateFile.getAbsolutePath());
+        X509Certificate masterCertificate = CertificateUtil.getCertificate(masterCertificateFile.getAbsolutePath());*/
+        resourceLoader = new FileSystemResourceLoader() ;
+
+        Resource resource = resourceLoader.getResource("classpath:master_keyPkcs8.key");
+        InputStream is  = resource.getInputStream();
+        PrivateKey masterPrivateKey = CertificateUtil.getRsaPrivateKey(is);
+
+        Resource resourcePem = resourceLoader.getResource("classpath:master_cert.pem");
+        InputStream isPem  = resourcePem.getInputStream();
+        X509Certificate masterCertificate = CertificateUtil.getCertificate(isPem);
+
         CertMetaData certMetaData = new CertMetaData();
         X500Name issuerName = null;
         try {
@@ -177,7 +196,7 @@ public class EnrollDevice extends VtsRequest {
 
         JSONObject encryptionScheme=new JSONObject();
         encryptionScheme.put("encryptionScheme","RSA_PKI");
-       // Prepare channelSecurityContext
+        // Prepare channelSecurityContext
         JSONObject channelSecurityContext = new JSONObject();
         channelSecurityContext.put("deviceCerts", deviceCerts);
         channelSecurityContext.put("vtsCerts", vtsCerts);
@@ -214,6 +233,9 @@ public class EnrollDevice extends VtsRequest {
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
         try {
+            LOGGER.debug("Register device request header = " + entity.getHeaders().getContentLength() +
+                    " ;Request Header\n" + entity.getHeaders().toString() + "\nRequest Body\n" + entity.getBody().toString());
+
             ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);
             jsonResponse=new JSONObject();
             jsonResponse.put("statusCode",String.valueOf(response.getStatusCode().value()));
@@ -242,7 +264,7 @@ public class EnrollDevice extends VtsRequest {
 
             jsonResponse.put("responseBody",jsonObject);
         }catch (Exception e){
-           // ((HttpClientErrorException)e).getResponseBodyAsString();
+            // ((HttpClientErrorException)e).getResponseBodyAsString();
             e.printStackTrace();
             LOGGER.debug("Exception Occurred EnrollDevice->enrollDevice");
             String error = ((HttpClientErrorException) e).getResponseBodyAsString();

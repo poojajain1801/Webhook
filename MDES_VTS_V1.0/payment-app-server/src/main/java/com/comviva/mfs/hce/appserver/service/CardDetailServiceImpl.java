@@ -331,10 +331,21 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //put card details in db
                 //response = String.valueOf(responseEntity.getBody());
                 //jsonResponse = new JSONObject(response);
-                VisaCardDetails visaCardDetails = new VisaCardDetails();
+                //visaCardDetails=first query
+                String vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
+
+                List<VisaCardDetails> visaCardDetailList = visaCardDetailRepository.findByVPanEnrollmentId(vPanEnrollmentId);
+
+                VisaCardDetails visaCardDetails = null;
+                if(visaCardDetailList!=null && !visaCardDetailList.isEmpty()){
+                    visaCardDetails = visaCardDetailList.get(0);
+                }else{
+
+                    visaCardDetails = new VisaCardDetails();
+                }
                 visaCardDetails.setUserName(enrollPanRequest.getUserId());
                 visaCardDetails.setCardnumbersuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
-                visaCardDetails.setvPanEnrollmentId((String) jsonResponse.get("vPanEnrollmentID"));
+                visaCardDetails.setvPanEnrollmentId(vPanEnrollmentId);
                 visaCardDetails.setStatus("Y");
                 visaCardDetailRepository.save(visaCardDetails);
                 // responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());

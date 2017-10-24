@@ -7,6 +7,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
 
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -61,5 +62,16 @@ public class DeviceRegistrationController {
         hCEControllerSupport.prepareRequest(enrollDeviceRequest,registerDeviceResponse,httpRequest);
         return registerDeviceResponse;
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/unRegister", method = RequestMethod.POST)
+    public Map<String,Object> unRegister(@RequestBody UnRegisterReq unRegisterReq) {
+        LOGGER.debug("Enter DeviceRegistrationController->unRegister");
+        Map<String,Object> unRegisterResponse = null;
+        unRegisterResponse =  deviceDetailService.unRegisterDevice(unRegisterReq);
+        LOGGER.debug("Exit DeviceRegistrationController->unRegister");
+        return unRegisterResponse;
+    }
+
 }
 

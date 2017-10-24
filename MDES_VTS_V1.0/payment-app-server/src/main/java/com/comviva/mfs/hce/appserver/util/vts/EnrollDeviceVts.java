@@ -64,8 +64,8 @@ public class EnrollDeviceVts {
     public EncDevicePersoData getEncDevicePersoData() {
         return encDevicePersoData;
     }
-     public String register(final String vClientID) {
-         LOGGER.debug("Inside EnrollDeviceVts->Register");
+    public String register(final String vClientID) {
+        LOGGER.debug("Inside EnrollDeviceVts->Register");
         EnrollDevice enrollDevice = new EnrollDevice(env);
         enrollDevice.setVClientID(vClientID);
         String response="";
@@ -78,8 +78,8 @@ public class EnrollDeviceVts {
             LOGGER.debug("Exception occurred in EnrollDeviceVts->register");
             e.printStackTrace();
         }
-         LOGGER.debug("Exit EnrollDeviceVts->register");
-         return encDevicePersoData(response);
+        LOGGER.debug("Exit EnrollDeviceVts->register");
+        return encDevicePersoData(response);
     }
 
 

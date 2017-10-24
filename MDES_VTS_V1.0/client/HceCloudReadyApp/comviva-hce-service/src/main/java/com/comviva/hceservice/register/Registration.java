@@ -21,6 +21,7 @@ import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
+import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.ArrayUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
@@ -637,6 +638,62 @@ public class Registration {
         } catch (SdkException e) {
             Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
             registrationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+        }
+    }
+
+    /**
+     * De-register a user and associated device.
+     * @param userId                User Id to be de-registered
+     * @param unregisterTdsListener Listener
+     */
+    public void unRegister(final String userId, final String imei, final UnregisterTdsListener unregisterTdsListener) {
+        // UnRegister Device
+        try {
+            final JSONObject unRegDeviceJson = new JSONObject();
+            unRegDeviceJson.put("userId", userId);
+            unRegDeviceJson.put("imei", imei);
+
+            // Activate User
+            class UnRegisterDeviceTask extends AsyncTask<Void, Void, HttpResponse> {
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    if (unregisterTdsListener != null) {
+                        unregisterTdsListener.onStarted();
+                    }
+                }
+
+                @Override
+                protected HttpResponse doInBackground(Void... params) {
+                    HttpUtil httpUtil = HttpUtil.getInstance();
+                    return httpUtil.postRequest(UrlUtil.getUnRegisterDeviceUrl(), unRegDeviceJson.toString());
+                }
+
+                @Override
+                protected void onPostExecute(HttpResponse httpResponse) {
+                    super.onPostExecute(httpResponse);
+
+                    if (null == httpResponse) {
+                        unregisterTdsListener.onError(SdkErrorStandardImpl.SERVER_NOT_RESPONDING);
+                        return;
+                    }
+
+                    if (httpResponse.getStatusCode() != 200) {
+                        unregisterTdsListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(),
+                                httpResponse.getReqStatus()));
+                        return;
+                    }
+                    unregisterTdsListener.onSuccess();
+                }
+            }
+            UnRegisterDeviceTask registerDeviceTask = new UnRegisterDeviceTask();
+            registerDeviceTask.execute();
+        } catch (JSONException e) {
+            Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
+            unregisterTdsListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+        } catch (Exception e) {
+            Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
+            unregisterTdsListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
         }
     }
 }

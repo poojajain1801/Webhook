@@ -2,10 +2,7 @@ package com.comviva.mfs.hce.appserver.util.common;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.cert.CertificateException;
@@ -22,10 +19,11 @@ public class CertificateUtil {
      * @return  Private Key
      * @throws IOException
      */
-    private static String readRsaPrivateKey(String filename) throws IOException {
+    private static String readRsaPrivateKey(InputStream filename) throws IOException {
         // Read key from file
         String strKeyPEM = "";
-        BufferedReader br = new BufferedReader(new FileReader(filename));
+        Reader reader = new InputStreamReader(filename);
+        BufferedReader br = new BufferedReader(reader);
         String line;
         boolean isPrivateKeyStart = false;
         while ((line = br.readLine()) != null) {
@@ -51,7 +49,7 @@ public class CertificateUtil {
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public static RSAPrivateKey getRsaPrivateKey(String filename) throws IOException, GeneralSecurityException {
+    public static RSAPrivateKey getRsaPrivateKey(InputStream filename) throws IOException, GeneralSecurityException {
         String privateKeyPEM = readRsaPrivateKey(filename);
         byte[] encoded = Base64.decodeBase64(privateKeyPEM);
         KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -66,10 +64,10 @@ public class CertificateUtil {
      * @throws CertificateException
      * @throws IOException
      */
-    public static RSAPublicKey getRsaPublicKey(String filename) throws CertificateException, IOException{
+    public static RSAPublicKey getRsaPublicKey(InputStream filename) throws CertificateException, IOException{
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
-        FileInputStream is = new FileInputStream(filename);
-        X509Certificate cer = (X509Certificate) fact.generateCertificate(is);
+        //FileInputStream is = new FileInputStream(filename);
+        X509Certificate cer = (X509Certificate) fact.generateCertificate(filename);
         RSAPublicKey rsaPublicKey = (RSAPublicKey) cer.getPublicKey();
 
         String strKeyValue = ArrayUtil.getHexString(rsaPublicKey.getEncoded());
@@ -77,10 +75,10 @@ public class CertificateUtil {
         return rsaPublicKey;
     }
 
-    public static X509Certificate getCertificate(String filename) throws IOException, CertificateException {
+    public static X509Certificate getCertificate(InputStream filename) throws IOException, CertificateException {
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
-        FileInputStream is = new FileInputStream(filename);
-        return  (X509Certificate) fact.generateCertificate(is);
+       //InputStream is = new FileInputStream(filename);
+        return  (X509Certificate) fact.generateCertificate(filename);
     }
 
 }

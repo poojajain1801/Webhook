@@ -308,6 +308,7 @@
                 <configuration>
                     <mainClass>com.comviva.mfs.hce.appserver.Application</mainClass>
                     <executable>true</executable>
+                    <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>
             <plugin>

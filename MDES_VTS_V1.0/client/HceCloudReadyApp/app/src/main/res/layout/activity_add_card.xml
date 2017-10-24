@@ -17,7 +17,7 @@
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:hint="Card Number"
-        android:text="4622943127007343" />
+        android:text="4622943127007301" />
 
     <Space
         android:id="@+id/space1"
@@ -88,13 +88,13 @@
         android:id="@+id/btnDigCard"
         style="@style/AppTheme.RoundedCornerMaterialButton"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/space5"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="4dp"
+        android:backgroundTint="@color/colorPrimary"
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/space5"
-        android:backgroundTint="@color/colorPrimary"
         android:text="Digitize Card"
         android:textColor="@android:color/white" />
 

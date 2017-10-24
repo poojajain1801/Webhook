@@ -190,7 +190,7 @@ public class PaymentCard {
                     return ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(card.getDigitizedCardId());
 
                 case VTS:
-                    return Long.toString(((TokenData) currentCard).getTokenKey().getTokenId());
+                    return (((TokenData) currentCard).getVProvisionedTokenID());
             }
         } catch (Exception e) {
         }

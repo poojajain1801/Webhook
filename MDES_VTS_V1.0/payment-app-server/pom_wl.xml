@@ -319,7 +319,7 @@
             <artifactId>VisaMapUtil-SBX</artifactId>
             <version>4.6.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/VisaMapUtil-SBX-4.6.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/VisaMapUtil-SBX-5.0.0.jar</systemPath>
         </dependency>
 
     </dependencies>
@@ -468,7 +468,7 @@
                                     <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.40.1.jar" />
                                 </copy>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="VisaMapUtil-SBX-4.6.1.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="VisaMapUtil-SBX-5.0.0.jar" />
                                 </copy>
                             </tasks>
                         </configuration>

@@ -36,7 +36,7 @@ import javax.net.ssl.TrustManagerFactory;
 public class HttpUtil {
     private static HttpUtil httpUtil;
     private HttpResponse httpResponse;
-    private Boolean isHttpsEnabled = true;
+    private Boolean isHttpsEnabled = false;
     public static final int TIMEOUT = 20 * 60 * 1000;
 
     private HttpUtil() {
