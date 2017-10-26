@@ -55,16 +55,14 @@ public class EnrollDeviceVts {
     private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDeviceVts.class);
     @Autowired
     public Environment env;
-    public EnrollDeviceVts () {
-    }
+    @Autowired
+    public  EnrollDevice enrollDevice;
 
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
-        EnrollDevice enrollDevice = new EnrollDevice(env);
-        enrollDevice.setVClientID(vClientID);
         String response="";
         try {
             LOGGER.debug("Enter EnrollDeviceVts->register");
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID());
+            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID(), vClientID);
             LOGGER.debug("Exit EnrollDeviceVts->register");
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
@@ -75,53 +73,6 @@ public class EnrollDeviceVts {
         }
         return encDevicePersoData(response);
     }
-
-
-   /* //method to create encDevicePersoData
-    public String encDevicePersoData(String inputString){
-        LOGGER.debug("Inside EnrollDeviceVts->encDevicePersoData");
-
-        DevicePersoData devicePersoData = new DevicePersoData();
-        EncDevicePersoData encDevicePersoData = new EncDevicePersoData();
-        JSONObject jsonObject=new JSONObject(inputString);
-        if("200".equals(jsonObject.get("statusCode"))) {
-            devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
-            String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());
-            DeviceSalt = DeviceSalt + ArrayUtil.getHexString(ArrayUtil.getRandom(9));
-            devicePersoData.setDeviceSalt(DeviceSalt);
-            devicePersoData.setMapKey(env.getProperty("mapKey"));
-            devicePersoData.setMapSalt(env.getProperty("mapSalt"));
-            devicePersoData.setWalletAccountId(env.getProperty("walletAccountId"));
-            devicePersoData.setServerEntropy((String) jsonObject.getJSONObject("responseBody").get("vServerNonce"));
-            devicePersoData.setEncExpoHex((String) jsonObject.getJSONObject("responseBody").get("devEncKeyPair"));
-            devicePersoData.setEncCert((String) jsonObject.getJSONObject("responseBody").get("devEncCertificate"));
-            devicePersoData.setSignExpoHex((String) jsonObject.getJSONObject("responseBody").get("devSignKeyPair"));
-            devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
-            try {
-                encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
-            } catch (Exception e) {
-                jsonObject = new JSONObject();
-                jsonObject.put("statusCode", "444");
-                jsonObject.put("statusMessage", "Error while Encrypting Device PersoData");
-                jsonObject.put("Error Message", e.getMessage());
-                LOGGER.debug("Exception occurred in EnrollDeviceVts->encDevicePersoData");
-                return jsonObject.toString();
-            }
-            JSONObject devicePersoDataObject = new JSONObject();
-            devicePersoDataObject.put("deviceId", encDevicePersoData.getDeviceId());
-            devicePersoDataObject.put("walletAccountId", encDevicePersoData.getWalletAccountId());
-            devicePersoDataObject.put("encryptedDPM", encDevicePersoData.getEncryptedDPM());
-            devicePersoDataObject.put("signExpo", encDevicePersoData.getSignExpo());
-            devicePersoDataObject.put("encExpo", encDevicePersoData.getEncExpo());
-            devicePersoDataObject.put("signCert", encDevicePersoData.getSignCert());
-            devicePersoDataObject.put("encCert", encDevicePersoData.getEncCert());
-            jsonObject.put("encDevicePersoData", devicePersoDataObject);
-        }
-        LOGGER.debug("Exit EnrollDeviceVts->encDevicePersoData");
-        return jsonObject.toString();
-    }*/
-
-
 
     //method to create encDevicePersoData
     public String encDevicePersoData(String inputString){

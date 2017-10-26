@@ -15,11 +15,11 @@ import java.util.Optional;
  */
 @Repository
 public interface UserDetailRepository extends JpaRepository<UserDetail, String>{
-    Optional<UserDetail> findByUserName(String userName);
+    //Optional<UserDetail> findByUserName(String userName);
 
-    List<UserDetail>findByUserIdandStatus(String userId,String stataus);
+    List<UserDetail> findByUserIdAndStatus(String userId, String stataus);
 
-    @Query("Select distinct mp from UserDetail mp where mp.clientDeviceId =:clientDeviceId")
-    List<UserDetail> findByClientDeviceId(@Param("clientDeviceId")String clientDeviceId);
+   /* @Query("Select distinct mp from UserDetail mp where mp.clientDeviceId =:clientDeviceId")
+    List<UserDetail> findByClientDeviceId(@Param("clientDeviceId")String clientDeviceId);*/
 
 }

@@ -28,7 +28,7 @@ import java.util.List;
 public class VtsRequest {
     protected static final String PATH_SEPARATOR = "/";
 
-    @Autowired
+
     protected Environment env;
 
     /**

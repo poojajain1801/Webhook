@@ -34,7 +34,7 @@ public class UserDetail implements Serializable {
     private String userId;
 
     //bi-directional many-to-one association to DeviceInfo
-    @OneToMany(mappedBy="userDetail")
+    @OneToMany(mappedBy="userDetail",cascade = CascadeType.ALL)
     private List<DeviceInfo> deviceInfos;
 
     public UserDetail() {

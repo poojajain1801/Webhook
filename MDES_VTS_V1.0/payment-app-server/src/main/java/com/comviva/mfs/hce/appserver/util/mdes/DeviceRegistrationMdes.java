@@ -21,13 +21,13 @@ import java.util.Map;
 @Setter
 @Component
 public class DeviceRegistrationMdes {
-    private EnrollDeviceRequest enrollDeviceRequest;
+
 
     /**
      * Registers device with CMS-d.
      * @return Response
      */
-    private String registerDeviceWithCMSD() {
+    private String registerDeviceWithCMSD(EnrollDeviceRequest enrollDeviceRequest) {
         HttpClint httpClint = new HttpClintImpl();
         JSONObject jsonRegDevice = new JSONObject();
         MdesDeviceRequest mdesDeviceRequest = enrollDeviceRequest.getMdes();
@@ -53,9 +53,9 @@ public class DeviceRegistrationMdes {
      * Register device with CMS-d.
      * @return Response
      */
-    public DeviceRegistrationResponse registerDevice() {
+    public DeviceRegistrationResponse registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         // Register device with CMS-d
-        String response = registerDeviceWithCMSD();
+        String response = registerDeviceWithCMSD(enrollDeviceRequest);
         JSONObject jsonResponse = new JSONObject(response);//.getJSONObject("response");
         String responseCode = jsonResponse.getString("responseCode");
         Map responseMap;
@@ -84,7 +84,7 @@ public class DeviceRegistrationMdes {
      * @return <code>true </code>Device is eligible <br/>
      *         <code>false </code>Not eligible
      */
-    public boolean checkDeviceEligibility() {
+    public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest) {
         HttpRestHandeler httpRestHandeler = new HttpRestHandelerImpl();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("responseHost", "paymentapp-server");

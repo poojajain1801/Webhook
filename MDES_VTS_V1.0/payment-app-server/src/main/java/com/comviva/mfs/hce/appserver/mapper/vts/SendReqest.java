@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -17,21 +19,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
+@Component
 public class SendReqest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendReqest.class);
+    @Autowired
     HCEControllerSupport hceControllerSupport;
 
     @Autowired
     protected Environment env;
 
-    public SendReqest(Environment env) {
-        this.env = env;
-    }
+
 
     public JSONObject postHttpRequest(byte[] requestData, String url, JSONObject header) {
 
-        hceControllerSupport = new HCEControllerSupport();
         int responseCode = -1;
         String responseBody = null;
         JSONObject responseJson =null;
@@ -91,8 +91,8 @@ public class SendReqest {
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
                 responseJson = new JSONObject(responseBody);
-                responseJson.put("statusCode", HCEMessageCodes.SUCCESS);
-                responseJson.put("statusMessage",hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.SUCCESS);
+                responseJson.put(HCEConstants.STATUS_MESSAGE,hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -101,8 +101,8 @@ public class SendReqest {
                 //failure
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
                 responseJson = new JSONObject(responseBody);
-                responseJson.put("statusCode",responseCode);
-                responseJson.put("statusMessage",responseJson.getJSONObject("errorResponse").get("message"));
+                responseJson.put(HCEConstants.STATUS_CODE,responseCode);
+                responseJson.put(HCEConstants.STATUS_MESSAGE,responseJson.getJSONObject("errorResponse").get("message"));
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);

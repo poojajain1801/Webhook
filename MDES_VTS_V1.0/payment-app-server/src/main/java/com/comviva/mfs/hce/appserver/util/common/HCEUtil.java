@@ -7,6 +7,7 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -100,17 +102,17 @@ public class HCEUtil {
      */
     public static String getJsonStringFromMap(Map<String, Object> responseMap) {
         String response;
-        //JSONObject job = null;
-        //job=new JSONObject(responseMap);
-        //response = job.toString();
-        Gson gson = new Gson() ;
-        response = gson.toJson(responseMap);
+        JSONObject job = null;
+        job=new JSONObject(responseMap);
+        response = job.toString();
+        //Gson gson = new Gson() ;
+        //response = gson.toJson(responseMap);
         return response;
     }
 
     public static String generateRandomId(String prefix) throws NoSuchAlgorithmException {
         return prefix + (new SimpleDateFormat("yyMMdd").format(new Date()))+ (new SimpleDateFormat("HHmm").format(new Date()))
-                + generateRandomValue(12);
+                + ArrayUtil.getRandom(12);
     }
 
     /**

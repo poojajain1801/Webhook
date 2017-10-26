@@ -19,7 +19,9 @@
             </column>
             <column name="STATUS" type="VARCHAR2(255)"/>
 
-            <column name="ACTIVATION_CODE" type="VARCHAR2(255)"/>
+            <column name="ACTIVATION_CODE" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
             <column name="CREATED_ON" type="Timestamp(6)">
                 <constraints nullable="true"/>
             </column>

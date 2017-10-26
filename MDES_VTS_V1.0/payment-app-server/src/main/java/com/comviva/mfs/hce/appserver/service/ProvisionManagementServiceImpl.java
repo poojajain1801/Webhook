@@ -3,7 +3,6 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
@@ -11,12 +10,10 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
-import com.comviva.mfs.hce.appserver.util.vts.CreateChannelSecurityContext;
-import com.comviva.mfs.hce.appserver.util.vts.ValidateUser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.json.JSONArray;
@@ -30,9 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
 
@@ -146,15 +141,15 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
     public Map<String, Object> ProvisionTokenWithPanData (ProvisionTokenWithPanDataRequest provisionTokenWithPanDataRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(provisionTokenWithPanDataRequest.getUserId()))) {
+
+
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(provisionTokenWithPanDataRequest.getUserId(), HCEConstants.ACTIVE);
+        if(userDetails == null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
             return response;
         }
-        boolean checkUserStatus = userDetailService.getUserstatus(provisionTokenWithPanDataRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
+
+
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("encryptionMetaData", provisionTokenWithPanDataRequest.getEncryptionMetaData());
         map.add("clientAppID", provisionTokenWithPanDataRequest.getClientAppID());
@@ -443,15 +438,14 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
     }
     public Map<String, Object> submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(submitIDandVStepupMethodRequest.getUserId()))) {
+
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(submitIDandVStepupMethodRequest.getUserId(),HCEConstants.ACTIVE);
+        if(userDetails== null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
             return response;
         }
-        boolean checkUserStatus = userDetailService.getUserstatus(submitIDandVStepupMethodRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
-            return response;
-        }
+
+
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("vProvisionedTokenID", submitIDandVStepupMethodRequest.getVProvisionedTokenID());
         map.add("stepUpRequestID", submitIDandVStepupMethodRequest.getStepUpRequestID());
@@ -478,13 +472,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
     public Map<String, Object> validateOTP(ValidateOTPRequest validateOTPRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(validateOTPRequest.getUserId()))) {
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(validateOTPRequest.getUserId(),HCEConstants.ACTIVE);
+        if(userDetails== null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(validateOTPRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
             return response;
         }
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
@@ -513,13 +503,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
     public Map<String, Object> validateAuthenticationCode(ValidateAuthenticationCodeRequest validateAuthenticationCodeRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(validateAuthenticationCodeRequest.getUserId()))) {
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(validateAuthenticationCodeRequest.getUserId(),HCEConstants.ACTIVE);
+        if(userDetails== null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(validateAuthenticationCodeRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
             return response;
         }
 
@@ -549,13 +535,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
     public Map<String, Object> getStepUpOptions(GetStepUpOptionsRequest getStepUpOptionsRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(getStepUpOptionsRequest.getUserId()))) {
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(getStepUpOptionsRequest.getUserId(),HCEConstants.ACTIVE);
+        if(userDetails== null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(getStepUpOptionsRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
             return response;
         }
         MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();

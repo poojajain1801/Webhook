@@ -1,13 +1,11 @@
 package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateUserRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
@@ -74,10 +71,10 @@ public class UserDetailServiceImpl implements UserDetailService {
                 throw new HCEActionException(HCEMessageCodes.CLIENT_DEVICEID_EXIST);
             }
 
-            userDetails = userDetailRepository.findByUserIdandStatus(userId,HCEConstants.ACTIVE);
+            userDetails = userDetailRepository.findByUserIdAndStatus(userId,HCEConstants.ACTIVE);
             if(userDetails!=null && !userDetails.isEmpty()){
                 userDetail = userDetails.get(0);
-                deviceInfos = deviceDetailRepository.findByImeiandStatus(imei,HCEConstants.ACTIVE);
+                deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
                     if(userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
@@ -88,7 +85,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                         deviceInfo.setStatus(HCEConstants.INACTIVE);
                         deviceDetailRepository.save(deviceInfo);
                         updateUserStatusIfOneDeviceIsLinked(deviceInfo);
-                        deviceInfos = saveDeviceInfo(registerUserRequest);
+                        deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                         userDetail.setDeviceInfos(deviceInfos);
                         userDetailRepository.save(userDetail);
                         // Register New Device
@@ -96,7 +93,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     }
                 }else{
 
-                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                     userDetail.setDeviceInfos(deviceInfos);
                     userDetailRepository.save(userDetail);
                     //Register Device
@@ -105,7 +102,7 @@ public class UserDetailServiceImpl implements UserDetailService {
 
             }else{
 
-                deviceInfos = deviceDetailRepository.findByImeiandStatus(imei,HCEConstants.ACTIVE);
+                deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
                     deactivateDevice(deviceInfo);
@@ -113,7 +110,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo);
                     updateUserStatusIfOneDeviceIsLinked(deviceInfo);
                     userDetail = saveUserDetails(registerUserRequest);
-                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                     userDetail.setDeviceInfos(deviceInfos);
                     userDetailRepository.save(userDetail);
 
@@ -123,9 +120,9 @@ public class UserDetailServiceImpl implements UserDetailService {
                 }else{
 
                     userDetail = saveUserDetails(registerUserRequest);
-                    deviceInfos = saveDeviceInfo(registerUserRequest);
+                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                     userDetail.setDeviceInfos(deviceInfos);
-                    userDetailRepository.save(userDetail);
+                    userDetailRepository.saveAndFlush(userDetail);
                     // RegisterUser and Register Device
 
                 }
@@ -158,7 +155,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         userDetail.setUserId(registerUserRequest.getUserId());
         return userDetail;
     }
-    private List<DeviceInfo> saveDeviceInfo(RegisterUserRequest registerUserRequest){
+    private List<DeviceInfo> saveDeviceInfo(RegisterUserRequest registerUserRequest,UserDetail userDetail){
         DeviceInfo deviceInfo = new DeviceInfo();
         List<DeviceInfo> deviceInfoList = new ArrayList<DeviceInfo>();
         deviceInfo.setStatus(HCEConstants.INITIATE);
@@ -169,6 +166,8 @@ public class UserDetailServiceImpl implements UserDetailService {
         deviceInfo.setOsName(registerUserRequest.getOs_name());
         deviceInfo.setImei(registerUserRequest.getImei());
         deviceInfo.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+       // deviceInfo.getUserDetail().setClientWalletAccountId(userDetail.getClientWalletAccountId());
+        deviceInfo.setUserDetail(userDetail);
         deviceInfoList.add(deviceInfo);
         return deviceInfoList;
 
@@ -189,7 +188,7 @@ public class UserDetailServiceImpl implements UserDetailService {
 
 
     public boolean isClientDeviceIdExist(String clientDeviceId){
-        List<DeviceInfo> deviceInfoList = deviceDetailRepository.findByClientDeviceIdandStatus(clientDeviceId,HCEConstants.ACTIVE);
+        List<DeviceInfo> deviceInfoList = deviceDetailRepository.findByClientDeviceIdAndStatus(clientDeviceId,HCEConstants.ACTIVE);
         if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
             return true;
         }else{
@@ -220,8 +219,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         responseMap = ImmutableMap.of(
                 HCEConstants.RESPONSE_CODE, responseCode,
                 HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(responseCode),
-                HCEConstants.USER_DETAILS, userDetail,
-                HCEConstants.ACTIVATION_CODE, activationCode);
+                HCEConstants.CLIENT_WALLET_ACCOUNT_ID, userDetail.getClientWalletAccountId());
         return responseMap;
     }
 }

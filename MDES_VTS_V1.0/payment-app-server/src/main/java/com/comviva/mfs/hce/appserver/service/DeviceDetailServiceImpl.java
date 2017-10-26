@@ -2,7 +2,6 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.controller.UserRegistrationController;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
@@ -10,14 +9,13 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
-import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import org.json.JSONObject;
@@ -29,16 +27,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
  */
 @Service
 public class DeviceDetailServiceImpl implements DeviceDetailService {
+
     private final DeviceDetailRepository deviceDetailRepository;
     private final UserDetailService userDetailService;
     private final UserDetailRepository userDetailRepository;
@@ -78,11 +74,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         try {
 
             LOGGER.debug("Enter DeviceDetailServiceImpl->registerDevice");
-            List<UserDetail> userDetails = userDetailRepository.findByUserIdandStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
+            List<UserDetail> userDetails = userDetailRepository.findByUserIdAndStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
 
             if(userDetails!=null && !userDetails.isEmpty()){
                 userDetail = userDetails.get(0);
-                List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdandStatus(enrollDeviceRequest.getClientDeviceID(),HCEConstants.INITIATE);
+                List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdAndStatus(enrollDeviceRequest.getClientDeviceID(),HCEConstants.INITIATE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
@@ -101,18 +97,18 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             // *********************MDES : Check device eligibility from MDES api.************************
             // MDES : Check device eligibility from MDES api.
             //JSONObject mdesResponse=new JSONObject();
-            deviceRegistrationMdes.setEnrollDeviceRequest(enrollDeviceRequest);
-            isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility();
+           // deviceRegistrationMdes.setEnrollDeviceRequest(enrollDeviceRequest);
+            isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
 
 
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
-                devRegRespMdes = deviceRegistrationMdes.registerDevice();
-                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString();
+                devRegRespMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
+                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.STATUS_CODE).toString();
                 // If registration fails for MDES return error
                 if (!HCEMessageCodes.SUCCESS.equalsIgnoreCase(respCodeMdes)) {
-                    mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString());
-                    mdesRespMap.put(HCEConstants.MDES_MESSAGE, devRegRespMdes.getResponse().get(HCEConstants.MESSAGE).toString());
+                    mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.STATUS_CODE).toString());
+                    mdesRespMap.put(HCEConstants.MDES_MESSAGE, devRegRespMdes.getResponse().get(HCEConstants.STATUS_MESSAGE).toString());
                     response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.DEVICE_REGISTRATION_FAILED);
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                     response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
@@ -124,6 +120,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
                     deviceInfo.setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
                     deviceInfo.setIsMastercardEnabled(HCEConstants.ACTIVE);
+                    deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     deviceDetailRepository.save(deviceInfo);
                 }
 
@@ -138,13 +135,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             }
             // *******************VTS : Register with VTS Start**********************
-
-            enrollDeviceVts.setEnrollDeviceRequest(enrollDeviceRequest);
-            String vtsResp = enrollDeviceVts.register(vClientID);
+            String vtsResp = enrollDeviceVts.register(vClientID,enrollDeviceRequest);
             JSONObject vtsJsonObject = new JSONObject(vtsResp);
-            if (!vtsJsonObject.get(HCEConstants.RESPONSE_CODE).equals(HCEMessageCodes.SUCCESS)) {
-                vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.MESSAGE));
-                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.RESPONSE_CODE));
+            if (!vtsJsonObject.get(HCEConstants.STATUS_CODE).equals(HCEMessageCodes.SUCCESS)) {
+                vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.STATUS_MESSAGE));
+                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.STATUS_CODE));
                 response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.DEVICE_REGISTRATION_FAILED);
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
@@ -152,6 +147,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsResp);
                 deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                 deviceInfo.setVClientId(vClientID);
+                deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 deviceDetailRepository.save(deviceInfo);
                 response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.SUCCESS);
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");

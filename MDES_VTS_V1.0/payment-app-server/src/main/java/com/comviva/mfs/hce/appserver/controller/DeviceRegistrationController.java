@@ -34,9 +34,6 @@ public class DeviceRegistrationController {
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
 
-    public DeviceRegistrationController(DeviceDetailService deviceDetailService) {
-        this.deviceDetailService = deviceDetailService;
-    }
     @ResponseBody
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
 
@@ -64,7 +61,7 @@ public class DeviceRegistrationController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
+    @RequestMapping(value = "/deRegister", method = RequestMethod.POST)
 
     public Map<String,Object> unRegister(@RequestBody String unRegisterReq, HttpServletRequest httpRequest) {
 

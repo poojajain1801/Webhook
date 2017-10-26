@@ -154,8 +154,8 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     private String getRnsRegId(String vProvisionedID)
     {
         String userName = visaCardDetailRepository.findByVProvisionedTokenId(vProvisionedID).get().getUserName();
-        String clintDeviceId = userDetailRepository.findByUserName(userName).get().getClientDeviceId();
-        String rnsRegID = deviceDetailRepository.findByClientDeviceId(clintDeviceId).get().getRnsRegistrationId();
+       // String clintDeviceId = userDetailRepository.findByUserName(userName).get().getClientDeviceId();
+        String rnsRegID = deviceDetailRepository.findByClientDeviceId("12121212").get().getRnsRegistrationId();
         return rnsRegID;
     }
 

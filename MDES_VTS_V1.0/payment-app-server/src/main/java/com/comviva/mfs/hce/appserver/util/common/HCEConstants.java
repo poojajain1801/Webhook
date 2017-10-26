@@ -63,5 +63,16 @@ public class HCEConstants {
     public static final String VISA_FINAL_MESSAGE = "visaFinalMessage";
     /** The Constant VTS_RESPONSE_MAP. */
     public static final String VTS_RESPONSE_MAP = "vts";
+    /** The Constant STATUS_CODE. */
+    public static final String STATUS_CODE = "statusCode";
+    /** The Constant STATUS_MESSAGE. */
+    public static final String STATUS_MESSAGE = "statusMessage";
+
+    /** The Constant CLIENT_WALLET_ACCOUNT_ID. */
+    public static final String CLIENT_WALLET_ACCOUNT_ID = "clientWalletAccountId";
+
+
+
+
 
 }

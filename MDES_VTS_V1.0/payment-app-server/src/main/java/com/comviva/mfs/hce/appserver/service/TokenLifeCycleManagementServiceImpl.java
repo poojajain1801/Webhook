@@ -1,14 +1,13 @@
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
-import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.ServiceDataRepository;
+import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,21 +34,20 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
     private Environment env;
     private final UserDetailService userDetailService;
     private final HCEControllerSupport hceControllerSupport;
+    private final UserDetailRepository userDetailRepository;
 
     @Autowired
-    public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport) {
+    public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport,UserDetailRepository userDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
         this.userDetailService = userDetailService;
+        this.userDetailRepository = userDetailRepository;
     }
 
     public Map<String, Object> getPaymentDataGivenTokenID (GetPaymentDataGivenTokenIDRequest getPaymentDataGivenTokenIDRequest) {
-        if ((!userDetailService.checkIfUserExistInDb(getPaymentDataGivenTokenIDRequest.getUserId()))) {
+
+        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(getPaymentDataGivenTokenIDRequest.getUserId(), HCEConstants.ACTIVE);
+        if(userDetails == null){
             Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        boolean checkUserStatus = userDetailService.getUserstatus(getPaymentDataGivenTokenIDRequest.getUserId()).equalsIgnoreCase("userActivated");
-        if (!checkUserStatus) {
-            Map <String, Object> response =ImmutableMap.of("message", "User is not active", "responseCode", "207");
             return response;
         }
         ObjectMapper objectMapper = new ObjectMapper();

@@ -24,6 +24,9 @@ public class ValidateUser {
     }
 
     public Map<String,Object> validate(String clientDeviceID, List<UserDetail> userDetails, List<DeviceInfo> deviceInfo) {
+
+
+        /*
         Map<String,Object> result=new HashMap();
         if ((null==userDetails || userDetails.isEmpty()) || (null==deviceInfo || deviceInfo.isEmpty())) {
             result.put("message", "Invalid User please register");
@@ -49,5 +52,8 @@ public class ValidateUser {
             result.put("responseCode", "205");
             return result;
         }
+    */
+        return new HashMap();
+
     }
 }

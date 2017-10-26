@@ -78,37 +78,37 @@ public class HCEMessageCodes {
     /** The Constant USER_NOT_ACTIVE. */
     public static String INVALID_USER ;
     @Value("${INVALID_USER}")
-    public static String getInvalidUser() {
-        return INVALID_USER;
+    public void setInvalidUser(String invalidUser) {
+         INVALID_USER = invalidUser;
     }
 
     /** The Constant INVALID_OPERATION. */
     public static String INVALID_OPERATION;
     @Value("${INVALID_OPERATION}")
-    public static String getInvalidOperation() {
-        return INVALID_OPERATION;
+    public void setInvalidOperation(String invalidOperation){
+        INVALID_OPERATION = invalidOperation;
     }
 
 
     /** The Constant CLIENT_DEVICEID_EXIST. */
     public static String CLIENT_DEVICEID_EXIST;
     @Value("${CLIENT_DEVICEID_EXIST}")
-    public static String getClientDeviceidExist() {
-        return CLIENT_DEVICEID_EXIST;
+    public void setClientDeviceidExist(String clientDeviceidExist) {
+         CLIENT_DEVICEID_EXIST = clientDeviceidExist;
     }
 
     /** The Constant INVALID_CLIENT_DEVICE_ID. */
     public static String INVALID_CLIENT_DEVICE_ID;
     @Value("${INVALID_CLIENT_DEVICE_ID}")
-    public static String getInvalidClientDeviceId() {
-        return INVALID_CLIENT_DEVICE_ID;
+    public void setInvalidClientDeviceId(String invalidClientDeviceId) {
+         INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
     }
 
     /** The Constant VISA_FINAL_CODE. */
     public static String DEVICE_REGISTRATION_FAILED;
     @Value("${DEVICE_REGISTRATION_FAILED}")
-    public static String getDeviceRegistrationFailed() {
-        return DEVICE_REGISTRATION_FAILED;
+    public void setDeviceRegistrationFailed(String deviceRegistrationFailed) {
+        DEVICE_REGISTRATION_FAILED= deviceRegistrationFailed;
     }
 
 
