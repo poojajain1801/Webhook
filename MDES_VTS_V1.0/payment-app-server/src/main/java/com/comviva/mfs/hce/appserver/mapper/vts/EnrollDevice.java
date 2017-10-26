@@ -179,6 +179,7 @@ public class EnrollDevice extends VtsRequest {
         certMetaData.setNotBefore(currentTimeInMilli);
         certMetaData.setNotAfter(currentTimeInMilli + CERTIFICATE_EXPIRY_DURATION);
         certMetaData.setSubject(new X500Name("CN=Device Certificate"));
+
         DeviceKeyPair devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
         DeviceKeyPair devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
 

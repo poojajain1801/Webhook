@@ -73,12 +73,14 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                 case HCEConstants.KEY_STATUS_UPDATED:
                     //Send remote notification to start replinish operation
                     lcmNotificationData.put(HCEConstants.OPERATION, HCEConstants.KEY_STATUS_UPDATED);
+                    //TODO:Update card Status
                     break;
                 default:
                     //return invalid event Type
 
 
             }
+
             rnsGenericRequest.setRnsData(lcmNotificationData);
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
             if (rnsResp.containsKey("errorCode")) {

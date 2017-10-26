@@ -41,7 +41,7 @@ public class SendReqest {
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
-                String username = env.getProperty("username");
+                String username = "tanmay.patel";
                 String password = env.getProperty("password");
 
                 System.setProperty("http.proxyHost", proxyip);
@@ -103,14 +103,26 @@ public class SendReqest {
             } else {
                 //failure
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
-                response = new JSONObject(responseBody);
-                responseJson.put("response",response);
-                responseJson.put("statusCode",responseCode);
-                responseJson.put("statusMessage",response.getJSONObject("errorResponse").get("message"));
+                LOGGER.debug("Resister Device response = "+responseBody);
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
-                LOGGER.debug("Enroll device https response = " + responseBody);
+
+                response = new JSONObject(responseBody);
+                responseJson.put("response",response);
+                responseJson.put("statusCode",responseCode);
+                if(response.has("errorResponse")) {
+                    responseJson.put("statusMessage", response.getJSONObject("errorResponse").get("message"));
+                }
+                else if(response.has("responseStatus")){
+                    responseJson.put("statusMessage", response.getJSONObject("responseStatus").get("message"));
+                }
+                else
+                {
+                    responseJson.put("statusMessage","Unknown");
+                }
+
+              //  LOGGER.debug("Enroll device https response = " + responseBody);
 
             }
         } catch (IOException ioe) {
