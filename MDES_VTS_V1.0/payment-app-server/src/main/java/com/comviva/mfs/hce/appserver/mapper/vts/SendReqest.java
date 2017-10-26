@@ -1,11 +1,15 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -16,19 +20,38 @@ import java.util.Map;
 
 public class SendReqest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendReqest.class);
-    public String postHttpRequest(byte[] requestData, String url, JSONObject header) {
+    HCEControllerSupport hceControllerSupport;
 
+    @Autowired
+    protected Environment env;
+
+    public SendReqest(Environment env) {
+        this.env = env;
+    }
+
+    public JSONObject postHttpRequest(byte[] requestData, String url, JSONObject header) {
+
+        hceControllerSupport = new HCEControllerSupport();
         int responseCode = -1;
         String responseBody = null;
+        JSONObject responseJson =null;
         try {
-            System.setProperty("http.proxyHost", "172.19.1.240");
-            System.setProperty("http.proxyPort", "3128");
-            System.setProperty("http.proxyUser", "tanmay.patel");
-            System.setProperty("http.proxyPassword", "them0ther@@");
-            System.setProperty("https.proxyHost", "172.19.1.240");
-            System.setProperty("https.proxyPort", "3128");
-            System.setProperty("https.proxyUser", "tanmay.patel");
-            System.setProperty("https.proxyPassword", "them0ther@@");
+
+            if(env.getProperty("is.proxy.required").equals("Y")) {
+                String proxyip = env.getProperty("proxyip");
+                String proxyport = env.getProperty("proxyport");
+                String username = env.getProperty("username");
+                String password = env.getProperty("password");
+
+                System.setProperty("http.proxyHost", proxyip);
+                System.setProperty("http.proxyPort", proxyport);
+                System.setProperty("http.proxyUser", username);
+                System.setProperty("http.proxyPassword", password);
+                System.setProperty("https.proxyHost", proxyip);
+                System.setProperty("https.proxyPort", proxyport);
+                System.setProperty("https.proxyUser", username);
+                System.setProperty("https.proxyPassword",password);
+            }
 
 
             byte[] postData = requestData;
@@ -39,10 +62,6 @@ public class SendReqest {
             //set timeputs to 10 seconds
             httpsURLConnection.setConnectTimeout(10000);
             httpsURLConnection.setReadTimeout(10000);
-            //headers.add("Accept-Encoding","deflate");
-            //headers.add("Host","sandbox.digital.visa.com");
-            // headers.add("Connection","Keep-Alive");
-            //headers.add("User-Agent", "Apache-HttpClient/4.1.1");
             String xpaytoken =  generateXPayToken(header);
             String requestId = (String) header.get("xRequestId");
 
@@ -60,8 +79,6 @@ public class SendReqest {
             httpsURLConnection.setRequestProperty("Host","sandbox.digital.visa.com");
             httpsURLConnection.setRequestProperty("Connection","Keep-Alive");
             httpsURLConnection.setRequestProperty("User-Agent", "Apache-HttpClient/4.1.1");
-         //   httpsURLConnection.setRequestProperty("Content-Language", "en-US");
-         //   httpsURLConnection.setRequestProperty("X-Content-Type-Options", "nosniff");
             httpsURLConnection.setRequestProperty("x-request-id", requestId);
             httpsURLConnection.setRequestProperty("x-pay-token", xpaytoken);
             httpsURLConnection.setRequestProperty("Content-Length", String.valueOf(header.get("requestBody").toString().getBytes("UTF-8").length));
@@ -73,6 +90,9 @@ public class SendReqest {
             //success
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
+                responseJson = new JSONObject(responseBody);
+                responseJson.put("statusCode", HCEMessageCodes.SUCCESS);
+                responseJson.put("statusMessage",hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -80,11 +100,14 @@ public class SendReqest {
             } else {
                 //failure
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
+                responseJson = new JSONObject(responseBody);
+                responseJson.put("statusCode",responseCode);
+                responseJson.put("statusMessage",responseJson.getJSONObject("errorResponse").get("message"));
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
                 LOGGER.debug("Enroll device https response = " + responseBody);
-                //System.out.println("Sending FCM request failed for regId: " + deviceRegistrationId + " response: " + responseBody);
+
             }
         } catch (IOException ioe) {
             //System.out.println("IO Exception in sending FCM request. regId: " + deviceRegistrationId);
@@ -93,7 +116,7 @@ public class SendReqest {
             //System.out.println("Unknown exception in sending FCM request. regId: " + deviceRegistrationId);
             e.printStackTrace();
         }
-        return responseBody;
+        return responseJson;
     }
 
     public String convertStreamToString(InputStream inStream) throws Exception {

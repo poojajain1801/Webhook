@@ -1,11 +1,13 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
+import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import com.visa.cbp.encryptionutils.common.CertMetaData;
 import com.visa.cbp.encryptionutils.common.DeviceKeyPair;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
@@ -45,12 +47,16 @@ import java.util.List;
 
 @Setter
 public class EnrollDevice extends VtsRequest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDevice.class);
-
     private String vClientID;
+    // private String apiKey;
+    //private String clientDeviceID;
     private DevicePersoData devicePersoData;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnrollDevice.class);
+    HCEControllerSupport hceControllerSupport;
+
+
     private ResourceLoader resourceLoader;
+
     private static final long CERTIFICATE_EXPIRY_DURATION = 2l * 365 * 24 * 60 * 60 * 1000l;
 
 
@@ -67,6 +73,7 @@ public class EnrollDevice extends VtsRequest {
      */
     private JSONObject prepareDeviceInfo(VtsDeviceInfoRequest devInfo) {
         LOGGER.debug("Inside EnrollDevice->prepareDeviceInfo");
+
         JSONObject devInfoVts = new JSONObject();
         String deviceName;
         byte[] b64data;
@@ -234,34 +241,41 @@ public class EnrollDevice extends VtsRequest {
                     " ;Request Header\n" + entity.getHeaders().toString() + "\nRequest Body\n" + entity.getBody().toString());
 
             ResponseEntity<String> response = restTemplate.exchange(sandBoxUrl, HttpMethod.PUT, entity, String.class);*/
-           SendReqest sendReqest = new SendReqest();
-            result= sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
-            jsonResponse=new JSONObject();
+           SendReqest sendReqest = new SendReqest(env);
+            jsonResponse= sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
+            /*jsonResponse=new JSONObject();
             jsonResponse.put("statusCode","200");
-            jsonResponse.put("statusMessage","Success");
+            jsonResponse.put("statusMessage","Success");*/
             //result=response.getBody();
-            jsonObject=new JSONObject(result);
-            jsonObject.put("devEncKeyPair",devEncKeyPair.getPrivateKeyHex());
-            jsonObject.put("devEncCertificate",new String(b64EncCert));
-            jsonObject.put("devSignKeyPair",devSignKeyPair.getPrivateKeyHex());
-            jsonObject.put("devSignCertificate",new String(b64SignCert));
+            if (jsonResponse.getInt("statusCode")== HttpStatus.SC_OK) {
+                jsonObject = new JSONObject(result);
+                jsonObject.put("devEncKeyPair", devEncKeyPair.getPrivateKeyHex());
+                jsonObject.put("devEncCertificate", new String(b64EncCert));
+                jsonObject.put("devSignKeyPair", devSignKeyPair.getPrivateKeyHex());
+                jsonObject.put("devSignCertificate", new String(b64SignCert));
 
-            jsonObject.put("vtsCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY.name());
-            jsonObject.put("vtsCerts-vCertificateID-confidentiality",vtsCertificateIDConf);
+                jsonObject.put("vtsCerts-certUsage-confidentiality", CertUsage.CONFIDENTIALITY.name());
+                jsonObject.put("vtsCerts-vCertificateID-confidentiality", vtsCertificateIDConf);
 
-            jsonObject.put("vtsCerts-certUsage-integrity",CertUsage.INTEGRITY.name());
-            jsonObject.put("vtsCerts-vCertificateID-integrity",vtsCertificateIDSign);
+                jsonObject.put("vtsCerts-certUsage-integrity", CertUsage.INTEGRITY.name());
+                jsonObject.put("vtsCerts-vCertificateID-integrity", vtsCertificateIDSign);
 
-            jsonObject.put("deviceCerts-certFormat-confidentiality","X509");
-            jsonObject.put("deviceCerts-certUsage-confidentiality",CertUsage.CONFIDENTIALITY);
-            jsonObject.put("deviceCerts-certValue-confidentiality",new String(b64EncCert));
+                jsonObject.put("deviceCerts-certFormat-confidentiality", "X509");
+                jsonObject.put("deviceCerts-certUsage-confidentiality", CertUsage.CONFIDENTIALITY);
+                jsonObject.put("deviceCerts-certValue-confidentiality", new String(b64EncCert));
 
-            jsonObject.put("deviceCerts-certFormat-integrity","X509");
-            jsonObject.put("deviceCerts-certUsage-integrity",CertUsage.INTEGRITY);
-            jsonObject.put("deviceCerts-certValue-integrity",new String(b64SignCert));
+                jsonObject.put("deviceCerts-certFormat-integrity", "X509");
+                jsonObject.put("deviceCerts-certUsage-integrity", CertUsage.INTEGRITY);
+                jsonObject.put("deviceCerts-certValue-integrity", new String(b64SignCert));
 
 
-            jsonResponse.put("responseBody",jsonObject);
+                jsonResponse.put("responseBody", jsonObject);
+            }
+            else {
+                jsonResponse.put("statusCode",String.valueOf(jsonResponse.getInt("statusCode")));
+                jsonResponse.put("statusMessage",jsonResponse.getString("statusMessage"));
+
+            }
         }catch (Exception e){
             // ((HttpClientErrorException)e).getResponseBodyAsString();
             e.printStackTrace();
