@@ -2,7 +2,6 @@ package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
-import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -19,28 +17,31 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-@Component
+
 public class SendReqest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendReqest.class);
-    @Autowired
     HCEControllerSupport hceControllerSupport;
 
     @Autowired
     protected Environment env;
 
-
+    public SendReqest(Environment env) {
+        this.env = env;
+    }
 
     public JSONObject postHttpRequest(byte[] requestData, String url, JSONObject header) {
 
+        hceControllerSupport = new HCEControllerSupport();
         int responseCode = -1;
         String responseBody = null;
-        JSONObject responseJson =null;
+        JSONObject responseJson = new JSONObject();
+        JSONObject response = null;
         try {
 
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
-                String username = env.getProperty("username");
+                String username = "tanmay.patel";
                 String password = env.getProperty("password");
 
                 System.setProperty("http.proxyHost", proxyip);
@@ -88,11 +89,13 @@ public class SendReqest {
             out.close();
             responseCode = httpsURLConnection.getResponseCode();
             //success
+
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
-                responseJson = new JSONObject(responseBody);
-                responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.SUCCESS);
-                responseJson.put(HCEConstants.STATUS_MESSAGE,hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                response = new JSONObject(responseBody);
+                responseJson.put("response",response);
+                responseJson.put("statusCode", HCEMessageCodes.SUCCESS);
+                responseJson.put("statusMessage","Success");
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -100,13 +103,26 @@ public class SendReqest {
             } else {
                 //failure
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
-                responseJson = new JSONObject(responseBody);
-                responseJson.put(HCEConstants.STATUS_CODE,responseCode);
-                responseJson.put(HCEConstants.STATUS_MESSAGE,responseJson.getJSONObject("errorResponse").get("message"));
+                LOGGER.debug("Resister Device response = "+responseBody);
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
-                LOGGER.debug("Enroll device https response = " + responseBody);
+
+                response = new JSONObject(responseBody);
+                responseJson.put("response",response);
+                responseJson.put("statusCode",responseCode);
+                if(response.has("errorResponse")) {
+                    responseJson.put("statusMessage", response.getJSONObject("errorResponse").get("message"));
+                }
+                else if(response.has("responseStatus")){
+                    responseJson.put("statusMessage", response.getJSONObject("responseStatus").get("message"));
+                }
+                else
+                {
+                    responseJson.put("statusMessage","Unknown");
+                }
+
+              //  LOGGER.debug("Enroll device https response = " + responseBody);
 
             }
         } catch (IOException ioe) {
@@ -133,7 +149,7 @@ public class SendReqest {
 
     protected String generateXPayToken(JSONObject prepareHeaderRequest) {
         String hmacSha256 ="";
-        String sharedSecret = "SldL{6-ruzhvj1}gCIaTgIpb5O#fU@qnEv#is+t2";
+        String sharedSecret = env.getProperty("sharedSecret");
         byte[] bsharedSecret = sharedSecret.getBytes();
         // JSONObject object=new JSONObject(prepareHeaderRequest.get("requestBody"));
         long utcTimestamp = System.currentTimeMillis() / 1000L;

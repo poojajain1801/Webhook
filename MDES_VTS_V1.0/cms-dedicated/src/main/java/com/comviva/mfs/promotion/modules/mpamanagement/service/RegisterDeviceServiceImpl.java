@@ -124,13 +124,13 @@ public class RegisterDeviceServiceImpl implements RegisterDeviceService {
             // 5. Recover Mobile Pin if present
             // Check if mobile pin is available then decrypt it with rgk
             if (null != deviceRegParam.getNewMobilePin()) {
-                mobilePin = MobilePinUtil.decryptPinBlock(ByteArray.of(deviceRegParam.getNewMobilePin()),
-                        deviceRegParam.getPaymentAppInstanceId(), ByteArray.of(rgk)).toHexString();
+                /*mobilePin = MobilePinUtil.decryptPinBlock(ByteArray.of(deviceRegParam.getNewMobilePin()),
+                        deviceRegParam.getPaymentAppInstanceId(), ByteArray.of(rgk)).toHexString();*/
 
                 // TODO verify that pin is in correct format (ISO PIN format 4)
                 //TODO: Encrypt the pin before storing
             }
-        } catch (GeneralSecurityException | McbpCryptoException e) {
+        } catch (GeneralSecurityException e) {
             return  ImmutableMap.of("responseCode", "211", "message", "Failed to recover mobile PIN");
         }
 
