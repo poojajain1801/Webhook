@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -18,20 +20,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class SendReqest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendReqest.class);
+    @Autowired
     HCEControllerSupport hceControllerSupport;
 
     @Autowired
     protected Environment env;
 
-    public SendReqest(Environment env) {
-        this.env = env;
-    }
-
     public JSONObject postHttpRequest(byte[] requestData, String url, JSONObject header) {
-
-        hceControllerSupport = new HCEControllerSupport();
         int responseCode = -1;
         String responseBody = null;
         JSONObject responseJson = new JSONObject();
@@ -41,7 +39,7 @@ public class SendReqest {
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
-                String username = "tanmay.patel";
+                String username = env.getProperty("username");
                 String password = env.getProperty("password");
 
                 System.setProperty("http.proxyHost", proxyip);
@@ -94,8 +92,8 @@ public class SendReqest {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
                 response = new JSONObject(responseBody);
                 responseJson.put("response",response);
-                responseJson.put("statusCode", HCEMessageCodes.SUCCESS);
-                responseJson.put("statusMessage","Success");
+                responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.SUCCESS);
+                responseJson.put(HCEConstants.STATUS_MESSAGE,"Success");
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
@@ -110,16 +108,16 @@ public class SendReqest {
 
                 response = new JSONObject(responseBody);
                 responseJson.put("response",response);
-                responseJson.put("statusCode",responseCode);
+                responseJson.put(HCEConstants.STATUS_CODE,responseCode);
                 if(response.has("errorResponse")) {
                     responseJson.put("statusMessage", response.getJSONObject("errorResponse").get("message"));
                 }
                 else if(response.has("responseStatus")){
-                    responseJson.put("statusMessage", response.getJSONObject("responseStatus").get("message"));
+                    responseJson.put(HCEConstants.STATUS_MESSAGE, response.getJSONObject("responseStatus").get("message"));
                 }
                 else
                 {
-                    responseJson.put("statusMessage","Unknown");
+                    responseJson.put(HCEConstants.STATUS_MESSAGE,"Unknown");
                 }
 
               //  LOGGER.debug("Enroll device https response = " + responseBody);

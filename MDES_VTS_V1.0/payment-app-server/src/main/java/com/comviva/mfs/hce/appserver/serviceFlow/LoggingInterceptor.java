@@ -7,7 +7,6 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +15,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-
-import static com.google.common.collect.ImmutableMap.of;
-import static java.util.Arrays.asList;
 
 @Aspect
 @Order(-2)
@@ -51,11 +47,11 @@ public class LoggingInterceptor {
             responseData = (Map) originalMethod.proceed();
             responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
-                hceControllerSupport.maintainAudiTrail(null,methodName.toUpperCase(),responseCode,requestData,HCEUtil.getJsonStringFromMap(responseData));
+                hceControllerSupport.maintainAudiTrail(null,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
             }
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
-            HCEUtil.writeHCELog(totalTime,responseCode,null,requestData,HCEUtil.getJsonStringFromMap(responseData));
+            HCEUtil.writeHCELog(totalTime,responseCode,null,requestData, HCEUtil.getJsonStringFromMap(responseData));
         } catch (Exception e) {
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", e);
             responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);

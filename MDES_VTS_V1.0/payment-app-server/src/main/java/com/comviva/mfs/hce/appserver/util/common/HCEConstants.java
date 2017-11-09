@@ -19,6 +19,11 @@ public class HCEConstants {
     public static final String ACTIVE = "Y";
     /** The Constant INACTIVE. */
     public static final String INACTIVE = "N";
+
+    /** The Constant SUSUPEND. */
+    public static final String SUSUPEND = "S";
+
+
     /** The Constant INITIATE. */
     public static final String INITIATE = "I";
        /** The Constant CHANGE_DEVICE. */
@@ -71,8 +76,55 @@ public class HCEConstants {
     /** The Constant CLIENT_WALLET_ACCOUNT_ID. */
     public static final String CLIENT_WALLET_ACCOUNT_ID = "clientWalletAccountId";
 
+    /** The Constant CLIENT_WALLET_ACCOUNT_ID. */
+    public static final String CARD_PREFIX = "PI";
 
 
+    /** The Constant CARD_ID. */
+    public static final String CARD_ID = "cardId";
+    /** The Constant CARD_IDENTIFIER. */
+    public static final String CARD_IDENTIFIER = "cardIdentifier";
+    /** The Constant CARD_SUFFIX. */
+    public static final String CARD_SUFFIX = "cardSuffix";
+    /** The Constant CARD_TYPE. */
+    public static final String CARD_TYPE = "cardType";
+    /** The Constant PAN_UNIQUE_REFERENCE. */
+    public static final String PAN_UNIQUE_REFERENCE = "panUniqueReference";
+    /** The Constant STATUS. */
+    public static final String STATUS = "status";
+    /** The Constant REPLENISH_ON. */
+    public static final String REPLENISH_ON = "replenishOn";
+    /** The Constant TOKEN_SUFFIX. */
+    public static final String TOKEN_SUFFIX = "tokenSuffix";
+    /** The Constant CLIENT_DEVICE_ID. */
+    public static final String CLIENT_DEVICE_ID = "clientDeviceId";
+    /** The Constant CREATED_ON. */
+    public static final String CREATED_ON = "createdOn";
+    /** The Constant DEVICE_MODEL. */
+    public static final String DEVICE_MODEL = "deviceModel";
+    /** The Constant HOST_DEVICE_ID. */
+    public static final String HOST_DEVICE_ID = "hostDeviceId";
+    /** The Constant IMEI. */
+    public static final String IMEI = "imei";
+    /** The Constant IS_MASTER_CARD_ENABLED. */
+    public static final String IS_MASTER_CARD_ENABLED = "isMasterCardEnabled";
+
+    /** The Constant IS_VISA_ENABLED. */
+    public static final String IS_VISA_ENABLED = "isVisaEnabled";
+    /** The Constant MODIFIED_ON. */
+    public static final String MODIFIED_ON = "modifiedOn";
+    /** The Constant NFC_CAPABLE. */
+    public static final String NFC_CAPABLE = "nfcCapable";
+    /** The Constant OS_NAME. */
+    public static final String OS_NAME = "osName";
+
+    /** The Constant OS_VERSION. */
+    public static final String OS_VERSION = "osVersion";
+
+    /** The Constant USER_ID. */
+    public static final String USER_ID = "userId";
+    /** The Constant CARD_DETAILS_LIST. */
+    public static final String CARD_DETAILS_LIST = "cardDetailsList";
 
 
 }

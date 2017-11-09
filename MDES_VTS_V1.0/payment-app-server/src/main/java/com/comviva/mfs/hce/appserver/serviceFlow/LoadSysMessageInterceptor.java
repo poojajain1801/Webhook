@@ -17,8 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-import static com.google.common.collect.ImmutableMap.of;
-
 @Aspect
 @Order(-1)
 @Component
@@ -45,7 +43,11 @@ public class LoadSysMessageInterceptor {
             responseData = (Map) originalMethod.proceed();
             responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
             responseMessage = (String)responseData.get(HCEConstants.MESSAGE);
-            if(responseMessage == null){
+            if(responseMessage == null && responseCode!= null){
+                responseMessageMap = hceControllerSupport.formResponse(responseCode);
+                responseMessageMap.putAll(responseData);
+            }else if(responseCode == null ){
+                responseCode = HCEMessageCodes.SUCCESS;
                 responseMessageMap = hceControllerSupport.formResponse(responseCode);
                 responseMessageMap.putAll(responseData);
             }else{

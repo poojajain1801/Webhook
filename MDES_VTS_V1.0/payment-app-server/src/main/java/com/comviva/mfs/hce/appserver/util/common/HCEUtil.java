@@ -19,10 +19,7 @@ import java.security.SecureRandom;
 import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by shadab.ali on 22-08-2017.
@@ -33,6 +30,8 @@ public class HCEUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     private static SecureRandom secureRandom = null;
+    private static final String ALPHA_NUMERIC_CHARACTERS= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static SecureRandom srnd = null;
     @Autowired
     private CommonRepository commonRepository;
 
@@ -112,7 +111,20 @@ public class HCEUtil {
 
     public static String generateRandomId(String prefix) throws NoSuchAlgorithmException {
         return prefix + (new SimpleDateFormat("yyMMdd").format(new Date()))+ (new SimpleDateFormat("HHmm").format(new Date()))
-                + ArrayUtil.getRandom(12);
+                + generateAlphanumericRandomNumber(12);
+    }
+
+
+    public static String generateAlphanumericRandomNumber(int length){
+
+        if(srnd ==null){
+            srnd = new SecureRandom();
+        }
+        StringBuilder sb = new StringBuilder( length );
+        for( int i = 0; i < length; i++ )
+            sb.append( ALPHA_NUMERIC_CHARACTERS.charAt( srnd.nextInt(ALPHA_NUMERIC_CHARACTERS.length()) ) );
+        return sb.toString().toUpperCase();
+
     }
 
     /**
@@ -156,4 +168,5 @@ public class HCEUtil {
     public void setCommonRepository(CommonRepository commonRepository){
         this.commonRepository = commonRepository;
     }
+
 }

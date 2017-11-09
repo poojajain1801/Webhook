@@ -111,6 +111,39 @@ public class HCEMessageCodes {
         DEVICE_REGISTRATION_FAILED= deviceRegistrationFailed;
     }
 
+    /** The Constant VISA_FINAL_CODE. */
+    public static String DEVICE_NOT_REGISTERED;
+    @Value("${DEVICE_NOT_REGISTERED}")
+    public void setDeviceNotRegistered(String deviceNotRegistered) {
+        DEVICE_NOT_REGISTERED= deviceNotRegistered;
+    }
+
+
+
+
+    /** The Constant VISA_FINAL_CODE. */
+    public static String CARD_ALREADY_REGISTERED;
+    @Value("${CARD_ALREADY_REGISTERED}")
+    public void setCardAlreadyRegistered(String cardAlreadyRegistered) {
+        CARD_ALREADY_REGISTERED= cardAlreadyRegistered;
+    }
+
+
+    /** The Constant VISA_FINAL_CODE. */
+    public static String UNABLE_TO_PARSE_REQUEST;
+    @Value("${UNABLE_TO_PARSE_REQUEST}")
+    public void setUnableToParseRequest(String unableToParseRequest) {
+        UNABLE_TO_PARSE_REQUEST= unableToParseRequest;
+    }
+
+
+    /** The Constant CARD_DETAILS_NOT_EXIST. */
+    public static String CARD_DETAILS_NOT_EXIST;
+    @Value("${CARD_DETAILS_NOT_EXIST}")
+    public void setCardDetailsNotExist(String cardDetailsNotExist) {
+        CARD_DETAILS_NOT_EXIST= cardDetailsNotExist;
+    }
+
 
 
 
