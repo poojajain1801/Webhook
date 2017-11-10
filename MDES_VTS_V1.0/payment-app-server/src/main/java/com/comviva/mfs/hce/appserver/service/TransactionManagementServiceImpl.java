@@ -19,6 +19,7 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.visa.dmpd.token.JWTUtility;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,15 +68,31 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             if (responseEntity.hasBody()) {
                 String strResponse = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(strResponse);
-                response = JsonUtil.jsonStringToHashMap(strResponse);
+                //response = JsonUtil.jsonStringToHashMap(strResponse);
             } else {
                 response = null;
             }
+            JSONObject decryptedJsonObj = null;
+            Map decArray = null;
+            List<Map<String,Object>> decMapList =null;
+            String decString = null;
             if (responseEntity.getStatusCode().value() == 200) {
-                LOGGER.debug("Exit Exit TransactionManagementServiceImpl->getTransactionHistory");
+
+                JSONArray txnHistory = jsonResponse.getJSONArray("transactionDetails");
+                decMapList = new ArrayList();
+                for (int i=0; i<txnHistory.length();i++)
+                {
+                    decArray = new LinkedHashMap();
+                    decString = txnHistory.getJSONObject(i).getString("encTransactionInfo");
+                    decString = JWTUtility.decryptJwe(decString,env.getProperty("sharedSecret"));
+                 //   decryptedJsonObj = new JSONObject(decString);
+                    decArray.put("txnHistory",decString);
+                    decMapList.add(decArray);
+                }
+                response.put("transactionDetails",decMapList);
                 response.put("responseCode", HCEMessageCodes.SUCCESS);
                 response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
-
+                LOGGER.debug("Exit Exit TransactionManagementServiceImpl->getTransactionHistory");
                 return response;
 
             } else {
@@ -89,9 +106,10 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
 
         }catch (Exception e)
         {
-            LOGGER.debug("Exit TransactionManagementServiceImpl->getTransactionHistory");
+            LOGGER.debug("Exception Occored in  TransactionManagementServiceImpl->getTransactionHistory"+e);
             return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }
     }
+
 
 }

@@ -1,12 +1,11 @@
 package com.comviva.mfs.hce.appserver.model;
 
-
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
+import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 
 import java.io.Serializable;
+import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 
 /**
@@ -65,32 +64,17 @@ public class DeviceInfo implements Serializable {
     @Column(name="V_CLIENT_ID")
     private String vClientId;
 
-    //bi-directional many-to-one association to UserDetail
+    //bi-directional many-to-one association to DeviceInfo
     @ManyToOne
     @JoinColumn(name="CLIENT_WALLET_ACCOUNT_ID")
     private UserDetail userDetail;
 
-    public DeviceInfo() {
-    }
+    //bi-directional many-to-one association to CardDetail
+    @OneToMany(mappedBy="deviceInfo")
+    private List<CardDetails> cardDetails;
 
-    public DeviceInfo(String clientDeviceId, Timestamp createdOn, String deviceModel, String hostDeviceId, String imei, String isMastercardEnabled, String isVisaEnabled, Timestamp modifiedOn, String nfcCapable, String osName, String osVersion, String paymentAppId, String paymentAppInstanceId, String rnsRegistrationId, String status, String vClientId, UserDetail userDetail) {
-        this.clientDeviceId = clientDeviceId;
-        this.createdOn = createdOn;
-        this.deviceModel = deviceModel;
-        this.hostDeviceId = hostDeviceId;
-        this.imei = imei;
-        this.isMastercardEnabled = isMastercardEnabled;
-        this.isVisaEnabled = isVisaEnabled;
-        this.modifiedOn = modifiedOn;
-        this.nfcCapable = nfcCapable;
-        this.osName = osName;
-        this.osVersion = osVersion;
-        this.paymentAppId = paymentAppId;
-        this.paymentAppInstanceId = paymentAppInstanceId;
-        this.rnsRegistrationId = rnsRegistrationId;
-        this.status = status;
-        this.vClientId = vClientId;
-        this.userDetail = userDetail;
+
+    public DeviceInfo() {
     }
 
     public String getClientDeviceId() {
@@ -100,6 +84,7 @@ public class DeviceInfo implements Serializable {
     public void setClientDeviceId(String clientDeviceId) {
         this.clientDeviceId = clientDeviceId;
     }
+
 
     public Timestamp getCreatedOn() {
         return this.createdOn;
@@ -221,12 +206,33 @@ public class DeviceInfo implements Serializable {
         this.vClientId = vClientId;
     }
 
+    public List<CardDetails> getCardDetails() {
+        return this.cardDetails;
+    }
+
+    public void setCardDetails(List<CardDetails> cardDetails) {
+        this.cardDetails = cardDetails;
+    }
+
+    public CardDetails addCardDetail(CardDetails cardDetail) {
+        getCardDetails().add(cardDetail);
+        cardDetail.setDeviceInfo(this);
+
+        return cardDetail;
+    }
+
+    public CardDetails removeCardDetail(CardDetails cardDetail) {
+        getCardDetails().remove(cardDetail);
+        cardDetail.setDeviceInfo(null);
+
+        return cardDetail;
+    }
+
     public UserDetail getUserDetail() {
-        return this.userDetail;
+        return userDetail;
     }
 
     public void setUserDetail(UserDetail userDetail) {
         this.userDetail = userDetail;
     }
-
 }

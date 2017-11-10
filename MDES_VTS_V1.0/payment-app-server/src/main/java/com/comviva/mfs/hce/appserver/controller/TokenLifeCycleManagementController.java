@@ -1,8 +1,12 @@
 package com.comviva.mfs.hce.appserver.controller;
 
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
+import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,8 @@ public class TokenLifeCycleManagementController {
 
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
+    @Autowired
+    private HCEControllerSupport hceControllerSupport;
 
     public TokenLifeCycleManagementController(TokenLifeCycleManagementService tokenLifeCycleManagementService ) {
         this.tokenLifeCycleManagementService=tokenLifeCycleManagementService;
@@ -47,5 +53,35 @@ public class TokenLifeCycleManagementController {
         Map <String,Object> deleteTokenResp =  tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
         LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
         return deleteTokenResp;
+    }
+
+
+
+
+    @ResponseBody
+    @RequestMapping(value = "/getTokenList",method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>getTokenList(@RequestBody String  tokenListRequest){
+
+        Map<String,Object> tokenListResponse = null;
+        GetTokenListRequest tokenListRequestPojo = null;
+        try{
+            LOGGER.debug("Enter TokenLifeCycleManagementController->getTokenList");
+            tokenListRequestPojo =(GetTokenListRequest) hceControllerSupport.requestFormation(tokenListRequest,GetTokenListRequest.class);
+            tokenListResponse = tokenLifeCycleManagementService.getTokenList(tokenListRequestPojo);
+            LOGGER.debug("Exit TokenLifeCycleManagementController->getTokenList");
+        }catch (HCEValidationException registerDeviceValidationException){
+            LOGGER.error("Exception Occured in  TokenLifeCycleManagementController->getTokenList",registerDeviceValidationException);
+            throw registerDeviceValidationException;
+        }catch (HCEActionException regDeviceHCEActionException){
+            LOGGER.error("Exception Occured in TokenLifeCycleManagementController->getTokenList",regDeviceHCEActionException);
+            throw regDeviceHCEActionException;
+        }catch (Exception regDeviceException) {
+            LOGGER.error(" Exception Occured in TokenLifeCycleManagementController->getTokenList", regDeviceException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }
+        return tokenListResponse;
+
+
     }
 }

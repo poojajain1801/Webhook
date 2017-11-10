@@ -12,6 +12,8 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (nul
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Device Id already exist','701','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Device registration failed','702','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Invalid Device Id','703','1');
-
-
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Device not registered','704','1');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card details already registered ','705','1');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Invalid request. Please cross verify the request ','706','1');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card details not exist ','707','1');
 

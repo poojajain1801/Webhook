@@ -17,10 +17,10 @@ public class ActiveAccountManagementReplenishRequest {
     private String mac;
     private String api;
     private String sc;
-    private Array[] tvl;
+    private List tvl;
     private String vprovisionedTokenID;
 
-    public ActiveAccountManagementReplenishRequest(String mac, String api, String sc, Array[] tvl, String vprovisionedTokenID) {
+    public ActiveAccountManagementReplenishRequest(String mac, String api, String sc, List tvl, String vprovisionedTokenID) {
         this.mac = mac;
         this.api = api;
         this.sc = sc;

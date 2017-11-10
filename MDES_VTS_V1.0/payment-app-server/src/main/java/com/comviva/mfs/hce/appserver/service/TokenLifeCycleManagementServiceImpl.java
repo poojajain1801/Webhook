@@ -1,14 +1,19 @@
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -20,8 +25,10 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Madan amgoth on 5/10/2017.
@@ -35,12 +42,15 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
     private final UserDetailService userDetailService;
     private final HCEControllerSupport hceControllerSupport;
     private final UserDetailRepository userDetailRepository;
+    private final CardDetailRepository cardDetailRepository;
+
 
     @Autowired
-    public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport,UserDetailRepository userDetailRepository) {
+    public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport,UserDetailRepository userDetailRepository,CardDetailRepository cardDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
         this.userDetailService = userDetailService;
         this.userDetailRepository = userDetailRepository;
+        this.cardDetailRepository = cardDetailRepository;
     }
 
     public Map<String, Object> getPaymentDataGivenTokenID (GetPaymentDataGivenTokenIDRequest getPaymentDataGivenTokenIDRequest) {
@@ -141,22 +151,44 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         String url = "";
         String resourcePath = "";
         JSONObject jsonResponse = null;
+        String cardStatus = null;
+        List<CardDetails> cardDetailsList = null;
+        CardDetails cardDetails = null;
         try {
+
+            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                cardDetails = cardDetailsList.get(0);
+
+                if(cardDetails.getStatus().equals(HCEConstants.INACTIVE)){
+                    throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                }
+
+
+
+            }else{
+                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+            }
+
+
             switch (lifeCycleManagementVisaRequest.getOperation()) {
                 case "DELETE":
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/delete";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/delete?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/delete" + "?apiKey=" + env.getProperty("apiKey");
+                    cardStatus = HCEConstants.INACTIVE;
                     break;
                 case "SUSPEND":
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/suspend";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/suspend?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/suspend" + "?apiKey=" + env.getProperty("apiKey");
+                    cardStatus = HCEConstants.SUSUPEND;
                     break;
                 case "RESUME":
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/resume";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/resume?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/resume" + "?apiKey=" + env.getProperty("apiKey");
+                    cardStatus = HCEConstants.ACTIVE;
                     break;
                 default:
                     LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
@@ -169,6 +201,9 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
+                cardDetails.setStatus(cardStatus);
+                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                cardDetailRepository.save(cardDetails);
                 return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
             }
             else {
@@ -185,4 +220,101 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }
     }
+    @Transactional
+   public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest) {
+
+        Map<String, Object> responseMap = null;
+        String userId = null;
+        List<UserDetail> userDetailList = null;
+        UserDetail userDetail = null;
+        List<DeviceInfo> deviceInfoList = null;
+        List<DeviceInfo> activeDeviceInfoList = null;
+        DeviceInfo deviceInfo = null;
+        List<CardDetails> cardDetailsList = null;
+        CardDetails cardDetails = null;
+        Map<String,Object> userDetailsMap = null;
+        Map<String,Object> deviceDetailsMap = null;
+        Map<String,Object> cardDetailsMap = null;
+        List<Map<String,Object>> cardDetailsMapList = null;
+        List<Map<String,Object>> deviceDetailsMapList = null;
+        String index = null;
+        String maxRecord = null;
+        int page =0;
+        int size = 0;
+
+        try {
+
+            userId = getTokenListRequest.getUserId();
+
+            index = getTokenListRequest.getIndex();
+            maxRecord = getTokenListRequest.getMaxRecord();
+
+            if(index!=null && !index.isEmpty()){
+                page = Integer.parseInt(index)-1;
+            }
+            if(maxRecord!=null && !maxRecord.isEmpty()){
+                size = Integer.parseInt(maxRecord);
+            }
+
+            userDetailList = userDetailRepository.findByUserIdAndStatus(userId, HCEConstants.ACTIVE);
+            if (userDetailList != null && !userDetailList.isEmpty()) {
+
+                cardDetailsList = cardDetailRepository.getNCardList(userId,HCEConstants.ACTIVE,HCEConstants.ACTIVE,HCEConstants.SUSUPEND,page,size);
+                if(cardDetailsList!=null &&  !cardDetailsList.isEmpty()){
+                    responseMap = new HashMap<String ,Object>();
+                    cardDetailsMapList = new ArrayList();
+                    for(int i=0;i<cardDetailsList.size();i++){
+                        cardDetailsMap = new HashMap<String ,Object>();
+                        cardDetails = cardDetailsList.get(i);
+                        cardDetailsMap.put(HCEConstants.CARD_ID,cardDetails.getCardId());
+                        cardDetailsMap.put(HCEConstants.CARD_IDENTIFIER,cardDetails.getCardIdentifier());
+                        cardDetailsMap.put(HCEConstants.CARD_SUFFIX,cardDetails.getCardSuffix());
+                        cardDetailsMap.put(HCEConstants.CARD_TYPE,cardDetails.getCardType());
+                        cardDetailsMap.put(HCEConstants.MODIFIED_ON,cardDetails.getModifiedOn());
+                        cardDetailsMap.put(HCEConstants.PAN_UNIQUE_REFERENCE,cardDetails.getPanUniqueReference());
+                        cardDetailsMap.put(HCEConstants.REPLENISH_ON,cardDetails.getReplenishOn());
+                        cardDetailsMap.put(HCEConstants.STATUS,cardDetails.getStatus());
+                        cardDetailsMap.put(HCEConstants.TOKEN_SUFFIX,cardDetails.getTokenSuffix());
+                        cardDetailsMap.put(HCEConstants.CLIENT_DEVICE_ID,cardDetails.getDeviceInfo().getClientDeviceId());
+                        cardDetailsMap.put(HCEConstants.CREATED_ON,cardDetails.getDeviceInfo().getCreatedOn());
+                        cardDetailsMap.put(HCEConstants.DEVICE_MODEL,cardDetails.getDeviceInfo().getDeviceModel());
+                        cardDetailsMap.put(HCEConstants.HOST_DEVICE_ID,cardDetails.getDeviceInfo().getHostDeviceId());
+                        cardDetailsMap.put(HCEConstants.IMEI,cardDetails.getDeviceInfo().getImei());
+                        cardDetailsMap.put(HCEConstants.IS_MASTER_CARD_ENABLED,cardDetails.getDeviceInfo().getIsMastercardEnabled());
+                        cardDetailsMap.put(HCEConstants.IS_VISA_ENABLED,cardDetails.getDeviceInfo().getIsVisaEnabled());
+                        cardDetailsMap.put(HCEConstants.MODIFIED_ON,cardDetails.getDeviceInfo().getModifiedOn());
+                        cardDetailsMap.put(HCEConstants.NFC_CAPABLE,cardDetails.getDeviceInfo().getNfcCapable());
+                        cardDetailsMap.put(HCEConstants.OS_NAME,cardDetails.getDeviceInfo().getOsName());
+                        cardDetailsMap.put(HCEConstants.OS_VERSION,cardDetails.getDeviceInfo().getOsVersion());
+                        cardDetailsMap.put(HCEConstants.USER_ID,cardDetails.getDeviceInfo().getUserDetail().getUserId());
+                        cardDetailsMap.put(HCEConstants.CLIENT_WALLET_ACCOUNT_ID,cardDetails.getDeviceInfo().getUserDetail().getClientWalletAccountId());
+                        cardDetailsMapList.add(cardDetailsMap);
+                    }
+
+                    responseMap.put(HCEConstants.CARD_DETAILS_LIST,cardDetailsMapList);
+
+
+                }else{
+                    throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                }
+
+
+            }else{
+                throw new HCEActionException(HCEMessageCodes.INVALID_USER);
+            }
+        } catch (HCEActionException getTokeListHceActionException) {
+            LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokeListHceActionException);
+            throw getTokeListHceActionException;
+
+        } catch (Exception getTokenListException) {
+            LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokenListException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }
+
+        return responseMap;
+
+    }
+
+
+
 }

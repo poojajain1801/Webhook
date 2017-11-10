@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
 import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
@@ -87,7 +88,7 @@ public class EnrollDeviceVts {
             encDevicePersoData = new EncDevicePersoData();
             jsonObject=new JSONObject(inputString);
 
-            if("200".equals(jsonObject.get("statusCode"))) {
+            if("200".equals(jsonObject.get(HCEConstants.STATUS_CODE))) {
 
                 devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
                 String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());

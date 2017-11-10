@@ -1,8 +1,11 @@
 package com.comviva.mfs.hce.appserver.controller;
 
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,8 @@ public class ProvisionManagementController {
 
     @Autowired
     private ProvisionManagementService provisionManagementService;
+    @Autowired
+    private HCEControllerSupport hCEControllerSupport;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionManagementController.class);
 
@@ -29,10 +34,25 @@ public class ProvisionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/provisionTokenWithPanEnrollmentId", method = RequestMethod.POST)
-    public Map<String, Object> provisionTokenWithPanEnrollmentId(@RequestBody ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest){
-       LOGGER.debug("Enter ProvisionManagementController->provisionTokenWithPanEnrollmentId");
-       Map<String,Object> provisonResp = provisionManagementService.ProvisionTokenGivenPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest);
-        LOGGER.debug("Exit ProvisionManagementController->provisionTokenWithPanEnrollmentId");
+    public Map<String, Object> provisionTokenWithPanEnrollmentId(@RequestBody String provisionTokenGivenPanEnrollmentIdRequest){
+        Map <String,Object> provisonResp= null;
+        ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequestPojo = null;
+        try{
+            LOGGER.debug("Enter ProvisionManagementController->provisionTokenWithPanEnrollmentId");
+            provisionTokenGivenPanEnrollmentIdRequestPojo =(ProvisionTokenGivenPanEnrollmentIdRequest) hCEControllerSupport.requestFormation(provisionTokenGivenPanEnrollmentIdRequest,ProvisionTokenGivenPanEnrollmentIdRequest.class);
+            provisonResp = provisionManagementService.ProvisionTokenGivenPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequestPojo);
+        }catch (HCEValidationException enrollPanRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->provisionTokenWithPanEnrollmentId",enrollPanRequestValidation);
+            throw enrollPanRequestValidation;
+        }catch (HCEActionException enrollPanHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->provisionTokenWithPanEnrollmentId",enrollPanHceActionException);
+            throw enrollPanHceActionException;
+        }catch (Exception enrollPanExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->provisionTokenWithPanEnrollmentId", enrollPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }
+        LOGGER.debug("Enter ProvisionManagementController->provisionTokenWithPanEnrollmentId");
+
         return provisonResp;
     }
 

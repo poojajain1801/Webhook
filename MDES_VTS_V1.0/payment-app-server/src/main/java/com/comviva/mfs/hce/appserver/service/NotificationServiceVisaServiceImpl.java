@@ -2,7 +2,10 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotificationServiceReq;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
@@ -17,15 +20,17 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 
 @Service
 public class NotificationServiceVisaServiceImpl implements NotificationServiceVisaService{
     HCEControllerSupport hceControllerSupport;
-    private final VisaCardDetailRepository visaCardDetailRepository;
+
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
+    private final CardDetailRepository cardDetailRepository;
 
 
 
@@ -36,9 +41,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     private Environment env;
 
     @Autowired
-    public NotificationServiceVisaServiceImpl(HCEControllerSupport hceControllerSupport, VisaCardDetailRepository visaCardDetailRepository, UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository) {
+    public NotificationServiceVisaServiceImpl(HCEControllerSupport hceControllerSupport, CardDetailRepository cardDetailRepository, UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
-        this.visaCardDetailRepository = visaCardDetailRepository;
+        this.cardDetailRepository = cardDetailRepository;
         this.userDetailRepository = userDetailRepository;
         this.deviceDetailRepository = deviceDetailRepository;
     }
@@ -155,11 +160,21 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     }
     private String getRnsRegId(String vProvisionedID)
     {
-        String userName = visaCardDetailRepository.findByVProvisionedTokenId(vProvisionedID).get().getUserName();
-       // String clintDeviceId = userDetailRepository.findByUserName(userName).get().getClientDeviceId();
-        String rnsRegID = deviceDetailRepository.findByClientDeviceId("12121212").get().getRnsRegistrationId();
+        String rnsRegID = null;
+        final List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedID);
+        if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+           final DeviceInfo deviceInfo = cardDetailsList.get(0).getDeviceInfo();
+            rnsRegID = deviceInfo.getRnsRegistrationId();
+        }
         return rnsRegID;
     }
 
+
+    public static  void main(String args[]){
+
+        int a = 14%7;
+
+        System.out.println(a);
+    }
 
 }

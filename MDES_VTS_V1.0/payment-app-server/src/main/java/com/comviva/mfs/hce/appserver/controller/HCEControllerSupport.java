@@ -130,7 +130,7 @@ public class HCEControllerSupport {
             throw reqValidationException;
         }catch (Exception reqValidationException ){
             LOGGER.error("Exception occured in HCEControllerSupport->requestFormation", reqValidationException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
         }
 
         return obj;
@@ -155,34 +155,23 @@ public class HCEControllerSupport {
 
     public  void maintainAudiTrail(String userId, String url, String responseCode,String request,
                                                String response){
-
         AuditTrail auditTrail = null;
-
         try{
-
             LOGGER.debug("Enter HCEControllerSupport->maintainAudiTrail");
-
             auditTrail = new AuditTrail();
-
             auditTrail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-
             if(userId!=null && !userId.isEmpty()){
                 auditTrail.setCreatedBy(userId);
             }
-
-
             if(responseCode!=null && !responseCode.isEmpty()){
                 auditTrail.setResponseCode(responseCode);
             }
-
             if(request!=null && !request.isEmpty()){
                 auditTrail.setRequest(request.getBytes());
             }
-
             if(response!=null && !response.isEmpty()){
                 auditTrail.setResponse(response.getBytes());
             }
-
             if(url!=null && !url.isEmpty()){
                 auditTrail.setServiceType(url);
             }
@@ -192,7 +181,5 @@ public class HCEControllerSupport {
         }catch (Exception e){
             LOGGER.error("Exception occured in HCEControllerSupport->maintainAudiTrail"+e);
         }
-
-
     }
 }

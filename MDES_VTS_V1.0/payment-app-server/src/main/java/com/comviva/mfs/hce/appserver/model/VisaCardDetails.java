@@ -1,10 +1,8 @@
 package com.comviva.mfs.hce.appserver.model;
 
-
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.*;
 import java.io.Serializable;
-
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 
 /**
@@ -12,54 +10,87 @@ import java.io.Serializable;
  *
  */
 @Entity
-@Table(name="CARD_DETAILS_VISA")
+@Table(name="VISA_CARD_DETAILS")
 public class VisaCardDetails implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private String id;
+    @Column(name="CARD_ID")
+    private String cardId;
 
-    private String cardnumbersuffix;
+    @Column(name="CARD_NUMBER_SUFFIX")
+    private String cardNumberSuffix;
+
+    @Column(name="CREATED_ON")
+    private Timestamp createdOn;
+
+    @Column(name="MODIFIED_ON")
+    private Timestamp modifiedOn;
 
     private String status;
 
-    @Column(name="USER_NAME")
-    private String userName;
-
-    @Column(name = "V_PAN_ENROLLMENT_ID")
+    @Column(name="V_PAN_ENROLLMENT_ID")
     private String vPanEnrollmentId;
 
     @Column(name="V_PROVISIONED_TOKEN_ID")
     private String vProvisionedTokenId;
 
-    public VisaCardDetails(String id, String cardnumbersuffix, String status, String userName, String vPanEnrollmentId, String vProvisionedTokenId) {
-        this.id = id;
-        this.cardnumbersuffix = cardnumbersuffix;
-        this.status = status;
-        this.userName = userName;
-        this.vPanEnrollmentId = vPanEnrollmentId;
-        this.vProvisionedTokenId = vProvisionedTokenId;
-    }
+
+    @Column(name="CARD_IDENTIFIER")
+    private String cardIdentifier;
+
+
+
+    @Column(name="REPLENISH_ON")
+    private Timestamp replenishOn;
+
+
+    //bi-directional many-to-one association to DeviceInfo
+    @ManyToOne
+    @JoinColumn(name="CLIENT_DEVICE_ID")
+    private DeviceInfo deviceInfo;
 
     public VisaCardDetails() {
     }
 
-    public String getId() {
-        return this.id;
+
+    public Timestamp getReplenishOn() {
+        return replenishOn;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setReplenishOn(Timestamp replenishOn) {
+        this.replenishOn = replenishOn;
+    }
+    public String getCardId() {
+        return this.cardId;
     }
 
-    public String getCardnumbersuffix() {
-        return this.cardnumbersuffix;
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
     }
 
-    public void setCardnumbersuffix(String cardnumbersuffix) {
-        this.cardnumbersuffix = cardnumbersuffix;
+    public String getCardNumberSuffix() {
+        return this.cardNumberSuffix;
+    }
+
+    public void setCardNumberSuffix(String cardNumberSuffix) {
+        this.cardNumberSuffix = cardNumberSuffix;
+    }
+
+    public Timestamp getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public Timestamp getModifiedOn() {
+        return this.modifiedOn;
+    }
+
+    public void setModifiedOn(Timestamp modifiedOn) {
+        this.modifiedOn = modifiedOn;
     }
 
     public String getStatus() {
@@ -70,27 +101,37 @@ public class VisaCardDetails implements Serializable {
         this.status = status;
     }
 
-    public String getUserName() {
-        return this.userName;
+    public String getVPanEnrollmentId() {
+        return this.vPanEnrollmentId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getvPanEnrollmentId() {
-        return vPanEnrollmentId;
-    }
-
-    public String getvProvisionedTokenId() {
-        return vProvisionedTokenId;
-    }
-
-    public void setvPanEnrollmentId(String vPanEnrollmentId) {
+    public void setVPanEnrollmentId(String vPanEnrollmentId) {
         this.vPanEnrollmentId = vPanEnrollmentId;
     }
 
-    public void setvProvisionedTokenId(String vProvisionedTokenId) {
+    public String getVProvisionedTokenId() {
+        return this.vProvisionedTokenId;
+    }
+
+    public void setVProvisionedTokenId(String vProvisionedTokenId) {
         this.vProvisionedTokenId = vProvisionedTokenId;
     }
+
+    public DeviceInfo getDeviceInfo() {
+        return this.deviceInfo;
+    }
+
+
+    public void setDeviceInfo(DeviceInfo deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
+
+    public String getCardIdentifier() {
+        return cardIdentifier;
+    }
+
+    public void setCardIdentifier(String cardIdentifier) {
+        this.cardIdentifier = cardIdentifier;
+    }
+
 }

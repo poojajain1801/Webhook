@@ -120,6 +120,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
                     deviceInfo.setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
                     deviceInfo.setIsMastercardEnabled(HCEConstants.ACTIVE);
+                    deviceInfo.setStatus(HCEConstants.ACTIVE);
                     deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     deviceDetailRepository.save(deviceInfo);
                 }
@@ -147,11 +148,22 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsResp);
                 deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                 deviceInfo.setVClientId(vClientID);
+                deviceInfo.setStatus(HCEConstants.ACTIVE);
                 deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 deviceDetailRepository.save(deviceInfo);
                 response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.SUCCESS);
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
             }
+
+            if(HCEConstants.ACTIVE.equals(env.getProperty("is.hvt.supported"))){
+                response.put("isHvtSupported", true);
+            }else{
+                response.put("isHvtSupported", false);
+            }
+
+            response.put("hvtThreshold", env.getProperty(" hvt.limit"));
+
+
 
             LOGGER.debug("Exit DeviceDetailServiceImpl->registerDevice");
             //******************VTS :Register with END***********************************

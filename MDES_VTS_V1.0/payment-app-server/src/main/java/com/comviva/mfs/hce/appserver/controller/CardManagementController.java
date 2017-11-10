@@ -1,12 +1,17 @@
 package com.comviva.mfs.hce.appserver.controller;
 
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -20,6 +25,8 @@ public class CardManagementController {
 
     @Autowired
     private CardDetailService cardDetailService;
+    @Autowired
+    private HCEControllerSupport hCEControllerSupport;
 
     public CardManagementController(CardDetailService cardDetailService ) {
         this.cardDetailService = cardDetailService;
@@ -50,11 +57,26 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/enrollPan", method = RequestMethod.POST)
-    public Map<String, Object> enrollPan(@RequestBody EnrollPanRequest enrollPanRequest){
-        LOGGER.debug("Enter CardManagementController->enrollPan");
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> enrollPan(@RequestBody String enrollPanRequest){
         Map <String,Object> enrollPanResponse= null;
-        enrollPanResponse = cardDetailService.enrollPan(enrollPanRequest);
+        EnrollPanRequest enrollPanRequestPojo = null;
+        try{
+            LOGGER.debug("Enter CardManagementController->enrollPan");
+            enrollPanRequestPojo =(EnrollPanRequest) hCEControllerSupport.requestFormation(enrollPanRequest,EnrollPanRequest.class);
+            enrollPanResponse = cardDetailService.enrollPan(enrollPanRequestPojo);
+        }catch (HCEValidationException enrollPanRequestValidation){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanRequestValidation);
+            throw enrollPanRequestValidation;
+        }catch (HCEActionException enrollPanHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
+            throw enrollPanHceActionException;
+        }catch (Exception enrollPanExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }
         LOGGER.debug("Exit CardManagementController->enrollPan");
+
         return enrollPanResponse;
     }
     @ResponseBody

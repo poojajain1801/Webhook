@@ -11,8 +11,6 @@ import lombok.Setter;
 @Setter
 public class EnrollPanRequest {
 
-    private String userId;
-    private String activationCode;
     private String clientAppId;
     private String clientWalletAccountId;
     private String clientDeviceID;
@@ -25,9 +23,8 @@ public class EnrollPanRequest {
     private ChannelSecurityContext channelSecurityContext;
 
 
-   public EnrollPanRequest(String userId,String activationCode,String clientAppId, String clientWalletAccountId, String clientDeviceID, String locale, String panSource, String consumerEntryMode,EncPaymentInstrument encPaymentInstrument,String encryptionMetaData,String platformType,ChannelSecurityContext channelSecurityContext) {
-        this.userId=userId;
-        this.activationCode=activationCode;
+   public EnrollPanRequest(String clientAppId, String clientWalletAccountId, String clientDeviceID, String locale, String panSource, String consumerEntryMode,EncPaymentInstrument encPaymentInstrument,String encryptionMetaData,String platformType,ChannelSecurityContext channelSecurityContext) {
+
         this.clientAppId=clientAppId;
         this.clientWalletAccountId = clientWalletAccountId;
         this.clientDeviceID = clientDeviceID;

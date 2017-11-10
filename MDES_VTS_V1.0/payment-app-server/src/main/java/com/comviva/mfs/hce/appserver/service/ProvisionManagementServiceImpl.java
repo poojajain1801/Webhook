@@ -1,10 +1,14 @@
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
@@ -12,6 +16,7 @@ import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,29 +48,24 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
-    private final VisaCardDetailRepository visaCardDetailRepository;
+    private final CardDetailRepository cardDetailRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProvisionManagementServiceImpl.class);
 
 
     @Autowired
     public ProvisionManagementServiceImpl(UserDetailService userDetailService,UserDetailRepository userDetailRepository,
                                           DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport,
-                                          VisaCardDetailRepository visaCardDetailRepository) {
+                                          CardDetailRepository cardDetailRepository) {
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
         this.deviceDetailRepository=deviceDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
-        this.visaCardDetailRepository = visaCardDetailRepository;
+        this.cardDetailRepository = cardDetailRepository;
     }
 
     public Map<String, Object> ProvisionTokenGivenPanEnrollmentId (ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest) {
-
-        LOGGER.debug("Enter ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
-        //TODO: Validate clintdevice ID and clint account id
-        //TODO get the vPanEnrollmentID from DB
-
         //Calculate Email Hash
-        String emailAdress = provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress();
+        String emailAdress = null;
         String emailHash = "";
         JSONObject reqest = new JSONObject();
         JSONArray presentationType = new JSONArray();
@@ -73,10 +73,18 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject jsonResponse= null;
         ResponseEntity responseEntity =null;
         String response = null;
-        VisaCardDetails visaCardDetails= null;
-        Map<String,Object> responseMap = null;
+       // VisaCardDetails visaCardDetails= null;
 
+        CardDetails cardDetails = null;
+        Map<String,Object> responseMap = null;
+        List<CardDetails> cardDetailsList = null;
+
+        String vPanEnrollmentID = null;
         try {
+
+            LOGGER.debug("Enter ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
+
+            emailAdress = provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress();
             emailHash = MessageDigestUtil.getEmailHashAlgorithmValue(emailAdress);
             byte[] b64data = org.apache.commons.codec.binary.Base64.encodeBase64(emailHash.getBytes());
             emailAdress = new String(b64data);
@@ -94,12 +102,20 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             reqest.put("presentationType", presentationType);
             JSONObject termandCondition = new JSONObject();
             termandCondition.put("id", provisionTokenGivenPanEnrollmentIdRequest.getTermsAndConditionsID());
+
             long unixTimestamp = Instant.now().getEpochSecond();
             termandCondition.put("date", unixTimestamp);
             reqest.put("termsAndConditions", termandCondition);
-
             hitVisaServices = new HitVisaServices(env);
-            String vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
+
+            vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
+            cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentID);
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                cardDetails = cardDetailsList.get(0);
+            }else{
+                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+            }
+
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens" + "?apiKey=" + env.getProperty("apiKey");
             String resourcePath = "vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens";
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, reqest.toString(), resourcePath, "POST");
@@ -110,14 +126,15 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                 //TODO:Store the vProvisonTokenID in the DB
-                LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
-                visaCardDetails = new VisaCardDetails();
-                visaCardDetails = visaCardDetailRepository.findByVPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID()).get(0);
-                visaCardDetails.setvProvisionedTokenId(jsonResponse.getString("vProvisionedTokenID"));
-                visaCardDetailRepository.save(visaCardDetails);
-                responseMap= JsonUtil.jsonStringToHashMap(jsonResponse.toString());
-                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                     LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
+                    cardDetails.setVisaProvisionTokenId(jsonResponse.getString("vProvisionedTokenID"));
+                    cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetails.setStatus(HCEConstants.ACTIVE);
+                    cardDetailRepository.save(cardDetails);
+                    responseMap= JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                    responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
+                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+
                 return responseMap;
             }
             else
@@ -131,10 +148,13 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }catch (Exception e)
-        {
-            LOGGER.debug("Exception occurred in ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+        }catch(HCEActionException provisionHCEActionException){
+            LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionHCEActionException);
+            throw provisionHCEActionException;
+
+        }catch(Exception provisionException){
+            LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
     }
 
@@ -264,7 +284,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject dynParams = new JSONObject();
         JSONArray tvl = new JSONArray();
         Map responseMap = new LinkedHashMap();
-        Array[] tvlData = activeAccountManagementReplenishRequest.getTvl();
+        List tvlData = activeAccountManagementReplenishRequest.getTvl();
 
         try{
 
@@ -273,9 +293,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             dynParams.put("api",activeAccountManagementReplenishRequest.getApi());
             dynParams.put("sc",activeAccountManagementReplenishRequest.getSc());
 
-            for(int i=0;i<tvlData.length;i++)
+            for(int i=0;i<tvlData.size();i++)
             {
-                tvl.put(tvlData[i]);
+                tvl.put(tvlData.get(i));
             }
             dynParams.put("tvl",tvl);
             hceData.put("dynParams",dynParams);
@@ -561,7 +581,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
     }
     public boolean validatevProvisionedID(String vProvisionedTokenID)
     {
-        if (visaCardDetailRepository.findByVProvisionedTokenId(vProvisionedTokenID).isPresent())
+        List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
+        if (cardDetailsList!=null && !cardDetailsList.isEmpty())
             return true;
         else
             return false;

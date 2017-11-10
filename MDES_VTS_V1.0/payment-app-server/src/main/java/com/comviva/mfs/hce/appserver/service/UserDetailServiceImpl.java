@@ -77,10 +77,6 @@ public class UserDetailServiceImpl implements UserDetailService {
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
-                    if(userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
-                        throw new HCEActionException(HCEMessageCodes.USER_ALREADY_REGISTERED);
-                    }else{
-
                         deactivateDevice(deviceInfo);
                         deviceInfo.setStatus(HCEConstants.INACTIVE);
                         deviceDetailRepository.save(deviceInfo);
@@ -90,7 +86,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                         userDetailRepository.save(userDetail);
                         // Register New Device
                         //update Old device with N and if owner of that user is having one device then make user status N too. and register device.
-                    }
+
                 }else{
 
                     deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
@@ -176,9 +172,8 @@ public class UserDetailServiceImpl implements UserDetailService {
     private void updateUserStatusIfOneDeviceIsLinked(DeviceInfo deviceInfo) {
         List<UserDetail> userDetails;
         UserDetail userDetail;
-        userDetails = (List<UserDetail>) deviceInfo.getUserDetail();
-        if(userDetails!=null && !userDetails.isEmpty()){
-            userDetail = userDetails.get(0);
+        userDetail =  deviceInfo.getUserDetail();
+        if(userDetail!=null){
             if(userDetail.getDeviceInfos().size()==1){
                 userDetail.setStatus(HCEConstants.INACTIVE);
                 userDetailRepository.save(userDetail);
@@ -218,7 +213,6 @@ public class UserDetailServiceImpl implements UserDetailService {
 
         responseMap = ImmutableMap.of(
                 HCEConstants.RESPONSE_CODE, responseCode,
-                HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(responseCode),
                 HCEConstants.CLIENT_WALLET_ACCOUNT_ID, userDetail.getClientWalletAccountId());
         return responseMap;
     }

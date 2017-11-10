@@ -10,6 +10,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
+import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,8 @@ public class DeviceRegistrationController {
 
     @ResponseBody
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
-
-    public Map<String,Object> registerDevice(@RequestBody String enrollDeviceRequest, HttpServletRequest httpRequest) {
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object> registerDevice(@RequestBody String enrollDeviceRequest) {
 
         Map<String,Object> registerDeviceResponse = null;
         EnrollDeviceRequest enrollDeviceRequestPojo = null;
@@ -48,22 +49,21 @@ public class DeviceRegistrationController {
             LOGGER.debug("Exit DeviceRegistrationController->registerDevice");
         }catch (HCEValidationException registerDeviceValidationException){
             LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",registerDeviceValidationException);
-            registerDeviceResponse = hCEControllerSupport.formResponse(registerDeviceValidationException.getMessageCode(),registerDeviceValidationException.getMessage());
+            throw registerDeviceValidationException;
         }catch (HCEActionException regDeviceHCEActionException){
-            LOGGER.error("Exception Occured in Enter DeviceRegistrationController->registerDevice",regDeviceHCEActionException);
-            registerDeviceResponse = hCEControllerSupport.formResponse(regDeviceHCEActionException.getMessageCode());
+            LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",regDeviceHCEActionException);
+            throw regDeviceHCEActionException;
         }catch (Exception regDeviceException) {
-            LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->registerDevice", regDeviceException);
-            registerDeviceResponse = hCEControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", regDeviceException);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-        hCEControllerSupport.prepareRequest(enrollDeviceRequest,registerDeviceResponse,httpRequest);
         return registerDeviceResponse;
     }
 
     @ResponseBody
     @RequestMapping(value = "/deRegister", method = RequestMethod.POST)
-
-    public Map<String,Object> unRegister(@RequestBody String unRegisterReq, HttpServletRequest httpRequest) {
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object> unRegister(@RequestBody String unRegisterReq) {
 
         Map<String,Object> unRegisterResponse = null;
         UnRegisterReq unRegisterReqPojo = null;
@@ -74,15 +74,14 @@ public class DeviceRegistrationController {
             LOGGER.debug("Exit DeviceRegistrationController->unRegister");
         }catch (HCEValidationException deRegValidationException){
             LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",deRegValidationException);
-            unRegisterResponse = hCEControllerSupport.formResponse(deRegValidationException.getMessageCode(),deRegValidationException.getMessage());
+           throw deRegValidationException;
         }catch (HCEActionException deRegHCEActionException){
             LOGGER.error("Exception Occured in Enter DeviceRegistrationController->registerDevice",deRegHCEActionException);
-            unRegisterResponse = hCEControllerSupport.formResponse(deRegHCEActionException.getMessageCode());
+            throw deRegHCEActionException;
         }catch (Exception deRegException) {
             LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->registerDevice", deRegException);
-            unRegisterResponse = hCEControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-        hCEControllerSupport.prepareRequest(unRegisterReq,unRegisterResponse,httpRequest);
         return unRegisterResponse;
     }
 

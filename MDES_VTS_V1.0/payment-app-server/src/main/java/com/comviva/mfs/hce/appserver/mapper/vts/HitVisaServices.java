@@ -27,6 +27,7 @@ public class HitVisaServices extends VtsRequest {
     }
 
     public ResponseEntity restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
+
         LOGGER.debug("Inside HitVisaServices->restfulServiceConsumerVisa");
         JSONObject prepareHeaderRequest=new JSONObject();
         String xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
@@ -35,7 +36,6 @@ public class HitVisaServices extends VtsRequest {
         URL objUrl = null;
         try {
              objUrl = new URL(url);
-
         } catch (MalformedURLException e) {
             e.printStackTrace();
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa");
@@ -81,7 +81,6 @@ public class HitVisaServices extends VtsRequest {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
         }catch (Exception e){
-            e.printStackTrace();
             String error = ((HttpClientErrorException) e).getResponseBodyAsString();
             String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();
             HttpHeaders responseHeaders = ((HttpClientErrorException)e).getResponseHeaders();
@@ -94,7 +93,6 @@ public class HitVisaServices extends VtsRequest {
             return errorResponse;
 
         }
-        System.out.println("Response = "+response.getBody());
         LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
         return response;
     }

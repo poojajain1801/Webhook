@@ -1,11 +1,10 @@
 package com.comviva.mfs.hce.appserver.model;
 
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
 import java.io.Serializable;
-
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 
 /**
@@ -15,37 +14,128 @@ import java.io.Serializable;
 @Entity
 @Table(name="CARD_DETAILS")
 public class CardDetails implements Serializable {
-    private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    private String id;
+    @Column(name="CARD_ID")
+    private String cardId;
+
+    @Column(name="CARD_IDENTIFIER")
+    private String cardIdentifier;
+
+    @Column(name="CARD_SUFFIX")
+    private String cardSuffix;
+
+    @Column(name="CARD_TYPE")
+    private String cardType;
+
+    @Column(name="CREATED_ON")
+    private Timestamp createdOn;
+
+    @Column(name="MASTER_PAYMENT_APP_INSTANCE_ID")
+    private String masterPaymentAppInstanceId;
+
+    @Column(name="MASTER_TOKEN_INFO")
+    private String masterTokenInfo;
+
+    @Column(name="MASTER_TOKEN_UNIQUE_REFERENCE")
+    private String masterTokenUniqueReference;
+
+    @Column(name="MODIFIED_ON")
+    private Timestamp modifiedOn;
 
     @Column(name="PAN_UNIQUE_REFERENCE")
     private String panUniqueReference;
 
-    @Column(name="PAYMENT_APP_INSTANCE_ID")
-    private String paymentAppInstanceId;
+    @Column(name="REPLENISH_ON")
+    private Timestamp replenishOn;
 
-    @Column(name="TOKEN_INFO")
-    private String tokenInfo;
+    private String status;
 
-    @Column(name="TOKEN_STATUS")
-    private String tokenStatus;
+    @Column(name="TOKEN_SUFFIX")
+    private String tokenSuffix;
 
-    @Column(name="TOKEN_UNIQUE_REFERENCE")
-    private String tokenUniqueReference;
+    @Column(name="VISA_PROVISION_TOKEN_ID")
+    private String visaProvisionTokenId;
+
+    //bi-directional many-to-one association to DeviceInfo
+    @ManyToOne
+    @JoinColumn(name="CLIENT_DEVICE_ID")
+    private DeviceInfo deviceInfo;
 
     public CardDetails() {
     }
 
-    public String getId() {
-        return this.id;
+    public String getCardId() {
+        return this.cardId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
+    public String getCardIdentifier() {
+        return this.cardIdentifier;
+    }
+
+    public void setCardIdentifier(String cardIdentifier) {
+        this.cardIdentifier = cardIdentifier;
+    }
+
+    public String getCardSuffix() {
+        return this.cardSuffix;
+    }
+
+    public void setCardSuffix(String cardSuffix) {
+        this.cardSuffix = cardSuffix;
+    }
+
+    public String getCardType() {
+        return this.cardType;
+    }
+
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
+    }
+
+    public Timestamp getCreatedOn() {
+        return this.createdOn;
+    }
+
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public String getMasterPaymentAppInstanceId() {
+        return this.masterPaymentAppInstanceId;
+    }
+
+    public void setMasterPaymentAppInstanceId(String masterPaymentAppInstanceId) {
+        this.masterPaymentAppInstanceId = masterPaymentAppInstanceId;
+    }
+
+    public String getMasterTokenInfo() {
+        return this.masterTokenInfo;
+    }
+
+    public void setMasterTokenInfo(String masterTokenInfo) {
+        this.masterTokenInfo = masterTokenInfo;
+    }
+
+    public String getMasterTokenUniqueReference() {
+        return this.masterTokenUniqueReference;
+    }
+
+    public void setMasterTokenUniqueReference(String masterTokenUniqueReference) {
+        this.masterTokenUniqueReference = masterTokenUniqueReference;
+    }
+
+    public Timestamp getModifiedOn() {
+        return this.modifiedOn;
+    }
+
+    public void setModifiedOn(Timestamp modifiedOn) {
+        this.modifiedOn = modifiedOn;
     }
 
     public String getPanUniqueReference() {
@@ -56,36 +146,43 @@ public class CardDetails implements Serializable {
         this.panUniqueReference = panUniqueReference;
     }
 
-    public String getPaymentAppInstanceId() {
-        return this.paymentAppInstanceId;
+    public Timestamp getReplenishOn() {
+        return this.replenishOn;
     }
 
-    public void setPaymentAppInstanceId(String paymentAppInstanceId) {
-        this.paymentAppInstanceId = paymentAppInstanceId;
+    public void setReplenishOn(Timestamp replenishOn) {
+        this.replenishOn = replenishOn;
     }
 
-    public String getTokenInfo() {
-        return this.tokenInfo;
+    public String getStatus() {
+        return this.status;
     }
 
-    public void setTokenInfo(String tokenInfo) {
-        this.tokenInfo = tokenInfo;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public String getTokenStatus() {
-        return this.tokenStatus;
+    public String getTokenSuffix() {
+        return this.tokenSuffix;
     }
 
-    public void setTokenStatus(String tokenStatus) {
-        this.tokenStatus = tokenStatus;
+    public void setTokenSuffix(String tokenSuffix) {
+        this.tokenSuffix = tokenSuffix;
     }
 
-    public String getTokenUniqueReference() {
-        return this.tokenUniqueReference;
+    public String getVisaProvisionTokenId() {
+        return this.visaProvisionTokenId;
     }
 
-    public void setTokenUniqueReference(String tokenUniqueReference) {
-        this.tokenUniqueReference = tokenUniqueReference;
+    public void setVisaProvisionTokenId(String visaProvisionTokenId) {
+        this.visaProvisionTokenId = visaProvisionTokenId;
     }
 
+    public DeviceInfo getDeviceInfo() {
+        return this.deviceInfo;
+    }
+
+    public void setDeviceInfo(DeviceInfo deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
 }

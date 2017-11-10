@@ -96,7 +96,7 @@
             </column>
 
             <column name="CLIENT_WALLET_ACCOUNT_ID" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
 
             <column name="CREATED_ON" type="Timestamp(6)">
@@ -117,48 +117,76 @@
                                  initiallyDeferred="true"
                                  referencedColumnNames="CLIENT_WALLET_ACCOUNT_ID"
                                  referencedTableName="USER_DETAILS"/>
-        <createIndex tableName="DEVICE_INFO" indexName="device_info_id" unique="true">
+        <createIndex tableName="DEVICE_INFO" indexName="device_info_id">
             <column name="IMEI"/>
         </createIndex>
 
-
-
-
-
-
-
-
-
-
-
         <!-- Table for Card management-->
         <createTable tableName="CARD_DETAILS">
-            <column name="id" type="VARCHAR2(255)">
+
+            <column name="CARD_ID" type="VARCHAR2(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="payment_app_instance_id" type="VARCHAR2(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="TOKEN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
+            <column name="CARD_IDENTIFIER" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="CARD_SUFFIX" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="TOKEN_SUFFIX" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="CARD_TYPE" type="VARCHAR2(50)">
+                <constraints nullable="true"/>
+            </column>
+
             <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true" unique="true"/>
             </column>
-            <column name="TOKEN_INFO" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+            <column name="VISA_PROVISION_TOKEN_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
             </column>
-            <column name="TOKEN_STATUS" type="VARCHAR2(255)">
+            <column name="MASTER_PAYMENT_APP_INSTANCE_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MASTER_TOKEN_INFO" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MASTER_TOKEN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CLIENT_DEVICE_ID" type="VARCHAR2(255)">
+            </column>
+
+            <column name="CREATED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="MODIFIED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="REPLENISH_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+
+            <column name="STATUS" type="VARCHAR2(10)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint columnNames="TOKEN_UNIQUE_REFERENCE" constraintName="card_unique_constraints"
-                             deferrable="true"
-                             tableName="CARD_DETAILS"/>
-        <createIndex tableName="CARD_DETAILS" indexName="card_info_id" unique="true">
-            <column name="id"/>
-            <column name="payment_app_instance_id"/>
-            <column name="TOKEN_UNIQUE_REFERENCE"/>
+
+        <addForeignKeyConstraint baseColumnNames="CLIENT_DEVICE_ID"
+                                 baseTableName="CARD_DETAILS"
+                                 constraintName="fk_MclientDeviceId"
+                                 deferrable="true"
+                                 initiallyDeferred="true"
+                                 referencedColumnNames="CLIENT_DEVICE_ID"
+                                 referencedTableName="DEVICE_INFO"/>
+
+        <createIndex tableName="CARD_DETAILS" indexName="card_info_id">
+            <column name="MASTER_TOKEN_UNIQUE_REFERENCE"/>
+            <column name="CARD_IDENTIFIER"/>
         </createIndex>
 
         <createTable tableName="SERVICE_DATA">
@@ -183,34 +211,6 @@
         </createIndex>
 
         <!-- Table for  visa Card management-->
-        <createTable tableName="CARD_DETAILS_VISA">
-            <column name="id" type="VARCHAR2(255)">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="USER_ID" type="VARCHAR2(255)">
-                <constraints nullable="false" foreignKeyName="fk_user_device_detail"
-                             references="USER_DETAILS(USER_ID)"/>
-            </column>
-            <column name="cardnumberSuffix" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="V_PAN_ENROLLMENT_ID" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="V_PROVISIONED_TOKEN_ID" type="VARCHAR2(255)">
-                <constraints nullable="true"/>
-            </column>
-
-            <column name="STATUS" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <createIndex tableName="CARD_DETAILS_VISA" indexName="visa_card_info_id" unique="true">
-            <column name="id"/>
-            <column name="USER_ID"/>
-            <column name="V_PAN_ENROLLMENT_ID"/>
-            <column name="cardnumberSuffix"/>
-        </createIndex>
 
         <!--Transaction details table-->
         <createTable tableName="TRANSACTION_REG_DETAILS">
