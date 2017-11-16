@@ -161,7 +161,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put("isHvtSupported", false);
             }
 
-            response.put("hvtThreshold", env.getProperty(" hvt.limit"));
+            response.put("hvtThreshold", env.getProperty("hvt.limit"));
 
 
 

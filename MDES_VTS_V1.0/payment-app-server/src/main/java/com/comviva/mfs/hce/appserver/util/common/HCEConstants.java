@@ -76,6 +76,10 @@ public class HCEConstants {
     /** The Constant CLIENT_WALLET_ACCOUNT_ID. */
     public static final String CLIENT_WALLET_ACCOUNT_ID = "clientWalletAccountId";
 
+
+    /** The Constant DEVICE_NAME. */
+    public static final String DEVICE_NAME = "deviceName";
+
     /** The Constant CLIENT_WALLET_ACCOUNT_ID. */
     public static final String CARD_PREFIX = "PI";
 
@@ -90,6 +94,15 @@ public class HCEConstants {
     public static final String CARD_TYPE = "cardType";
     /** The Constant PAN_UNIQUE_REFERENCE. */
     public static final String PAN_UNIQUE_REFERENCE = "panUniqueReference";
+
+    /** The Constant MASTER_TOKEN_UNIQUE_REFERENCE. */
+    public static final String MASTER_TOKEN_UNIQUE_REFERENCE = "masterTokenUniqueReference";
+
+    /** The Constant VISA_PROVISION_TOKENID. */
+    public static final String VISA_PROVISION_TOKENID = "visaProvisionTokenId";
+
+
+
     /** The Constant STATUS. */
     public static final String STATUS = "status";
     /** The Constant REPLENISH_ON. */
@@ -125,6 +138,15 @@ public class HCEConstants {
     public static final String USER_ID = "userId";
     /** The Constant CARD_DETAILS_LIST. */
     public static final String CARD_DETAILS_LIST = "cardDetailsList";
+
+    /** The Constant NOT_AVAILABLE. */
+    public static final String NOT_AVAILABLE = "NA";
+
+    /** The Constant TOTAL_COUNT. */
+    public static final String TOTAL_COUNT = "totalCount";
+
+
+
 
 
 }
