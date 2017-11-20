@@ -128,6 +128,11 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 //TODO:Store the vProvisonTokenID in the DB
                      LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                     cardDetails.setVisaProvisionTokenId(jsonResponse.getString("vProvisionedTokenID"));
+                    JSONObject tokenInfo = jsonResponse.getJSONObject("tokenInfo");
+                    if(tokenInfo!=null ){
+                        cardDetails.setTokenSuffix(tokenInfo.getString("last4"));
+                    }
+
                     cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     cardDetails.setStatus(HCEConstants.ACTIVE);
                     cardDetailRepository.save(cardDetails);

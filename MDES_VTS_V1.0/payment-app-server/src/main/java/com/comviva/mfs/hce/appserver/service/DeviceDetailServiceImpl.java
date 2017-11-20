@@ -119,7 +119,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "OK");
                     deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
                     deviceInfo.setPaymentAppId(enrollDeviceRequest.getMdes().getPaymentAppId());
+                    deviceInfo.setOsVersion(enrollDeviceRequest.getMdes().getDeviceInfo().getOsVersion());
                     deviceInfo.setIsMastercardEnabled(HCEConstants.ACTIVE);
+                    deviceInfo.setDeviceName(enrollDeviceRequest.getMdes().getDeviceInfo().getDeviceName());
                     deviceInfo.setStatus(HCEConstants.ACTIVE);
                     deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     deviceDetailRepository.save(deviceInfo);
@@ -149,6 +151,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                 deviceInfo.setVClientId(vClientID);
                 deviceInfo.setStatus(HCEConstants.ACTIVE);
+                deviceInfo.setDeviceName(enrollDeviceRequest.getVts().getDeviceInfo().getDeviceName());
+                deviceInfo.setOsVersion(enrollDeviceRequest.getVts().getDeviceInfo().getOsVersion());
                 deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 deviceDetailRepository.save(deviceInfo);
                 response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.SUCCESS);

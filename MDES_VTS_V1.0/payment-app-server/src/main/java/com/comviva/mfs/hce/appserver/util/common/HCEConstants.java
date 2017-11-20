@@ -145,6 +145,11 @@ public class HCEConstants {
     /** The Constant TOTAL_COUNT. */
     public static final String TOTAL_COUNT = "totalCount";
 
+    /** The Constant VISA. */
+    public static final String VISA = "VISA";
+
+
+
 
 
 

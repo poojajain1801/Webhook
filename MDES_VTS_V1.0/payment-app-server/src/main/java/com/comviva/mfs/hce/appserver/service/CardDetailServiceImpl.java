@@ -364,6 +364,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                     cardDetails.setCardIdentifier(cardIdentifier);
                     cardDetails.setStatus(HCEConstants.INITIATE);
                     cardDetails.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetails.setCardType(HCEConstants.VISA);
                     cardDetailRepository.save(cardDetails);
                     responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.SUCCESS);
                     responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
