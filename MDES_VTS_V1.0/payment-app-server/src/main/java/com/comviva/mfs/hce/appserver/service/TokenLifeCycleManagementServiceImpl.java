@@ -251,7 +251,10 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             maxRecord = getTokenListRequest.getMaxRecord();
 
             if(index!=null && !index.isEmpty()){
-                page = Integer.parseInt(index)-1;
+
+                int i = Integer.parseInt(index);
+                page = i/10;
+
             }
             if(maxRecord!=null && !maxRecord.isEmpty()){
                 size = Integer.parseInt(maxRecord);

@@ -368,7 +368,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                     responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.SUCCESS);
                     responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
                 } else {
-                    responseMap.put(HCEConstants.RESPONSE_CODE, jsonResponse.getJSONObject("errorResponse").get("status"));
+
+                    responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
                     responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
 

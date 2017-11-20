@@ -140,7 +140,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                errorMap.put("responseCode", Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
                 errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 return errorMap;

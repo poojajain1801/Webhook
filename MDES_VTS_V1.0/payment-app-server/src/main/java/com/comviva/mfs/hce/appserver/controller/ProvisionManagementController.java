@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
+import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,7 @@ public class ProvisionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/provisionTokenWithPanEnrollmentId", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
     public Map<String, Object> provisionTokenWithPanEnrollmentId(@RequestBody String provisionTokenGivenPanEnrollmentIdRequest){
         Map <String,Object> provisonResp= null;
         ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequestPojo = null;
@@ -51,7 +53,7 @@ public class ProvisionManagementController {
             LOGGER.error(" Exception Occured in ProvisionManagementController->provisionTokenWithPanEnrollmentId", enrollPanExcetption);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-        LOGGER.debug("Enter ProvisionManagementController->provisionTokenWithPanEnrollmentId");
+        LOGGER.debug("Exit ProvisionManagementController->provisionTokenWithPanEnrollmentId");
 
         return provisonResp;
     }
