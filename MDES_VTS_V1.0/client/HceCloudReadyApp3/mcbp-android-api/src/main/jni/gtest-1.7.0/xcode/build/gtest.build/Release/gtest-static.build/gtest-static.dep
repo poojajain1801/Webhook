@@ -1,0 +1,5 @@
+ac2336d5117d77f7a4e58234cdfc858b f13d6d353b88126fed7330fe16f1db9e ffffffffffffffffffffffffffffffff 889064 /Users/andrea/dev/gtest-1.7.0/xcode/build/Release/libgtest.a
+553e2c736a0738328ab049503b2aef33 ec3414b33088172b684c5e0d3cea520d ffffffffffffffffffffffffffffffff 463200 /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/libgtest.a
+2debc6192049223a30dfa9605f4137d3 38c2c80c6bbb7ad476c63c09957d0f66 ffffffffffffffffffffffffffffffff 425816 /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/libgtest.a
+00000000523976ee00000000000324d9 553e2c7338f5713f8ab049503b29cb33 ffffffffffffffffffffffffffffffff 411528 /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/x86_64/gtest-all.o
+00000000523976ee00000000000324d9 2debc61972bb6b3730dfa9605f4213d1 ffffffffffffffffffffffffffffffff 374280 /Users/andrea/dev/gtest-1.7.0/xcode/build/gtest.build/Release/gtest-static.build/Objects-normal/i386/gtest-all.o

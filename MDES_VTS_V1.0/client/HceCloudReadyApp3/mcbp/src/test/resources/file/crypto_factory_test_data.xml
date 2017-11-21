@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ Copyright (c) 2016, MasterCard International Incorporated and/or its
+  ~ affiliates. All rights reserved.
+  ~
+  ~ The contents of this file may only be used subject to the MasterCard
+  ~ Mobile Payment SDK for MCBP and/or MasterCard Mobile MPP UI SDK
+  ~ Materials License.
+  ~
+  ~ Please refer to the file LICENSE.TXT for full details.
+  ~
+  ~ TO THE EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+  ~ WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  ~ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  ~ NON INFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, IN NO EVENT SHALL
+  ~ MASTERCARD OR ITS AFFILIATES BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  ~ IN THE SOFTWARE.
+  -->
+
+<TestCase name="CryptoFactory">
+
+<!-- A test case refers to testing a specific class/functionality  -->
+<!-- For each test case several tests can be defined               -->
+
+<!-- Input data is assumed to be in HEX format (e.g. 0xAD) and it must be -->
+<!-- byte aligned. This means that you need to prepend 0s to your data if -->
+<!-- of odd size. For example, 0xAF3 should be entered as 0AF3.           -->
+<!-- Encryption values can be of any length.                              -->
+
+  <function name="mac_sha_256" id="01">
+    <input_data>60ACB4E8A43A50282A64D5000000</input_data>
+    <key>6D26A5B13998861A6FA297A1A43A5FA2B17B456BEE9916C21207DFCAFFD918E0</key>
+    <expected_result>BA68F67B414F2FE4FCBAD8CE4035C815AC9FCB78E235D40491DA49771115FBA8</expected_result>
+    <encryption>1</encryption>
+  </function>
+
+  <function name ="mac" id="02">
+    <input_data>00000000050000000000000000560020000000097814071900564560971B800001A54000040000</input_data>
+    <key>705BBE83D11F421C0669A865163A4203</key>
+    <expected_result>FA95DA9AAB9AA3A5</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="rsa" id="03">
+    <input_data>6A050126081ECB378ABBACF438801488588D7A2BC28E699B792AF326C19C720FB072E713B4A028B3636FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB8CBDDED004542487E76A1DCC036A3D95C535EF78BC</input_data>
+    <key></key>
+    <expected_result>5F8841586E1FCFBAD7902D016386791714A4FE11B13A9C88DB4A6B49F62A43C43F40E2FEBCB0E94C123D73E3081385AAEFF6D03492552560D1BA1646D4CC5ED9E4329BC3F03C8D26092993FBC81E9C96F1C615681159160E6484C8F474E7BAF6</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="des" id="04">
+    <input_data>931155403ACCFDC1</input_data>
+    <key>705BBE83D11F421C</key>
+    <expected_result>FA95DA9AAB9AA3A5</expected_result>
+    <encryption>1</encryption>
+  </function>
+
+  <function name="des" id="05">
+    <input_data>3ACB5C4CCC0538DD</input_data>
+    <key>0669A865163A4203</key>
+    <expected_result>931155403ACCFDC1</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="des_cbc" id="06">
+    <input_data>00000000050000000000000000560020000000097814071900564560971B800001A5400004000080</input_data>
+    <key>705BBE83D11F421C</key>
+    <expected_result>4774253609A9403DB73F9F253B55C7192ADC1979343C613DF8CCB5110C694EDC3ACB5C4CCC0538DD</expected_result>
+    <encryption>1</encryption>
+  </function>
+
+  <function name="des_cbc" id="07">
+    <input_data>4774253609A9403DB73F9F253B55C7192ADC1979343C613DF8CCB5110C694EDC3ACB5C4CCC0538DD</input_data>
+    <key>705BBE83D11F421C</key>
+    <expected_result>00000000050000000000000000560020000000097814071900564560971B800001A5400004000080</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="aes" id="08">
+    <input_data>6D26A5B13998861A6FA297A1A43A5FA2B17B456BEE9916C21207DFCAFFD918E0</input_data>
+    <key>0A8B42F60DD285DB35B2212292642DAA72E3C1FDDF34EF64E426B97F9C92B681</key>
+    <expected_result>EEB8CD3644E917506F99C84CF6D9D6F7077B393525D40A7DA25328A408922299680F15D6E2FBBA1FEC6F056932EAA3E2</expected_result>
+    <encryption>1</encryption>
+  </function>
+
+  <function name="aes" id="09">
+    <input_data>D50B81213D0D28C5F10325A91C788A0E342670DAF69A4BBFEA8330C5FCCA48AC7C118F2025D7091316D28F6CB1A78B59</input_data>
+    <key>0A8B42F60DD285DB35B2212292642DAA72E3C1FDDF34EF64E426B97F9C92B681</key>
+    <expected_result>687474703A2F2F3139322E3136382E302E31393A383038302F72656D6F74657365</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="mac" id="10">
+    <input_data>00000000050000000000000000560020000000097814071900564560971B800001A54000040000</input_data>
+    <key>705BBE83D11F421C0669A865163A4203</key>
+    <expected_result>FA95DA9AAB9AA3A5</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+  <function name="sha_1" id="11">
+    <input_data>22000000000500000000000000005600200000000978140719005645609722000000000000000000003F00029F2701809F360200019F10120014A54000040000000000000000000000FF</input_data>
+    <key></key>
+    <expected_result>8CF7E498460139BDDC8B006524754DEA982F43CD</expected_result>
+    <encryption></encryption>
+  </function>
+
+  <function name="sha_256" id="12">
+    <input_data>20E6B5D14A471947A51006C89B2E9DFAADFD0AD63B115DC9E68892E2AD77B3BA60ACB4E8A43A50282A64D5000000</input_data>
+    <key></key>
+    <expected_result>0145EA389861388D27BB83107FC326633E22D0A6E6A759DE733B482F179ED0B3</expected_result>
+    <encryption></encryption>
+  </function>
+
+  <function name="des_3" id="13">
+    <input_data>0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF</input_data>
+    <key>11223344556677889900AABBCCDDEEFF</key>
+    <expected_result>2187BD38351A17C680CE5E16C7252912836A3463B000415B751C498AE385017C71C840E306844DFE553F0E5ED791A7E652D4432A395F06E0A9BA36993490687308FD87643B011DD00B967341130EBEF6</expected_result>
+    <encryption>1</encryption>
+  </function>
+
+  <function name="des_3" id="14">
+    <input_data>0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF</input_data>
+    <key>11223344556677889900AABBCCDDEEFF</key>
+    <expected_result>6569BD68F7AEA512644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD644AF80F7E0568FD</expected_result>
+    <encryption>0</encryption>
+  </function>
+
+</TestCase>

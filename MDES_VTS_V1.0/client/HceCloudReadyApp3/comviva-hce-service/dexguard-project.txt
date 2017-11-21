@@ -1,0 +1,265 @@
+##############################################################################
+# General settings.
+##############################################################################
+-dontwarn
+-verbose
+
+# If you encounter problems in your project, you can try to narrow down
+# the issue by disabling some processing steps:
+
+-dontshrink
+-dontoptimize
+-dontwarn com.mastercard.**
+-dontwarn org.apache.cordova.*
+-dontwarn com.guardsquare.dexguard.runtime.encryption.*
+
+-printconfiguration config.txt
+
+##############################################################################
+# Remove logging code.
+##############################################################################
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int i(...);
+    public static int w(...);
+    public static int d(...);
+    public static int e(...);
+}
+
+###### Common Rules
+-keepresourcefiles jni/**/*.so
+-keepattributes Exceptions
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+###### com.comviva.hceservice.digitizationApi
+-keep public class com.comviva.hceservice.digitizationApi.Digitization {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ActiveAccountManagementService {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.ActivateListener {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.ActivationCodeType {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.CardLcmListener {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.CardLcmReasonCode {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardLcmRequest {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.DigitizationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.DigitizationRequest {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardEligibilityRequest {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ContentGuid {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.ContentType {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.RequestActivationCodeListener {
+    public public *;
+}
+
+-keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.digitizationApi.asset.AssetType {
+    public public *;
+}
+
+-keep public enum com.comviva.hceservice.digitizationApi.authentication.AuthenticationType {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod {
+    public public *;
+}
+
+-keep public interface com.comviva.hceservice.register.RegistrationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.register.Registration {
+    public public *;
+}
+-keep public class com.comviva.hceservice.register.RegisterParam {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.register.RegisterUserListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.PanSource {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ConsumerEntryMode {
+    public public *;
+}
+
+###### com.comviva.hceservice.common
+-keep public enum com.comviva.hceservice.common.CardType {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.CardLcmOperation {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.CardState {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.ComvivaSdk {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.PaymentCard {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.SdkException {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.SchemeType {
+    public public *;
+}
+-keep public class com.comviva.hceservice.common.ComvivaHceService {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.common.SdkError {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.common.CommonListener {
+    public public *;
+}
+
+###### com.comviva.hceservice.security
+-keep public interface com.comviva.hceservice.security.SecurityInf {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.security.DeviceStatus {
+    public public *;
+}
+
+###### com.comviva.hceservice.tds
+-keep public interface com.comviva.hceservice.tds.TdsRegistrationListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.tds.TransactionDetails {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.TransactionDetailsListener {
+    public public *;
+}
+-keep public class com.comviva.hceservice.tds.TransactionHistory {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.UnregisterTdsListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
+    public public *;
+}
+
+###### com.comviva.hceservice.fcm
+-keep public class com.comviva.hceservice.fcm.ComvivaFCMService {
+    public public *;
+}
+
+###### MasterCard
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.listeners.ProcessContactlessListener {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.card.cvm.PinListener {
+    public public *;
+}
+-keep public interface com.mastercard.mcbp.userinterface.DisplayTransactionInfo {
+    public public *;
+}
+
+-keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener {
+    public public *;
+}
+
+#-keep public class com.mastercard.mcbp.hce.DefaultHceService {
+#    public public *;
+#}
+
+#-keep public class com.mastercard.mcbp.hce.AndroidHceService {
+#    public public *;
+#}
+
+###### Utility Classes
+-keep public class com.comviva.hceservice.util.DeviceLockUtil {
+    public public *;
+}
+-keep public class com.comviva.hceservice.util.NfcUtil {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.util.NfcSetting {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.util.ResponseListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.util.ResponseListener {
+      public public *;
+ }
+ -keep public class com.comviva.hceservice.util.ArrayUtil {
+       public public *;
+  }
+
+# Firebase
+-keep public class com.google.firebase.iid.FirebaseInstanceId {
+    public public *;
+}
+
+###### CDCVM Classes
+-keep public class com.comviva.hceservice.common.cdcvm.CdCvm {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.cdcvm.Entity {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.cdcvm.Type {
+    public public *;
+}
+
+# Visa Packages
+-keep class com.visa.cbp.** { *; }
+-dontwarn com.visa.cbp.**
+
+#-keep class com.google.gson.** { *; }
+#-dontwarn com.google.gson.**
+
+-keepattributes Signature
+-keepattributes Annotation
+-keep class com.google.** { *; }
+-keep class sun.misc.** { *; }
+

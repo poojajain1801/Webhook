@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ Copyright (c) 2016, MasterCard International Incorporated and/or its
+  ~ affiliates. All rights reserved.
+  ~
+  ~ The contents of this file may only be used subject to the MasterCard
+  ~ Mobile Payment SDK for MCBP and/or MasterCard Mobile MPP UI SDK
+  ~ Materials License.
+  ~
+  ~ Please refer to the file LICENSE.TXT for full details.
+  ~
+  ~ TO THE EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+  ~ WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  ~ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  ~ NON INFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, IN NO EVENT SHALL
+  ~ MASTERCARD OR ITS AFFILIATES BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  ~ IN THE SOFTWARE.
+  -->
+
+<TestCase name="McmLite">
+
+<!-- A test case refers to testing a specific class/functionality  -->
+<!-- For each test case several tests can be defined               -->
+
+<!-- Input data is assumed to be in HEX format (e.g. 0xAD) and it must be -->
+<!-- byte aligned. This means that you need to prepend 0 to your data if  -->
+<!-- of odd size. For example, 0xAF3 should be entered as 0AF3.           -->
+<!-- Encryption values can be of any length.                              -->
+
+  <card name="MasterCard_MCBP_PersoProfile_1" pan="5413339000001513" pan_sequence_number="00">
+		<!-- Start defining tests for this card -->
+
+    <!-- Generic tests about SELECT, GET GPO, and READ RECORD -->
+		<tests>
+			<test name="select_ppse" type="apdu">
+				<c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+				<r_apdu>6F23840E325041592E5359532E4444463031A511BF0C0E610C4F07A00000000410108701019000</r_apdu>
+			</test>
+			<test name="select_aid" type="apdu">
+        <dependencies>
+          <dep>select_ppse</dep>
+        </dependencies>
+				<c_apdu>00A4040007A000000004101000</c_apdu>
+				<r_apdu>6F2D8407A0000000041010A522500A4D6173746572436172648701019F38039F3501BF0C0A9F6E07038000003134009000</r_apdu>
+			</test>
+			<test name="select_aid_full" type="apdu">
+				<dep>select_ppse</dep>
+				<!-- Select aid (Correct Format) -->
+				<c_apdu>00A4040007A000000004101000</c_apdu>
+				<r_apdu>6F2D8407A0000000041010A522500A4D6173746572436172648701019F38039F3501BF0C0A9F6E07038000003134009000</r_apdu>
+        <!-- Select aid (Maalformed) -->
+				<c_apdu>00A4030007A000000004101000</c_apdu> <!-- Wrong P1 -->
+				<r_apdu>6A86</r_apdu>
+				<c_apdu>00A4040107A000000004101000</c_apdu> <!-- Wrong P2 -->
+				<r_apdu>6A86</r_apdu>
+				<c_apdu>00A4040112A000000004101000</c_apdu> <!-- Wrong AID length -->
+				<r_apdu>6700</r_apdu>
+        <c_apdu>00A4040007</c_apdu> <!-- Empty AID content -->
+				<r_apdu>6F00</r_apdu>
+        <c_apdu>00A4040007FFFFFFFFDDAA0000</c_apdu> <!-- Non supported AID -->
+				<r_apdu>6A82</r_apdu>
+			</test>
+			<test name="get_gpo" type="apdu">
+        <dependencies>
+          <dep>select_aid</dep>
+        </dependencies>
+        <!-- get_gpo -->
+				<c_apdu>80A800000383012200</c_apdu>
+	  	  <r_apdu>770E82021B80940808010100100103019000</r_apdu>
+			</test>
+      <test name="get_gpo_full" type="apdu">
+        <dependencies>
+          <dep>select_aid</dep>
+        </dependencies>
+        <!-- Wrong P1 -->
+				<c_apdu>80A811000383012200</c_apdu>
+	  	  <r_apdu>6A86</r_apdu>
+        <!-- Wrong P2 -->
+        <c_apdu>80A800100383012200</c_apdu>
+	  	  <r_apdu>6A86</r_apdu>
+        <!-- Wrong Lc -->
+        <c_apdu>80A8000002830100</c_apdu>
+	  	  <r_apdu>6700</r_apdu>
+	  	  <!-- Wrong APDU Length, but valid LC -->
+        <c_apdu>80A8000013830100</c_apdu>
+	  	  <r_apdu>6700</r_apdu>
+      </test>
+			<test name="read_records_mchip" type="apdu">
+        <dependencies>
+          <dep>get_gpo</dep>
+        </dependencies>
+        <!-- Read the first record MCHIP -->
+				<c_apdu>00B2011400</c_apdu>
+	  		<r_apdu>70819C5A0854133390000015135F24031512315F25034912315F280205285F3401008C249F02069F03069F1A0295055F2A029A039C019F37049F35019F45029F4C089F34039F15028D0A910A95059F37049F4C088E0A00000000000000000F039F0702FF009F080200029F0D0500600000009F0E0500000000009F0F0500600000009F420209789F4A018257125413339000001513D15122260000000000009000</r_apdu>
+				<!-- Read the second record MCHIP -->
+				<c_apdu>00B2021400</c_apdu>
+	  		<r_apdu>7081C08F01F39F3201039224EFF4A554A084A829B0D6D5ACCC34B84C262B32436ABDAC9899308D51E57C83DF6908C3899081909460519F98B27062FBF2FF9D14A3A6BD61BE566C7746DB172192CCFAD766831C01D3AE4909DDDE5871EBFF5097E4AB69F61128C98CC6C625FBBCA3F7FDE8226BADE361F65C947FB7FE6D9455B16F6C1589C6BEFC8F46F7CD63753A5300F45DC3AC966639A9A3B9F62B0ADF3319905CAA3DD67015938B65D28F1E79A2D376F18E64C240927DC985E05969E54C741A8BA99000</r_apdu>
+	  		<!-- Read the third record MCHIP -->
+	  		<c_apdu>00B2031400</c_apdu>
+	  		<r_apdu>7081989F4701039F4681902EB831757F2D8FB9F4C0938CB9971907F701B4A6140BC67307C04CB93AE363D0F037FEA5E10057F14C1A8FD796F7ED9E296BF010653A122672D6B73FE02450832E40DAF242E309EF4C01E491B683087C1C046F302AACED1022A4715DAA521EFCC635FE9A2365FC8E42BBC297ECA011CFEEC23D2F44F1C75FCF0ACD9F2C24D92E58BC64FBBF0FE331694E10403671A73B9000</r_apdu>
+      </test>
+	  	<test name="read_record_magstripe" type="apdu">
+        <dependencies>
+          <dep>get_gpo</dep>
+        </dependencies>
+	  	  <!-- Read the first record -->
+				<c_apdu>00B2010C00</c_apdu>
+	  		<r_apdu>7081869F6C0200019F62060000000000F09F6306000000000F0E562942353431333333393030303030313531335E202F5E31353132323236303030303030303030303030309F6401049F650200F09F66020F0E9F6B135413339000001513D15122260000000000000F9F6701049F69199F6A049F7E019F02065F2A029F1A029C019A039F15029F35019000</r_apdu>
+	  	</test>
+
+      <!-- MCHIP Transactions Tests -->
+
+	  	<test name="generate_ac_01" type="apdu">
+        <!-- Single Use Keys -->
+        <keys>0001</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000500000000000000005600200000000978141203009353068722000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200019F4B60855CFFBC7CDCACADE4DE230543B90D939827616174CB739A42F10E4CE747F1DFA96D1DFCABE9BBE9F68C38E460B42289FF02C92A3CA8BBD1DE4CCD339364591735880F0D2BDA2A0E103117F290AC1CF5ABA7D53391D7A3F7B7122216B988A8BE9F10120114A54100040000000000D5C912973900FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_02" type="apdu">
+        <keys>0002</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000199000000000000005600200000000978141206008266169022000000000000000000003F0002000000</c_apdu>
+    <r_apdu>7781819F2701809F360200029F4B605C117ADB98E384D984A7A3086FA2A0EB045CE6721982355D418DC3293616CD17B29A012F1552D2DEB2BD7732858B0F7819E8EEE269B28D7865535D7D8EB9B4C09CCDCB2BDA1385074D6DF0AF382463555CD5BC421A07405E5F5227DA1818D8FE9F10120114A54100040000000000803540A49200FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_03" type="apdu">
+        <keys>0003</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+        <!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000250000000000000005600200000000978141206009653709822000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200039F4B604C3088D62A4C14226D53309D9E678D06C3DEEEEFED44F8380F93FC4246C66D6CD42FC95D490D388C189942C44C47125430CE810C034C0818C3EDF2CBE63BB0132AC906BDB4D06C2EC8FC84E7B8AE77CD67A3181ACA7E8EDE8F8D3C8A97EE93929F10120114A5410004000000000079996259D800FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_04" type="apdu">
+        <keys>0004</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+        <!-- Generate AC -->
+        <c_apdu>80AE90002D000000000100000000000000005600200000000978141206004267317122000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200049F4B6095B28AA58F98A480B15D0BE781AB2E3BB64897A17B8AEB279201EF2EC47BD020DA04DAA838F6A2670B58ACA1FA1FB10747C88D5BA21395F88322614F8EC25E7433B858FBB83891B515B69F996FF2195DBE711CAB5790853AC2CFF473F9FB9A379F10120114A54100040000000000A29A67EEAA00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_05" type="apdu">
+        <keys>0005</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000200000000000000005600200000000978141206009891083422000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200059F4B60687256AA3C4021E3CE8BE68E18A8ACDC62383E988178B926F46A00EC1D51D45718E12212356B56DAA1C90F2C629F95058E86ACED508F0C587F9923C5DAE866E9555E119EBCB645B8737375DF7104EAD066DD4FE219133C35621776F8712219D49F10120114A541000400000000001F32FB137100FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_06" type="apdu">
+        <keys>0006</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000300000000000000005600200000000978141206005437189222000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200069F4B602ADAD91075C53F3B88ADBD9D71667C3FC9F3619BAF2C90B536766C6E5FABDB889EF3B6FD225C8655A6A5D42837DAD739758900BF1BE3827EA8A30BB92504FC190A7FEBD446BA9BC232F46EB6FC1F7D126B34FD30797CF05AFD95ADD9EB798E679F10120114A54100040000000000A24D1E5FF700FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_07" type="apdu">
+        <keys>0007</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000400000000000000005600200000000978141206003005821322000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200079F4B607A6CC50D8275DEAA44C88170B1D6971F0A5279D131D163074363AE658AE3671B925B51265B49E865B857F4179CEF9FA7060BF8244B85FFA144583B66EECFE08D3D3856B11A55B6AF135306E2A0D694B5B66D267605B5A5B306716BD110102CA09F10120114A54100040000000000D18B9AA93100FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_08" type="apdu">
+        <keys>0015</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000030000000000000005600200000000978141206008165238922000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200159F4B60334E50DD093F8ED26A71F80807F084BFF4DFEC594BDEA67658CA04B7102834D5BE624878F07EA6A9AA2688BF2D21A6004A1114F3C1877F9B0E50B50E8F7352ABFC7D07B5758F6B07CB202DC272E51AE5BCC97E902546A8F0A34C23EA9C37F3869F10120114A541000400000000005FF95F844000FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_09" type="apdu">
+        <keys>0009</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000600000000000000005600200000000978141206006091865822000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200099F4B604DCDEEA16DC0DE205D42D02984A9036BE6E11861B603A61DBF3F94954694368FBBDAEC3B152C712CA1A7FDBE53099006D157856B42BED7EC770D185CADC9D7AA200585922544886D3035757B987EE08AC19B5A01E930F0CC4FE81C0B65A9E3A49F10120114A54100040000000000D67EEF90D900FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_10" type="apdu">
+        <keys>000A</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000700000000000000005600200000000978141206001553795022000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000A9F4B6052EB7CD8E8E504AD42BF3E85B3402E087AA02C3AB59D96C15E8ABAA3E20DA19F778F15542D516C60DCC1579990182D4E50BD321121247976B8B5639D542CC81BEDBBBBC1BBF39BBF7F8126AF5AD5853BE6698F2FE409D16AA337D8035A45BAF19F10120114A54100040000000000813F09B29A00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_11" type="apdu">
+        <keys>000B</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+        <c_apdu>80AE90002D000000000800000000000000005600200000000978141206005770325422000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000B9F4B605B6E0EC2065B03B9B2C30CEB9DE5DDB3FD26333FDBA049C3779B22E8D5CE9AF075B9D280765A2087F583328227DB9BE0FF967C231152FD2FA3EE7957162776A9D306F08A4CB7418DB4E06EEE816E2FEF98485182174BE67972C21E0FCD08C25E9F10120114A54100040000000000914D00466C00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_12" type="apdu">
+        <keys>000C</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000900000000000000005600200000000978141206001276945022000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000C9F4B608307D41F1536B3C324BCACC64D91EA45884CED2A23043E542006C7DF0667BC52174B4058D545DB67BDBF283B04E2CACB5BFD2D55DC9813EDFDB45A16CD7F7C6A1558B9449879671540E62E56C13D6671CE92F7377B962792D79D2510BC0B88EF9F10120114A541000400000000003042B812E500FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_13" type="apdu">
+        <keys>000D</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000000000000000000005600200000000978141206001579068322000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000D9F4B60197F7C0DBA953E1486C00D361B9B2F3D6C403B83D5280D8E371961DFE6E98D3E6EDF03D9B4473382EBF7120EF210AF472688D64CCFE9957D8B6BFADFFEC61486AC8BF7063CE86074FABD564FC4A28956911FB09E084AC0C65C08AE7779F7EEBC9F10120114A54100040000000000F01238A67F00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_14" type="apdu">
+        <keys>000E</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000025000000000000005600200000000978141206009435203122000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000E9F4B603AD66E4CCC0973C30145C21447CAA42ECD4FBD982C375C6E6F67C88A5817167FD50FAC25B1AD3076381C2FEAD10668011B944BCB7375481922DB47A8F8A4A55AC160B9751B783FAC9FE7E72471551B20C3D7A0D64B7467C437FC507434ED32D09F10120114A541000400000000000F45F942FA00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_15" type="apdu">
+        <keys>000F</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000075000000000000005600200000000978141206000837772922000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F3602000F9F4B60189108826C1CE58FF1DF1173B0841BC846CB06BB0B5A277CDB83ABDF361D33EAEDBF8E8F96C1A92038183475EB93734BAEB81B81E68C5BF24D2DEB37462325B31A22E5D51E1D6F758C5ADA32FA8934B92EFBEC5CAFB7E954D1BCE1D0599CB1B29F10120114A541000400000000002CA23A8C1500FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_16" type="apdu">
+        <keys>0010</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000612000000000000005600200000000978141206006120018622000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200109F4B60889CF75A3C2A73759021F119F6A531FED7E8C91D81C6EC47267F0D40CCBA5CB579B6D5330EE1D150E7A3DE61DD0E79129CFC871390EE806ECE0527642A19FBBBD41414D49EDA58345E9CE5CCE75BFDC26D499054935BE7483BA37102046A71E79F10120114A541000400000000003AFABF7B2600FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_17" type="apdu">
+        <keys>0011</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000371000000000000005600200000000978141206001150812222000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200119F4B6003100DE9335DF9E99B86E15E793677C39EB883817894BDD6F950A30D5CF4927E92BFD14A1EF069763B7F4A93E660333E7873B13AFC35007E536CC36AFEB0CE738D7536FD3B855258C15D13C1157806BB275037B1C8D4846ADC8B7990579E3AC19F10120114A5410004000000000027A282C16700FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_18" type="apdu">
+        <keys>0012</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000230000000000000005600200000000978141206004406916822000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200129F4B6096E080DE85357A6E16454C751D5D2B133F3141C4C49FEEA7849BCE9548A2E1C7886923512D1E46BDFE40A452F7887A758914323C6BA444EF2BF92C747FFA096FCB4EBB5EC66E8B66997DC7607D7A58754C5D80B51BFC737054DF960804D9A62D9F10120114A541000400000000002FE1AA913C00FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_19" type="apdu">
+        <keys>0013</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000675000000000000005600200000000978141206002988759522000000000000000000003F0002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200139F4B60036F356A50D4AC8EF53C13D3230B1080C70A76164921E44D33936A9B6A6DD878CC6D91BB4E506F10AAD5534E7AE35D2E371B3E38B524E2043067A3B23D31401BD209026B8651685F10494CFD37BFF35110C10107DA9C4293EFB41C572B8190D19F10120114A5410004000000000038AD072C5900FF9000</r_apdu>
+	  	</test>
+      <test name="generate_ac_20" type="apdu">
+        <keys>0014</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D00000000519500000000000000560020008000097814120600530551792200000000000000000000010002000000</c_apdu>
+	  		<r_apdu>7781819F2701809F360200149F4B607AAA3A638E8327B0AA20F7D91C64F2DE67EA8808478BEED73DAC9BFBD283655CC4818D155E5EC0025DD282340692BF98276A577CAA53122BF21A19689B66A54851278C016536F6F03C912CB7DE0D9487D65F7DF64A2D14764FE9FCBB682C66939F10120114A541000400000000005E2A14DF5100FF9000</r_apdu>
+	  	</test>
+
+      <!-- MAGSTRIPE Transactions Tests -->
+	  	<test name="compute_cc_01" type="apdu">
+        <keys>0001</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+        <!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000092401000000000095097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610207919F600207919F36020041DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_02" type="apdu">
+        <keys>0002</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000055501000000000115097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61020AD99F60020AD99F360201FCDF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_03" type="apdu">
+        <keys>0003</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000023701000000000354097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61020C249F60020C249F360200A7DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_04" type="apdu">
+        <keys>0004</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000027401000000000330097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610213139F600213139F360201BDDF4B030010009000</r_apdu>
+      </test>
+	  	<test name="compute_cc_05" type="apdu">
+        <keys>0005</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000018801000000000014097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610216C79F600216C79F360202A0DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_06" type="apdu">
+        <keys>0006</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000057501000000000694097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61021AC09F60021AC09F360200C6DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_07" type="apdu">
+        <keys>0007</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000019401000000000100097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61021E789F60021E789F3602038BDF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_08" type="apdu">
+        <keys>0008</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000049001000000000200097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610220BD9F600220BD9F360200D9DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_09" type="apdu">
+        <keys>0009</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+        <!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000035101000000000300097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610224A79F600224A79F36020343DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_10" type="apdu">
+        <keys>000A</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+        <!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000058101000000000400097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610200269F600200269F3602071ADF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_11" type="apdu">
+        <keys>000B</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+        <!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000001601000000000500097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610204BE9F600204BE9F36020432DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_12" type="apdu">
+         <keys>000C</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+        <!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000062201000000000600097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61020AF79F60020AF79F360206A2DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_13" type="apdu">
+        <keys>000D</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000061101000000000700097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61020BCD9F60020BCD9F360204CEDF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_14" type="apdu">
+        <keys>000E</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000042501000000000800097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610210D99F600210D99F360205E4DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_15" type="apdu">
+        <keys>000F</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000036801000000000900097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F6102139C9F6002139C9F360205EDDF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_16" type="apdu">
+        <keys>0010</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000058801000000000000097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61021A239F60021A239F3602054ADF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_17" type="apdu">
+        <keys>0011</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000003801000000000008097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F61021CCD9F60021CCD9F36020757DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_18" type="apdu">
+        <keys>0012</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000065901000000000091097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610221539F600221539F360206A1DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_19" type="apdu">
+        <keys>0013</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000008101000000000615097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F6102266F9F6002266F9F360205A0DF4B030010009000</r_apdu>
+	  	</test>
+	  	<test name="compute_cc_20" type="apdu">
+        <keys>0014</keys>
+        <dependencies>
+          <dep>read_record_magstripe</dep>
+        </dependencies>
+	  		<!-- Compute Cryptographic Checksum -->
+				<c_apdu>802A8E80160000028603000000003100097800560014120600002200</c_apdu>
+	  		<r_apdu>77159F610202929F600202929F3602099FDF4B030010009000</r_apdu>
+	  	</test>
+      <!-- DSRP UCAF -->
+	  	<test name="dsrp_ucaf_01" type="remote">
+        <!-- Single Use Keys -->
+        <keys>0001</keys>
+	  	</test>
+      <!-- DSRP DE55 -->
+	  	<test name="dsrp_de55_01" type="remote">
+        <!-- Single Use Keys -->
+        <keys>0001</keys>
+	  	</test>
+		</tests>
+	</card>
+  <card name="MasterCard_MCBP_REF_176" pan="5413339000001513" pan_sequence_number="00">
+    <tests>
+      <test name="select_ppse" type="apdu">
+				<c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+				<r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+			</test>
+			<test name="select_aid" type="apdu">
+        <dependencies>
+          <dep>select_ppse</dep>
+        </dependencies>
+				<c_apdu>00A4040007A000000004220300</c_apdu>
+				<r_apdu>6F2D8407A0000000042203A522500A4D6173746572436172648701019F38039F3501BF0C0A9F6E07038000003134009000</r_apdu>
+			</test>
+			<test name="get_gpo" type="apdu">
+        <dependencies>
+          <dep>select_aid</dep>
+        </dependencies>
+        <!-- get_gpo -->
+				<c_apdu>80A800000383012200</c_apdu>
+	  	  <r_apdu>770E82021980940810020400200102019000</r_apdu>
+			</test>
+			<test name="read_records_mchip" type="apdu">
+        <dependencies>
+          <dep>get_gpo</dep>
+        </dependencies>
+        <!-- Read the first record MCHIP -->
+				<c_apdu>00B2011400</c_apdu>
+	  		<r_apdu>70819C5A0854133390000015135F24032012315F25034912315F280200565F3401008C249F02069F03069F1A0295055F2A029A039C019F37049F35019F45029F4C089F34039F15028D0A910A95059F37049F4C088E0A00000000000000001F039F0702FF009F080200029F0D0500600000009F0E0500000000009F0F0500600000009F420209789F4A018257125413339000001513D20122010000000000009000</r_apdu>
+				<!-- Read the second record MCHIP -->
+				<c_apdu>00B2021400</c_apdu>
+	  		<r_apdu>702D8F01F49F32010392246E8042D075DDC54E51300D03E44EBFF7140C0556B39CA0D78B28553644A12365F40FA5479000</r_apdu>
+	  		<!-- Read the third record MCHIP -->
+	  		<c_apdu>00B2031400</c_apdu>
+	  		<r_apdu>7081B39081B0914315BDA0CCFC820718C0225A278C2964B9668C697A4C00451C75A10180B0BD3E2601BDD30D3319DC4006E911E271B7C6AAEE28FA65312BB1F680489CDC9CD311980E156F5841B7C6B0EFE3BD3DAA1C4D9DE235644F461C79DF0336A8C570CA69BAC1EA1570C590178AAC7532934839660F4C8F3B74023DBCD75E655240952AA1E4CB4ECF322749B51B72865B1B28C1000E542E562FF20E0F9FCA28C930831F8FDC06FC7B05E162CB37570E41C65D149000</r_apdu>
+      </test>
+	  	<test name="read_record_magstripe" type="apdu">
+        <dependencies>
+          <dep>get_gpo</dep>
+        </dependencies>
+	  	  <!-- Read the first record -->
+				<c_apdu>00B2010C00</c_apdu>
+	  		<r_apdu>7081869F6C0200019F62060000000000F09F6306000000000F0E562942353431333333393030303030313531335E202F5E31353132323236303030303030303030303030309F6401049F650200F09F66020F0E9F6B135413339000001513D15122260000000000000F9F6701049F69199F6A049F7E019F02065F2A029F1A029C019A039F15029F35019000</r_apdu>
+	  	</test>
+
+      <!-- MCHIP Transactions Tests -->
+
+	  	<test name="generate_ac_01" type="apdu">
+        <!-- Single Use Keys -->
+        <keys>0033</keys>
+        <dependencies>
+          <dep>read_records_mchip</dep>
+        </dependencies>
+	  		<!-- Generate AC -->
+	  		<c_apdu>80AE90002D000000000500000000000000005600200000000978150110000394827822000000000000000000001F0302000000</c_apdu>
+	  		<r_apdu>7781D29F2701809F360200339F4B81B05BE7E9FFF04837AA9C35C7BAD24E31470F0E42B205740769464ED6EA6C13E4DF119B7EE7851F3B98F0B33825906446C7CD57D1FA1A2AB8CFC105834250ED5D7010D45B037C9FE7E05665C5B0838706C0CBCEDA1B6D73CF840BFF956445B86B1CA1ED7A2128B4989A5CE763F46E6507C82980CAD5D7B71CD564956729DA23EC251432149CFBD81138D097EC420D24E2C7BAF42EC35BD6CBBF3FD70757334AA004C4AECC957EBCFDC8CF09F23A4A8B4F109F10120114A54100020001000000A3D862D53900FF9000</r_apdu>
+	  	</test>
+		</tests>
+  </card>
+
+</TestCase>

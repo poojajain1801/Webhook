@@ -1,0 +1,108 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFile 'D:/AndroidWorkspace/New work space/vtslatest/HceCloudReadyApp3/comviva-hce-service/dexguard-project.txt'
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
+    }
+    productFlavors {
+        mdes {
+            buildConfigField "String", "RNS_MESSAGE_TAG", "\"payload\""
+            buildConfigField "com.mastercard.mcbp.init.McbpInitializer.RemoteProtocol",
+                    "remoteProtocolMode", "com.mastercard.mcbp.init.McbpInitializer.RemoteProtocol.Mdes"
+        }
+    }
+    configurations {
+        mdesDebugCompile
+        mdesReleaseCompile
+    }
+
+    sourceSets {
+        main {
+            //jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        flatDir { dirs '/lib' }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath ':dexguard:'
+    }
+}
+
+//task to delete the old jar
+task deleteOldJar(type: Delete) {
+    delete '..//app/libs/comvivaSdk.aar'
+}
+
+//task to export contents as jar
+task buildDebugJar(type: Copy) {
+    from('build/outputs/aar/')
+    into('..//app//libs')
+    include('comviva-hce-service-mdes-debug.aar')
+    rename('comviva-hce-service-mdes-debug.aar', 'comvivaSdk.aar')
+}
+
+//task to export contents as jar
+task buildReleaseJar(type: Copy) {
+    from('build/outputs/aar/')
+    into('..//app//libs')
+    include('comviva-hce-service-mdes-release.aar')
+    rename('comviva-hce-service-mdes-release.aar', 'comvivaSdk.aar')
+}
+
+buildDebugJar.dependsOn(deleteOldJar, build)
+buildReleaseJar.dependsOn(deleteOldJar, build)
+
+allprojects {
+    repositories {
+        mavenCentral()
+        flatDir { dirs 'libs' } // this line
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile('net.sf.flexjson:flexjson:3.2') {
+        transitive = true
+    }
+    testCompile 'junit:junit:4.12'
+    compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-messaging:10.0.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+}
+apply plugin: 'dexguard'
+

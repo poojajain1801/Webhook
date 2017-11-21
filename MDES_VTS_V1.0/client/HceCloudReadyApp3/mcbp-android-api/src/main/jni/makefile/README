@@ -1,0 +1,53 @@
+NOTE: Makefile is NOT regularly update. Please report issues if it does not compile
+      for your platform.
+
+Please note that the following static libraries should be placed under lib/
+- Google Test 1.7.0 
+- Crypto++ 5.6.2
+- Boost 1.58
+ 
+INSTALLATION
+------------
+
+0. Before executing 'make' you must have compiled and installed the following
+   libraries:
+   - Google Test
+   - Crypto++
+   - Boost
+
+1. Compile and Install Google Test (assuming you are in the makefile SDK folder)
+   - Go into ../gtest-1.7.0/
+   - type ./configure
+   - type make 
+   - Once completed execute the following two commands as reported in the Gtest
+     README:
+     - g++ -isystem ./include -I. -pthread -c ./src/gtest-all.cc
+     - ar -rv libgtest.a gtest-all.o
+   - The previous command should generate a libgtest.a library that contains 
+     all the Google Test framework functions.
+   - Copy the libgtest.a under the folder lib in the makefile SDK directory.
+     Place the library under your platform folder (e.g. macos if compiling on Mac)
+2. Compile and install Crypto++ 5.6.2
+   - Go into ../cryptopp562
+   - type make
+   - Once completed you can either type 'make install' or manually copy the .a 
+     library to the lib folder under your platform.
+3. Compile and install Boost
+   - Boost is currently needed for Unit Testing only. You may modify the unit test
+     source and remove that dependency if necessary 
+   - Please refer to Boost website or to your platform for installation details
+   - You can either install the library at platform level or copy the necessary
+     library under makefile/lib folder.
+4. Compiling the SDK C++ library with unit test
+   - from the makefile/ folder type 'make'
+   - this will generate an executable called mcbp_unit_test
+   - make sure you have all the xml files in the ../unit_test/ folder locally copied
+     in the folder where you would like to execute the mcbp_unit_test
+   - run './mcbp_unit_test' and you should be able to pass all the test cases!
+5. Enjoy!
+
+CONTACTS
+--------
+
+Email: mp_sdk@mastercard.com
+

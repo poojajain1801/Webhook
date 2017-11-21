@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2016, MasterCard International Incorporated and/or its
+ * affiliates. All rights reserved.
+ *
+ * The contents of this file may only be used subject to the MasterCard
+ * Mobile Payment SDK for MCBP and/or MasterCard Mobile MPP UI SDK
+ * Materials License.
+ *
+ * Please refer to the file LICENSE.TXT for full details.
+ *
+ * TO THE EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+ * WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NON INFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, IN NO EVENT SHALL
+ * MASTERCARD OR ITS AFFILIATES BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+apply plugin: 'java'
+
+// Need this workaround due to Android Studio limitations. Hope to remove it soon, but it
+// depends on Android Studio moving to Intellij 14...
+// See https://code.google.com/p/android/issues/detail?id=64887
+task copyTestResources(type: Copy) {
+    from sourceSets.test.resources
+    into sourceSets.test.output.classesDir
+}
+
+processTestResources.dependsOn copyTestResources
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    compile 'com.intellij:annotations:12.0'
+    compile 'net.sf.flexjson:flexjson:3.2'
+    compile project(':mobile-api-core')
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.bouncycastle:bcprov-jdk15on:1.53'
+    testCompile files('libs/mcbpprovisioningsimulator-core-1.0.0.jar')
+    testCompile('commons-validator:commons-validator:1.4.0') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+        exclude group: 'commons-digester', module: 'commons-digester'
+        exclude group: 'commons-beanutils', module: 'commons-beanutils'
+    }
+}
+
+task("_generatejavadoc", type: Javadoc) {
+    group 'Documentation'
+    source = sourceSets.main.allJava
+    destinationDir = file("../../docs/$project.name")
+    classpath = configurations.compile
+    options.links("http://docs.oracle.com/javase/7/docs/api/");
+    options.links("http://d.android.com/reference/");
+}
+
