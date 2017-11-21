@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 @Setter
@@ -69,6 +70,8 @@ public class HitVisaServices extends VtsRequest {
         ResponseEntity<String> response=null;
         String strResponse =null;
         System.out.println("Request = "+entity.getBody());
+        String xCoRelationId = null;
+
         try {
             if("POST".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
@@ -80,6 +83,13 @@ public class HitVisaServices extends VtsRequest {
             {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
+
+            if(response!=null){
+                HttpHeaders headers = response.getHeaders();
+                xCoRelationId = headers.get("X-CORRELATION-ID").get(0);
+                LOGGER.debug(" HitVisaServices->xCorrelationId : "+xCoRelationId);
+            }
+
         }catch (Exception e){
             String error = ((HttpClientErrorException) e).getResponseBodyAsString();
             String xCorrelationId = ((HttpClientErrorException)e).getResponseHeaders().get("X-CORRELATION-ID").toString();

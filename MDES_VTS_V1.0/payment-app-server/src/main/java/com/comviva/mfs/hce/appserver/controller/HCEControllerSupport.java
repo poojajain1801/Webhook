@@ -1,5 +1,5 @@
 package com.comviva.mfs.hce.appserver.controller;
-
+import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
@@ -16,9 +16,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +31,15 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.*;
-
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.io.InputStream;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 /**
  * Created by shadab.ali on 23-08-2017.
  */
@@ -41,6 +53,10 @@ public class HCEControllerSupport {
     private CommonRepository commonRepository;
     @Autowired
     private AuditTrailRepository auditTrailRepository;
+
+    @Autowired
+    private Environment env;
+    private static PrivateKey privateKey = null;
 
     public  Map<String,Object> formResponse(String messageCode){
 
@@ -182,4 +198,103 @@ public class HCEControllerSupport {
             LOGGER.error("Exception occured in HCEControllerSupport->maintainAudiTrail"+e);
         }
     }
+
+
+    private  PrivateKey getPrivateKeyFromKeyStore() throws Exception{
+        ResourceLoader resourceLoader = null;
+        Resource resource = null;
+        InputStream inputStream = null;
+        String fileName = null;
+        try{
+            //InputStream ins = DecryptPayload.class.getResourceAsStream("/keystore.
+            //
+            // jks");
+
+            fileName = env.getProperty("end.to.end.keystore.filename");
+            resourceLoader = new FileSystemResourceLoader() ;
+            resource = resourceLoader.getResource("classpath:"+fileName);
+            inputStream  = resource.getInputStream();
+
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(inputStream, env.getProperty("end.to.end.keystore.secret.key").toCharArray());   //Keystore password
+            KeyStore.PasswordProtection keyPassword =       //Key password
+                    new KeyStore.PasswordProtection(env.getProperty("end.to.end.keystore.secret.key").toCharArray());
+
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(env.getProperty("end.to.end.keystore.alias"), keyPassword);
+            PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+            return privateKey;
+        }catch (Exception ex) {
+            LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
+            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+        }
+
+    }
+
+
+
+    private String aesDecrypt(String encryptedText, byte[] bKey,String iv)throws Exception {
+        try {
+            SecretKey key2 = new SecretKeySpec(bKey, 0, bKey.length, "AES");
+            // Instantiate the cipher
+            Cipher cipher;
+            cipher= Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            byte[] ivBytes = new Base64().decode(iv);
+            cipher.init(Cipher.DECRYPT_MODE, key2, new IvParameterSpec(ivBytes));
+            byte[] encryptedTextBytes = new Base64().decode(encryptedText);
+            byte[] decryptedTextBytes ;
+            decryptedTextBytes= cipher.doFinal(encryptedTextBytes);
+            return new String(decryptedTextBytes);
+        } catch (Exception ex) {
+            LOGGER.error("Error in AESEncrypt CryptoUtil : " + ex.getMessage(), ex);
+            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+        }
+
+    }
+
+
+    public String decryptRequest(String request){
+        String decryptedData = null;
+
+        try{
+
+            if(HCEConstants.ACTIVE.equals(env.getProperty("enable.end.to.end.encryption"))) {
+
+                JSONObject jsonObject = new JSONObject(request);
+                String requestEncKey = (String) jsonObject.get("requestKey");
+                String requestIV = (String) jsonObject.get("requestIV");
+                String requestEncData = (String) jsonObject.get("requestEncData");
+
+                if (null == requestEncKey || null == requestIV || null == requestEncData || requestEncKey.isEmpty() || requestIV.isEmpty() || requestEncData.isEmpty()) {
+                    throw new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
+                }
+                if (privateKey == null) {
+                    privateKey = getPrivateKeyFromKeyStore();
+                }
+                Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+                cipher.init(Cipher.DECRYPT_MODE, privateKey);
+                byte[] decData = cipher.doFinal(new Base64().decode(requestEncKey));
+                decryptedData = aesDecrypt(requestEncData, decData, requestIV);
+
+            }else{
+                decryptedData = request;
+            }
+
+            return  decryptedData;
+
+        }catch (HCEActionException decReqActionException){
+            LOGGER.error("Exception occured in HCEControllerSupport->decryptRequest ", decReqActionException);
+            throw decReqActionException;
+
+        }catch (Exception decReqException){
+            LOGGER.error("Exception occured in HCEControllerSupport->decryptRequest ", decReqException);
+            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+        }
+
+
+
+
+
+
+    }
+
 }

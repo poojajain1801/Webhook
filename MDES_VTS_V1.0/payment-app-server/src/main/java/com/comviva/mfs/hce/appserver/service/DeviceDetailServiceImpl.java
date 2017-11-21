@@ -252,5 +252,4 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
     }
 
-
-    }
+}
