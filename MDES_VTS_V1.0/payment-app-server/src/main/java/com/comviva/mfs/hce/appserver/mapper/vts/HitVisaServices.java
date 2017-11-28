@@ -94,6 +94,7 @@ public class HitVisaServices extends VtsRequest {
 
         }
         LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
+
         return response;
     }
 
