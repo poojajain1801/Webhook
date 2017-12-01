@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  ~ Copyright (c) 2016, MasterCard International Incorporated and/or its
+  ~ affiliates. All rights reserved.
+  ~
+  ~ The contents of this file may only be used subject to the MasterCard
+  ~ Mobile Payment SDK for MCBP and/or MasterCard Mobile MPP UI SDK
+  ~ Materials License.
+  ~
+  ~ Please refer to the file LICENSE.TXT for full details.
+  ~
+  ~ TO THE EXTENT PERMITTED BY LAW, THE SOFTWARE IS PROVIDED "AS IS", WITHOUT
+  ~ WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  ~ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  ~ NON INFRINGEMENT. TO THE EXTENT PERMITTED BY LAW, IN NO EVENT SHALL
+  ~ MASTERCARD OR ITS AFFILIATES BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  ~ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+  ~ IN THE SOFTWARE.
+  -->
+
+<TestCase name="McmLite">
+
+    <!-- A test case refers to testing a specific class/functionality  -->
+    <!-- For each test case several tests can be defined               -->
+
+    <!-- Input data is assumed to be in HEX format (e.g. 0xAD) and it must be -->
+    <!-- byte aligned. This means that you need to prepend 0 to your data if  -->
+    <!-- of odd size. For example, 0xAF3 should be entered as 0AF3.           -->
+    <!-- Encryption values can be of any length.                              -->
+    <card name="ref_176" pan="5413339000001513" pan_sequence_number="00">
+
+        <!-- High Level Test Description =  Select PPSE-->
+        <test name="SelectPPSE" type="apdu">
+            <!-- Select PPSE  -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Select ADF -->
+        <test name="SelectADF" type="apdu">
+            <dependency>SelectPPSE</dependency>
+            <!-- Select ADF  -->
+            <c_apdu>00A4040007A000000004101000</c_apdu>
+            <r_apdu>6F378407A0000000041010A52C500A4D6173746572436172648701019F38039F3501BF0C149F6E07005600003134005F50077265665F3137369000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Select Alternate AID -->
+        <test name="SelectAlternateAID" type="apdu">
+            <dependency>SelectPPSE</dependency>
+            <!-- Select Alternate AID  -->
+            <c_apdu>00A4040007A000000004220300</c_apdu>
+            <r_apdu>6F288407A0000000042203A51D500544656269748701029F38039F3501BF0C0A9F6E07005600003134009000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options -->
+        <test name="GetProcessingOptions" type="apdu">
+            <dependency>SelectADF</dependency>
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383012200</c_apdu>
+            <r_apdu>770E82021B80940808010100100103019000</r_apdu>
+        </test>
+
+        <test name="ReadRecord" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+             <c_apdu>00B2010C00</c_apdu>
+             <r_apdu>7081869F6C0200019F62060000000000F09F6306000000000F0E562942353431333333393030303030313531335E202F5E32303132323031303030303030303030303030309F6401049F650200F09F66020F0E9F6B135413339000001513D20122010000000000000F9F6701049F69199F6A049F7E019F02065F2A029F1A029C019A039F15029F35019000</r_apdu>
+
+             <!-- Read Record  -->
+            <c_apdu>00B2011400</c_apdu>
+            <r_apdu>70819D5A0854133390000015135F24032012315F25034912315F280200565F3401008C249F02069F03069F1A0295055F2A029A039C019F37049F35019F45029F4C089F34039F15028D0A910A95059F37049F4C088E0A00000000000000001F039F0702FF009F080200029F0D0500600000009F0E0500000000009F0F0500600000009F420209789F4A018257135413339000001513D20122010000000000000F9000</r_apdu>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2021400</c_apdu>
+            <r_apdu>7081C08F01F39F3201039224EFF4A554A084A829B0D6D5ACCC34B84C262B32436ABDAC9899308D51E57C83DF6908C389908190320F6B1376C4E4FAC4388FDBD183496A90913F76FFC46A9A6BC9FB4735FD29563EB32FDB056FAA5726286BCA829E84362BC5DA724CD6D4F0F659AF85DCEB09626032D45E9DB537B7CA834757ABA713C7A7B59F446590B07D7ACCCDC0BA7AB10E0DA0FCC290CCAC04ED9C2468E3CB1761FB8CCD742458ECBF8E15F66B1B3457B6408DD39D6A1C4253771096533F9B92479000</r_apdu>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2031400</c_apdu>
+            <r_apdu>7081E79F47030100019F484A573196DECF4B9FA0953727633CB30A2807AF8FAD75B1CBB3BAC9423ED0765715AE83BF5BB436738AC650AC991DB606E56644E9CCFC6A7035434D7D425C5FBF474799E09F79E31472FBF39F4681909CCD56BC21DA7CC059D00AD3253A38082DB35463AD8909CD2C61FC45DCAB99C8E55DF2EC8A487498726164E8B59AE5A2C64025764872753D87AE590746ED838B2ED3C4C72FEF49467E1B570581579ED7BC1CC95247A2F0BE95CE75B0A3809C83AB371B09828E98405D0396C0D401E9BEC74B96869D617AD0CD3940058CFA8F3CC954DF3E19251ABBF87C82CDC4FF8A309000</r_apdu>
+        </test>
+
+
+
+        <!-- High Level Test Description = To ensure that the transaction is cancelled and the correct error code is returned when Cryptogram Type in Reference Control Parameter is set with an RFU bit. The handset is ready for CL transaction -->
+        <test name="GenAC_06" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Generate AC -->
+            <c_apdu>80AEC0002D000000000999000000000000005600000000000978090419001971123021DAC000000000000000001F0002000000</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = To ensure that the application returns the expected error code and number of SUK available is decreased by 1 when Cryptogram Type in Reference Control Parameter&#xA;= P2 ? 00. The handset is ready for CL transaction -->
+        <test name="GenAC_07" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Generate AC -->
+            <c_apdu>80AE90012D000000000999000000000000005600000000000978090419001971123021DAC000000000000000001F0002000000</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  To ensure that the transaction is cancelled and the correct error code is returned when profile.data CL.CDOL1.related DataLength Lc lower than 45. Test is performed using '44'. The handset is ready for CL transaction -->
+        <test name="GenAC_08" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002C000000000999000000000000005600000000000978090419001971123021DAC000000000000000001F00020000</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  To ensure that the transaction is cancelled and the correct error code is returned when Terminal Type = Offline-only (value = x3). The handset is ready for CL transaction -->
+        <test name="GenAC_09" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D000000000999000000000000005600000000000978090419001971123033DAC000000000000000001F0002000000</c_apdu>
+            <r_apdu>6985</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  To ensure that the transaction is cancelled and the correct error code is returned when Terminal Type = Offline-only (value = x6). The handset is ready for CL transaction -->
+        <test name="GenAC_10" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D000000000999000000000000005600000000000978090419001971123016DAC000000000000000001F0002000000</c_apdu>
+            <r_apdu>6985</r_apdu>
+        </test>        
+
+        <!-- High Level Test Description =  Compute Cryptographic Checksum command : The command is rejected and the SUK  deleted in case of error in Compute Cryptographic Checksum command parameters P1  -->
+        <test name="MPPUnitCCC_02A" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Compute Cryptogram Checksum  -->
+            <c_apdu>802A9E80161234876501000000000001097800560014091100002200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Compute Cryptographic Checksum command : The command is rejected and the SUK  deleted in case of error in Compute Cryptographic Checksum command parameters P2 -->
+        <test name="MPPUnitCCC_02B" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Compute Cryptogram Checksum  -->
+            <c_apdu>802A8E08161234876501000000000001097800560014091100002200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Compute Cryptographic Checksum command  : The command is rejected and the SUK  deleted in case of error in Compute Cryptographic Checksum command parameters Lc -->
+        <test name="MPPUnitCCC_03" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Compute Cryptogram Checksum  -->
+            <c_apdu>802A8E80040104302000</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Generate AC : The command is rejected and the SUK  deleted in case of error in Generate AC command parameters P1 . The handset is ready for CL transaction-->
+        <test name="MPPUnitGenAc_02A" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE91002D00000000000100000000002008400000000000084001021322201505072200000000000000000000000000222200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Generate AC : The command is rejected and the SUK  deleted in case of error in Generate AC command parameters P2 . The handset is ready for CL transaction-->
+        <test name="MPPUnitGenAc_02B" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90102D00000000000100000000002008400000000000084001021322201505072200000000000000000000000000222200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Get Processing Options command : The command is rejected with an error code 0x6A86 and the SUK NOT deleted in case of error in command parameter P1. The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_01" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A801000D830B000000000000000008402200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Get Processing Options command : The command is rejected with an error code 0x6A86 and the SUK NOT deleted in case of error in parameter P2. The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_02" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800800D830B000000000000000008402200</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : The command is rejected with an error code 0x6700 and the SUK NOT deleted in case of error in parameters Lc (&gt; 0D) with a consistent Data field. The handset is ready for CL transaction and the application selected  -->
+        <test name="MPPUnitGPO_03" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000F830D0000000000000000005622FFEE00</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : The command is rejected with an error code 0x6700 and the SUK NOT deleted in case of error in parameters Lc (smaller than 03) with a consistent Data field. The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_04" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A8000002830000</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : The command is rejected with an error code 0x6700 and the SUK NOT deleted in case of error in parameters 03 smaller than Lc smaller than 0D. The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_05" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000B830900000000000008402100</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : The command is rejected with an error code 0x6985 and the SUK NOT deleted in case of inconsistency between the command datafield length and the datafield template  (Lc = 03). The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_07" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Opt.ions -->
+            <c_apdu>80A800000383000100</c_apdu>
+            <r_apdu>6700</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Get Processing Options command : The command is rejected with an error code 0x6985 and the SUK NOT deleted in case of Offline Only terminal (Lc = 03 and TermType 06). The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_08'" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383010600</c_apdu>
+            <r_apdu>6985</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Get Processing Options command : The command is rejected with an error code 0x6985 and the SUK NOT deleted in case of Offline Only terminal (Lc = 03 and TermType 03). The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_08" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383010300</c_apdu>
+            <r_apdu>6985</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : The command is rejected with an error code 0x6985 and the SUK NOT deleted in case of Offline Only terminal (Lc = 0D and TermType 06). The handset is ready for CL transaction and the application selected -->
+        <test name="MPPUnitGPO_09" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383010300</c_apdu>
+            <r_apdu>6985</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Get Processing Options command : Positive test with PDOL limited to TermType and Primary AID. The handset is ready for CL transaction and the application selected using its primary AID -->
+        <test name="MPPUnitGPO_10" type="apdu">
+            <dependency>SelectADF</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383012100</c_apdu>
+            <r_apdu>770E82021B80940808010100100103019000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Get Processing Options command : Positive test with PDOL limited to TermType and Alternate AID. The handset is ready for CL transaction and the application selected using its primary AID. The profile shall include an alternate AID -->
+        <test name="MPPUnitGPO_11" type="apdu">
+            <dependency>SelectAlternateAID</dependency>
+
+            <!-- Get Processing Options -->
+            <c_apdu>80A800000383012100</c_apdu>
+            <r_apdu>770E82021980940810020200200102019000</r_apdu>
+        </test>        
+
+        <!-- High Level Test Description =  Read Record command : The command is rejected with an error code 0x6A86 and the SUK NOT deleted in case of error in command parameter P2 (= 05). The handset is ready for CL transaction and the application selected using its primary AID -->
+        <test name="MPPUnitRR_02" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2010500</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Read Record command : The command is rejected with an error code 0x6A86 and the SUK NOT deleted in case of error in command parameter P2 (= 03). The handset is ready for CL transaction and the application selected using its primary AID -->
+        <test name="MPPUnitRR_03" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2010300</c_apdu>
+            <r_apdu>6A86</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Read Record command : The command is rejected with an error code 0x6A83 and the SUK NOT deleted in case of file found but record not found -->
+        <test name="MPPUnitRR_04" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2071400</c_apdu>
+            <r_apdu>6A83</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Read Record command : The command is rejected with an error code 0x6A83 and the SUK NOT deleted in case of file not found -->
+        <test name="MPPUnitRR_05" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2013400</c_apdu>
+            <r_apdu>6A83</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Read Record command : Positive test reading all records listed in the AFL. The configuration shall include an AFL block with a single record and block(s) with many records. The configuration shall include a record with the minimum length (e.g. 3) and with the maximum supported length.-->
+        <test name="MPPUnitRR_06" type="apdu">
+            <dependency>GetProcessingOptions</dependency>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2010C00</c_apdu>
+            <r_apdu>7081869F6C0200019F62060000000000F09F6306000000000F0E562942353431333333393030303030313531335E202F5E32303132323031303030303030303030303030309F6401049F650200F09F66020F0E9F6B135413339000001513D20122010000000000000F9F6701049F69199F6A049F7E019F02065F2A029F1A029C019A039F15029F35019000</r_apdu>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2011400</c_apdu>
+            <r_apdu>70819D5A0854133390000015135F24032012315F25034912315F280200565F3401008C249F02069F03069F1A0295055F2A029A039C019F37049F35019F45029F4C089F34039F15028D0A910A95059F37049F4C088E0A00000000000000001F039F0702FF009F080200029F0D0500600000009F0E0500000000009F0F0500600000009F420209789F4A018257135413339000001513D20122010000000000000F9000</r_apdu>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2021400</c_apdu>
+            <r_apdu>7081C08F01F39F3201039224EFF4A554A084A829B0D6D5ACCC34B84C262B32436ABDAC9899308D51E57C83DF6908C389908190320F6B1376C4E4FAC4388FDBD183496A90913F76FFC46A9A6BC9FB4735FD29563EB32FDB056FAA5726286BCA829E84362BC5DA724CD6D4F0F659AF85DCEB09626032D45E9DB537B7CA834757ABA713C7A7B59F446590B07D7ACCCDC0BA7AB10E0DA0FCC290CCAC04ED9C2468E3CB1761FB8CCD742458ECBF8E15F66B1B3457B6408DD39D6A1C4253771096533F9B92479000</r_apdu>
+
+            <!-- Read Record  -->
+            <c_apdu>00B2031400</c_apdu>
+            <r_apdu>7081E79F47030100019F484A573196DECF4B9FA0953727633CB30A2807AF8FAD75B1CBB3BAC9423ED0765715AE83BF5BB436738AC650AC991DB606E56644E9CCFC6A7035434D7D425C5FBF474799E09F79E31472FBF39F4681909CCD56BC21DA7CC059D00AD3253A38082DB35463AD8909CD2C61FC45DCAB99C8E55DF2EC8A487498726164E8B59AE5A2C64025764872753D87AE590746ED838B2ED3C4C72FEF49467E1B570581579ED7BC1CC95247A2F0BE95CE75B0A3809C83AB371B09828E98405D0396C0D401E9BEC74B96869D617AD0CD3940058CFA8F3CC954DF3E19251ABBF87C82CDC4FF8A309000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Select Command (PPSE) : Successful. The handset is ready for CL transaction  -->
+        <test name="MPPUnitSelect_01" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PPSE) : The command is rejected in case of error in parameter P1 , the SUK is not deleted, second correct Select Command (PPSE) is accepted. The handset is ready for CL transaction. -->
+        <test name="MPPUnitSelect_02" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A407000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6A86</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =   Select Command (PPSE) : The command is rejected in case of error in parameter P2 , the SUK is not deleted, second correct Select Command (PPSE) is accepted. The handset is ready for CL transaction -->
+        <test name="MPPUnitSelect_03" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A404100E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6A86</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PPSE) : The command is rejected with error code 6A82 in case of partial PPSE AID selection, the SUK is not deleted, second correct Select Command (PPSE) is accepted. The handset is ready for CL transaction -->
+        <test name="MPPUnitSelect_04" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A404000E335041592E5359532E444446303100</c_apdu>
+            <r_apdu>6A82</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PPSE) : The command is rejected with error code 6A82 in case of selection with an AID starting with PPSE AID but longer, the SUK is not deleted, second correct Select Command (PPSE) is accepted. The handset is ready for CL transaction.  -->
+        <test name="MPPUnitSelect_05" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A404000F325041592E5359532E44444630313000</c_apdu>
+            <r_apdu>6A82</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A404000E325041592E5359532E444446303100</c_apdu>
+            <r_apdu>6F39840E325041592E5359532E4444463031A527BF0C2461104F07A00000000410108701019F2A010261104F07A00000000422038701029F2A01029000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PaymentAID) : Successful with Exact AID of the default application. The handset is ready for CL transaction -->
+        <test name="MPPUnitSelect_06" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A4040007A000000004101000</c_apdu>
+            <r_apdu>6F378407A0000000041010A52C500A4D6173746572436172648701019F38039F3501BF0C149F6E07005600003134005F50077265665F3137369000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PaymentAID) with the AID of one available card that is not the default card and with AID different from 041010  : The command is rejected with error code 6A82 , the SUK is not deleted, Multiple Cards available. The handset is ready for CL transaction.  -->
+        <test name="MPPUnitSelect_07" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A4040007A000000004306000</c_apdu>
+            <r_apdu>6A82</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = Select Command (PaymentAID) : The command is rejected in case of error in parameter P1 , the SUK is not deleted, second correct Select Command (Payment AID) is accepted. The handset is ready for CL transaction  -->
+        <test name="MPPUnitSelect_08" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A4140007A000000004101000</c_apdu>
+            <r_apdu>6A86</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A4040007A000000004101000</c_apdu>
+            <r_apdu>6F378407A0000000041010A52C500A4D6173746572436172648701019F38039F3501BF0C149F6E07005600003134005F50077265665F3137369000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =   Select Command (PaymentAID) : The command is rejected in case of error in parameter P2 , the SUK is not deleted, second correct Select Command (Payment AID) is accepted. The handset is ready for CL transaction -->
+        <test name="MPPUnitSelect_09" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A4044007A000000004101000</c_apdu>
+            <r_apdu>6A86</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A4040007A000000004101000</c_apdu>
+            <r_apdu>6F378407A0000000041010A52C500A4D6173746572436172648701019F38039F3501BF0C149F6E07005600003134005F50077265665F3137369000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description =  Select Command (PaymentAID) : The command is rejected with error code 6A82 in case of selection with an AID starting with Payment AID but longer, the SUK is not deleted, second correct Select Command (Payment AID) is accepted. The handset is ready for CL transaction -->
+        <test name="MPPUnitSelect_10" type="apdu">
+            <!-- Select   -->
+            <c_apdu>00A4040009A0000000041010D05600</c_apdu>
+            <r_apdu>6A82</r_apdu>
+
+            <!-- Select   -->
+            <c_apdu>00A4040007A000000004101000</c_apdu>
+            <r_apdu>6F378407A0000000041010A52C500A4D6173746572436172648701019F38039F3501BF0C149F6E07005600003134005F50077265665F3137369000</r_apdu>
+        </test>
+
+
+
+        <!-- High Level Test Description =  To ensure that the transaction is declined (AAC) when MerchantCategory Code = ‘4111’ and amount is null, Terminal Type '22' is used. The handset is ready for CL transaction -->
+        <test name="GenAC_11" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D00000000000000000000002008400000000000084001021322201505072200000000000000000000000000411100</c_apdu>
+            <r_apdu>772F9F2701009F360200019F2608154C921ECE514E759F10120114850100040000000000D645E8BD8600FFDF4B030000009000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = To ensure that the transaction is declined (AAC) when MerchantCategory Code =  ‘4131’ amount is null, Terminal Type '22' is used. The handset is ready for CL transaction -->
+        <test name="GenAC_12" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D00000000000000000000002008400000000000084001021322201505072200000000000000000000000000413100</c_apdu>
+            <r_apdu>772F9F2701009F360200019F260860E60C913C4670959F10120114850100040000000000DBD875528800FFDF4B030000009000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = To ensure that the transaction is declined (AAC) when MerchantCategory Code = ‘4784’ and amount is null, Terminal Type '22' is used. The handset is ready for CL transaction. -->
+        <test name="GenAC_13" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D00000000000000000000002008400000000000084001021322201505072200000000000000000000000000478400</c_apdu>
+            <r_apdu>772F9F2701009F360200019F2608EED27F066C95672C9F10120114850100040000000000C2127DD40300FFDF4B030000009000</r_apdu>
+        </test>
+
+        <!-- High Level Test Description = To ensure that the transaction is declined (AAC) when MerchantCategory Code = '7523’ and amount is null, Terminal Type '22' is used.The handset is ready for CL transaction -->
+        <test name="GenAC_14" type="apdu">
+            <dependency>ReadRecord</dependency>
+
+            <!-- Generate AC  -->
+            <c_apdu>80AE90002D00000000000000000000002008400000000000084001021322201505072200000000000000000000000000752300</c_apdu>
+            <r_apdu>772F9F2701009F360200019F26083CAC8E4D8388DD599F101201148501000400000000002E086E872900FFDF4B030000009000</r_apdu>
+        </test>
+
+</card>
+</TestCase>

@@ -95,6 +95,12 @@
                 <constraints nullable="true"/>
             </column>
 
+
+            <column name="DEVICE_NAME" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+
+
             <column name="CLIENT_WALLET_ACCOUNT_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>

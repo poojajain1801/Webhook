@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add_card"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.comviva.mdesapp.activities.AddCardActivity">
+
+    <!-- MasterCard-5500000000000004 Visa-4622943127007327 -->
+    <EditText
+        android:id="@+id/editPan"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:inputType="number"
+        android:hint="Card Number"
+        android:text="4622943127009000" />
+
+    <Space
+        android:id="@+id/space1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/editPan" />
+
+    <!-- MasterCard-688 Visa-633 -->
+    <EditText
+        android:id="@+id/editCvc"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/space1"
+        android:hint="CVC"
+        android:text="633"
+        android:inputType="number"/>
+
+    <Space
+        android:id="@+id/space2"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/editCvc" />
+
+    <!-- MasterCard-07 Visa-12 -->
+    <EditText
+        android:id="@+id/editExpMonth"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/space2"
+        android:inputType="number"
+        android:hint="Expiry Month"
+        android:text="12" />
+
+    <Space
+        android:id="@+id/space3"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/editExpMonth" />
+
+    <!-- MasterCard-2020 Visa-2017 -->
+    <EditText
+        android:id="@+id/editExpYear"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/space3"
+        android:inputType="number"
+        android:hint="Expiry Year"
+        android:text="2017" />
+
+    <Space
+        android:id="@+id/space4"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_below="@+id/editExpYear" />
+
+    <EditText
+        android:id="@+id/editCardHolderName"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/space4"
+        android:hint="Card Holder Name "
+        android:text="Tarkeshwar Prasad Vishvakarma" />
+
+    <Space
+        android:id="@+id/space5"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/editCardHolderName" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnDigCard"
+        style="@style/AppTheme.RoundedCornerMaterialButton"
+        android:layout_width="match_parent"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/space5"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="Digitize Card"
+        android:textColor="@android:color/white" />
+
+
+</RelativeLayout>
