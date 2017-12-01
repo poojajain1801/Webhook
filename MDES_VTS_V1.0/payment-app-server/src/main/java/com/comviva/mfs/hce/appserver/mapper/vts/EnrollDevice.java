@@ -235,7 +235,7 @@ public class EnrollDevice{
 
 
             final String sandBoxUrl =  env.getProperty("visaBaseUrlSandbox") + "/" + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" +env.getProperty("apiKey");
-            jsonResponse = sendReqest.postHttpRequest(requestBody.getBytes(),sandBoxUrl,prepareHeaderRequest);
+            jsonResponse = sendReqest.postHttpRequest(requestBody.getBytes(),requestBody,sandBoxUrl,prepareHeaderRequest);
             if (HttpStatus.SC_OK == jsonResponse.getInt(HCEConstants.STATUS_CODE) ) {
                 jsonObject = jsonResponse.getJSONObject("response");
                 jsonObject.put("devEncKeyPair", devEncKeyPair.getPrivateKeyHex());

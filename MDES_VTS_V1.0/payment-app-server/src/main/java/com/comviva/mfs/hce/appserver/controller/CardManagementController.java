@@ -63,7 +63,7 @@ public class CardManagementController {
         EnrollPanRequest enrollPanRequestPojo = null;
         try{
             LOGGER.debug("Enter CardManagementController->enrollPan");
-            enrollPanRequest = hCEControllerSupport.decryptRequest(enrollPanRequest);
+           // enrollPanRequest = hCEControllerSupport.decryptRequest(enrollPanRequest);
             enrollPanRequestPojo =(EnrollPanRequest) hCEControllerSupport.requestFormation(enrollPanRequest,EnrollPanRequest.class);
             enrollPanResponse = cardDetailService.enrollPan(enrollPanRequestPojo);
         }catch (HCEValidationException enrollPanRequestValidation){

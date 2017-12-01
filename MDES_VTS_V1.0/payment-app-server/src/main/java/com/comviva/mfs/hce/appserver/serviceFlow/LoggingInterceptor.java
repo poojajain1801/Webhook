@@ -1,19 +1,25 @@
 package com.comviva.mfs.hce.appserver.serviceFlow;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Aspect
@@ -21,10 +27,6 @@ import java.util.Map;
 @Component
 public class LoggingInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingInterceptor.class);
-    public static final String ERROR_OCCURRED_CODE = "error.occurred";
-    public static final String ERROR_OCCURRED_MESSAGE = "Error occurred. Please try again later";
-
-
     @Autowired
     HCEControllerSupport hceControllerSupport;
     @Autowired
@@ -39,25 +41,72 @@ public class LoggingInterceptor {
         String methodName = originalMethod.getSignature().getName();
         String  responseCode = null;
         long startTime = 0;
-        Map responseData;
-        try {
+        Map responseData =null;
+        Object[] args  = null;
+        String encryptionEnabledMethods = null;
+        String requestId = null;
 
+        try {
             LOGGER.debug("{} Received Request: {}", originalMethod.getSignature(), requestData);
+            MDC.put(HCEConstants.REQUEST_ID,HCEUtil.generateRandomId(HCEConstants.REQUEST_ID_PREFIX));
             startTime = System.currentTimeMillis();
-            responseData = (Map) originalMethod.proceed();
+            requestId =findUserId(requestData);
+            requestData = decryptData(requestData, methodName);
+            args = new Object[1];
+            args[0] = requestData;
+            responseData = (Map) originalMethod.proceed(args);
+        } catch (HCEActionException hceActionExp){
+            LOGGER.error("Exception Occured in LoggingInterceptor->invoke", hceActionExp);
+            responseData = hceControllerSupport.formResponse(hceActionExp.getMessageCode());
+        }catch (Exception e) {
+            LOGGER.error("Exception Occured in LoggingInterceptor->invoke", e);
+            responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+        }finally {
             responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
-                hceControllerSupport.maintainAudiTrail(null,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
+                hceControllerSupport.maintainAudiTrail(requestId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
             }
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
-            HCEUtil.writeHCELog(totalTime,responseCode,null,requestData, HCEUtil.getJsonStringFromMap(responseData));
-        } catch (Exception e) {
-            LOGGER.error("Exception Occured in LoggingInterceptor->invoke", e);
-            responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            HCEUtil.writeHCELog(totalTime,responseCode,requestId,requestData, HCEUtil.getJsonStringFromMap(responseData));
         }
         return responseData;
     }
 
+    private String decryptData(String requestData, String methodName) throws HCEActionException{
+        List<String> encryptionEnabledMethodsList = null;
 
+        if(HCEConstants.ACTIVE.equals(env.getProperty("enable.end.to.end.encryption"))){
+            final String encryptionEnabledMethods =env.getProperty("encryption.enabled.api");
+            if(encryptionEnabledMethods!=null){
+                encryptionEnabledMethodsList = Arrays.asList(encryptionEnabledMethods.split(","));
+            }
+            if(encryptionEnabledMethodsList!=null && !encryptionEnabledMethodsList.isEmpty()){
+                if(encryptionEnabledMethodsList.contains(methodName)){
+                    requestData = hceControllerSupport.decryptRequest(requestData);
+                }
+            }
+        }
+
+        return requestData;
+    }
+
+
+
+    private String findUserId(String requestData){
+
+        String userId = null;
+        String clientWalletAccountId = null;
+        JSONObject jsonObject = new JSONObject(requestData);
+        if(jsonObject.isNull("userId")){
+            if(!jsonObject.isNull("clientWalletAccountId")){
+                clientWalletAccountId = (String)jsonObject.get("clientWalletAccountId");
+                userId = hceControllerSupport.findUserId(clientWalletAccountId);
+            }
+        }else{
+            userId = (String)jsonObject.get("userId");
+        }
+        return userId;
+
+    }
 }

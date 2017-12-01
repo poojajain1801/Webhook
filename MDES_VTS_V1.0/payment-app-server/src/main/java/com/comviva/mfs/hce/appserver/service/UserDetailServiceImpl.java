@@ -76,11 +76,12 @@ public class UserDetailServiceImpl implements UserDetailService {
                 userDetail = userDetails.get(0);
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
-                    deviceInfo = deviceInfos.get(0);
+
+                        deviceInfo = deviceInfos.get(0);
                         deactivateDevice(deviceInfo);
                         deviceInfo.setStatus(HCEConstants.INACTIVE);
                         deviceDetailRepository.save(deviceInfo);
-                        updateUserStatusIfOneDeviceIsLinked(deviceInfo);
+                        updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                         deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                         userDetail.setDeviceInfos(deviceInfos);
                         userDetailRepository.save(userDetail);
@@ -104,7 +105,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deactivateDevice(deviceInfo);
                     deviceInfo.setStatus(HCEConstants.INACTIVE);
                     deviceDetailRepository.save(deviceInfo);
-                    updateUserStatusIfOneDeviceIsLinked(deviceInfo);
+                    updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                     userDetail = saveUserDetails(registerUserRequest);
                     deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
                     userDetail.setDeviceInfos(deviceInfos);
@@ -169,12 +170,12 @@ public class UserDetailServiceImpl implements UserDetailService {
 
     }
 
-    private void updateUserStatusIfOneDeviceIsLinked(DeviceInfo deviceInfo) {
+    private void updateUserStatusIfOneDeviceIsLinked(DeviceInfo deviceInfo, String userId) {
         List<UserDetail> userDetails;
         UserDetail userDetail;
         userDetail =  deviceInfo.getUserDetail();
         if(userDetail!=null){
-            if(userDetail.getDeviceInfos().size()==1){
+            if(userDetail.getDeviceInfos().size()==1 && !userId.equals(userDetail.getUserId())){
                 userDetail.setStatus(HCEConstants.INACTIVE);
                 userDetailRepository.save(userDetail);
             }

@@ -1,14 +1,17 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -29,13 +32,18 @@ public class SendReqest {
     @Autowired
     protected Environment env;
 
-    public JSONObject postHttpRequest(byte[] requestData, String url, JSONObject header) {
+    public JSONObject postHttpRequest(byte[] requestData, String request,String url, JSONObject header) {
         int responseCode = -1;
         String responseBody = null;
         JSONObject responseJson = new JSONObject();
         JSONObject response = null;
+        long startTime = 0;
+        String xCorrelationID = null;
         try {
 
+            LOGGER.debug("Enter in SendRequest->postHttpRequest");
+
+            String s =  MDC.get("tenantId");
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
@@ -81,7 +89,7 @@ public class SendReqest {
             httpsURLConnection.setRequestProperty("x-request-id", requestId);
             httpsURLConnection.setRequestProperty("x-pay-token", xpaytoken);
             httpsURLConnection.setRequestProperty("Content-Length", String.valueOf(header.get("requestBody").toString().getBytes("UTF-8").length));
-
+            startTime = System.currentTimeMillis();
             OutputStream out = httpsURLConnection.getOutputStream();
             out.write(postData);
             out.close();
@@ -95,7 +103,7 @@ public class SendReqest {
                 responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.SUCCESS);
                 responseJson.put(HCEConstants.STATUS_MESSAGE,"Success");
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
-                String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
+                xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
                 LOGGER.debug("Enroll device https response = " + responseBody);
             } else {
@@ -103,7 +111,7 @@ public class SendReqest {
                 responseBody = convertStreamToString(httpsURLConnection.getErrorStream());
                 LOGGER.debug("Resister Device response = "+responseBody);
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
-                String xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
+                xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
 
                 response = new JSONObject(responseBody);
@@ -119,16 +127,18 @@ public class SendReqest {
                 {
                     responseJson.put(HCEConstants.STATUS_MESSAGE,"Unknown");
                 }
-
-              //  LOGGER.debug("Enroll device https response = " + responseBody);
-
             }
+            LOGGER.debug("Exit in SendRequest->postHttpRequest");
         } catch (IOException ioe) {
-            //System.out.println("IO Exception in sending FCM request. regId: " + deviceRegistrationId);
-            ioe.printStackTrace();
+            LOGGER.error("Exception Occured in SendRequest->postHttpRequest",ioe);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         } catch (Exception e) {
-            //System.out.println("Unknown exception in sending FCM request. regId: " + deviceRegistrationId);
-            e.printStackTrace();
+            LOGGER.error("Exception Occured in SendRequest->postHttpRequest",e);
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+        }finally {
+            final long endTime = System.currentTimeMillis();
+            final long totalTime = endTime - startTime;
+            HCEUtil.writeTdrLog(totalTime,Integer.toString(responseCode),xCorrelationID,request,response.toString());
         }
         return responseJson;
     }

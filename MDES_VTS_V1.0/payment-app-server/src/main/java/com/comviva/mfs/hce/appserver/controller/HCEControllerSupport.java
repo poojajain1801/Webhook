@@ -1,4 +1,6 @@
 package com.comviva.mfs.hce.appserver.controller;
+import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
@@ -51,6 +53,9 @@ public class HCEControllerSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     @Autowired
     private CommonRepository commonRepository;
+
+    @Autowired
+    private UserDetailRepository userDetailRepository;
     @Autowired
     private AuditTrailRepository auditTrailRepository;
 
@@ -252,7 +257,7 @@ public class HCEControllerSupport {
     }
 
 
-    public String decryptRequest(String request){
+    public String decryptRequest(String request) throws HCEActionException{
         String decryptedData = null;
 
         try{
@@ -289,12 +294,18 @@ public class HCEControllerSupport {
             LOGGER.error("Exception occured in HCEControllerSupport->decryptRequest ", decReqException);
             throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
         }
-
-
-
-
-
-
     }
 
+
+
+    public String findUserId(String clientWalletAccountId){
+
+        final List<UserDetail> userDetails = userDetailRepository.findByClientWalletAccountId(clientWalletAccountId);
+        if(userDetails!=null && !userDetails.isEmpty()){
+            final  UserDetail userDetail1 = userDetails.get(0);
+            return userDetail1.getUserId();
+        }else{
+            return  clientWalletAccountId;
+        }
+    }
 }

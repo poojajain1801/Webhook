@@ -306,6 +306,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         String cardId = null;
         String cardIdentifier = null;
         List<CardDetails> cardDetailsList = null;
+        DeviceInfo deviceInfo = null;
+        String userId = null;
         try{
             LOGGER.debug("Enter CardDetailServiceImpl->enrollPan");
             response1=new HashMap();
@@ -320,6 +322,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             }
             deviceInfoList = deviceDetailRepository.findDeviceDetails(clientDeviceId,clientWalletAccountId,HCEConstants.ACTIVE);
             if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
+                deviceInfo = deviceInfoList.get(0);
+                userId = deviceInfo.getUserDetail().getUserId();
+
                 cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier(cardIdentifier,clientWalletAccountId,clientDeviceId,HCEConstants.ACTIVE,HCEConstants.SUSUPEND);
                 if(cardDetailsList!= null && !cardDetailsList.isEmpty()){
                     throw new HCEActionException(HCEMessageCodes.CARD_ALREADY_REGISTERED);

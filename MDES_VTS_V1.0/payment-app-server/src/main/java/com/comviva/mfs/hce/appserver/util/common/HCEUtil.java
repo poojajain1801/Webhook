@@ -61,6 +61,7 @@ public class HCEUtil {
     public static void writeHCELog(long totalTime, String responseCode, String requestId,String request,
                                       String response) {
 
+        final Logger LOGGER = LoggerFactory.getLogger("requestLogs");
 
         StringBuilder logMessage = null;
         logMessage = new StringBuilder();
@@ -91,6 +92,44 @@ public class HCEUtil {
             LOGGER.info(logMessage.toString());
         }
     }
+
+
+
+    public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
+                                   String response) {
+
+        final Logger LOGGER = LoggerFactory.getLogger("tdrLogs");
+
+        StringBuilder logMessage = null;
+        logMessage = new StringBuilder();
+        logMessage.append(HCEUtil.convertDateToTimestamp(new Date()));
+        logMessage.append("|");
+        logMessage.append(totalTime);
+        logMessage.append("|");
+        if (responseCode != null && !"".equals(responseCode)) {
+            logMessage.append(responseCode);
+        }
+        logMessage.append("|");
+        if (requestId != null && !"".equals(requestId)) {
+            logMessage.append(requestId);
+        }
+        logMessage.append("|");
+        if (request != null && !"".equals(request)) {
+            logMessage.append(request);
+        }
+        logMessage.append("|");
+        if (response != null && !"".equals(response)) {
+            logMessage.append(response);
+        }
+        logMessage.append("|");
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(logMessage.toString());
+        } else if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(logMessage.toString());
+        }
+    }
+
 
 
     /**
@@ -167,6 +206,33 @@ public class HCEUtil {
 
     public void setCommonRepository(CommonRepository commonRepository){
         this.commonRepository = commonRepository;
+    }
+
+
+    /**
+     * Write tdr file log.
+     *
+     * @param totalTime
+     *            the total time
+     * @param transactionId
+     *            the txn status
+     * @param request
+     *            the request
+     * @param response
+     *            the response
+     */
+    public static void writeTDRFileLog(long totalTime, String transactionId,String request, String response) {
+        StringBuilder logMessage = null;
+
+        logMessage = new StringBuilder();
+        logMessage.append(totalTime + "|");
+        logMessage.append((transactionId != null && !"".equals(transactionId)) ? "TRANSACTION_ID ="+ transactionId: "TRANSACTION_ID =" + HCEConstants.NOT_AVAILABLE);
+        logMessage.append((request != null && !"".equals(request)) ? "|REQUEST ="+ request : "|REQUEST =" + HCEConstants.NOT_AVAILABLE);
+        logMessage.append((response != null && !"".equals(response)) ? "|RESPONSE="+ response : "|RESPONSE =" + HCEConstants.NOT_AVAILABLE);
+
+        if (LOGGER.isDebugEnabled() || LOGGER.isInfoEnabled()) {
+            LOGGER.info(logMessage.toString());
+        }
     }
 
 }

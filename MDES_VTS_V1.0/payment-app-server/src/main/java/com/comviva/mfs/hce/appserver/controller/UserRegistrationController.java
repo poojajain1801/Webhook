@@ -12,6 +12,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,7 @@ public class UserRegistrationController {
         RegisterUserRequest registerUserRequestPojo = null;
         try{
             LOGGER.debug("Enter UserRegistrationController->registerUser");
+            String s = MDC.get("tenantId");
             registerUserRequestPojo =(RegisterUserRequest) hCEControllerSupport.requestFormation(registerUserRequest,RegisterUserRequest.class);
             registerUser = userDetailService.registerUser(registerUserRequestPojo);
             LOGGER.debug("Exit UserRegistrationController->registerUser");

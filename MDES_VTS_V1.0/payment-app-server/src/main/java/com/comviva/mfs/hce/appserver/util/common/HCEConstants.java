@@ -148,6 +148,14 @@ public class HCEConstants {
     /** The Constant VISA. */
     public static final String VISA = "VISA";
 
+    /** The Constant REQUEST_ID_PREFIX. */
+    public static final String REQUEST_ID_PREFIX = "RI";
+
+    /** The Constant REQUEST_ID_. */
+    public static final String REQUEST_ID = "requestId";
+
+
+
 
 
 
