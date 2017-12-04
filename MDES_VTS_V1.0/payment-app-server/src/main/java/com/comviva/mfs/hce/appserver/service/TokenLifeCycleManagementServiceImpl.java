@@ -87,12 +87,26 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         ResponseEntity responseEntity =null;
         String strResponse=null;
         String url = "";
+        String currentcardStatus = null;
+        List<CardDetails> cardDetailsList = null;
+        CardDetails cardDetails = null;
+        String cardStatus = null;
         String resourcePath ="vts/provisionedTokens/"+getTokenStatusRequest.getVprovisionedTokenID();
 
         //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}?apiKey=key
 
         url =  env.getProperty("visaBaseUrlSandbox")+"/vts/provisionedTokens/"+getTokenStatusRequest.getVprovisionedTokenID()+"?apiKey="+env.getProperty("apiKey");
         try {
+
+            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(getTokenStatusRequest.getVprovisionedTokenID());
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                cardDetails = cardDetailsList.get(0);
+
+
+            }else{
+                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+            }
+
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "GET");
             if (responseEntity.hasBody())
             {
@@ -103,7 +117,29 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
             if(responseEntity.getStatusCode().value()==200)
             {
+                currentcardStatus = jsonResponse.getJSONObject("tokenInfo").getString("tokenStatus");
 
+                switch (currentcardStatus){
+                    case"ACTIVE":
+                        cardStatus = HCEConstants.ACTIVE;
+                        break;
+                    case"DELETED":
+                        cardStatus = HCEConstants.INACTIVE;
+                        break;
+                    case"SUSPENDED":
+                        cardStatus = HCEConstants.SUSUPEND;
+                        break;
+                    case"INACTIVE":
+                        cardStatus = HCEConstants.INACTIVE;
+                        break;
+                    default:
+                            response.put("responseCode", HCEMessageCodes.SUCCESS);
+                            response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                            return response;
+                }
+                cardDetails.setStatus(cardStatus);
+                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                cardDetailRepository.save(cardDetails);
                 LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
                 response.put("responseCode", HCEMessageCodes.SUCCESS);
                 response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
@@ -122,8 +158,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
 
         } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
+            LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
 
         }
@@ -158,19 +193,16 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
             cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
-                cardDetails = cardDetailsList.get(0);
 
+                cardDetails = cardDetailsList.get(0);
                 if(cardDetails.getStatus().equals(HCEConstants.INACTIVE)){
                     throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
                 }
 
 
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
             }
-
-
             switch (lifeCycleManagementVisaRequest.getOperation()) {
                 case "DELETE":
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/delete";
@@ -215,8 +247,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
         }catch (Exception e)
         {
-            e.printStackTrace();
-            LOGGER.debug("Exception occurred in TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
+            LOGGER.debug("Exception occurred in TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }
     }

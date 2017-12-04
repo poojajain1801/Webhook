@@ -122,6 +122,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.hasBody())
             {
                 response = String.valueOf(responseEntity.getBody());
+                LOGGER.debug("Provison Response from VTS = "+response);
                 jsonResponse = new JSONObject(response);
             }
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {

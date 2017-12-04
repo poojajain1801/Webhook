@@ -186,7 +186,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
 
-        JSONObject jsonRequest  = null;
+       /* JSONObject jsonRequest  = null;
         String url = null;
         HitMasterCardService hitMasterCardService = null;
         ResponseEntity responseEntity = null;
@@ -204,20 +204,16 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();
 
             //If user id and imei is null and paymentAppInstanceID or clint device is is null throw Insuficiant input data
-            if(((imei.isEmpty()||imei ==null)&&(userID.isEmpty()||userID==null))
-                    ||((clintDeviceID.isEmpty()||clintDeviceID==null)||((paymentAppInstanceID.isEmpty()||paymentAppInstanceID==null))))
+            if(((imei.isEmpty()||imei ==null)&&(userID.isEmpty()||userID==null)))
             {
                 //Retrun Insufucaiant input data
             }
 
-            jsonRequest = new JSONObject();
-            deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceID);
+           //Fetch all the master card active card number
 
-
-            //Fatch all the card details and mark the satus as deleted
 
             //call master cad unregister API
-            if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
+           *//* if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
 
                 //Validate payment app instance ID
                 if (!deviceInfoOptional.isPresent()) {
@@ -230,18 +226,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 url = ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/mpamanagement/1/0/unregister";
                 hitMasterCardService = new HitMasterCardService();
                 responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST");
-            }
+            }*//*
 
-            if (!(clintDeviceID.isEmpty()||clintDeviceID.equalsIgnoreCase(null)))
-            {
-                //Validate clint device ID
-                if (deviceDetailRepository.findByClientDeviceId(unRegisterReq.getClientDeviceID()).isPresent())
-                {
-                    //Return Invalid ClintDeviceID
-                }
-            }
+           //Fetch all the Visa active card from the DB and Call the delete card for the same
 
-            //Validate all the vProvison ID and call delete card API of the VISA.
+
 
 
         }catch (HCEActionException unRegisterException)
@@ -249,7 +238,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             unRegisterException.printStackTrace();
         }
         return  null;
-
+*/
+        return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
     }
 
 }

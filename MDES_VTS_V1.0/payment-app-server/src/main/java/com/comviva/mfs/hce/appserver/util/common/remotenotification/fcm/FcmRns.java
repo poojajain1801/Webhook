@@ -1,6 +1,7 @@
 package com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm;
 
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
+import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -17,8 +18,11 @@ import java.net.URL;
 public class FcmRns implements RemoteNotification {
     /** URL of FCM server */
     public static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
+    Environment env;
 
-    protected FcmRns() {
+    protected FcmRns(Environment env) {
+
+        this.env= env;
     }
 
     private String convertStreamToString (InputStream inStream) throws Exception {
@@ -41,15 +45,21 @@ public class FcmRns implements RemoteNotification {
 
         try {
             // Proxy Setting
-            System.setProperty("http.proxyHost", "172.19.7.180");
-            System.setProperty("http.proxyPort", "8080");
-            System.setProperty("http.proxyUser", "tarkeshwar.v");
-            System.setProperty("http.proxyPassword", "may.2017");
+            if(env.getProperty("is.proxy.required").equals("Y")) {
+                String proxyip = env.getProperty("proxyip");
+                String proxyport = env.getProperty("proxyport");
+                String username = env.getProperty("username");
+                String password = env.getProperty("password");
 
-            System.setProperty("https.proxyHost", "172.19.7.180");
-            System.setProperty("https.proxyPort", "8080");
-            System.setProperty("https.proxyUser", "tarkeshwar.v");
-            System.setProperty("https.proxyPassword", "may.2017");
+                System.setProperty("http.proxyHost", proxyip);
+                System.setProperty("http.proxyPort", proxyport);
+                System.setProperty("http.proxyUser", username);
+                System.setProperty("http.proxyPassword", password);
+                System.setProperty("https.proxyHost", proxyip);
+                System.setProperty("https.proxyPort", proxyport);
+                System.setProperty("https.proxyUser", username);
+                System.setProperty("https.proxyPassword",password);
+            }
 
             URL url = new URL(FCM_URL);
             HttpsURLConnection httpURLConnection = (HttpsURLConnection)url.openConnection();

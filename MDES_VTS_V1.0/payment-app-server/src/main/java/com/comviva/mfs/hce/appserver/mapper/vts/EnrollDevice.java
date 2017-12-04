@@ -48,6 +48,7 @@ import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.List;
 
+
 @Setter
 @Component
 public class EnrollDevice{
@@ -229,7 +230,8 @@ public class EnrollDevice{
 
             prepareHeaderRequest=new JSONObject();
             prepareHeaderRequest.put("xRequestId",generateXrequestId());
-            prepareHeaderRequest.put("queryString","apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc");
+            String queryString = "apiKey="+env.getProperty("apiKey");
+            prepareHeaderRequest.put("queryString",queryString);
             prepareHeaderRequest.put("resourcePath","vts/clients/"+vClientID+"/devices/"+clientDeviceID);
             prepareHeaderRequest.put("requestBody",requestBody);
 
