@@ -1,0 +1,68 @@
+package com.comviva.mfs.hce.appserver.mapper.pojo;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * ProvisionTokenGivenPanEnrollmentId Request
+ * Created by amgoth.madan on 4/28/2017.
+ */
+@Getter
+@Setter
+public class ProvisionTokenWithPanDataRequest {
+
+    private String userId;
+    private String activationCode;
+    private String encryptionMetaData;
+    private String clientAppID;
+    private String clientWalletAccountID;
+    private String ip4address;
+    private String location;
+    private String local;
+    private String issuerAuthCode;
+    private String emailAddressHash;
+    private String emailAddress;
+    private String protectionType;
+    private String clientDeviceID;
+    private String panSource;
+    private String consumerEntryMode;
+    private EncPaymentInstrument encPaymentInstrument;
+    private String presentationType;
+    private String accountType;
+    private String encRiskDataInfo;
+    private SsdData ssdData;
+    private String channelSecurityContext;
+    private String platformType;
+
+    public ProvisionTokenWithPanDataRequest(String userId, String activationCode, String encryptionMetaData,String clientAppID,String clientWalletAccountID,
+                                            String ip4address,String location,String local,String issuerAuthCode,String emailAddressHash,String emailAddress,
+                                            String protectionType,String clientDeviceID,String panSource,String consumerEntryMode,EncPaymentInstrument encPaymentInstrument,
+                                            String presentationType,String accountType,String encRiskDataInfo,SsdData ssdData,String channelSecurityContext,String platformType) {
+
+        this.userId=userId;
+        this.activationCode=activationCode;
+        this.encryptionMetaData=encryptionMetaData;
+        this.clientAppID=clientAppID;
+        this.clientDeviceID=clientDeviceID;
+        this.clientWalletAccountID=clientWalletAccountID;
+        this.ip4address=ip4address;
+        this.location=location;
+        this.issuerAuthCode=issuerAuthCode;
+        this.emailAddressHash=emailAddressHash;
+        this.emailAddress=emailAddress;
+        this.protectionType=protectionType;
+        this.presentationType=presentationType;
+        this.accountType=accountType;
+        this.encRiskDataInfo=encRiskDataInfo;
+        this.ssdData=ssdData;
+        this.channelSecurityContext=channelSecurityContext;
+        this.platformType=platformType;
+        this.local=local;
+        this.panSource=panSource;
+        this.consumerEntryMode=consumerEntryMode;
+        this.encPaymentInstrument=encPaymentInstrument;
+    }
+
+    public ProvisionTokenWithPanDataRequest() {
+    }
+}
