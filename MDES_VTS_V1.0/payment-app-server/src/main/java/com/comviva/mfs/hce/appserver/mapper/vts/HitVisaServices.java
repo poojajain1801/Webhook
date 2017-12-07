@@ -84,7 +84,7 @@ public class HitVisaServices extends VtsRequest {
             restTemplate = new RestTemplate(requestFactory);
             startTime = System.currentTimeMillis();
             if("POST".equals(type)) {
-                response = restTemplate.exchange(url, HttpMethod.POST, null, String.class);
+                response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             }else if("PUT".equals(type)){
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
             }
