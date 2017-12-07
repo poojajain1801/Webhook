@@ -1,8 +1,14 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
 /**
- * Created by shadab.ali on 22-08-2017.
+ * Created by tanmaya.patel on 22-08-2017.
  */
+@Configuration
+@PropertySource("classpath:application.properties")
 public class HCEConstants {
 
     /** The Constant SERVICE_FAILED. */
@@ -153,6 +159,33 @@ public class HCEConstants {
 
     /** The Constant REQUEST_ID_. */
     public static final String REQUEST_ID = "requestId";
+
+
+    /** The Constant MASKING_PROPERTIES. */
+    public static String MASKING_PROPERTIES;
+    @Value("${masking.properties}")
+    public void setMaskingProperties(String maskingProperties){
+        MASKING_PROPERTIES = maskingProperties;
+    }
+
+    /** The Constant MASKING_PARAM_REGEX. */
+    public static String MASKING_PARAM_REGEX;
+    @Value("${masking.param.regex}")
+    public void setMaskingParamRegex(String maskingParamRegex){
+        MASKING_PARAM_REGEX = maskingParamRegex;
+    }
+
+
+    /** The Constant MASK_TYPE_PRE. */
+    public static final String MASK_TYPE_PRE = "PRE";
+
+    /** The Constant UNMASK_TYPE_PRE. */
+    public static final String UNMASK_TYPE_PRE = "UPRE";
+
+    /** The Constant UNMASK_TYPE_POST. */
+    public static final String UNMASK_TYPE_POST = "UPOST";
+    /** The Constant MASK_TYPE_POST. */
+    public static final String MASK_TYPE_POST = "POST";
 
 
 

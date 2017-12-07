@@ -145,6 +145,18 @@ public class HCEMessageCodes {
     }
 
 
+    /** The Constant CARD_DETAILS_NOT_EXIST. */
+    public static String FAILED_AT_THIRED_PARTY;
+    @Value("${FAILED_AT_THIRED_PARTY}")
+    public void setFailedAtThiredParty(String failedAtThiredParty) {
+        FAILED_AT_THIRED_PARTY= failedAtThiredParty;
+    }
+
+
+
+
+
+
 
 
 }

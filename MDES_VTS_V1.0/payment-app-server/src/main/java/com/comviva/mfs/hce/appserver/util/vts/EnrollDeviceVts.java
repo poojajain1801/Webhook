@@ -62,9 +62,7 @@ public class EnrollDeviceVts {
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
         String response="";
         try {
-            LOGGER.debug("Enter EnrollDeviceVts->register");
             response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID(), vClientID);
-            LOGGER.debug("Exit EnrollDeviceVts->register");
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
             throw regHceActionException;
@@ -83,7 +81,6 @@ public class EnrollDeviceVts {
         JSONObject jsonObject=null;
 
         try {
-            LOGGER.debug("Enter EnrollDeviceVts->encDevicePersoData");
             devicePersoData = new DevicePersoData();
             encDevicePersoData = new EncDevicePersoData();
             jsonObject=new JSONObject(inputString);
@@ -115,7 +112,6 @@ public class EnrollDeviceVts {
                 devicePersoDataObject.put("encCert", encDevicePersoData.getEncCert());
                 jsonObject.put("encDevicePersoData", devicePersoDataObject);
             }
-            LOGGER.debug("Exit EnrollDeviceVts->encDevicePersoData");
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->encDevicePersoData", regHceActionException);
             throw regHceActionException;

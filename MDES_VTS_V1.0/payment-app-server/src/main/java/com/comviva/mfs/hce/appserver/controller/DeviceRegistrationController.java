@@ -43,10 +43,8 @@ public class DeviceRegistrationController {
         Map<String,Object> registerDeviceResponse = null;
         EnrollDeviceRequest enrollDeviceRequestPojo = null;
         try{
-            LOGGER.debug("Enter DeviceRegistrationController->registerDevice");
             enrollDeviceRequestPojo =(EnrollDeviceRequest) hCEControllerSupport.requestFormation(enrollDeviceRequest,EnrollDeviceRequest.class);
             registerDeviceResponse = deviceDetailService.registerDevice(enrollDeviceRequestPojo);
-            LOGGER.debug("Exit DeviceRegistrationController->registerDevice");
         }catch (HCEValidationException registerDeviceValidationException){
             LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",registerDeviceValidationException);
             throw registerDeviceValidationException;
@@ -68,10 +66,8 @@ public class DeviceRegistrationController {
         Map<String,Object> unRegisterResponse = null;
         UnRegisterReq unRegisterReqPojo = null;
         try{
-            LOGGER.debug("Enter DeviceRegistrationController->unRegister");
             unRegisterReqPojo =(UnRegisterReq) hCEControllerSupport.requestFormation(unRegisterReq,UnRegisterReq.class);
             unRegisterResponse = deviceDetailService.unRegisterDevice(unRegisterReqPojo);
-            LOGGER.debug("Exit DeviceRegistrationController->unRegister");
         }catch (HCEValidationException deRegValidationException){
             LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",deRegValidationException);
            throw deRegValidationException;

@@ -49,10 +49,6 @@ public class HitVisaServices extends VtsRequest {
         int proxyport = 0;
         Proxy proxy = null;
         try{
-
-            LOGGER.debug("Inside HitVisaServices->restfulServiceConsumerVisa");
-
-           String s =  MDC.get("tenantId");
             prepareHeaderRequest=new JSONObject();
             xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
             xRequestId = xRequestId + ArrayUtil.getHexString(ArrayUtil.getRandom(10));
@@ -61,8 +57,6 @@ public class HitVisaServices extends VtsRequest {
             quryString = objUrl.getQuery();
             prepareHeaderRequest.put("queryString",quryString);
             prepareHeaderRequest.put("resourcePath",resourcePath);
-
-
             if(!(requestBody.equalsIgnoreCase("null"))||(requestBody.isEmpty()))
                 prepareHeaderRequest.put("requestBody",requestBody);
 
@@ -84,7 +78,7 @@ public class HitVisaServices extends VtsRequest {
             restTemplate = new RestTemplate(requestFactory);
             startTime = System.currentTimeMillis();
             if("POST".equals(type)) {
-                response = restTemplate.exchange(url, HttpMethod.POST, null, String.class);
+                response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             }else if("PUT".equals(type)){
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
             }
@@ -101,17 +95,25 @@ public class HitVisaServices extends VtsRequest {
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }catch(HttpClientErrorException httpClientException){
-            String error = httpClientException.getResponseBodyAsString();
             xCorrelationId = httpClientException.getResponseHeaders().get("X-CORRELATION-ID").toString();
             HttpHeaders responseHeaders = httpClientException.getResponseHeaders();
             HttpStatus statusCode = httpClientException.getStatusCode();
-            response = new ResponseEntity(error, responseHeaders ,statusCode);
+            String error = httpClientException.getResponseBodyAsString();
+            if(error!=null && !error.isEmpty()){
+                response = new ResponseEntity(error, responseHeaders ,statusCode);
+            }else{
+                response = new ResponseEntity(error, responseHeaders ,statusCode);
+                throw new HCEActionException(HCEMessageCodes.FAILED_AT_THIRED_PARTY);
+            }
+
             return response;
+        }catch(HCEActionException hitVisaServiceExp){
+            LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",hitVisaServiceExp);
+            throw hitVisaServiceExp;
         }catch (Exception e){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }finally {
-            LOGGER.debug("Exit HitVisaServices->restfulServiceConsumerVisa");
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
              int statusCode = 0;

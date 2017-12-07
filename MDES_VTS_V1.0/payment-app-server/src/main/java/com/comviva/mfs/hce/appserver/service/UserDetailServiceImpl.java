@@ -60,10 +60,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         String devicestatus;
         String userId ;
         String imei;
-
-
         try{
-            LOGGER.debug("Enter UserDetailServiceImpl->registerUser");
             userId = registerUserRequest.getUserId();
             imei = registerUserRequest.getImei();
 
@@ -126,8 +123,6 @@ public class UserDetailServiceImpl implements UserDetailService {
             }
             response = prepareResponseMap(HCEMessageCodes.SUCCESS,userDetail,null);
 
-            LOGGER.debug("Exit UserDetailServiceImpl->registerUser");
-
         }catch(HCEActionException regUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserHCEactionException);
             throw regUserHCEactionException;
@@ -136,8 +131,6 @@ public class UserDetailServiceImpl implements UserDetailService {
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserException);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-
-        LOGGER.debug("Exit UserDetailServiceImpl->registerUser");
         return response;
     }
 

@@ -6,6 +6,8 @@ import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
@@ -38,8 +40,6 @@ public class LoadSysMessageInterceptor {
         String responseMessage = null;
         Map responseMessageMap = null;
         try {
-
-            LOGGER.debug("Enter LoadSysMessageInterceptor->invoke");
             responseData = (Map) originalMethod.proceed();
             responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
             responseMessage = (String)responseData.get(HCEConstants.MESSAGE);
@@ -53,7 +53,6 @@ public class LoadSysMessageInterceptor {
             }else{
                 responseMessageMap = responseData;
             }
-            LOGGER.debug("Exit LoadSysMessageInterceptor->invoke");
         } catch (HCEValidationException resHceValidationException){
             responseMessageMap = hceControllerSupport.formResponse(resHceValidationException.getMessageCode(),resHceValidationException.getMessage());
         }catch (HCEActionException resHceActionException){
@@ -64,6 +63,4 @@ public class LoadSysMessageInterceptor {
         }
         return responseMessageMap;
     }
-
-
 }

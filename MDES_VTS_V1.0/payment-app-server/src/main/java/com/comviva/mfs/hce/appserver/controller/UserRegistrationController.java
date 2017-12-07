@@ -44,8 +44,6 @@ public class UserRegistrationController {
         Map<String,Object> registerUser = null;
         RegisterUserRequest registerUserRequestPojo = null;
         try{
-            LOGGER.debug("Enter UserRegistrationController->registerUser");
-            String s = MDC.get("tenantId");
             registerUserRequestPojo =(RegisterUserRequest) hCEControllerSupport.requestFormation(registerUserRequest,RegisterUserRequest.class);
             registerUser = userDetailService.registerUser(registerUserRequestPojo);
             LOGGER.debug("Exit UserRegistrationController->registerUser");

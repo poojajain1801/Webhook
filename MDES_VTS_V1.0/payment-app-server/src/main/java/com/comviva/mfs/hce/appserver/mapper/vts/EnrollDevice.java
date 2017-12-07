@@ -149,9 +149,6 @@ public class EnrollDevice{
         ResourceLoader resourceLoader = null;
 
         try {
-
-
-            LOGGER.debug("Enter EnrollDevice->enrollDevice");
             jsDeviceInfo = prepareDeviceInfo(deviceInfo);
             jsDevInitParams = createDeviceInitParam();
             vtsCerts = new JSONArray();
@@ -266,7 +263,6 @@ public class EnrollDevice{
                 jsonResponse.put(HCEConstants.RESPONSE_CODE,String.valueOf(jsonResponse.getInt(HCEConstants.STATUS_CODE)));
                 jsonResponse.put(HCEConstants.MESSAGE,jsonResponse.getString(HCEConstants.STATUS_MESSAGE));
             }
-            LOGGER.debug("Exit EnrollDevice->enrollDevice");
         } catch (HCEActionException enrollDeviceActionException) {
             LOGGER.error("Exception occured in  EnrollDevice->enrollDevice", enrollDeviceActionException);
             throw enrollDeviceActionException;

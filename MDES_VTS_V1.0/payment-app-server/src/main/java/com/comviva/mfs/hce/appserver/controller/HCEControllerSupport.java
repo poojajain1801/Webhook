@@ -93,7 +93,6 @@ public class HCEControllerSupport {
 
         String txnMessage = null;
         List<SysMessage> sysMessageList = null;
-        LOGGER.debug("Enter in HCEControllerSupport->prepareMessage");
         try{
 
             sysMessageList = commonRepository.find(messageCode,getLocale());
@@ -104,9 +103,6 @@ public class HCEControllerSupport {
             LOGGER.error("Exception occured in HCEControllerSupport->prepareMessage", prepareMessageException);
             txnMessage = HCEConstants.INTERNAL_SERVER_ERROR;
         }
-
-        LOGGER.debug("Exit in HCEControllerSupport->prepareMessage");
-
         return txnMessage;
 
     }
