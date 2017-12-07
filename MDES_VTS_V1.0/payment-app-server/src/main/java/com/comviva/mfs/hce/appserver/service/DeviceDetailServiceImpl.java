@@ -72,8 +72,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         UserDetail userDetail;
         DeviceInfo deviceInfo;
         try {
-
-            LOGGER.debug("Enter DeviceDetailServiceImpl->registerDevice");
             List<UserDetail> userDetails = userDetailRepository.findByUserIdAndStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
 
             if(userDetails!=null && !userDetails.isEmpty()){
@@ -167,9 +165,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             response.put("hvtThreshold", env.getProperty("hvt.limit"));
 
-
-
-            LOGGER.debug("Exit DeviceDetailServiceImpl->registerDevice");
             //******************VTS :Register with END***********************************
             return response;
         }

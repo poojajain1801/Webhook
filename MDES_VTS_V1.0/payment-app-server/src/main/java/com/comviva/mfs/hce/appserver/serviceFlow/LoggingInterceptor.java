@@ -1,7 +1,9 @@
 package com.comviva.mfs.hce.appserver.serviceFlow;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.decryptFlow.DecryptData;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
@@ -42,19 +44,19 @@ public class LoggingInterceptor {
         String  responseCode = null;
         long startTime = 0;
         Map responseData =null;
-        Object[] args  = null;
-        String encryptionEnabledMethods = null;
         String requestId = null;
+        String startTimeValue = null;
 
         try {
             LOGGER.debug("{} Received Request: {}", originalMethod.getSignature(), requestData);
-            MDC.put(HCEConstants.REQUEST_ID,HCEUtil.generateRandomId(HCEConstants.REQUEST_ID_PREFIX));
-            startTime = System.currentTimeMillis();
-            requestId =findUserId(requestData);
-            requestData = decryptData(requestData, methodName);
-            args = new Object[1];
-            args[0] = requestData;
-            responseData = (Map) originalMethod.proceed(args);
+            startTimeValue = MDC.get(HCEConstants.START_TIME);
+           if(startTimeValue!= null){
+               startTime = Long.valueOf(startTimeValue);
+           }else{
+               startTime = System.currentTimeMillis();
+           }
+            requestId = findUserId(requestData);
+            responseData = (Map) originalMethod.proceed();
         } catch (HCEActionException hceActionExp){
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", hceActionExp);
             responseData = hceControllerSupport.formResponse(hceActionExp.getMessageCode());
@@ -62,6 +64,7 @@ public class LoggingInterceptor {
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", e);
             responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
         }finally {
+            MDC.remove(HCEConstants.START_TIME);
             responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
                 hceControllerSupport.maintainAudiTrail(requestId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
@@ -73,23 +76,7 @@ public class LoggingInterceptor {
         return responseData;
     }
 
-    private String decryptData(String requestData, String methodName) throws HCEActionException{
-        List<String> encryptionEnabledMethodsList = null;
 
-        if(HCEConstants.ACTIVE.equals(env.getProperty("enable.end.to.end.encryption"))){
-            final String encryptionEnabledMethods =env.getProperty("encryption.enabled.api");
-            if(encryptionEnabledMethods!=null){
-                encryptionEnabledMethodsList = Arrays.asList(encryptionEnabledMethods.split(","));
-            }
-            if(encryptionEnabledMethodsList!=null && !encryptionEnabledMethodsList.isEmpty()){
-                if(encryptionEnabledMethodsList.contains(methodName)){
-                    requestData = hceControllerSupport.decryptRequest(requestData);
-                }
-            }
-        }
-
-        return requestData;
-    }
 
 
 

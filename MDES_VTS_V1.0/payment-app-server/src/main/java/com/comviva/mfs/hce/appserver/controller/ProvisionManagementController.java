@@ -40,7 +40,6 @@ public class ProvisionManagementController {
         Map <String,Object> provisonResp= null;
         ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequestPojo = null;
         try{
-            LOGGER.debug("Enter ProvisionManagementController->provisionTokenWithPanEnrollmentId");
             provisionTokenGivenPanEnrollmentIdRequestPojo =(ProvisionTokenGivenPanEnrollmentIdRequest) hCEControllerSupport.requestFormation(provisionTokenGivenPanEnrollmentIdRequest,ProvisionTokenGivenPanEnrollmentIdRequest.class);
             provisonResp = provisionManagementService.ProvisionTokenGivenPanEnrollmentId(provisionTokenGivenPanEnrollmentIdRequestPojo);
         }catch (HCEValidationException enrollPanRequestValidation){

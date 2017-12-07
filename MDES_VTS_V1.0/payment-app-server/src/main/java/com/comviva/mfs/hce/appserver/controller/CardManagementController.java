@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.controller;
 
+import com.comviva.mfs.hce.appserver.decryptFlow.DecryptFlowStep;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
@@ -58,12 +59,11 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/enrollPan", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
+    @DecryptFlowStep("decryptData")
     public Map<String, Object> enrollPan(@RequestBody String enrollPanRequest){
         Map <String,Object> enrollPanResponse= null;
         EnrollPanRequest enrollPanRequestPojo = null;
         try{
-            LOGGER.debug("Enter CardManagementController->enrollPan");
-           // enrollPanRequest = hCEControllerSupport.decryptRequest(enrollPanRequest);
             enrollPanRequestPojo =(EnrollPanRequest) hCEControllerSupport.requestFormation(enrollPanRequest,EnrollPanRequest.class);
             enrollPanResponse = cardDetailService.enrollPan(enrollPanRequestPojo);
         }catch (HCEValidationException enrollPanRequestValidation){
@@ -76,8 +76,6 @@ public class CardManagementController {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
-        LOGGER.debug("Exit CardManagementController->enrollPan");
-
         return enrollPanResponse;
     }
     @ResponseBody

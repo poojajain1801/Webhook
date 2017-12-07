@@ -11,16 +11,20 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Array;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 /**
  * Created by shadab.ali on 22-08-2017.
  */
@@ -34,6 +38,20 @@ public class HCEUtil {
     private static SecureRandom srnd = null;
     @Autowired
     private CommonRepository commonRepository;
+
+
+    public static List<String> maskingPropertiesList = new ArrayList<String>();
+
+    static {
+
+        if (HCEConstants.MASKING_PROPERTIES != null && !HCEConstants.MASKING_PROPERTIES.isEmpty()) {
+            String[] maskingProperties = null;
+            maskingProperties =HCEConstants.MASKING_PROPERTIES.split(",");
+            if (maskingProperties != null && maskingProperties.length != 0) {
+                maskingPropertiesList = Arrays.asList(maskingProperties);
+            }
+        }
+    }
 
     public static Map<String,Object> formResponse(String messageCode ,String message){
 
@@ -78,11 +96,11 @@ public class HCEUtil {
         }
         logMessage.append("|");
         if (request != null && !"".equals(request)) {
-            logMessage.append(request);
+            logMessage.append(maskJson(request));
         }
         logMessage.append("|");
         if (response != null && !"".equals(response)) {
-            logMessage.append(response);
+            logMessage.append(maskJson(response));
         }
         logMessage.append("|");
 
@@ -114,11 +132,11 @@ public class HCEUtil {
             logMessage.append(requestId);
         }
         logMessage.append("|");
-        if (request != null && !"".equals(request)) {
+        if (request != null && !"".equals(maskJson(request))) {
             logMessage.append(request);
         }
         logMessage.append("|");
-        if (response != null && !"".equals(response)) {
+        if (response != null && !"".equals(maskJson(response))) {
             logMessage.append(response);
         }
         logMessage.append("|");
@@ -234,5 +252,176 @@ public class HCEUtil {
             LOGGER.info(logMessage.toString());
         }
     }
+
+
+
+    /**
+     * This is java doc.
+     *
+     * @param jsonData the json data
+     * @return the string
+     */
+    public static String maskJson(String jsonData){
+
+
+        String replaceText = "";
+        String[] replaceValue = null;
+        String temp = "";
+        String original = "";
+        Matcher matcher  = null;
+        String[] node = null;
+        String splitParam = null;
+        splitParam=":";
+        String patternString = "";
+        String tempReplaceValue = "";
+
+        jsonData = formatJsonString(jsonData);
+
+        if(HCEUtil.getMaskingPropertiesList() != null && !HCEUtil.getMaskingPropertiesList().isEmpty()){
+
+            for(String maskingProp : HCEUtil.getMaskingPropertiesList()){
+
+                node = maskingProp.split(":");
+                if(jsonData.contains("\"")){
+                    patternString = "\""+node[0]+"\""+splitParam+" \""+HCEConstants.MASKING_PARAM_REGEX+"\"";
+                }else{
+                    patternString = node[0]+splitParam+" "+HCEConstants.MASKING_PARAM_REGEX;
+                }
+
+                matcher  = Pattern.compile(patternString).matcher(jsonData);
+
+                while (matcher.find()){
+                    replaceText = matcher.group();
+                    original = replaceText;
+                    replaceValue = replaceText.split(splitParam);
+                    if(replaceValue != null && replaceValue.length>1){
+
+                        final String extValue = replaceValue[1].trim();
+                        if(extValue.startsWith("\"") && extValue.endsWith("\"")){
+                            tempReplaceValue = extValue.substring(1, extValue.length()-1);
+                            replaceText = getMaskedValue(tempReplaceValue, node[1], node[2]);
+                            replaceText = "\""+replaceText+"\"";
+                        }else{
+                            replaceText = getMaskedValue(extValue, node[1], node[2]);
+                        }
+
+
+                        temp =replaceValue[0]+ splitParam+replaceText;
+                        jsonData= jsonData.replaceAll(original, temp);
+                    }
+
+                }
+            }
+        }
+
+        return jsonData;
+    }
+
+
+    /**
+     * Format Json String
+     *
+     * @param jsonString
+     * @return string
+     */
+    public static String formatJsonString(String jsonString){
+        JsonParser parse = null;
+        JsonObject json = null;
+        JsonArray jsonArray = null;
+        Gson gson = null;
+        try{
+            parse = new JsonParser();
+
+            JsonElement js = parse.parse(jsonString);
+            gson = new GsonBuilder().setPrettyPrinting().create();
+            if (js instanceof JsonObject) {
+                json = js.getAsJsonObject();
+            } else if (js instanceof JsonArray) {
+                jsonArray =  js.getAsJsonArray();
+                return gson.toJson(jsonArray);
+            }
+
+            return gson.toJson(json);
+
+        }catch(Exception e){
+            LOGGER.error("Error occured in formatJsonString method of OpenServiceUtil", e);
+            return jsonString;
+        }
+    }
+
+
+
+
+
+    /**
+     * This method mask the number .
+     *
+     * @param p_value the p_value
+     * @param maskingLength the masking length
+     * @param p_maskType the p_mask type
+     * @return the masked value
+     */
+    public static String getMaskedValue(String p_value,String maskingLength,String p_maskType)
+    {
+        String maskedValue=null;
+
+        int len=0;
+        len=p_value.length();
+        StringBuffer masked=null;
+        masked=new StringBuffer();
+        int p_digit = 0;
+        int maskingLengthInt = Integer.parseInt(maskingLength);
+
+        if("?".equals(maskingLength)){
+            p_digit = p_value.length();
+        }else if(HCEConstants.MASK_TYPE_POST.equals(p_maskType) || HCEConstants.MASK_TYPE_PRE.equals(p_maskType)){
+            p_digit = maskingLengthInt;
+        } else{
+            p_digit = p_value.length()-maskingLengthInt;
+
+        }
+      //  if(HCEConstants.UNMASK_TYPE_PRE.equals())
+        // generate no of XXXXs
+        for(int i=0;i<p_digit;i++)
+            masked.append("X");
+
+        if(p_value!=null && !p_value.isEmpty() ){
+
+            if(len == p_digit){
+                maskedValue=masked.toString();
+            }else{
+                // masking from start position
+                if(HCEConstants.MASK_TYPE_PRE.equals(p_maskType) ){
+                    maskedValue=p_value.substring(p_digit,len);
+                    maskedValue=masked.toString() + maskedValue;
+                }else if(HCEConstants.UNMASK_TYPE_PRE.equals(p_maskType)){
+                    maskedValue=p_value.substring(0,maskingLengthInt);
+                    maskedValue=maskedValue + masked.toString() ;
+
+                }else if(HCEConstants.UNMASK_TYPE_POST.equals(p_maskType)){
+                    maskedValue=p_value.substring(len-maskingLengthInt-1,len-1);
+                    maskedValue=masked.toString()+maskedValue;
+
+                }else{
+                    maskedValue=p_value.substring(0,(len-p_digit)-1);
+                    maskedValue=maskedValue + masked.toString() ;
+                }
+            }
+
+        }
+        return maskedValue;
+    }
+
+
+
+    public static List<String> getMaskingPropertiesList() {
+        return maskingPropertiesList;
+    }
+
+    public static void setMaskingPropertiesList(
+            List<String> maskingPropertiesList) {
+        HCEUtil.maskingPropertiesList = maskingPropertiesList;
+    }
+
 
 }

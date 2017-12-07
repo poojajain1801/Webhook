@@ -40,10 +40,6 @@ public class SendReqest {
         long startTime = 0;
         String xCorrelationID = null;
         try {
-
-            LOGGER.debug("Enter in SendRequest->postHttpRequest");
-
-            String s =  MDC.get("tenantId");
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
@@ -128,7 +124,6 @@ public class SendReqest {
                     responseJson.put(HCEConstants.STATUS_MESSAGE,"Unknown");
                 }
             }
-            LOGGER.debug("Exit in SendRequest->postHttpRequest");
         } catch (IOException ioe) {
             LOGGER.error("Exception Occured in SendRequest->postHttpRequest",ioe);
             throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
