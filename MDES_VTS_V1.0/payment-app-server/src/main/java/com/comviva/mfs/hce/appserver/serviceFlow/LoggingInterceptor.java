@@ -1,9 +1,7 @@
 package com.comviva.mfs.hce.appserver.serviceFlow;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.decryptFlow.DecryptData;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
@@ -18,10 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 @Aspect
@@ -48,7 +42,6 @@ public class LoggingInterceptor {
         String startTimeValue = null;
 
         try {
-            LOGGER.debug("{} Received Request: {}", originalMethod.getSignature(), requestData);
             startTimeValue = MDC.get(HCEConstants.START_TIME);
            if(startTimeValue!= null){
                startTime = Long.valueOf(startTimeValue);
