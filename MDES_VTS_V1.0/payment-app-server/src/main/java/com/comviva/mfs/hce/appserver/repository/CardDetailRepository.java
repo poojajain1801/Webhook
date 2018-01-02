@@ -19,6 +19,8 @@ import java.util.Optional;
 @Repository
 public interface CardDetailRepository extends JpaRepository<CardDetails, String>{
 
+    @Query("Select vc from CardDetails vc where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.panUniqueReference=:panUniqueReference")
+    List<CardDetails> findByPanUniqueReferenceAndClientDeviceId(@Param("panUniqueReference")String panUniqueReference,@Param("clientDeviceId")String clientDeviceId);
     List<CardDetails> findByPanUniqueReference(String panUniqueReference);
     List<CardDetails> findByVisaProvisionTokenId(String visaProvisionTokenId);
     @Query("Select vc from CardDetails vc where vc.cardIdentifier =:cardIdentifier and vc.deviceInfo.userDetail.clientWalletAccountId=:clientWalletAccountId and vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status in(:active,:suspend)")

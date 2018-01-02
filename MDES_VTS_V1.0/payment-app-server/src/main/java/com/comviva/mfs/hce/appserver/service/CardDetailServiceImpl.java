@@ -352,17 +352,12 @@ public class CardDetailServiceImpl implements CardDetailService {
 
                 if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                     vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
-                    cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
-                    CardDetails cardDetails = null;
-                    if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
-                        cardDetails = cardDetailsList.get(0);
-                    }else{
-                        cardDetails = new CardDetails();
-                        cardDetails.setDeviceInfo(deviceInfoList.get(0));
-                        cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
-                    }
+                    //cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
+                    //CardDetails cardDetails = null;
 
-
+                    CardDetails  cardDetails = new CardDetails();
+                    cardDetails.setDeviceInfo(deviceInfoList.get(0));
+                    cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
                     cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
                    // cardDetails.setVisaProvisionTokenId(vPanEnrollmentId);
                     cardDetails.setPanUniqueReference(vPanEnrollmentId);

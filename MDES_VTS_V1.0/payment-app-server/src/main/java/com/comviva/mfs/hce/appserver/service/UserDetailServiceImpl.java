@@ -119,10 +119,10 @@ public class UserDetailServiceImpl implements UserDetailService {
                 }else{
 
                     userDetail = saveUserDetails(registerUserRequest);
-                    userDetailRepository.save(userDetail);
+                    userDetailRepository.saveAndFlush(userDetail);
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
                     deviceInfo.setUserDetail(userDetail);
-                    deviceDetailRepository.save(deviceInfo);
+                    deviceDetailRepository.saveAndFlush(deviceInfo);
                     // RegisterUser and Register Device
 
                 }
@@ -144,10 +144,16 @@ public class UserDetailServiceImpl implements UserDetailService {
 
     private UserDetail saveUserDetails(RegisterUserRequest registerUserRequest) throws Exception{
 
-        UserDetail userDetail = new UserDetail();
+        UserDetail userDetail = null;
+        UserDetail oldUserDetail = userDetailRepository.findByUserId(registerUserRequest.getUserId());
+        if(oldUserDetail!=null ){
+            userDetail = oldUserDetail;
+        }else{
+            userDetail = new UserDetail();
+            userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
+        }
         userDetail.setStatus(HCEConstants.ACTIVE);
         userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-        userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
         userDetail.setUserId(registerUserRequest.getUserId());
         return userDetail;
     }

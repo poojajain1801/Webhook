@@ -17,4 +17,5 @@ import java.util.Optional;
 public interface UserDetailRepository extends JpaRepository<UserDetail, String>{
     List<UserDetail> findByUserIdAndStatus(String userId, String stataus);
     List<UserDetail> findByClientWalletAccountId(String clientWalletAccountId);
+    UserDetail findByUserId(String userId);
 }

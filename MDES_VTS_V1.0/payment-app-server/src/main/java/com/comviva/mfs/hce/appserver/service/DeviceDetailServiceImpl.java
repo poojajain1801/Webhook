@@ -4,11 +4,14 @@ import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
+import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
@@ -36,6 +39,7 @@ import java.util.*;
 public class DeviceDetailServiceImpl implements DeviceDetailService {
 
     private final DeviceDetailRepository deviceDetailRepository;
+    private final CardDetailRepository cardDetailRepository;
     private final UserDetailService userDetailService;
     private final UserDetailRepository userDetailRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceDetailServiceImpl.class);
@@ -46,13 +50,14 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private Environment env;
 
     @Autowired
-    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts ) {
+    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,CardDetailRepository cardDetailRepository ) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
         this.deviceRegistrationMdes = deviceRegistrationMdes;
         this.enrollDeviceVts = enrollDeviceVts;
+        this.cardDetailRepository = cardDetailRepository;
     }
 
     /**
@@ -181,25 +186,25 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
 
-       /* JSONObject jsonRequest  = null;
+        JSONObject jsonRequest  = null;
         String url = null;
         HitMasterCardService hitMasterCardService = null;
         ResponseEntity responseEntity = null;
         String paymentAppInstanceID = null;
         Optional<DeviceInfo> deviceInfoOptional = null;
         String userID = null;
-
+        List<CardDetails> cardDetailsList = null;
         String clintDeviceID = null;
         String imei = null;
 
         try {
             userID = unRegisterReq.getUserId();
             imei = unRegisterReq.getImei();
-            clintDeviceID = unRegisterReq.getClientDeviceID();
-            paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();
+           /* clintDeviceID = unRegisterReq.getClientDeviceID();
+            paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();*/
 
             //If user id and imei is null and paymentAppInstanceID or clint device is is null throw Insuficiant input data
-            if(((imei.isEmpty()||imei ==null)&&(userID.isEmpty()||userID==null)))
+            if(((imei.isEmpty()||imei ==null)||(userID.isEmpty()||userID==null)))
             {
                 //Retrun Insufucaiant input data
             }
@@ -208,7 +213,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 
             //call master cad unregister API
-           *//* if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
+           /* if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
 
                 //Validate payment app instance ID
                 if (!deviceInfoOptional.isPresent()) {
@@ -221,19 +226,23 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 url = ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/mpamanagement/1/0/unregister";
                 hitMasterCardService = new HitMasterCardService();
                 responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST");
-            }*//*
+            }*/
 
            //Fetch all the Visa active card from the DB and Call the delete card for the same
+            //TODO:Get the clint device ID from Device details table from IMEI
+            //TODO:Get list fo cards for the clint devide id
+            //TODO:Call delete card of VISA for all the cards.
+            clintDeviceID = deviceDetailRepository.findByImei(imei).get().getClientDeviceId();
 
 
+           // cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier()
 
 
         }catch (HCEActionException unRegisterException)
         {
             unRegisterException.printStackTrace();
         }
-        return  null;
-*/
+
         return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
     }
 

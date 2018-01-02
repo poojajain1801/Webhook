@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class RegisterUserRequest {
 
     @NotEmpty
-    @Length(max = 20, min = 4)
+    @Length(max = 60, min = 2)
     private String userId;
     private String clientDeviceID;
     private String imei;

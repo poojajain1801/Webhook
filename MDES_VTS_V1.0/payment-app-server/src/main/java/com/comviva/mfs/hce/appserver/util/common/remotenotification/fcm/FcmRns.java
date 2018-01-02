@@ -1,6 +1,9 @@
 package com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm;
 
+import com.comviva.mfs.hce.appserver.service.RemoteNotificationServiceImpl;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -19,7 +22,7 @@ public class FcmRns implements RemoteNotification {
     /** URL of FCM server */
     public static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
     Environment env;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
     protected FcmRns(Environment env) {
 
         this.env= env;
@@ -74,7 +77,10 @@ public class FcmRns implements RemoteNotification {
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
             //httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
             httpURLConnection.setRequestProperty("Content-Length", Integer.toString(rnsPostData.length));
-            httpURLConnection.setRequestProperty("Authorization", "key=" + SERVER_KEY);
+
+            LOGGER.debug("FCM server key = "+env.getProperty("serverkey"));
+
+            httpURLConnection.setRequestProperty("Authorization", "key=" +env.getProperty("serverkey"));
 
             OutputStream out = httpURLConnection.getOutputStream();
             out.write(rnsPostData);

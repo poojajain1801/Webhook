@@ -80,6 +80,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         List<CardDetails> cardDetailsList = null;
 
         String vPanEnrollmentID = null;
+        String clientDeviceID = null;
         try {
 
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
@@ -109,7 +110,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             hitVisaServices = new HitVisaServices(env);
 
             vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
-            cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentID);
+            clientDeviceID =  provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID();
+            cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID,clientDeviceID);
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
             }else{

@@ -15,6 +15,7 @@ import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +101,17 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             }
 
             rnsGenericRequest.setRnsData(lcmNotificationData);
+
+            Gson gson = new Gson();
+            String json = gson.toJson(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
+
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
+
             if (rnsResp.containsKey("errorCode")) {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > remoteNotification Sending Failed");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyLCMEvent" );
@@ -174,7 +185,18 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             lcmNotificationData.put("vprovisionedTokenId", vprovisionedTokenId);
             lcmNotificationData.put(HCEConstants.OPERATION,HCEConstants.UPDATE_TXN_HISTORY);
             rnsGenericRequest.setRnsData(lcmNotificationData);
+
+            Gson gson = new Gson();
+            String json = gson.toJson(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
+
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
+
+            LOGGER.debug("Response Recived from ");
             if (rnsResp.containsKey("errorCode")) {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate - > remoteNotification Sending Failed");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate" );

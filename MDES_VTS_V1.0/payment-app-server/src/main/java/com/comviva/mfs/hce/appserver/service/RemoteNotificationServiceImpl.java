@@ -8,6 +8,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFacto
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsResponse;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
 
     public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
         // Create Remote Notification Data
+        LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");
         try {
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
@@ -55,8 +57,18 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
+            payloadObject.put("priority","high");
+            payloadObject.put("time_to_live",7200);
+
+            LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Request payload send to FCM : ",payloadObject.toString());
+
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+
+            Gson gson = new Gson();
+            String json = gson.toJson(response);
+            LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Raw response from FCM server"+json);
+
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVERFCM_MESSAGE");
