@@ -3,6 +3,7 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
@@ -186,16 +187,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
 
-        JSONObject jsonRequest  = null;
-        String url = null;
-        HitMasterCardService hitMasterCardService = null;
-        ResponseEntity responseEntity = null;
-        String paymentAppInstanceID = null;
-        Optional<DeviceInfo> deviceInfoOptional = null;
+
         String userID = null;
-        List<CardDetails> cardDetailsList = null;
-        String clintDeviceID = null;
         String imei = null;
+        DeviceInfo deviceInfo;
 
         try {
             userID = unRegisterReq.getUserId();
@@ -207,32 +202,24 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             if(((imei.isEmpty()||imei ==null)||(userID.isEmpty()||userID==null)))
             {
                 //Retrun Insufucaiant input data
+                hceControllerSupport.formResponse(HCEMessageCodes.INSUFFICIENT_DATA);
             }
 
-           //Fetch all the master card active card number
 
 
-            //call master cad unregister API
-           /* if(!(paymentAppInstanceID==null || paymentAppInstanceID.isEmpty())) {
+            //userid and imei and status
+            deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
+            if(deviceInfo!=null)
+            {
+                cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
+                deviceInfo.setStatus(HCEConstants.INACTIVE);
+                deviceDetailRepository.save(deviceInfo);
 
-                //Validate payment app instance ID
-                if (!deviceInfoOptional.isPresent()) {
-                    //Return In valid paymentApp Instance ID
-                }
+            }else
+            {
+                throw new HCEActionException(HCEMessageCodes.DEVICE_NOT_REGISTERED);
+            }
 
-                jsonRequest.put("responseHost", ServerConfig.RESPONSE_HOST);
-                jsonRequest.put("requestId", "12343443");
-                jsonRequest.put("paymentAppInstanceId",paymentAppInstanceID);
-                url = ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/mpamanagement/1/0/unregister";
-                hitMasterCardService = new HitMasterCardService();
-                responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST");
-            }*/
-
-           //Fetch all the Visa active card from the DB and Call the delete card for the same
-            //TODO:Get the clint device ID from Device details table from IMEI
-            //TODO:Get list fo cards for the clint devide id
-            //TODO:Call delete card of VISA for all the cards.
-            clintDeviceID = deviceDetailRepository.findByImei(imei).get().getClientDeviceId();
 
 
            // cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier()
@@ -241,6 +228,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         }catch (HCEActionException unRegisterException)
         {
             unRegisterException.printStackTrace();
+            throw unRegisterException;
+        }
+        catch(Exception unRegisterException)
+        {
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
 
         return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);

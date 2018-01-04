@@ -320,6 +320,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             }else{
                 throw new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
             }
+            //Check if number of card added is more than the number card allowed
+
+
             deviceInfoList = deviceDetailRepository.findDeviceDetails(clientDeviceId,clientWalletAccountId,HCEConstants.ACTIVE);
             if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
                 deviceInfo = deviceInfoList.get(0);
@@ -358,6 +361,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                     CardDetails  cardDetails = new CardDetails();
                     cardDetails.setDeviceInfo(deviceInfoList.get(0));
                     cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
+
+
                     cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
                    // cardDetails.setVisaProvisionTokenId(vPanEnrollmentId);
                     cardDetails.setPanUniqueReference(vPanEnrollmentId);
