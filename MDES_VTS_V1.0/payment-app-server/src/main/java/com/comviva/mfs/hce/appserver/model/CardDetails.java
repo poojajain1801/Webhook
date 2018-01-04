@@ -103,7 +103,7 @@ public class CardDetails implements Serializable {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 
     public String getMasterPaymentAppInstanceId() {
@@ -135,7 +135,7 @@ public class CardDetails implements Serializable {
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = modifiedOn;
+        this.modifiedOn = (modifiedOn);
     }
 
     public String getPanUniqueReference() {
@@ -151,7 +151,7 @@ public class CardDetails implements Serializable {
     }
 
     public void setReplenishOn(Timestamp replenishOn) {
-        this.replenishOn = replenishOn;
+        this.replenishOn = (replenishOn);
     }
 
     public String getStatus() {

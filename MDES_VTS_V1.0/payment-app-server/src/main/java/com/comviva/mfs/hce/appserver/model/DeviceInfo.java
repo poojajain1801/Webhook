@@ -98,7 +98,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 
     public String getDeviceModel() {
@@ -146,7 +146,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = modifiedOn;
+        this.modifiedOn = (modifiedOn);
     }
 
     public String getNfcCapable() {
@@ -218,7 +218,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public void setCardDetails(List<CardDetails> cardDetails) {
-        this.cardDetails = cardDetails;
+        this.cardDetails = (cardDetails);
     }
 
     public CardDetails addCardDetail(CardDetails cardDetail) {

@@ -90,7 +90,7 @@ public class EnrollDevice{
             devInfoVts.put("deviceModel", devInfo.getDeviceModel());
 
         }catch (Exception e){
-            e.printStackTrace();
+            LOGGER.error("Exit EnrollDevice",e);
             LOGGER.debug("Exit EnrollDevice->prepareDeviceInfo");
         }
         return devInfoVts;
@@ -268,7 +268,7 @@ public class EnrollDevice{
             throw enrollDeviceActionException;
         } catch (Exception enrollDeviceException) {
             LOGGER.error("Exception occured in  EnrollDevice->enrollDevice", enrollDeviceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return jsonResponse.toString();
     }

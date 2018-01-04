@@ -53,7 +53,7 @@ public class DeviceRegistrationController {
             throw regDeviceHCEActionException;
         }catch (Exception regDeviceException) {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", regDeviceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return registerDeviceResponse;
     }
@@ -76,7 +76,7 @@ public class DeviceRegistrationController {
             throw deRegHCEActionException;
         }catch (Exception deRegException) {
             LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->registerDevice", deRegException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return unRegisterResponse;
     }

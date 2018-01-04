@@ -17,7 +17,7 @@ public class TermsAndConditions {
     private Date date;
     public TermsAndConditions(String id, Date date) {
         this.id=id;
-        this.date=date;
+        this.date =(date);
     }
     public TermsAndConditions() {
     }

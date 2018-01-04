@@ -15,7 +15,7 @@ public class ErrorResponse {
     private final List<ErrorDescription> errorDescriptions;
 
     public ErrorResponse(List<ErrorDescription> errorDescriptions) {
-        this.errorDescriptions = errorDescriptions;
+        this.errorDescriptions = (errorDescriptions);
     }
 
     public static ErrorResponse forErrorCode(String errorCode, MessageSource messageSource, Locale locale) {

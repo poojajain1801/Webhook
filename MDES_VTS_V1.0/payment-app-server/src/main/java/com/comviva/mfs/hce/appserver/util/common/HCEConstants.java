@@ -160,21 +160,27 @@ public class HCEConstants {
     /** The Constant REQUEST_ID_. */
     public static final String REQUEST_ID = "requestId";
 
-
     /** The Constant MASKING_PROPERTIES. */
-    public static String MASKING_PROPERTIES;
+    private static String MASKING_PROPERTIES ;
     @Value("${masking.properties}")
     public void setMaskingProperties(String maskingProperties){
         MASKING_PROPERTIES = maskingProperties;
     }
 
+    public static String getMaskingProperties() {
+        return MASKING_PROPERTIES;
+    }
+
     /** The Constant MASKING_PARAM_REGEX. */
-    public static String MASKING_PARAM_REGEX;
+    private static String MASKING_PARAM_REGEX;
     @Value("${masking.param.regex}")
     public void setMaskingParamRegex(String maskingParamRegex){
         MASKING_PARAM_REGEX = maskingParamRegex;
     }
 
+    public static String getMaskingParamRegex() {
+        return MASKING_PARAM_REGEX;
+    }
 
     /** The Constant MASK_TYPE_PRE. */
     public static final String MASK_TYPE_PRE = "PRE";
@@ -187,7 +193,26 @@ public class HCEConstants {
     /** The Constant MASK_TYPE_POST. */
     public static final String MASK_TYPE_POST = "POST";
 
+    public static final String FAILURE = "FAILURE";
 
+    public static final String NULL = "null";
+
+
+
+
+    //By Rishikesh
+    public static final String REASON_CODE = "reasonCode";
+    public static final String REASON_DESCRIPTION = "reasonDescription";
+    public static final int REASON_CODE1 = 220;
+    public static final String REASON_DESCRIPTION1 = "Invalid Payment App Instance Id";
+    public static final int REASON_CODE2 = 211;
+    public static final String REASON_DESCRIPTION2 = "Token type is not supported";
+    public static final int REASON_CODE3 = 211;
+    public static final int REASON_CODE4 = 212;
+    public static final int REASON_CODE5 = 230;
+    public static final int REASON_CODE6 = 231;
+    public static final int REASON_CODE7 = 200;
+    public static final int REASON_CODE8 = 201;
 
 
 

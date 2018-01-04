@@ -4,18 +4,14 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.model.AuditTrail;
 import com.comviva.mfs.hce.appserver.model.SysMessage;
-import com.comviva.mfs.hce.appserver.model.SysMessagePK;
 import com.comviva.mfs.hce.appserver.repository.AuditTrailRepository;
 import com.comviva.mfs.hce.appserver.repository.CommonRepository;
-import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.JSONObject;
@@ -26,7 +22,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -36,7 +31,6 @@ import java.util.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.io.InputStream;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -61,11 +55,11 @@ public class HCEControllerSupport {
 
     @Autowired
     private Environment env;
-    private static PrivateKey privateKey = null;
+    private static PrivateKey privateKey;
 
     public  Map<String,Object> formResponse(String messageCode){
 
-        Map<String,Object> responseMap = new HashMap<String,Object>();
+        Map<String,Object> responseMap = new HashMap<>();
 
         responseMap.put(HCEConstants.RESPONSE_CODE, messageCode);
         responseMap.put(HCEConstants.MESSAGE,(String)prepareMessage(messageCode));
@@ -73,7 +67,7 @@ public class HCEControllerSupport {
     }
 
     public  Map<String,Object> formResponse(String messageCode,String message){
-        Map<String,Object> responseMap = new HashMap<String ,Object>();
+        Map<String,Object> responseMap = new HashMap<>();
         responseMap.put(HCEConstants.RESPONSE_CODE, messageCode);
         if(message!=null && !message.isEmpty()){
             responseMap.put(HCEConstants.MESSAGE,message);
@@ -136,9 +130,10 @@ public class HCEControllerSupport {
                     errorMessage.append("\n");
                 }
             }
-            if (errorMessage != null && !"".equals(errorMessage)) {
+
+            if (errorMessage != null && errorMessage.length() !=0) {
                 errMsg = errorMessage.toString();
-                throw new HCEValidationException(HCEMessageCodes.INVALID_PROPERTY,errMsg);
+                throw new HCEValidationException(HCEMessageCodes.getInvalidProperty(),errMsg);
             }
 
             LOGGER.debug("Exit in HCEControllerSupport->requestFormation");
@@ -147,7 +142,7 @@ public class HCEControllerSupport {
             throw reqValidationException;
         }catch (Exception reqValidationException ){
             LOGGER.error("Exception occured in HCEControllerSupport->requestFormation", reqValidationException);
-            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
 
         return obj;
@@ -226,7 +221,7 @@ public class HCEControllerSupport {
             return privateKey;
         }catch (Exception ex) {
             LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
-            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
 
     }
@@ -247,7 +242,7 @@ public class HCEControllerSupport {
             return new String(decryptedTextBytes);
         } catch (Exception ex) {
             LOGGER.error("Error in AESEncrypt CryptoUtil : " + ex.getMessage(), ex);
-            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
 
     }
@@ -266,7 +261,7 @@ public class HCEControllerSupport {
                 String requestEncData = (String) jsonObject.get("requestEncData");
 
                 if (null == requestEncKey || null == requestIV || null == requestEncData || requestEncKey.isEmpty() || requestIV.isEmpty() || requestEncData.isEmpty()) {
-                    throw new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
+                    throw new HCEActionException(HCEMessageCodes.getInsufficientData());
                 }
                 if (privateKey == null) {
                     privateKey = getPrivateKeyFromKeyStore();
@@ -288,7 +283,7 @@ public class HCEControllerSupport {
 
         }catch (Exception decReqException){
             LOGGER.error("Exception occured in HCEControllerSupport->decryptRequest ", decReqException);
-            throw new HCEActionException(HCEMessageCodes.UNABLE_TO_PARSE_REQUEST);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
     }
 

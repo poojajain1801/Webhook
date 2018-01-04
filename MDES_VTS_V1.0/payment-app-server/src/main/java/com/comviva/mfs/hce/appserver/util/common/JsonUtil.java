@@ -152,7 +152,7 @@ public class JsonUtil {
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" +e);
         }
         return result;
     }

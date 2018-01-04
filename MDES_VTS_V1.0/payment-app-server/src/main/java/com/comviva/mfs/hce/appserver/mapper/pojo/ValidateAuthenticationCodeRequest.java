@@ -26,7 +26,7 @@ public class ValidateAuthenticationCodeRequest {
         this.activationCode=activationCode;
         this.vProvisionedTokenID=vProvisionedTokenID;
         this.issuerAuthCode=issuerAuthCode;
-        this.date=date;
+        this.date = (date);
     }
 
     public ValidateAuthenticationCodeRequest() {

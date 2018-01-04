@@ -27,7 +27,7 @@ import java.util.Map;
 public class SendReqest {
     private static final Logger LOGGER = LoggerFactory.getLogger(SendReqest.class);
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    public HCEControllerSupport hceControllerSupport;
 
     @Autowired
     protected Environment env;
@@ -57,7 +57,7 @@ public class SendReqest {
             }
 
 
-            byte[] postData = requestData;
+            byte[] postData = (requestData);
 
             URL urlObj = new URL(url);
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection)urlObj.openConnection();
@@ -96,7 +96,7 @@ public class SendReqest {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
                 response = new JSONObject(responseBody);
                 responseJson.put("response",response);
-                responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.SUCCESS);
+                responseJson.put(HCEConstants.STATUS_CODE, HCEMessageCodes.getSUCCESS());
                 responseJson.put(HCEConstants.STATUS_MESSAGE,"Success");
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
@@ -126,14 +126,17 @@ public class SendReqest {
             }
         } catch (IOException ioe) {
             LOGGER.error("Exception Occured in SendRequest->postHttpRequest",ioe);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         } catch (Exception e) {
             LOGGER.error("Exception Occured in SendRequest->postHttpRequest",e);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
-            HCEUtil.writeTdrLog(totalTime,Integer.toString(responseCode),xCorrelationID,request,response.toString());
+            if (null !=response) {
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(responseCode), xCorrelationID, request, response.toString());
+
+            }
         }
         return responseJson;
     }
@@ -167,7 +170,7 @@ public class SendReqest {
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
             System.out.println("bHmacSha256 in byte :   "+bHmacSha256);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" + e);
         }
         System.out.println("hmacSha256:    "+hmacSha256);
         System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);

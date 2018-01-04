@@ -18,7 +18,7 @@ import java.net.URL;
 public class FcmRns implements RemoteNotification {
     /** URL of FCM server */
     public static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
-    Environment env;
+    private Environment env;
 
     protected FcmRns(Environment env) {
 

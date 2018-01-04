@@ -40,13 +40,13 @@ public class HCEUtil {
     private CommonRepository commonRepository;
 
 
-    public static List<String> maskingPropertiesList = new ArrayList<String>();
+    protected static List<String> maskingPropertiesList = new ArrayList<String>();
 
     static {
 
-        if (HCEConstants.MASKING_PROPERTIES != null && !HCEConstants.MASKING_PROPERTIES.isEmpty()) {
+        if (HCEConstants.getMaskingProperties() != null && !HCEConstants.getMaskingProperties().isEmpty()) {
             String[] maskingProperties = null;
-            maskingProperties =HCEConstants.MASKING_PROPERTIES.split(",");
+            maskingProperties =HCEConstants.getMaskingProperties().split(",");
             if (maskingProperties != null && maskingProperties.length != 0) {
                 maskingPropertiesList = Arrays.asList(maskingProperties);
             }
@@ -283,9 +283,9 @@ public class HCEUtil {
 
                 node = maskingProp.split(":");
                 if(jsonData.contains("\"")){
-                    patternString = "\""+node[0]+"\""+splitParam+" \""+HCEConstants.MASKING_PARAM_REGEX+"\"";
+                    patternString = "\""+node[0]+"\""+splitParam+" \""+HCEConstants.getMaskingParamRegex()+"\"";
                 }else{
-                    patternString = node[0]+splitParam+" "+HCEConstants.MASKING_PARAM_REGEX;
+                    patternString = node[0]+splitParam+" "+HCEConstants.getMaskingParamRegex();
                 }
 
                 matcher  = Pattern.compile(patternString).matcher(jsonData);

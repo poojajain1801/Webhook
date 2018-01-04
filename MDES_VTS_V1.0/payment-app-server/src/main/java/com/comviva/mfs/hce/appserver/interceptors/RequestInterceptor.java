@@ -25,7 +25,7 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
 
 
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
     @Autowired
     private Environment env;
 

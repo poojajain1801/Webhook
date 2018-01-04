@@ -68,7 +68,7 @@ public class EnrollDeviceVts {
             throw regHceActionException;
         } catch (Exception regException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return encDevicePersoData(response);
     }
@@ -117,7 +117,7 @@ public class EnrollDeviceVts {
             throw regHceActionException;
         } catch (Exception regException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->encDevicePersoData", regException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return jsonObject.toString();
     }

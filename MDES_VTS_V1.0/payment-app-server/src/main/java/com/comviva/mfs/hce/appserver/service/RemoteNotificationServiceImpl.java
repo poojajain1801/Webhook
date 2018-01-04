@@ -21,14 +21,14 @@ import java.util.Map;
 @Service
 public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService {
     private final DeviceDetailRepository deviceDetailRepository;
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
 
     @Autowired
     public RemoteNotificationServiceImpl(DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport) {
         this.deviceDetailRepository = deviceDetailRepository;
     }
     @Autowired
-    Environment env;
+    private Environment env;
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
 
     public Map sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {

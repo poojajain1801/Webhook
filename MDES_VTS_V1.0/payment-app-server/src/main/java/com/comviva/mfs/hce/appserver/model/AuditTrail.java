@@ -64,7 +64,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = createdOn;
+		this.createdOn = (createdOn);
 	}
 
 	public byte[] getRequest() {
@@ -72,7 +72,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public void setRequest(byte[] request) {
-		this.request = request;
+		this.request = (request);
 	}
 
 	public byte[] getResponse() {
@@ -80,7 +80,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public void setResponse(byte[] response) {
-		this.response = response;
+		this.response = (response);
 	}
 
 	public String getResponseCode() {

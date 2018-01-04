@@ -18,7 +18,7 @@ import java.util.Map;
 public class NotificationServiceControllerVisa {
 
     @Autowired
-    NotificationServiceVisaService notificationServiceVisaService;
+    private NotificationServiceVisaService notificationServiceVisaService;
 
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
@@ -44,7 +44,7 @@ public class NotificationServiceControllerVisa {
             throw notificationServiceHCEActionException;
         }catch (Exception notificationServiceException) {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", notificationServiceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notify");
         return notifyResponse;
@@ -68,7 +68,7 @@ public class NotificationServiceControllerVisa {
             throw notificationServiceHCEActionException;
         }catch (Exception notificationServiceException) {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", notificationServiceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notifyCardMetadataUpdateEvent");
         return notifyResponse;
@@ -93,7 +93,7 @@ public class NotificationServiceControllerVisa {
             throw notificationServiceHCEActionException;
         }catch (Exception notificationServiceException) {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", notificationServiceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notifyCardMetadataUpdateEvent");
         return notifyResponse;

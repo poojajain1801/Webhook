@@ -78,7 +78,7 @@ public class TokenLifeCycleManagementController {
             throw regDeviceHCEActionException;
         }catch (Exception regDeviceException) {
             LOGGER.error(" Exception Occured in TokenLifeCycleManagementController->getTokenList", regDeviceException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return tokenListResponse;
 

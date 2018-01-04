@@ -65,7 +65,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             imei = registerUserRequest.getImei();
 
             if(isClientDeviceIdExist(registerUserRequest.getClientDeviceID())){
-                throw new HCEActionException(HCEMessageCodes.CLIENT_DEVICEID_EXIST);
+                throw new HCEActionException(HCEMessageCodes.getClientDeviceidExist());
             }
 
             userDetails = userDetailRepository.findByUserIdAndStatus(userId,HCEConstants.ACTIVE);
@@ -121,7 +121,7 @@ public class UserDetailServiceImpl implements UserDetailService {
 
                 }
             }
-            response = prepareResponseMap(HCEMessageCodes.SUCCESS,userDetail,null);
+            response = prepareResponseMap(HCEMessageCodes.getSUCCESS(),userDetail,null);
 
         }catch(HCEActionException regUserHCEactionException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserHCEactionException);
@@ -129,7 +129,7 @@ public class UserDetailServiceImpl implements UserDetailService {
 
         }catch(Exception regUserException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", regUserException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return response;
     }

@@ -17,8 +17,8 @@ public class ChannelSecurityContext {
     private List<DeviceCerts> deviceCerts;
 
     public ChannelSecurityContext(List<VtsCerts> vtsCerts,List<DeviceCerts> deviceCerts) {
-        this.vtsCerts=vtsCerts;
-        this.deviceCerts=deviceCerts;
+        this.vtsCerts = (vtsCerts);
+        this.deviceCerts = (deviceCerts);
     }
 
     public ChannelSecurityContext() {

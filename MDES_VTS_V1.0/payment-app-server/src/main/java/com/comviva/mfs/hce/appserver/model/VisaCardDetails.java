@@ -55,11 +55,11 @@ public class VisaCardDetails implements Serializable {
 
 
     public Timestamp getReplenishOn() {
-        return replenishOn;
+        return (replenishOn);
     }
 
     public void setReplenishOn(Timestamp replenishOn) {
-        this.replenishOn = replenishOn;
+        this.replenishOn = (replenishOn);
     }
     public String getCardId() {
         return this.cardId;
@@ -82,7 +82,7 @@ public class VisaCardDetails implements Serializable {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 
     public Timestamp getModifiedOn() {
@@ -90,7 +90,7 @@ public class VisaCardDetails implements Serializable {
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = modifiedOn;
+        this.modifiedOn = (modifiedOn);
     }
 
     public String getStatus() {

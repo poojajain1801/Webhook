@@ -30,8 +30,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public AuthenticationFilter(AuthenticationStrategyFactory authenticationStrategyFactory, List<String> noAuthUrls, List<AuthenticationListener> authenticationListeners) {
         this.authenticationStrategyFactory = authenticationStrategyFactory;
-        this.authenticationListeners = authenticationListeners;
-        this.setRequiresAuthenticationRequestMatcher(new NegatedRequestMatcher(new OrRequestMatcher(noAuthUrls.stream().map(AntPathRequestMatcher::new).collect(Collectors.toList()))));
+        this.authenticationListeners = (authenticationListeners);
+        OrRequestMatcher orRequestMatcher = new OrRequestMatcher(noAuthUrls.stream().map(AntPathRequestMatcher::new).collect(Collectors.toList()));
+        this.setRequiresAuthenticationRequestMatcher(new NegatedRequestMatcher(orRequestMatcher));
     }
 
     @Override
@@ -51,9 +52,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             }
             chain.doFilter(request, response);
             SecurityContextHolder.getContext().setAuthentication(null);
-        } catch (AuthenticationFailedException e) {
+        } catch (AuthenticationFailedException e){
+            LOGGER.error("Exception occured",e);
             SecurityContextHolder.clearContext();
             ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
         }
     }
 }

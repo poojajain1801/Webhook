@@ -67,11 +67,9 @@ public class HitMasterCardService {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
         }catch (Exception e){
-            e.printStackTrace();
-            String error = ((HttpClientErrorException) e).getResponseBodyAsString();
+            LOGGER.error("Exception occurred in HitMasterCardService");
             LOGGER.debug("Exception occurred in HitMasterCardService -> restfulServiceConsumerMasterCard");
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
-            //return errorResponse;
 
         }
         return response;

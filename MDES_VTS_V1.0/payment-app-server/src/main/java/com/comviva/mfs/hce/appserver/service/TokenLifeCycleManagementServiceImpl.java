@@ -73,7 +73,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" +e);
         }
         return result;
     }
@@ -104,7 +104,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
 
             }else{
-                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
 
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "GET");
@@ -117,40 +117,45 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
             if(responseEntity.getStatusCode().value()==200)
             {
-                currentcardStatus = jsonResponse.getJSONObject("tokenInfo").getString("tokenStatus");
-
-                switch (currentcardStatus){
-                    case"ACTIVE":
-                        cardStatus = HCEConstants.ACTIVE;
-                        break;
-                    case"DELETED":
-                        cardStatus = HCEConstants.INACTIVE;
-                        break;
-                    case"SUSPENDED":
-                        cardStatus = HCEConstants.SUSUPEND;
-                        break;
-                    case"INACTIVE":
-                        cardStatus = HCEConstants.INACTIVE;
-                        break;
-                    default:
-                            response.put("responseCode", HCEMessageCodes.SUCCESS);
-                            response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                if (null !=jsonResponse) {
+                    currentcardStatus = jsonResponse.getJSONObject("tokenInfo").getString("tokenStatus");
+                }
+                if (null != currentcardStatus) {
+                    switch (currentcardStatus) {
+                        case "ACTIVE":
+                            cardStatus = HCEConstants.ACTIVE;
+                            break;
+                        case "DELETED":
+                            cardStatus = HCEConstants.INACTIVE;
+                            break;
+                        case "SUSPENDED":
+                            cardStatus = HCEConstants.SUSUPEND;
+                            break;
+                        case "INACTIVE":
+                            cardStatus = HCEConstants.INACTIVE;
+                            break;
+                        default:
+                            response.put("responseCode", HCEMessageCodes.getSUCCESS());
+                            response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                             return response;
+                    }
                 }
                 cardDetails.setStatus(cardStatus);
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 cardDetailRepository.save(cardDetails);
                 LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
-                response.put("responseCode", HCEMessageCodes.SUCCESS);
-                response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                response.put("responseCode", HCEMessageCodes.getSUCCESS());
+                response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 
                 return response;
             }
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
                 return errorMap;
 
@@ -159,7 +164,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
         } catch (Exception e) {
             LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus",e);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
 
         }
 
@@ -196,12 +201,12 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
                 cardDetails = cardDetailsList.get(0);
                 if(cardDetails.getStatus().equals(HCEConstants.INACTIVE)){
-                    throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                    throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
 
 
             }else{
-                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
             switch (lifeCycleManagementVisaRequest.getOperation()) {
                 case "DELETE":
@@ -224,7 +229,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                     break;
                 default:
                     LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
-                    return hceControllerSupport.formResponse(HCEMessageCodes.INVALID_OPERATION);
+                    return hceControllerSupport.formResponse(HCEMessageCodes.getInvalidOperation());
 
             }
 
@@ -236,7 +241,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 cardDetails.setStatus(cardStatus);
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 cardDetailRepository.save(cardDetails);
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
             }
             else {
                 Map errorMap = new LinkedHashMap();
@@ -248,7 +253,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         }catch (Exception e)
         {
             LOGGER.debug("Exception occurred in TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa",e);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
     @Transactional
@@ -338,12 +343,12 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
 
                 }else{
-                    throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                    throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
 
 
             }else{
-                throw new HCEActionException(HCEMessageCodes.INVALID_USER);
+                throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }
         } catch (HCEActionException getTokeListHceActionException) {
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokeListHceActionException);
@@ -351,7 +356,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
         } catch (Exception getTokenListException) {
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokenListException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
         return responseMap;

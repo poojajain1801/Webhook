@@ -30,7 +30,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 public class NotificationServiceVisaServiceImpl implements NotificationServiceVisaService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationServiceVisaServiceImpl.class);
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final CardDetailRepository cardDetailRepository;
@@ -38,7 +38,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
     @Autowired
-    RemoteNotificationService remoteNotificationService;
+    private RemoteNotificationService remoteNotificationService;
 
     @Autowired
     private Environment env;
@@ -61,7 +61,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         if(cardDetailsList==null || cardDetailsList.isEmpty()){
 
             LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyLCMEvent");
-            return hceControllerSupport.formResponse(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getCardDetailsNotExist());
         }
 
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent");
@@ -108,13 +108,13 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             } else {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > remoteNotification Send");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyLCMEvent" );
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
             }
         }catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyLCMEvent",e);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
 
@@ -146,14 +146,14 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             } else {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate - > remoteNotification Sent");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate" );
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
             }
 
         }catch (Exception e){
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" +e);
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate",e);
-            return  hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return  hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
@@ -182,13 +182,13 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             } else {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate - > remoteNotification Sent");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate" );
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
             }
 
         }catch (Exception e){
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate",e);
-            return  hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return  hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }

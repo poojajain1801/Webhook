@@ -37,8 +37,8 @@ public class ServiceData implements Serializable {
     public ServiceData(String id, String serviceId, byte[] request, byte[] response) {
         this.id = id;
         this.serviceId = serviceId;
-        this.request = request;
-        this.response = response;
+        this.request = (request);
+        this.response = (response);
     }
 
 
@@ -55,7 +55,7 @@ public class ServiceData implements Serializable {
     }
 
     public void setRequest(byte[] request) {
-        this.request = request;
+        this.request = (request);
     }
 
     public byte[] getResponse() {
@@ -63,7 +63,7 @@ public class ServiceData implements Serializable {
     }
 
     public void setResponse(byte[] response) {
-        this.response = response;
+        this.response = (response);
     }
 
     public String getServiceId() {
