@@ -58,7 +58,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
-            payloadObject.put("time_to_live",7200);
+            payloadObject.put("time_to_live",2160000);
 
             LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Request payload send to FCM : ",payloadObject.toString());
 
