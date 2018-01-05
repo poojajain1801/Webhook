@@ -69,8 +69,11 @@ public class UserDetailServiceImpl implements UserDetailService {
             }
 
             userDetails = userDetailRepository.findByUserIdAndStatus(userId,HCEConstants.ACTIVE);
+
             if(userDetails!=null && !userDetails.isEmpty()){
+
                 userDetail = userDetails.get(0);
+
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
 
@@ -79,17 +82,18 @@ public class UserDetailServiceImpl implements UserDetailService {
                         deviceInfo.setStatus(HCEConstants.INACTIVE);
                         deviceDetailRepository.save(deviceInfo);
                         updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
-                        deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
-                        userDetail.setDeviceInfos(deviceInfos);
-                        userDetailRepository.save(userDetail);
+
+                        deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
+                        deviceInfo.setUserDetail(userDetail);
+                        deviceDetailRepository.save(deviceInfo);
                         // Register New Device
                         //update Old device with N and if owner of that user is having one device then make user status N too. and register device.
 
                 }else{
 
-                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
-                    userDetail.setDeviceInfos(deviceInfos);
-                    userDetailRepository.save(userDetail);
+                    deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
+                    deviceInfo.setUserDetail(userDetail);
+                    deviceDetailRepository.save(deviceInfo);
                     //Register Device
 
                 }
@@ -104,9 +108,10 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo);
                     updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                     userDetail = saveUserDetails(registerUserRequest);
-                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
-                    userDetail.setDeviceInfos(deviceInfos);
                     userDetailRepository.save(userDetail);
+                    deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
+                    deviceInfo.setUserDetail(userDetail);
+                    deviceDetailRepository.save(deviceInfo);
 
 
                     //update Old device with N and if owner of that user is having one device then make user status N too. and register device and user.
@@ -114,9 +119,10 @@ public class UserDetailServiceImpl implements UserDetailService {
                 }else{
 
                     userDetail = saveUserDetails(registerUserRequest);
-                    deviceInfos = saveDeviceInfo(registerUserRequest,userDetail);
-                    userDetail.setDeviceInfos(deviceInfos);
                     userDetailRepository.saveAndFlush(userDetail);
+                    deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
+                    deviceInfo.setUserDetail(userDetail);
+                    deviceDetailRepository.saveAndFlush(deviceInfo);
                     // RegisterUser and Register Device
 
                 }
@@ -138,16 +144,21 @@ public class UserDetailServiceImpl implements UserDetailService {
 
     private UserDetail saveUserDetails(RegisterUserRequest registerUserRequest) throws Exception{
 
-        UserDetail userDetail = new UserDetail();
+        UserDetail userDetail = null;
+        UserDetail oldUserDetail = userDetailRepository.findByUserId(registerUserRequest.getUserId());
+        if(oldUserDetail!=null ){
+            userDetail = oldUserDetail;
+        }else{
+            userDetail = new UserDetail();
+            userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
+        }
         userDetail.setStatus(HCEConstants.ACTIVE);
         userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-        userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
         userDetail.setUserId(registerUserRequest.getUserId());
         return userDetail;
     }
-    private List<DeviceInfo> saveDeviceInfo(RegisterUserRequest registerUserRequest,UserDetail userDetail){
+    private DeviceInfo saveDeviceInfo(RegisterUserRequest registerUserRequest,UserDetail userDetail){
         DeviceInfo deviceInfo = new DeviceInfo();
-        List<DeviceInfo> deviceInfoList = new ArrayList<DeviceInfo>();
         deviceInfo.setStatus(HCEConstants.INITIATE);
         deviceInfo.setIsVisaEnabled(HCEConstants.INACTIVE);
         deviceInfo.setIsMastercardEnabled(HCEConstants.INACTIVE);
@@ -156,10 +167,8 @@ public class UserDetailServiceImpl implements UserDetailService {
         deviceInfo.setOsName(registerUserRequest.getOs_name());
         deviceInfo.setImei(registerUserRequest.getImei());
         deviceInfo.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-       // deviceInfo.getUserDetail().setClientWalletAccountId(userDetail.getClientWalletAccountId());
         deviceInfo.setUserDetail(userDetail);
-        deviceInfoList.add(deviceInfo);
-        return deviceInfoList;
+        return deviceInfo;
 
     }
 

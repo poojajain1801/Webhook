@@ -6,6 +6,7 @@ import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,8 @@ import java.util.Optional;
 @Repository
 public interface CardDetailRepository extends JpaRepository<CardDetails, String>{
 
+    @Query("Select vc from CardDetails vc where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.panUniqueReference=:panUniqueReference")
+    List<CardDetails> findByPanUniqueReferenceAndClientDeviceId(@Param("panUniqueReference")String panUniqueReference,@Param("clientDeviceId")String clientDeviceId);
     List<CardDetails> findByPanUniqueReference(String panUniqueReference);
     List<CardDetails> findByVisaProvisionTokenId(String visaProvisionTokenId);
     @Query("Select vc from CardDetails vc where vc.cardIdentifier =:cardIdentifier and vc.deviceInfo.userDetail.clientWalletAccountId=:clientWalletAccountId and vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status in(:active,:suspend)")
@@ -41,5 +44,8 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
         }
 
     }
+    @Modifying(clearAutomatically = true)
+    @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId")
+    void updateCardDetails(@Param("clientDeviceId") String clientDeviceId ,@Param("status") String status);
 
 }

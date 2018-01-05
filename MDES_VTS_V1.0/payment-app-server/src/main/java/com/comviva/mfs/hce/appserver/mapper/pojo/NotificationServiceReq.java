@@ -12,11 +12,13 @@ public class NotificationServiceReq {
     private Long date;
     private String api;
     private String vProvisionedTokenID;
+    private String vPanEnrollmentID;
 
-    public NotificationServiceReq(Long date, String api, String vProvisionedTokenID) {
+    public NotificationServiceReq(Long date, String api, String vProvisionedTokenID,String vPanEnrollmentID) {
         this.date = date;
         this.api = api;
         this.vProvisionedTokenID = vProvisionedTokenID;
+        this.vPanEnrollmentID = vPanEnrollmentID;
     }
 
     public NotificationServiceReq()
@@ -47,4 +49,13 @@ public class NotificationServiceReq {
     public void setvProvisionedTokenID(String vProvisionedTokenID) {
         this.vProvisionedTokenID = vProvisionedTokenID;
     }
+
+    public String getvPanEnrollmentID() {
+        return vPanEnrollmentID;
+    }
+
+    public void setvPanEnrollmentID(String vPanEnrollmentID) {
+        this.vPanEnrollmentID = vPanEnrollmentID;
+    }
 }
+

@@ -370,13 +370,15 @@ public class HCEUtil {
         StringBuffer masked=null;
         masked=new StringBuffer();
         int p_digit = 0;
-        int maskingLengthInt = Integer.parseInt(maskingLength);
+        int maskingLengthInt = 0;
 
         if("?".equals(maskingLength)){
             p_digit = p_value.length();
         }else if(HCEConstants.MASK_TYPE_POST.equals(p_maskType) || HCEConstants.MASK_TYPE_PRE.equals(p_maskType)){
+            maskingLengthInt = Integer.parseInt(maskingLength);
             p_digit = maskingLengthInt;
         } else{
+            maskingLengthInt = Integer.parseInt(maskingLength);
             p_digit = p_value.length()-maskingLengthInt;
 
         }
@@ -403,7 +405,7 @@ public class HCEUtil {
                     maskedValue=masked.toString()+maskedValue;
 
                 }else{
-                    maskedValue=p_value.substring(0,(len-p_digit)-1);
+                    maskedValue=p_value.substring(0,(len-p_digit));
                     maskedValue=maskedValue + masked.toString() ;
                 }
             }
@@ -422,6 +424,5 @@ public class HCEUtil {
             List<String> maskingPropertiesList) {
         HCEUtil.maskingPropertiesList = maskingPropertiesList;
     }
-
 
 }

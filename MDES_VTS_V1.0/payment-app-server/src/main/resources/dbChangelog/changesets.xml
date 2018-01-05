@@ -149,10 +149,10 @@
             </column>
 
             <column name="PAN_UNIQUE_REFERENCE" type="VARCHAR2(255)">
-                <constraints nullable="true" unique="true"/>
+                <constraints nullable="true" />
             </column>
             <column name="VISA_PROVISION_TOKEN_ID" type="VARCHAR2(255)">
-                <constraints nullable="true"/>
+                <constraints nullable="true" unique="true"/>
             </column>
             <column name="MASTER_PAYMENT_APP_INSTANCE_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>

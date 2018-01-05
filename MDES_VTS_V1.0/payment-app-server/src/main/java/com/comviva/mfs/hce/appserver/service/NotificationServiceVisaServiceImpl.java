@@ -1,6 +1,7 @@
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotificationServiceReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -15,6 +16,7 @@ import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +102,17 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             }
 
             rnsGenericRequest.setRnsData(lcmNotificationData);
+
+            Gson gson = new Gson();
+            String json = gson.toJson(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
+
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
+
             if (rnsResp.containsKey("errorCode")) {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > remoteNotification Sending Failed");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyLCMEvent" );
@@ -129,33 +141,71 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         {
             //Return Invalid apiKey
         }
-        String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
+        //String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
+        String vPanEnrollmentId = notificationServiceReq.getvPanEnrollmentID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
-            RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
-            rnsGenericRequest.setIdType(UniqueIdType.VTS);
-            rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));
-            lcmNotificationData.put("vprovisionedTokenId", vprovisionedTokenId);
-            lcmNotificationData.put(HCEConstants.OPERATION,HCEConstants.UPDATE_CARD_METADATA);
-            rnsGenericRequest.setRnsData(lcmNotificationData);
-            Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
-            if (rnsResp.containsKey("errorCode")) {
-                LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate - > remoteNotification Sending Failed");
-                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate" );
-                return rnsResp;
-            } else {
-                LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate - > remoteNotification Sent");
-                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate" );
-                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+
+
+            final List<CardDetails> cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
+            String rnsRegID = null;
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+
+                for(int i =0;i<cardDetailsList.size();i++){
+
+                    final DeviceInfo deviceInfo = cardDetailsList.get(i).getDeviceInfo();
+                    rnsRegID = deviceInfo.getRnsRegistrationId();
+                    RnsGenericRequest rnsGenericRequest=  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
+                    sendNotification(rnsGenericRequest);
+
+                }
+
+            }
+            else{
+                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
+                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
 
             }
 
+           return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+
+
         }catch (Exception e){
-            LOGGER.error("Exception Occured" +e);
+            e.printStackTrace();
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate",e);
-            return  hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
+            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
         }
 
+    }
+
+
+
+    public RnsGenericRequest preparetNotificationRequest(String panUniqueReference,String rnsId){
+        LOGGER.debug("Inside preparetNotificationRequest");
+        HashMap<String, String> lcmNotificationData = new HashMap<>();
+        RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
+        rnsGenericRequest.setIdType(UniqueIdType.VTS);
+        rnsGenericRequest.setRegistrationId(rnsId);
+        lcmNotificationData.put("vPanEnrollmentId", panUniqueReference);
+        lcmNotificationData.put(HCEConstants.OPERATION,HCEConstants.UPDATE_CARD_METADATA);
+        rnsGenericRequest.setRnsData(lcmNotificationData);
+        LOGGER.debug("Exit preparetNotificationRequest");
+        return rnsGenericRequest;
+
+    }
+
+    public void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception{
+
+        Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+        if (rnsResp.containsKey("errorCode")) {
+            LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification-> notifyPanMetadataUpdate - > remoteNotification Sending Failed");
+            LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->sendNotification-> notifyPanMetadataUpdate" );
+        //    throw new HCEActionException(HCEConstants.SERVICE_FAILED);
+        } else {
+            LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification->notifyPanMetadataUpdate - > remoteNotification Sent");
+            LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->sendNotification-> notifyPanMetadataUpdate" );
+           // throw new HCEActionException(HCEMessageCodes.SUCCESS);
+        }
     }
 
     public Map notifyTxnDetailsUpdate (NotificationServiceReq notificationServiceReq,String apiKey)
@@ -174,7 +224,18 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             lcmNotificationData.put("vprovisionedTokenId", vprovisionedTokenId);
             lcmNotificationData.put(HCEConstants.OPERATION,HCEConstants.UPDATE_TXN_HISTORY);
             rnsGenericRequest.setRnsData(lcmNotificationData);
+
+            Gson gson = new Gson();
+            String json = gson.toJson(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
+            LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
+
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+
+            LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
+
+            LOGGER.debug("Response Recived from ");
             if (rnsResp.containsKey("errorCode")) {
                 LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate - > remoteNotification Sending Failed");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate" );
@@ -202,6 +263,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         }
         return rnsRegID;
     }
+
 
 
 
