@@ -1,34 +1,23 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
-import com.comviva.mfs.hce.appserver.service.CardDetailServiceImpl;
+
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
+
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Logger;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
+import java.util.ArrayList;
+import java.util.List;
+
+
 
 public class VtsRequest {
     protected static final String PATH_SEPARATOR = "/";
@@ -67,7 +56,7 @@ public class VtsRequest {
      * Request in JSON format
      */
     protected JSONObject jsonRequest;
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CardDetailServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VtsRequest.class);
 
     public VtsRequest(Environment env) {
         this.env = env;

@@ -369,23 +369,18 @@ public class CardDetailServiceImpl implements CardDetailService {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
 
-                if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
-                    if (null != jsonResponse) {
-                        vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
-                    }
-                    cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
-                    CardDetails cardDetails;
-                    if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
-                        cardDetails = cardDetailsList.get(0);
-                    }else{
-                        cardDetails = new CardDetails();
-                        cardDetails.setDeviceInfo(deviceInfoList.get(0));
-                        cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
-                    }
+                if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
+                    vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
+                    //cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
+                    //CardDetails cardDetails = null;
 
-                    if (null != jsonResponse) {
-                        cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
-                    }
+                    CardDetails  cardDetails = new CardDetails();
+                    cardDetails.setDeviceInfo(deviceInfoList.get(0));
+                    cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
+
+
+                    cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
+                   // cardDetails.setVisaProvisionTokenId(vPanEnrollmentId);
                     cardDetails.setPanUniqueReference(vPanEnrollmentId);
                     cardDetails.setCardIdentifier(cardIdentifier);
                     cardDetails.setStatus(HCEConstants.INITIATE);
@@ -394,12 +389,12 @@ public class CardDetailServiceImpl implements CardDetailService {
                     cardDetailRepository.save(cardDetails);
                     responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
                     responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-                }else {
-                    if (null != jsonResponse) {
-                        responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
-                        responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
-                    }
+                } else {
+
+                    responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
+                    responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
+
 
             }else{
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
@@ -846,6 +841,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             reqMap.add("tokenUniqueReference", tokenUniqueReference);
         }
         String paymentAppInstanceId = unregisterTdsReq.get(PAYMENT_APP_INSTANCE_ID);
+
 
 
         Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);

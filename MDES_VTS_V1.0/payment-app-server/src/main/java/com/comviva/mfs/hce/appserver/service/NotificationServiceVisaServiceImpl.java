@@ -163,17 +163,17 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             }
             else{
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
-                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
 
             }
 
-           return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+           return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
 
         }catch (Exception e){
             e.printStackTrace();
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate",e);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
     }
