@@ -202,7 +202,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             if(((imei.isEmpty()||imei ==null)||(userID.isEmpty()||userID==null)))
             {
                 //Retrun Insufucaiant input data
-                hceControllerSupport.formResponse(HCEMessageCodes.INSUFFICIENT_DATA);
+                hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
 
 
@@ -217,7 +217,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             }else
             {
-                throw new HCEActionException(HCEMessageCodes.DEVICE_NOT_REGISTERED);
+                throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 
 
@@ -232,10 +232,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         }
         catch(Exception unRegisterException)
         {
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
-        return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+        return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
     }
 
 }
