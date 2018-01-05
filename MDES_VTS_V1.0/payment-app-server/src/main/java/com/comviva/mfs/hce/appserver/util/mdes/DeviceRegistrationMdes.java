@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.util.mdes;
 
 
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
@@ -12,6 +13,8 @@ import com.comviva.mfs.hce.appserver.util.common.HttpRestHandelerImpl;
 import com.google.common.collect.ImmutableMap;
 import lombok.Setter;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,6 +30,7 @@ public class DeviceRegistrationMdes {
      * Registers device with CMS-d.
      * @return Response
      */
+    private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     private String registerDeviceWithCMSD(EnrollDeviceRequest enrollDeviceRequest) {
         HttpClint httpClint = new HttpClintImpl();
         JSONObject jsonRegDevice = new JSONObject();
@@ -97,7 +101,7 @@ public class DeviceRegistrationMdes {
         try {
             response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
         }catch (Exception e){
-                e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         if("".equals(response)||response==null){
             return false;

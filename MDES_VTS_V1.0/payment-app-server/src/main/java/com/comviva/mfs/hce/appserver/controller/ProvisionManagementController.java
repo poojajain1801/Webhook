@@ -50,7 +50,7 @@ public class ProvisionManagementController {
             throw enrollPanHceActionException;
         }catch (Exception enrollPanExcetption) {
             LOGGER.error(" Exception Occured in ProvisionManagementController->provisionTokenWithPanEnrollmentId", enrollPanExcetption);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit ProvisionManagementController->provisionTokenWithPanEnrollmentId");
 

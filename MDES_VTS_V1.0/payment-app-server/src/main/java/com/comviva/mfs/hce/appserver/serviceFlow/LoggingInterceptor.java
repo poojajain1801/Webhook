@@ -24,9 +24,9 @@ import java.util.Map;
 public class LoggingInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingInterceptor.class);
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
     @Autowired
-    Environment env;
+    private Environment env;
 
     public LoggingInterceptor() {
     }
@@ -55,10 +55,12 @@ public class LoggingInterceptor {
             responseData = hceControllerSupport.formResponse(hceActionExp.getMessageCode());
         }catch (Exception e) {
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", e);
-            responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            responseData = hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }finally {
             MDC.remove(HCEConstants.START_TIME);
-            responseCode = (String)responseData.get(HCEConstants.RESPONSE_CODE);
+            if (null != responseData) {
+                responseCode = (String) responseData.get(HCEConstants.RESPONSE_CODE);
+            }
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
                 hceControllerSupport.maintainAudiTrail(requestId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
             }

@@ -3,14 +3,43 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateResp;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardResponse;
+import com.comviva.mfs.hce.appserver.mapper.pojo.Asset;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetPANDataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetRegCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionHistoryReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TDSRegistration;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
-import com.comviva.mfs.hce.appserver.model.*;
-import com.comviva.mfs.hce.appserver.repository.*;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.model.TransactionRegDetails;
+import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.ServiceDataRepository;
+import com.comviva.mfs.hce.appserver.repository.TransactionRegDetailsRepository;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
-import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.*;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
+import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
+import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
@@ -18,6 +47,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueId
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.visa.dmpd.token.JWTUtility;
+import org.apache.http.annotation.Contract;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +64,17 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+
+import static jdk.nashorn.internal.objects.NativeRegExp.ignoreCase;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -43,14 +83,9 @@ import java.util.*;
 public class CardDetailServiceImpl implements CardDetailService {
     //Repository for the card details
     private final CardDetailRepository cardDetailRepository;
-    //Repository for the visa card details
-    private final VisaCardDetailRepository visaCardDetailRepository;
-    //Repository for the user details
-    private final UserDetailService userDetailService;
-
     //Repository for the service data
     private final ServiceDataRepository serviceDataRepository;
-
+    private  static final String PAYMENT_APP_INSTANCE_ID = "paymentAppInstanceId";
     private final DeviceDetailRepository deviceDetailRepository;
     private final TransactionRegDetailsRepository transactionRegDetailsRepository;
     private final UserDetailRepository userDetailRepository;
@@ -60,29 +95,23 @@ public class CardDetailServiceImpl implements CardDetailService {
     @Autowired
     private Environment env;
 
-    ServiceData serviceData;
-
     @Autowired
-    RemoteNotificationService remoteNotificationService;
+    private RemoteNotificationService remoteNotificationService;
 
-    HttpRestHandlerUtils httpRestHandlerUtils = new HttpRestHandlerImplUtils();
+    private HttpRestHandlerUtils httpRestHandlerUtils = new HttpRestHandlerImplUtils();
     private static final Logger LOGGER = LoggerFactory.getLogger(CardDetailServiceImpl.class);
 
 
     @Autowired
     public CardDetailServiceImpl(CardDetailRepository cardDetailRepository,
-                                 UserDetailService userDetailService,
                                  ServiceDataRepository serviceDataRepository,
                                  DeviceDetailRepository deviceDetailRepository,
-                                 VisaCardDetailRepository visaCardDetailRepository,
                                  TransactionRegDetailsRepository transactionRegDetailsRepository,
                                  UserDetailRepository userDetailRepository,
                                  HCEControllerSupport hceControllerSupport) {
         this.cardDetailRepository = cardDetailRepository;
-        this.userDetailService = userDetailService;
         this.serviceDataRepository = serviceDataRepository;
         this.deviceDetailRepository = deviceDetailRepository;
-        this.visaCardDetailRepository = visaCardDetailRepository;
         this.transactionRegDetailsRepository = transactionRegDetailsRepository;
         this.userDetailRepository = userDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
@@ -90,7 +119,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
 
     private AddCardResponse prepareDigitizeResponse(int reasonCode, String reasonDescription) {
-        return new AddCardResponse(ImmutableMap.of("reasonCode", Integer.toString(reasonCode), "reasonDescription", reasonDescription));
+        return new AddCardResponse(ImmutableMap.of(HCEConstants.REASON_CODE, Integer.toString(reasonCode), HCEConstants.REASON_DESCRIPTION, reasonDescription));
     }
 
     private AddCardResponse prepareDigitizeResponse(JSONObject digitizationRespMdes) {
@@ -108,24 +137,22 @@ public class CardDetailServiceImpl implements CardDetailService {
         try {
             Optional<DeviceInfo> deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(addCardParam.getPaymentAppInstanceId());
             if(!deviceInfoOptional.isPresent()) {
-                return prepareDigitizeResponse(220, "Invalid Payment App Instance Id");
+                return prepareDigitizeResponse(HCEConstants.REASON_CODE1,HCEConstants.REASON_DESCRIPTION1);
             }
 
             // Only token type CLOUD is supported
             if (!addCardParam.getTokenType().equalsIgnoreCase("CLOUD")) {
-                return prepareDigitizeResponse(211, "Token type is not supported");
+                return prepareDigitizeResponse(HCEConstants.REASON_CODE2, HCEConstants.REASON_DESCRIPTION2);
             }
 
             // *************** Send Card Eligibility Check request to MDES ***************
             MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
             map.add("tokenType", addCardParam.getTokenType());
-            map.add("paymentAppInstanceId", addCardParam.getPaymentAppInstanceId());
+            map.add(PAYMENT_APP_INSTANCE_ID, addCardParam.getPaymentAppInstanceId());
             map.add("paymentAppId", addCardParam.getPaymentAppId());
             map.add("cardInfo", addCardParam.getCardInfo());
             map.add("cardletId", addCardParam.getCardId());
             map.add("consumerLanguage", addCardParam.getConsumerLanguage());
-            //Store the service id and the request in the service DB for API stitching
-            JSONObject requestJson = new JSONObject(addCardParam);
             // Call checkEligibility Api of MDES to check if the card is eligible for digitization.
             String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
 
@@ -136,10 +163,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             Map applicableCardInfoMap = ImmutableMap.of("isSecurityCodeApplicable", jsonResponse.getJSONObject("applicableCardInfo").getBoolean("isSecurityCodeApplicable"));
             if (jsonResponse.has("eligibilityReceipt")) {
                 // Store the request and response in the DB for future use
-                String serviceId = Long.toString(new Random().nextLong());
-
-               //--madan String userName = deviceInfoOptional.get().getUserName();
-                serviceData = serviceDataRepository.save(new ServiceData(null,  serviceId, requestJson.toString().getBytes(), response.getBytes()));
+                String serviceId = Long.toString(new SecureRandom().nextLong());
 
                 //Build response
                 Map mapResponse = new ImmutableMap.Builder()
@@ -151,27 +175,29 @@ public class CardDetailServiceImpl implements CardDetailService {
                         .put("termsAndConditionsAssetId", jsonResponse.get("termsAndConditionsAssetId"))
                         .put("applicableCardInfo", applicableCardInfoMap)
                         .put("serviceId", serviceId)
-                        .put("reasonCode", Integer.toString(200))
-                        .put("reasonDescription", "Card is eligible for digitization").build();
+                        .put(HCEConstants.REASON_CODE, Integer.toString(HCEConstants.REASON_CODE3))
+                        .put(HCEConstants.REASON_DESCRIPTION, "Card is eligible for digitization").build();
                 return new AddCardResponse(mapResponse);
             } else {
-                return prepareDigitizeResponse(212, "Card not eligible for digitization");
+                return prepareDigitizeResponse(HCEConstants.REASON_CODE4, "Card not eligible for digitization");
             }
         } catch (JSONException e) {
-            return prepareDigitizeResponse(230, "Please check request : JSONException");
+            LOGGER.error("Exception occured",e);
+            return prepareDigitizeResponse(HCEConstants.REASON_CODE5, "Please check request : JSONException");
         } catch (Exception e) {
-            return prepareDigitizeResponse(231, "Some error on server");
+            LOGGER.error("Exception occured",e);
+            return prepareDigitizeResponse(HCEConstants.REASON_CODE6, "Some error on server");
         }
     }
 
     public AddCardResponse addCard(DigitizationParam digitizationParam) {
         Optional<DeviceInfo> deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(digitizationParam.getPaymentAppInstanceId());
         if (!deviceInfoOptional.isPresent()) {
-            return prepareDigitizeResponse(220, "Invalid Payment App Instance Id");
+            return prepareDigitizeResponse(HCEConstants.REASON_CODE1, "Invalid Payment App Instance Id");
         }
 
         if (!serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).isPresent()) {
-            return prepareDigitizeResponse(220, "Card is not eligible for the digitization service");
+            return prepareDigitizeResponse(HCEConstants.REASON_CODE1, "Card is not eligible for the digitization service");
         }
 
 
@@ -187,7 +213,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         MultiValueMap<String, Object> digitizeReq = new LinkedMultiValueMap<>();
         digitizeReq.add("responseHost", "site1.your-server.com");
         digitizeReq.add("requestId", "123456");
-        digitizeReq.add("paymentAppInstanceId", jsonRequest.getString("paymentAppInstanceId"));
+        digitizeReq.add(PAYMENT_APP_INSTANCE_ID , jsonRequest.getString(PAYMENT_APP_INSTANCE_ID));
         digitizeReq.add("serviceId", "ServiceIdCheckEligibility");
         digitizeReq.add("termsAndConditionsAssetId", jsonResponse.getString("termsAndConditionsAssetId"));
         digitizeReq.add("termsAndConditionsAcceptedTimestamp", "2014-07-04T12:08:56.123-07:00");
@@ -212,11 +238,11 @@ public class CardDetailServiceImpl implements CardDetailService {
         digitizeReq.add("decisioningData", decisioningData);
         String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/addCard", digitizeReq);
         JSONObject provisionRespMdes = new JSONObject(response);
-        if (Integer.valueOf(provisionRespMdes.getString("reasonCode")) == 200) {
+        if (Integer.valueOf(provisionRespMdes.getString(HCEConstants.REASON_CODE)) == HCEConstants.REASON_CODE7) {
             //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
             CardDetails cardDetails = new CardDetails();
            //--madan cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
-            cardDetails.setMasterPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId"));
+            cardDetails.setMasterPaymentAppInstanceId(jsonRequest.getString(PAYMENT_APP_INSTANCE_ID));
             cardDetails.setMasterTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
             cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
             cardDetails.setMasterTokenInfo(provisionRespMdes.getJSONObject("tokenInfo").toString());
@@ -224,7 +250,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             cardDetailRepository.save(cardDetails);
             return prepareDigitizeResponse(provisionRespMdes);
         } else {
-            return prepareDigitizeResponse(Integer.valueOf(provisionRespMdes.getString("reasonCode")), provisionRespMdes.getString("reasonDescription"));
+            return prepareDigitizeResponse(Integer.valueOf(provisionRespMdes.getString(HCEConstants.REASON_CODE)), provisionRespMdes.getString(HCEConstants.REASON_DESCRIPTION));
         }
     }
 
@@ -249,15 +275,15 @@ public class CardDetailServiceImpl implements CardDetailService {
                 assetComponent = jArrMediaContent.getJSONObject(i);
                 type = assetComponent.getString("type");
 
-                if (type.equalsIgnoreCase("text/plain")) {
+                if (ignoreCase("text/plane").equals(type)) {
                     listOfAssets.add(ImmutableMap.of("type", type, "data", assetComponent.getString("data")));
                 } else if (type.contains("image")) {
                     listOfAssets.add(ImmutableMap.of("type", type, "height", assetComponent.getString("height"), "width", assetComponent.getString("width"), "data", assetComponent.getString("type")));
                 }
             }
-            respMap = ImmutableMap.of("mediaContents", listOfAssets, "reasonCode", "200", "reasonDescription", "Successful");
+            respMap = ImmutableMap.of("mediaContents", listOfAssets, HCEConstants.REASON_CODE , "200", HCEConstants.REASON_DESCRIPTION, "Successful");
         } else {
-            respMap = ImmutableMap.of("reasonCode", resp.getString("reasonCode"), "reasonDescription", resp.getString("reasonDescription"));
+            respMap = ImmutableMap.of(HCEConstants.REASON_CODE , resp.getString(HCEConstants.REASON_CODE), HCEConstants.REASON_DESCRIPTION, resp.getString(HCEConstants.REASON_DESCRIPTION));
         }
         return new Asset(respMap);
     }
@@ -267,7 +293,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         MultiValueMap<String, String> reqMdes = new LinkedMultiValueMap<>();
         reqMdes.add("responseHost", "com.mahindracomviva.payAppServer");
         reqMdes.add("requestId", "123456");
-        reqMdes.add("paymentAppInstanceId", activateReq.getPaymentAppInstanceId());
+        reqMdes.add(PAYMENT_APP_INSTANCE_ID, activateReq.getPaymentAppInstanceId());
         reqMdes.add("tokenUniqueReference", activateReq.getTokenUniqueReference());
         reqMdes.add("authenticationCode", "1234");
 
@@ -286,31 +312,26 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     public Map<String, Object> enrollPan (EnrollPanRequest enrollPanRequest) {
 
-        Map<String,Object> response1=null;
-        List<UserDetail> userDetailList =null;
-        List<DeviceInfo> deviceInfoList = null;
-        ObjectMapper objectMapper =null;
-        Map<String, Object> map = null;
-        JSONObject jsonencPaymentInstrument = null;
-        String encPaymentInstrument = null;
+        List<DeviceInfo> deviceInfoList ;
+        ObjectMapper objectMapper ;
+        Map<String, Object> map ;
+        JSONObject jsonencPaymentInstrument ;
+        String encPaymentInstrument ;
         JSONObject jsonResponse = null;
-        ResponseEntity responseEntity = null;
-        Map responseMap = null;
+        ResponseEntity responseEntity ;
+        Map responseMap ;
         String response = "";
         String vPanEnrollmentId = null;
       //  List<VisaCardDetails> visaCardDetailList = null;
-        String clientWalletAccountId = null;
-        String clientDeviceId = null;
-        HitVisaServices hitVisaServices = null;
-        String accountNubmer = null;
-        String cardId = null;
-        String cardIdentifier = null;
-        List<CardDetails> cardDetailsList = null;
-        DeviceInfo deviceInfo = null;
-        String userId = null;
+        String clientWalletAccountId ;
+        String clientDeviceId ;
+        HitVisaServices hitVisaServices ;
+        String accountNubmer ;
+        String cardIdentifier ;
+        List<CardDetails> cardDetailsList ;
+        DeviceInfo deviceInfo ;
         try{
             LOGGER.debug("Enter CardDetailServiceImpl->enrollPan");
-            response1=new HashMap();
             clientWalletAccountId = enrollPanRequest.getClientWalletAccountId();
             clientDeviceId = enrollPanRequest.getClientDeviceID();
             accountNubmer = enrollPanRequest.getEncPaymentInstrument().getAccountNumber();
@@ -318,19 +339,14 @@ public class CardDetailServiceImpl implements CardDetailService {
             if(accountNubmer!=null && !accountNubmer.isEmpty()){
                 cardIdentifier = MessageDigestUtil.sha256Hasing(accountNubmer);
             }else{
-                throw new HCEActionException(HCEMessageCodes.INSUFFICIENT_DATA);
+                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
-            //Check if number of card added is more than the number card allowed
-
-
             deviceInfoList = deviceDetailRepository.findDeviceDetails(clientDeviceId,clientWalletAccountId,HCEConstants.ACTIVE);
             if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
-                deviceInfo = deviceInfoList.get(0);
-                userId = deviceInfo.getUserDetail().getUserId();
 
                 cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier(cardIdentifier,clientWalletAccountId,clientDeviceId,HCEConstants.ACTIVE,HCEConstants.SUSUPEND);
                 if(cardDetailsList!= null && !cardDetailsList.isEmpty()){
-                    throw new HCEActionException(HCEMessageCodes.CARD_ALREADY_REGISTERED);
+                    throw new HCEActionException(HCEMessageCodes.getCardAlreadyRegistered());
                 }
                 objectMapper = new ObjectMapper();
                 map = new HashMap<>();
@@ -353,35 +369,40 @@ public class CardDetailServiceImpl implements CardDetailService {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
 
-                if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
-                    vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
-                    //cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
-                    //CardDetails cardDetails = null;
+                if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
+                    if (null != jsonResponse) {
+                        vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
+                    }
+                    cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
+                    CardDetails cardDetails;
+                    if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                        cardDetails = cardDetailsList.get(0);
+                    }else{
+                        cardDetails = new CardDetails();
+                        cardDetails.setDeviceInfo(deviceInfoList.get(0));
+                        cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
+                    }
 
-                    CardDetails  cardDetails = new CardDetails();
-                    cardDetails.setDeviceInfo(deviceInfoList.get(0));
-                    cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
-
-
-                    cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
-                   // cardDetails.setVisaProvisionTokenId(vPanEnrollmentId);
+                    if (null != jsonResponse) {
+                        cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
+                    }
                     cardDetails.setPanUniqueReference(vPanEnrollmentId);
                     cardDetails.setCardIdentifier(cardIdentifier);
                     cardDetails.setStatus(HCEConstants.INITIATE);
                     cardDetails.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     cardDetails.setCardType(HCEConstants.VISA);
                     cardDetailRepository.save(cardDetails);
-                    responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.SUCCESS);
-                    responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
-                } else {
-
-                    responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
-                    responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
+                    responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
+                    responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }else {
+                    if (null != jsonResponse) {
+                        responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
+                        responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
+                    }
                 }
 
-
             }else{
-                throw new HCEActionException(HCEMessageCodes.DEVICE_NOT_REGISTERED);
+                throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
         }catch(HCEActionException enrollPanHCEactionException){
             LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", enrollPanHCEactionException);
@@ -389,7 +410,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         }catch(Exception enrollPanException){
             LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", enrollPanException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
         LOGGER.debug("Exit CardDetailServiceImpl->enrollPan");
@@ -420,23 +441,25 @@ public class CardDetailServiceImpl implements CardDetailService {
                 strResponse = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(strResponse);
             }
-            if (responseEntity.getStatusCode().value() == 200) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 response = JsonUtil.jsonStringToHashMap(strResponse);
                 LOGGER.debug("Exit CardDetailsServiceImpl->getCardMetadata");
                 return response;
             } else {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if(null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit CardDetailsServiceImpl->getCardMetadata");
                 return errorMap;
             }
 
 
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception occurred in CardDetailsServiceImpl->getCardMetadata");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
 
@@ -466,16 +489,18 @@ public class CardDetailServiceImpl implements CardDetailService {
                 return response;
             } else {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null != jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit CardDetailsServiceImpl->getContent");
                 return errorMap;
             }
 
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exit CardDetailsServiceImpl->getContent");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
@@ -499,7 +524,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
                result = new ObjectMapper().readValue(response, HashMap.class);
            } catch (IOException e) {
-               e.printStackTrace();
+               LOGGER.error("Exception Occured" +e);
            }
 
        }else
@@ -519,7 +544,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         // Check if token unique reference is null
         if (tokenUniqueReference == null || tokenUniqueReference.isEmpty()) {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "260", "message", "Invalid token UniqueReference");
         }
 
         // Get rnsRegistration ID of device
@@ -532,7 +557,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         HashMap<String, String> tdsNotificationData = new HashMap<>();
         tdsNotificationData.put("tokenUniqueReference", notifyTransactionDetailsReq.getTokenUniqueReference());
         tdsNotificationData.put("tdsUrl", notifyTransactionDetailsReq.getTdsUrl());
-        tdsNotificationData.put("paymentAppInstanceId", notifyTransactionDetailsReq.getPaymentAppInstanceId());
+        tdsNotificationData.put(PAYMENT_APP_INSTANCE_ID, notifyTransactionDetailsReq.getPaymentAppInstanceId());
 
         // If registrationCode2 is present then it's a new TDS registration.
         if (registrationCode2 != null) {
@@ -571,12 +596,12 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
             paymentAppInstanceId = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get().getMasterPaymentAppInstanceId();
         } else {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "260", "message", "Invalid token UniqueReference");
         }
 
         // Validate PaymentAppInstanceId
         if (!paymentAppInstanceId.equalsIgnoreCase(getRegCodeReq.getPaymentAppInstanceId())) {
-            return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "261", "message", "Invalid PaymentAppInstanceID");
         }
 
         // Invoke Get Registration Code API of the MDES
@@ -584,7 +609,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         JSONObject responseJson = new JSONObject(response);
         TransactionRegDetails transactionRegDetails;
-        if (responseJson.getString("reasonCode").equalsIgnoreCase("200")) {
+        if (ignoreCase("200").equals(responseJson.getString(HCEConstants.REASON_CODE))) {
             // Store the registrationCode1
             if (transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).isPresent()) {
                 transactionRegDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef).get();
@@ -612,12 +637,12 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
             paymentAppInstanceId = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get().getMasterPaymentAppInstanceId();
         } else {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "260", "message", "Invalid token UniqueReference");
         }
 
         // Validate PaymentAppInstanceId
         if (!paymentAppInstanceId.equalsIgnoreCase(tdsRegistration.getPaymentAppInstanceId())) {
-            return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "261", "message", "Invalid PaymentAppInstanceID");
         }
 
         // Get the regcode1 and regcode2 from the DB and generate registrationHash
@@ -625,7 +650,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         try {
             registrationHash = MessageDigestUtil.sha256Hasing(transactionRegDetails.getRegCode1() + transactionRegDetails.getRegCode2());
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            return ImmutableMap.of("reasonCode", "261", "message", "Crypto Exception");
+            LOGGER.error("Exception occured",e);
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "261", "message", "Crypto Exception");
         }
 
         // Create request
@@ -656,14 +682,14 @@ public class CardDetailServiceImpl implements CardDetailService {
                     getTransactionHistoryReq.getTokenUniqueReference());
 
             if (!oCardDetails.isPresent()) {
-                return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId or TokenUniqueReference");
+                return ImmutableMap.of(HCEConstants.REASON_CODE , "260", "message", "Invalid PaymentAppInstanceId or TokenUniqueReference");
             }
         }
 
         // If paymentAppInstanceId is provided only then validate paymentAppInstanceId
         Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
         if (!oTxnDetails.isPresent()) {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId");
+            return ImmutableMap.of(HCEConstants.REASON_CODE , "260", "message", "Invalid PaymentAppInstanceId");
         }
 
         TransactionRegDetails txnDetails = oTxnDetails.get();
@@ -700,15 +726,15 @@ public class CardDetailServiceImpl implements CardDetailService {
 
             //Check if the token unique reference are valid or not
             if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
-                return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+                return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid token UniqueReference");
             }
 
             //Check if the payment appInstance ID is valid or not
             if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails.getMasterPaymentAppInstanceId()))) {
-                return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+                return ImmutableMap.of(HCEConstants.REASON_CODE, "261", "message", "Invalid PaymentAppInstanceID");
             }
-            if (cardDetails.getStatus().equalsIgnoreCase("DEACTIVATED")) {
-                return ImmutableMap.of("reasonCode", "264", "message", "Card not found");
+            if (ignoreCase("DEACTIVATED").equals(cardDetails.getStatus())) {
+                return ImmutableMap.of(HCEConstants.REASON_CODE, "264", "message", "Card not found");
             }
         }
 
@@ -716,10 +742,10 @@ public class CardDetailServiceImpl implements CardDetailService {
         MultiValueMap<String, Object> deleteReqMap = new LinkedMultiValueMap<String, Object>();
         deleteReqMap.add("responseHost", ServerConfig.RESPONSE_HOST);
         deleteReqMap.add("requestId", ArrayUtil.getHexString(ArrayUtil.getRandom(10)));
-        deleteReqMap.add("paymentAppInstanceId", paymentAppInstanceID);
+        deleteReqMap.add(PAYMENT_APP_INSTANCE_ID, paymentAppInstanceID);
         deleteReqMap.add("tokenUniqueReferences", tokenUniqueRefList);
         deleteReqMap.add("causedBy", lifeCycleManagementReq.getCausedBy());
-        deleteReqMap.add("reasonCode", lifeCycleManagementReq.getReasonCode());
+        deleteReqMap.add(HCEConstants.REASON_CODE, lifeCycleManagementReq.getReasonCode());
         deleteReqMap.add("reason", lifeCycleManagementReq.getReason());
 
         String response = "";
@@ -736,7 +762,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 responseEntity = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + ServerConfig.DIGITIZATION_PATH + "/unsuspend", deleteReqMap);
                 break;
             default:
-                return ImmutableMap.of("reasonCode", "262", "message", "Invalid Operation");
+                return ImmutableMap.of(HCEConstants.REASON_CODE, "262", "message", "Invalid Operation");
         }
 
         response = String.valueOf(responseEntity.getBody());
@@ -780,14 +806,14 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
             paymentAppInstanceId = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get().getMasterPaymentAppInstanceId();
         } else {
-            response.put("reasonCode", 260);
+            response.put(HCEConstants.REASON_CODE, 260);
             response.put("message", "Invalid token UniqueReference");
             return response;
         }
 
         // Validate paymentAppInstanceId
         if (!paymentAppInstanceId.equalsIgnoreCase(activationCodeReq.getPaymentAppInstanceId())) {
-            response.put("reasonCode", 261);
+            response.put(HCEConstants.REASON_CODE, 261);
             response.put("message", "Invalid PaymentAppInstanceID");
             return response;
         }
@@ -796,7 +822,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         MultiValueMap<String, Object> reqMdes = new LinkedMultiValueMap<>();
         reqMdes.add("responseHost", "com.mahindracomviva.payAppServer");
         reqMdes.add("requestId", "123456");
-        reqMdes.add("paymentAppInstanceId", activationCodeReq.getPaymentAppInstanceId());
+        reqMdes.add(PAYMENT_APP_INSTANCE_ID, activationCodeReq.getPaymentAppInstanceId());
         reqMdes.add("tokenUniqueReference", activationCodeReq.getTokenUniqueReference());
 
         ObjectMapper mapper = new ObjectMapper();
@@ -815,16 +841,16 @@ public class CardDetailServiceImpl implements CardDetailService {
         if (unregisterTdsReq.containsKey("tokenUniqueReference")) {
             String tokenUniqueReference = unregisterTdsReq.get("tokenUniqueReference");
             if (!cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueReference).isPresent()) {
-                return ImmutableMap.of("reasonCode", "261", "message", "Invalid tokenUniqueReference");
+                return ImmutableMap.of(HCEConstants.REASON_CODE, "261", "message", "Invalid tokenUniqueReference");
             }
             reqMap.add("tokenUniqueReference", tokenUniqueReference);
         }
-        String paymentAppInstanceId = unregisterTdsReq.get("paymentAppInstanceId");
+        String paymentAppInstanceId = unregisterTdsReq.get(PAYMENT_APP_INSTANCE_ID);
 
 
         Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
         if (!oTxnDetails.isPresent()) {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid PaymentAppInstanceId");
+            return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid PaymentAppInstanceId");
         }
 
         TransactionRegDetails txnDetails = oTxnDetails.get();
@@ -873,7 +899,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Check if the token unique reference is valid or not
         if(cardDetailRepository.findByMasterTokenUniqueReference(getTokensRequest.getTokenUniqueReference()).isPresent())
         {
-            return ImmutableMap.of("reasonCode", "260", "message", "Invalid token UniqueReference");
+            return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid token UniqueReference");
         }
         MultiValueMap getToeknReqMap = new LinkedMultiValueMap();
         getToeknReqMap.add("tokenUniqueReference",getTokensRequest.getTokenUniqueReference());
@@ -894,11 +920,11 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Check if the paymentAppInstanceId is valid or not
        if(!deviceDetailRepository.findByPaymentAppInstanceId(searchTokensReq.getPaymentAppInstanceId()).isPresent())
        {
-           return ImmutableMap.of("reasonCode", "261", "message", "Invalid PaymentAppInstanceID");
+           return ImmutableMap.of(HCEConstants.REASON_CODE, "261", "message", "Invalid PaymentAppInstanceID");
        }
         //call the master card searchTokens API
         MultiValueMap searchTokensReqMap = new LinkedMultiValueMap();
-        searchTokensReqMap.add("paymentAppInstanceId",searchTokensReq.getPaymentAppInstanceId());
+        searchTokensReqMap.add(PAYMENT_APP_INSTANCE_ID,searchTokensReq.getPaymentAppInstanceId());
         ResponseEntity responseEntity = httpRestHandlerUtils.httpPost(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT +ServerConfig.DIGITIZATION_PATH+"/searchTokens", searchTokensReqMap);
         String response;
         if (responseEntity.getStatusCode().value() == 200)

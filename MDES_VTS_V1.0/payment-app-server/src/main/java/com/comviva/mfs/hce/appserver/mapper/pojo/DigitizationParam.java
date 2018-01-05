@@ -7,9 +7,9 @@ import lombok.Getter;
  */
 @Getter
 public class DigitizationParam extends PayAppServerReq {
-    String termAndConditionAcceptId;
-    String termAndConditionAcceptTimeStamp;
-    String paymentAppInstanceId;
+    private String termAndConditionAcceptId;
+    private String termAndConditionAcceptTimeStamp;
+    private String paymentAppInstanceId;
 
     public DigitizationParam(String serviceId,
                              String termAndConditionAcceptId,

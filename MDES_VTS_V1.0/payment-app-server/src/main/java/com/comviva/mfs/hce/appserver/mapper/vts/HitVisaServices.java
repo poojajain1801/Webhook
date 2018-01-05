@@ -93,8 +93,9 @@ public class HitVisaServices extends VtsRequest {
 
         }catch (MalformedURLException e){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }catch(HttpClientErrorException httpClientException){
+            LOGGER.error("Exeption occured",httpClientException);
             xCorrelationId = httpClientException.getResponseHeaders().get("X-CORRELATION-ID").toString();
             HttpHeaders responseHeaders = httpClientException.getResponseHeaders();
             HttpStatus statusCode = httpClientException.getStatusCode();
@@ -103,7 +104,7 @@ public class HitVisaServices extends VtsRequest {
                 response = new ResponseEntity(error, responseHeaders ,statusCode);
             }else{
                 response = new ResponseEntity(error, responseHeaders ,statusCode);
-                throw new HCEActionException(HCEMessageCodes.FAILED_AT_THIRED_PARTY);
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
 
             return response;
@@ -112,17 +113,18 @@ public class HitVisaServices extends VtsRequest {
             throw hitVisaServiceExp;
         }catch (Exception e){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
-             int statusCode = 0;
+            int statusCode = 0;
             if(response!=null){
                 statusCode = response.getStatusCode().value();
 
             }
-            HCEUtil.writeTdrLog(totalTime,Integer.toString(statusCode),xCorrelationId,requestBody,String.valueOf(response.getBody()));
-
+            if(null !=response) {
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()));
+            }
         }
         return response;
     }

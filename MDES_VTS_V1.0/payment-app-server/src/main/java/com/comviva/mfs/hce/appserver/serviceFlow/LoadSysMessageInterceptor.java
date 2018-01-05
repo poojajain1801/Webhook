@@ -26,9 +26,9 @@ public class LoadSysMessageInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadSysMessageInterceptor.class);
 
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
     @Autowired
-    Environment env;
+    private Environment env;
 
     public LoadSysMessageInterceptor() {
     }
@@ -47,7 +47,7 @@ public class LoadSysMessageInterceptor {
                 responseMessageMap = hceControllerSupport.formResponse(responseCode);
                 responseMessageMap.putAll(responseData);
             }else if(responseCode == null ){
-                responseCode = HCEMessageCodes.SUCCESS;
+                responseCode = HCEMessageCodes.getSUCCESS();
                 responseMessageMap = hceControllerSupport.formResponse(responseCode);
                 responseMessageMap.putAll(responseData);
             }else{
@@ -59,7 +59,7 @@ public class LoadSysMessageInterceptor {
             responseMessageMap = hceControllerSupport.formResponse(resHceActionException.getMessageCode());
         }catch (Exception resException) {
             LOGGER.error(" Exception Occured in LoadSysMessageInterceptor->invoke", resException);
-            responseMessageMap = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            responseMessageMap = hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
         return responseMessageMap;
     }

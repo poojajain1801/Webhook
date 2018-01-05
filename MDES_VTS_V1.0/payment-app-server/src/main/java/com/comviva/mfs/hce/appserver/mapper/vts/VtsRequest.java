@@ -1,10 +1,12 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
+import com.comviva.mfs.hce.appserver.service.CardDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +26,9 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 
 public class VtsRequest {
     protected static final String PATH_SEPARATOR = "/";
@@ -62,6 +67,7 @@ public class VtsRequest {
      * Request in JSON format
      */
     protected JSONObject jsonRequest;
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CardDetailServiceImpl.class);
 
     public VtsRequest(Environment env) {
         this.env = env;
@@ -90,13 +96,6 @@ public class VtsRequest {
     protected void prepareHeader(JSONObject prepareHeaderRequest) {
         headers.add("x-request-id", (String) prepareHeaderRequest.get("xRequestId"));
         headers.add("x-pay-token", generateXPayToken(prepareHeaderRequest));
-        try {
-         //   headers.add("Content-Length",String.valueOf(requestBody.getBytes("UTF-8").length));
-            //String contentlength = String.valueOf(prepareHeaderRequest.getString("requestBody").length());
-           // headers.add("Content-Length",contentlength);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -122,7 +121,8 @@ public class VtsRequest {
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
             System.out.println("bHmacSha256 in byte :   "+bHmacSha256);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" + e);
+
         }
         System.out.println("hmacSha256:    "+hmacSha256);
         System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);

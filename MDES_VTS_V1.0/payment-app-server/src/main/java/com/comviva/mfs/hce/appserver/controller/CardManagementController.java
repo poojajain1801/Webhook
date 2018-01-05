@@ -74,7 +74,7 @@ public class CardManagementController {
             throw enrollPanHceActionException;
         }catch (Exception enrollPanExcetption) {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return enrollPanResponse;
     }

@@ -33,9 +33,9 @@ public class DecryptData {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingInterceptor.class);
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
     @Autowired
-    Environment env;
+    private Environment env;
 
     public DecryptData() {
     }
@@ -59,7 +59,7 @@ public class DecryptData {
             responseData = hceControllerSupport.formResponse(hceActionExp.getMessageCode());
         }catch (Exception e) {
             LOGGER.error("Exception Occured in DecryptData->invoke", e);
-            responseData = hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            responseData = hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
         return responseData;
     }

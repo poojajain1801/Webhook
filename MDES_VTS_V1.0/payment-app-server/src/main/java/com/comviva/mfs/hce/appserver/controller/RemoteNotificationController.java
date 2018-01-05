@@ -15,7 +15,7 @@ import java.util.Map;
 @RequestMapping("/mdes/mpamanagement/1/0")
 public class RemoteNotificationController {
     @Autowired
-    RemoteNotificationService remoteNotificationService;
+    private RemoteNotificationService remoteNotificationService;
 
     @ResponseBody
     @RequestMapping(value = "/sendRemoteNotificationMessage", method = RequestMethod.POST)

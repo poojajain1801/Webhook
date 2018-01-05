@@ -1,6 +1,9 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -10,6 +13,7 @@ import java.net.URL;
  * Created by Tanmay.Patel on 1/20/2017.
  */
 public class HttpClintImpl implements HttpClint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     public String postHttpRequest(byte[] requestData, String url) {
         int responseCode = -1;
         String responseBody = null;
@@ -25,7 +29,7 @@ public class HttpClintImpl implements HttpClint {
             System.setProperty("https.proxyPassword", "dec.2016");
 
             System.out.println("Sending FCM request");
-            byte[] postData = requestData;
+            byte[] postData = (requestData);
 
             URL urlObj = new URL(url);
             HttpURLConnection httpURLConnection = (HttpURLConnection)urlObj.openConnection();
@@ -56,10 +60,11 @@ public class HttpClintImpl implements HttpClint {
             }
         } catch (IOException ioe) {
             //System.out.println("IO Exception in sending FCM request. regId: " + deviceRegistrationId);
-            ioe.printStackTrace();
+            LOGGER.error("Exception Occured" +ioe);
+
         } catch (Exception e) {
             //System.out.println("Unknown exception in sending FCM request. regId: " + deviceRegistrationId);
-            e.printStackTrace();
+            LOGGER.error("Exception Occured" +e);
         }
         return responseBody;
     }

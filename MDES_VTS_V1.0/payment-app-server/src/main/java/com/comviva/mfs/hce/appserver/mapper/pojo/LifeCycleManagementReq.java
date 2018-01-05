@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class LifeCycleManagementReq {
     private String paymentAppInstanceId;
-    List<String> tokenUniqueReferences;
+    private List<String> tokenUniqueReferences;
     private String causedBy;
     private String reason;
     private String reasonCode;

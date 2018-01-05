@@ -64,7 +64,7 @@ public class UserDetail implements Serializable {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 
     public Timestamp getModifiedOn() {
@@ -72,7 +72,7 @@ public class UserDetail implements Serializable {
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = modifiedOn;
+        this.modifiedOn = (modifiedOn);
     }
 
     public String getStatus() {
@@ -96,7 +96,7 @@ public class UserDetail implements Serializable {
     }
 
     public void setDeviceInfos(List<DeviceInfo> deviceInfos) {
-        this.deviceInfos = deviceInfos;
+        this.deviceInfos = (deviceInfos);
     }
 
     public DeviceInfo addDeviceInfo(DeviceInfo deviceInfo) {

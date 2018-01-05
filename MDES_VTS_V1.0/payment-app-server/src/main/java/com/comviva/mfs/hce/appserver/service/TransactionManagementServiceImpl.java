@@ -77,28 +77,34 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             List<Map<String,Object>> decMapList =null;
             String decString = null;
             if (responseEntity.getStatusCode().value() == 200) {
+                JSONArray txnHistory;
 
-                JSONArray txnHistory = jsonResponse.getJSONArray("transactionDetails");
-                decMapList = new ArrayList();
-                for (int i=0; i<txnHistory.length();i++)
-                {
-                    decArray = new LinkedHashMap();
-                    decString = txnHistory.getJSONObject(i).getString("encTransactionInfo");
-                    decString = JWTUtility.decryptJwe(decString,env.getProperty("sharedSecret"));
-                 //   decryptedJsonObj = new JSONObject(decString);
-                    decArray.put("txnHistory",decString);
-                    decMapList.add(decArray);
+                if (null !=jsonResponse) {
+                    txnHistory = jsonResponse.getJSONArray("transactionDetails");
+                    decMapList = new ArrayList();
+                    for (int i = 0; i < txnHistory.length(); i++) {
+                        decArray = new LinkedHashMap();
+                        decString = txnHistory.getJSONObject(i).getString("encTransactionInfo");
+                        decString = JWTUtility.decryptJwe(decString, env.getProperty("sharedSecret"));
+                        //   decryptedJsonObj = new JSONObject(decString);
+                        decArray.put("txnHistory", decString);
+                        decMapList.add(decArray);
+                    }
                 }
-                response.put("transactionDetails",decMapList);
-                response.put("responseCode", HCEMessageCodes.SUCCESS);
-                response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                if (null !=response) {
+                    response.put("transactionDetails", decMapList);
+                    response.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
                 LOGGER.debug("Exit Exit TransactionManagementServiceImpl->getTransactionHistory");
                 return response;
 
             } else {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit TransactionManagementServiceImpl->getTransactionHistory");
                 return errorMap;
             }
@@ -107,7 +113,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         }catch (Exception e)
         {
             LOGGER.debug("Exception Occored in  TransactionManagementServiceImpl->getTransactionHistory"+e);
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
 

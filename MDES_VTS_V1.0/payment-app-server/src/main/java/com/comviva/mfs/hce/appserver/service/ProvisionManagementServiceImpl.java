@@ -115,7 +115,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
             }else{
-                throw new HCEActionException(HCEMessageCodes.CARD_DETAILS_NOT_EXIST);
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
 
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens" + "?apiKey=" + env.getProperty("apiKey");
@@ -129,27 +129,36 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                 //TODO:Store the vProvisonTokenID in the DB
-                     LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
+                if (null != jsonResponse) {
                     cardDetails.setVisaProvisionTokenId(jsonResponse.getString("vProvisionedTokenID"));
+
                     JSONObject tokenInfo = jsonResponse.getJSONObject("tokenInfo");
-                    if(tokenInfo!=null ){
+                    if (tokenInfo != null) {
                         cardDetails.setTokenSuffix(tokenInfo.getString("last4"));
                     }
+                }
 
-                    cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    cardDetails.setStatus(HCEConstants.ACTIVE);
-                    cardDetailRepository.save(cardDetails);
-                    responseMap= JsonUtil.jsonStringToHashMap(jsonResponse.toString());
-                    responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
-                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                cardDetails.setStatus(HCEConstants.ACTIVE);
+                cardDetailRepository.save(cardDetails);
+                if (null !=jsonResponse) {
+                    responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                }
+                if(null != responseMap) {
+                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
 
                 return responseMap;
             }
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null != jsonResponse) {
+                    errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 return errorMap;
 
@@ -162,7 +171,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
         }catch(Exception provisionException){
             LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }
 
@@ -214,7 +223,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         return result;
     }
@@ -235,7 +244,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             requestMap.put("api", confirmProvisioningRequest.getApi());
             requestMap.put("provisioningStatus", provisonStatus);
 
-            if (provisonStatus.equalsIgnoreCase("FAILURE") && (!(failureReason.equalsIgnoreCase("null")) || (failureReason.isEmpty())))
+            if ( provisonStatus.equalsIgnoreCase(HCEConstants.FAILURE) && (!(failureReason.equalsIgnoreCase(HCEConstants.NULL)) || (failureReason.isEmpty())))
                 requestMap.put("failureReason", confirmProvisioningRequest.getFailureReason());
 
             hitVisaServices = new HitVisaServices(env);
@@ -252,32 +261,32 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
             }
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null != jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
                 return errorMap;
 
             }
 
 
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ConfirmProvisioning");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
 
     public Map<String, Object> ActiveAccountManagementReplenish (ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
         //TODO:Check vProvisonID is valid or not
-        if (!validatevProvisionedID(activeAccountManagementReplenishRequest.getVprovisionedTokenID()))
-            //return Invalid vprovisonID.
 
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
         String vProvisionedTokenID = "";
@@ -326,26 +335,28 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
-                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
 
             }
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
                 return errorMap;
 
             }
 
 
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
@@ -389,14 +400,16 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
-                return hceControllerSupport.formResponse(HCEMessageCodes.SUCCESS);
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
             }
             else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
                 return errorMap;
 
@@ -404,10 +417,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
@@ -441,15 +454,17 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ReplenishODAData");
-                responseMap.put("responseCode", HCEMessageCodes.SUCCESS);
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.SUCCESS));
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
 
             }            else
             {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ReplenishODAData");
                 return errorMap;
 
@@ -457,10 +472,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
-            return hceControllerSupport.formResponse(HCEMessageCodes.SERVICE_FAILED);
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
 
@@ -493,7 +508,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         return result;
     }
@@ -524,7 +539,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         return result;
     }
@@ -556,7 +571,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         return result;
     }
@@ -583,7 +598,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             result =   new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured" +e);
         }
         return result;
     }

@@ -55,7 +55,7 @@ public class UserRegistrationController {
            throw regUserHCEActionException;
         }catch (Exception regUserException) {
             LOGGER.error(" Exception Occured in Enter UserRegistrationController->registerUser", regUserException);
-            throw new HCEActionException(HCEMessageCodes.SERVICE_FAILED);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
 

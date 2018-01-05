@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
 
     @Autowired
-    RequestInterceptor requestInterceptor;
+    public RequestInterceptor requestInterceptor;
 
     @Override
 public void addInterceptors(InterceptorRegistry registry) {
