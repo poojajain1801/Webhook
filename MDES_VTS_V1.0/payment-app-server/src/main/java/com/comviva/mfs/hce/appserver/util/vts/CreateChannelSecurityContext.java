@@ -1,9 +1,12 @@
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,9 +16,10 @@ import java.util.Map;
 /**
  * Created by amgoth.naik on 6/27/2017.
  */
-public class CreateChannelSecurityContext {
-    public Map<String, Object> visaChannelSecurityContext(List<DeviceInfo> deviceInfo){
 
+public class CreateChannelSecurityContext {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateChannelSecurityContext.class);
+    public Map<String, Object> visaChannelSecurityContext(List<DeviceInfo> deviceInfo){
         Map<String,Object> channelSecurityContext=new HashMap<>();
         Map<String,Object>vtsCerts=new HashMap<>();
         Map<String,Object>deviceCerts=new HashMap<>();
@@ -70,7 +74,7 @@ public class CreateChannelSecurityContext {
         try {
             objectMapper.writeValueAsString(channelSecurityContext);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured",e);
         }
         return channelSecurityContext;
 

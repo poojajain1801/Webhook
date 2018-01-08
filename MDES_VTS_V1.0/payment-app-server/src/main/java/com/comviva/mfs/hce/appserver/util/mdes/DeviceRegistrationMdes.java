@@ -30,7 +30,7 @@ public class DeviceRegistrationMdes {
      * Registers device with CMS-d.
      * @return Response
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeviceRegistrationMdes.class);
     private String registerDeviceWithCMSD(EnrollDeviceRequest enrollDeviceRequest) {
         HttpClint httpClint = new HttpClintImpl();
         JSONObject jsonRegDevice = new JSONObject();
@@ -49,6 +49,7 @@ public class DeviceRegistrationMdes {
         return httpClint.postHttpRequest(jsonRegDevice.toString().getBytes(),
                 ServerConfig.CMSD_IP + ":" + ServerConfig.CMSD_PORT + "/mdes/mpamanagement/1/0/register");
         }catch (Exception e){
+            LOGGER.error("Exception occured",e);
             return null;
         }
     }
@@ -63,7 +64,7 @@ public class DeviceRegistrationMdes {
         JSONObject jsonResponse = new JSONObject(response);//.getJSONObject("response");
         String responseCode = jsonResponse.getString("responseCode");
         Map responseMap;
-        if (responseCode.equalsIgnoreCase("200")) {
+        if ("200".equals(responseCode)) {
             JSONObject jsonMobKeys = jsonResponse.getJSONObject("mobileKeys");
             Map mobKeys = ImmutableMap.of("transportKey", jsonMobKeys.getString("transportKey"),
                     "macKey", jsonMobKeys.getString("macKey"),

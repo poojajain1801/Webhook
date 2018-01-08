@@ -1,5 +1,9 @@
 package com.comviva.mfs.hce.appserver.util.common.messagedigest;
 
+import com.comviva.mfs.hce.appserver.service.CardDetailServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
@@ -14,6 +18,7 @@ import java.util.Arrays;
  */
 public class MessageDigestUtil {
     public static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDigestUtil.class);
 
     /**
      * Generates message digest of given data with SHA-256.
@@ -40,7 +45,8 @@ public class MessageDigestUtil {
         byte[] authenticationCode = null;
         try {
             authenticationCode = sha256(data);
-        } catch (NoSuchAlgorithmException e) {
+        }catch (NoSuchAlgorithmException e) {
+            LOGGER.error("Exception occured",e);
         }
         return authenticationCode;
     }
@@ -58,7 +64,7 @@ public class MessageDigestUtil {
             mac.init(signingKey);
             return mac.doFinal(data);
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception occured",e);
         }
         return null;
     }

@@ -4,6 +4,9 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -12,21 +15,31 @@ import java.net.URL;
 /**
  * Created by Tanmay.Patel on 1/20/2017.
  */
+@Component
 public class HttpClintImpl implements HttpClint {
+    @Autowired
+    private Environment env;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     public String postHttpRequest(byte[] requestData, String url) {
         int responseCode = -1;
         String responseBody = null;
         try {
-            System.setProperty("http.proxyHost", "172.19.7.180");
-            System.setProperty("http.proxyPort", "8080");
-            System.setProperty("http.proxyUser", "tarkeshwar.v");
-            System.setProperty("http.proxyPassword", "dec.2016");
 
-            System.setProperty("https.proxyHost", "172.19.7.180");
-            System.setProperty("https.proxyPort", "8080");
-            System.setProperty("https.proxyUser", "tarkeshwar.v");
-            System.setProperty("https.proxyPassword", "dec.2016");
+            String proxyip = env.getProperty("proxyip");
+            String proxyport = env.getProperty("proxyport");
+            String username = env.getProperty("username");
+            String password = env.getProperty("password");
+
+            System.setProperty("http.proxyHost",proxyip );
+            System.setProperty("http.proxyPort", proxyport);
+            System.setProperty("http.proxyUser", username);
+            System.setProperty("http.proxyPassword", password);
+
+            System.setProperty("https.proxyHost", proxyip);
+            System.setProperty("https.proxyPort", proxyport);
+            System.setProperty("https.proxyUser", username);
+            System.setProperty("https.proxyPassword", password);
 
             System.out.println("Sending FCM request");
             byte[] postData = (requestData);

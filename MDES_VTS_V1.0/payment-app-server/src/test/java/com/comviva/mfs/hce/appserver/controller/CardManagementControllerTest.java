@@ -26,8 +26,8 @@ import static org.junit.Assert.*;
 public class CardManagementControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
-    String userID = "";
-    String paymentAppInstanceId = "";
+    private String userID = "";
+    private String paymentAppInstanceId = "";
 
 
     @Before

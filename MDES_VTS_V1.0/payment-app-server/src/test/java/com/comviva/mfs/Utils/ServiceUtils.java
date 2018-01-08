@@ -1,11 +1,14 @@
 package com.comviva.mfs.Utils;
 
+import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -19,6 +22,7 @@ import static org.junit.Assert.assertThat;
  */
 public class ServiceUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUtils.class);
     private static MockMvcRequestSpecification request;
     private static String endPoint;
 
@@ -140,6 +144,7 @@ public class ServiceUtils {
             ObjectWriter e = objectMapper.writer().withFeatures(serializationFeatures);
             return e.writeValueAsString(obj);
         }catch (JsonProcessingException var3) {
+            LOGGER.error("Exception occured",var3);
             return null;
         }
     }

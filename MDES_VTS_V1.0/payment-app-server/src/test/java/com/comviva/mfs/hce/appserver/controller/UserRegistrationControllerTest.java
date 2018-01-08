@@ -29,8 +29,8 @@ import static org.junit.Assert.*;
 public class UserRegistrationControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
-    String userID = "";
-    String activationCode="";
+    private String userID = "";
+    private String activationCode="";
 
     @Before
     public void Setup(){

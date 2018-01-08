@@ -26,9 +26,9 @@ import static org.junit.Assert.*;
 public class DeviceRegistrationControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
-    String userID = "";
-    String paymentAppInstanceId = "";
-    String activationCode="";
+    private String userID = "";
+    private String paymentAppInstanceId = "";
+    private String activationCode="";
 
 
     @Before

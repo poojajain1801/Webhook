@@ -21,7 +21,7 @@ import java.net.URL;
 public class FcmRns implements RemoteNotification {
     /** URL of FCM server */
     public static final String FCM_URL = "https://fcm.googleapis.com/fcm/send";
-    Environment env;
+    private Environment env;
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
     protected FcmRns(Environment env) {
 
@@ -97,6 +97,7 @@ public class FcmRns implements RemoteNotification {
             response.setErrorCode(Integer.toString(responseCode));
             response.setResponse(responseBody);
         } catch (Exception ioe) {
+            LOGGER.error("Exception occured",ioe);
 //            response.setErrorCode(Integer.toString(ConstantErrorCodes.INTERNAL_SERVICE_FAILURE));
 //            response.setResponse(ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.INTERNAL_SERVICE_FAILURE));
         }

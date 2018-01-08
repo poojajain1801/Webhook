@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
 
@@ -39,7 +40,7 @@ public class DefaultTemplateUtils {
     public static char randomChar(String str) {
 
         if(rand == null) {
-            rand = new Random();
+            rand = new SecureRandom();
         }
 
 int i = rand.nextInt(str.length());

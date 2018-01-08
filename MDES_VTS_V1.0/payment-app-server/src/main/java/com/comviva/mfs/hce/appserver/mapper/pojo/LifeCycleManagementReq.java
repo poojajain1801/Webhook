@@ -18,7 +18,7 @@ public class LifeCycleManagementReq {
 
     public LifeCycleManagementReq(String paymentAppInstanceId, List<String> tokenUniqueReferences, String causedBy, String reason, String reasonCode, String operation) {
         this.paymentAppInstanceId = paymentAppInstanceId;
-        this.tokenUniqueReferences = tokenUniqueReferences;
+        this.tokenUniqueReferences = (tokenUniqueReferences);
         this.causedBy = causedBy;
         this.reason = reason;
         this.reasonCode = reasonCode;

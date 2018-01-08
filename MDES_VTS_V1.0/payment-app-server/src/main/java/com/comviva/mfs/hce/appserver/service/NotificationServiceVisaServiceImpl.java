@@ -171,7 +171,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
         }catch (Exception e){
-            e.printStackTrace();
+            LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyPanMetadataUpdate",e);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }

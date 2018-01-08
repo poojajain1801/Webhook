@@ -245,8 +245,10 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
             else {
                 Map errorMap = new LinkedHashMap();
-                errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                if (null !=jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
                 LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
                 return errorMap;
             }

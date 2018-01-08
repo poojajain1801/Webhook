@@ -141,7 +141,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             }
 
             // Only token type CLOUD is supported
-            if (!addCardParam.getTokenType().equalsIgnoreCase("CLOUD")) {
+            if (!ignoreCase("CLOUD").equals(addCardParam.getTokenType())) {
                 return prepareDigitizeResponse(HCEConstants.REASON_CODE2, HCEConstants.REASON_DESCRIPTION2);
             }
 
@@ -370,7 +370,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                 }
 
                 if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
-                    vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
+                    if(null != jsonResponse) {
+                        vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
+                    }
                     //cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
                     //CardDetails cardDetails = null;
 
@@ -390,9 +392,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                     responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
                     responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 } else {
-
-                    responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer)jsonResponse.getJSONObject("errorResponse").get("status")));
-                    responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
+                    if (null != jsonResponse) {
+                        responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
+                        responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
+                    }
                 }
 
 
