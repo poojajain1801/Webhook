@@ -234,6 +234,10 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
 
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestJson.toString(), resourcePath, "PUT");
+            if (responseEntity.hasBody()) {
+                strResponse = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(strResponse);
+            }
 
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                 //TODO:Store the vProvisonTokenID in the DB
