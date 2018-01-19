@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
@@ -140,7 +141,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 }
 
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                cardDetails.setStatus(HCEConstants.ACTIVE);
+                //cardDetails.setStatus(HCEConstants.ACTIVE);
                 cardDetailRepository.save(cardDetails);
                 if (null !=jsonResponse) {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
@@ -176,6 +177,83 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
     }
 
 
+
+
+
+    @Transactional
+    public Map<String, Object> ConfirmProvisioning (ConfirmProvisioningRequest confirmProvisioningRequest) {
+
+        LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning");
+        String provisonStatus = confirmProvisioningRequest.getProvisioningStatus();
+        String failureReason = confirmProvisioningRequest.getFailureReason();
+        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenId();
+        JSONObject requestMap = new JSONObject();
+        HitVisaServices hitVisaServices =null;
+        JSONObject jsonResponse= null;
+        ResponseEntity responseEntity =null;
+        String response = null;
+        List<CardDetails> cardDetailsList = null;
+        CardDetails cardDetails = null;
+        try {
+            requestMap.put("api", confirmProvisioningRequest.getApi());
+            requestMap.put("provisioningStatus", provisonStatus);
+
+            if ( provisonStatus.equalsIgnoreCase(HCEConstants.FAILURE) && (!(failureReason.equalsIgnoreCase(HCEConstants.NULL)) || (failureReason.isEmpty())))
+                requestMap.put("failureReason", confirmProvisioningRequest.getFailureReason());
+
+            hitVisaServices = new HitVisaServices(env);
+
+            String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning" + "?apiKey=" + env.getProperty("apiKey");
+            String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning";
+            responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
+
+            //Update the card status to active
+
+            LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning->Update card status to Active");
+            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenId());
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                cardDetails = cardDetailsList.get(0);
+            }else{
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
+            }
+
+            cardDetails.setStatus(HCEConstants.ACTIVE);
+            cardDetailRepository.save(cardDetails);
+
+            if (responseEntity.hasBody())
+            {
+                response = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+
+            if (responseEntity.getStatusCode().value() == 200) {
+                //TODO:Store the vProvisonTokenID in the DB
+
+
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+
+            }
+            else
+            {
+                Map errorMap = new LinkedHashMap();
+                if (null != jsonResponse) {
+                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
+                LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
+                return errorMap;
+
+            }
+
+
+        }catch (Exception e) {
+            LOGGER.error("Exception occured",e);
+            LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ConfirmProvisioning");
+            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
+        }
+
+    }
 
     public Map<String, Object> ProvisionTokenWithPanData (ProvisionTokenWithPanDataRequest provisionTokenWithPanDataRequest) {
 
@@ -226,63 +304,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.error("Exception occured" +e);
         }
         return result;
-    }
-
-
-    public Map<String, Object> ConfirmProvisioning (ConfirmProvisioningRequest confirmProvisioningRequest) {
-       //TODO:Check vProvisonID is valid or not
-        LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning");
-        String provisonStatus = confirmProvisioningRequest.getProvisioningStatus();
-        String failureReason = confirmProvisioningRequest.getFailureReason();
-        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenId();
-        JSONObject requestMap = new JSONObject();
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
-        String response = null;
-        try {
-            requestMap.put("api", confirmProvisioningRequest.getApi());
-            requestMap.put("provisioningStatus", provisonStatus);
-
-            if ( provisonStatus.equalsIgnoreCase(HCEConstants.FAILURE) && (!(failureReason.equalsIgnoreCase(HCEConstants.NULL)) || (failureReason.isEmpty())))
-                requestMap.put("failureReason", confirmProvisioningRequest.getFailureReason());
-
-            hitVisaServices = new HitVisaServices(env);
-
-            String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning" + "?apiKey=" + env.getProperty("apiKey");
-            String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning";
-            responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
-            if (responseEntity.hasBody())
-            {
-                response = String.valueOf(responseEntity.getBody());
-                jsonResponse = new JSONObject(response);
-            }
-
-            if (responseEntity.getStatusCode().value() == 200) {
-                //TODO:Store the vProvisonTokenID in the DB
-                LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
-                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-
-            }
-            else
-            {
-                Map errorMap = new LinkedHashMap();
-                if (null != jsonResponse) {
-                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
-                }
-                LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
-                return errorMap;
-
-            }
-
-
-        }catch (Exception e) {
-            LOGGER.error("Exception occured",e);
-            LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ConfirmProvisioning");
-            return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
-        }
-
     }
 
     public Map<String, Object> ActiveAccountManagementReplenish (ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
