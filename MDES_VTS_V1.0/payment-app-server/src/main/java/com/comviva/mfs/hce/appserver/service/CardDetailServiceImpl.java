@@ -380,8 +380,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                     cardDetails.setDeviceInfo(deviceInfoList.get(0));
                     cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
 
-
-                    cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
+                    if (null != jsonResponse) {
+                        cardDetails.setCardSuffix(jsonResponse.getJSONObject("paymentInstrument").getString("last4"));
+                    }
                    // cardDetails.setVisaProvisionTokenId(vPanEnrollmentId);
                     cardDetails.setPanUniqueReference(vPanEnrollmentId);
                     cardDetails.setCardIdentifier(cardIdentifier);
