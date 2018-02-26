@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import java.nio.charset.Charset;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -72,10 +73,12 @@ public class VtsRequest {
         mediaTypeList.add(MediaType.APPLICATION_JSON);
         headers.setAccept(mediaTypeList);
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAcceptCharset(Arrays.asList(Charset.forName("UTF-8")));
 
         //headers.add("Accept", "application/json");
         //headers.add("Content-Type", "application/json");
-        //headers.add("Accept-Charset","UTF8");
+       // headers.add("charset","UTF-8");
+        //headers.add("accept-charset",null) ;
         //headers.add("Accept-Encoding","deflate");
         //headers.add("Host","sandbox.digital.visa.com");
         //headers.add("Connection","Keep-Alive");

@@ -210,25 +210,28 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
             switch (lifeCycleManagementVisaRequest.getOperation()) {
                 case "DELETE":
+                    LOGGER.debug("Inside TokenLifeCycleManagementServiceImpl-> DELETE");
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/delete";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/delete?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/delete" + "?apiKey=" + env.getProperty("apiKey");
                     cardStatus = HCEConstants.INACTIVE;
                     break;
                 case "SUSPEND":
+                    LOGGER.debug("Inside TokenLifeCycleManagementServiceImpl-> SUSPEND");
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/suspend";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/suspend?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/suspend" + "?apiKey=" + env.getProperty("apiKey");
                     cardStatus = HCEConstants.SUSUPEND;
                     break;
                 case "RESUME":
+                    LOGGER.debug("Inside TokenLifeCycleManagementServiceImpl-> RESUME");
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/resume";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/resume?apiKey=key
                     url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/resume" + "?apiKey=" + env.getProperty("apiKey");
                     cardStatus = HCEConstants.ACTIVE;
                     break;
                 default:
-                    LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
+                    LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa ->Invalid Operation");
                     return hceControllerSupport.formResponse(HCEMessageCodes.getInvalidOperation());
 
             }

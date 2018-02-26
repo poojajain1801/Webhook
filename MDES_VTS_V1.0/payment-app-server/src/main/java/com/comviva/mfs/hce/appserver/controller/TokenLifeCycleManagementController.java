@@ -39,18 +39,50 @@ public class TokenLifeCycleManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/getTokenStatus",method = RequestMethod.POST)
-    public Map<String,Object>getTokenStatus(@RequestBody GetTokenStatusRequest getTokenStatusRequest){
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>getTokenStatus(@RequestBody String getTokenStatusRequest){
         LOGGER.debug("Enter TokenLifeCycleManagementController->getTokenStatus");
-        Map<String,Object> getTokenStatus = tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequest);
+        GetTokenStatusRequest getTokenStatusRequestpojo = null;
+        Map<String, Object> getTokenStatus = null;
+        try {
+            getTokenStatusRequestpojo = (GetTokenStatusRequest)hceControllerSupport.requestFormation(getTokenStatusRequest,GetTokenStatusRequest.class);
+             getTokenStatus = tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequestpojo);
+        }catch (HCEValidationException  getTokenStatusRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning", getTokenStatusRequestValidation);
+            throw  getTokenStatusRequestValidation;
+        }
+        catch (HCEActionException enrollPanHceActionException){
+            LOGGER.error("Exception Occured in TokenLifeCycleManagementController->getTokenStatus",enrollPanHceActionException);
+            throw enrollPanHceActionException;
+        }catch (Exception enrollPanExcetption) {
+            LOGGER.error(" Exception Occured in TokenLifeCycleManagementController->getTokenStatus", enrollPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
         LOGGER.debug("Exit TokenLifeCycleManagementController->getTokenStatus");
         return getTokenStatus;
     }
 
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagementVisa",method = RequestMethod.POST)
-    public Map<String,Object>lifeCycleManagementVisa(@RequestBody LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest){
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>lifeCycleManagementVisa(@RequestBody String lifeCycleManagementVisaRequest){
         LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
-        Map <String,Object> deleteTokenResp =  tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
+        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequestpojo = null;
+        Map <String,Object> deleteTokenResp = null;
+        try{
+            lifeCycleManagementVisaRequestpojo = (LifeCycleManagementVisaRequest)hceControllerSupport.requestFormation(lifeCycleManagementVisaRequest,LifeCycleManagementVisaRequest.class);
+            deleteTokenResp=tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequestpojo);
+        }catch (HCEValidationException  lifeCycleManagementRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning", lifeCycleManagementRequestValidation);
+            throw  lifeCycleManagementRequestValidation;
+        }
+        catch (HCEActionException lifeCycleManagementHceActionException){
+            LOGGER.error("Exception Occured in TokenLifeCycleManagementController->lifeCycleManagementVisa",lifeCycleManagementHceActionException);
+            throw lifeCycleManagementHceActionException;
+        }catch (Exception lifeCycleManagementPanExcetption) { 
+            LOGGER.error(" Exception Occured in TokenLifeCycleManagementController->lifeCycleManagementVisa", lifeCycleManagementPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
         LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
         return deleteTokenResp;
     }

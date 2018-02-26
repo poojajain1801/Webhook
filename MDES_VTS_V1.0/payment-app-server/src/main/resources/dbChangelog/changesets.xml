@@ -290,6 +290,9 @@
             <column name="CREATED_BY" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
+            <column name="CLIENT_DEVICE_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
 
             <column name="SERVICE_TYPE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>

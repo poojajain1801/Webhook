@@ -99,7 +99,7 @@ public class FcmRns implements RemoteNotification {
         } catch (Exception ioe) {
             LOGGER.error("Exception occured",ioe);
 //            response.setErrorCode(Integer.toString(ConstantErrorCodes.INTERNAL_SERVICE_FAILURE));
-//            response.setResponse(ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.INTERNAL_SERVICE_FAILURE));
+//            response.setResponse(ConstantErrorCodes.errorCodes.get(ConstantErrorCodes.INTERNAL_SERVICE_FAILURE))
         }
         return response;
     }

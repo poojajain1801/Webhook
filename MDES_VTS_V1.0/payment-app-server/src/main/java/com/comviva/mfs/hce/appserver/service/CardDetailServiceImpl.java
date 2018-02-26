@@ -362,7 +362,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 hitVisaServices = new HitVisaServices(env);
                 responseMap = new LinkedHashMap();
                 responseEntity = hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments?apiKey=" + env.getProperty("apiKey"), objectMapper.writeValueAsString(map), "vts/panEnrollments", "POST");
-
+                CardDetails  cardDetails = new CardDetails();
                 if (responseEntity.hasBody()) {
                     response = String.valueOf(responseEntity.getBody());
                     jsonResponse = new JSONObject(response);
@@ -376,7 +376,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                     //cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
                     //CardDetails cardDetails = null;
 
-                    CardDetails  cardDetails = new CardDetails();
+
                     cardDetails.setDeviceInfo(deviceInfoList.get(0));
                     cardDetails.setCardId(HCEUtil.generateRandomId(HCEConstants.CARD_PREFIX));
 

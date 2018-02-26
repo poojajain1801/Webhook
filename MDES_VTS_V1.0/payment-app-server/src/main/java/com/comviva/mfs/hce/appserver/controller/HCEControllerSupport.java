@@ -165,7 +165,7 @@ public class HCEControllerSupport {
     }
 
 
-    public  void maintainAudiTrail(String userId, String url, String responseCode,String request,
+    public  void maintainAudiTrail(String userId,String clientDeviceID, String url, String responseCode,String request,
                                                String response){
         AuditTrail auditTrail = null;
         try{
@@ -174,6 +174,9 @@ public class HCEControllerSupport {
             auditTrail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
             if(userId!=null && !userId.isEmpty()){
                 auditTrail.setCreatedBy(userId);
+            }
+            if(clientDeviceID!=null && !clientDeviceID.isEmpty()){
+                auditTrail.setClientDeviceId(clientDeviceID);
             }
             if(responseCode!=null && !responseCode.isEmpty()){
                 auditTrail.setResponseCode(responseCode);

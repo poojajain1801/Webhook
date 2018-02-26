@@ -65,19 +65,75 @@ public class ProvisionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/confirmProvisioning",method = RequestMethod.POST)
-    public Map<String, Object>confirmProvisioning(@RequestBody ConfirmProvisioningRequest confirmProvisioningRequest){
-        return provisionManagementService.ConfirmProvisioning(confirmProvisioningRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object>confirmProvisioning(@RequestBody String confirmProvisioningRequest){
+        LOGGER.debug("Enter ProvisionManagementController-> confirmProvisioning ");
+        ConfirmProvisioningRequest confirmProvisioningRequestpojo = null;
+        Map <String,Object>confirmProvisioningResp= null;
+        try{
+            confirmProvisioningRequestpojo = (ConfirmProvisioningRequest)hCEControllerSupport.requestFormation(confirmProvisioningRequest,ConfirmProvisioningRequest.class);
+            confirmProvisioningResp = provisionManagementService.ConfirmProvisioning(confirmProvisioningRequestpojo);
+        }catch (HCEValidationException confirmProvisioningRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",confirmProvisioningRequestValidation);
+            throw confirmProvisioningRequestValidation;
+        }catch (HCEActionException confirmProvisioningHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",confirmProvisioningHceActionException);
+            throw confirmProvisioningHceActionException;
+        }catch (Exception confirmProvisioningExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->confirmProvisioning", confirmProvisioningExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.debug("Exit ProvisionManagementController-> confirmProvisioning ");
+        return confirmProvisioningResp;
     }
 
     @ResponseBody
     @RequestMapping(value = "/activeAccountManagementReplenish",method = RequestMethod.POST)
-    public Map<String ,Object>activeAccountManagementReplenish( @RequestBody ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest){
-        return provisionManagementService.ActiveAccountManagementReplenish(activeAccountManagementReplenishRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map<String ,Object>activeAccountManagementReplenish( @RequestBody String activeAccountManagementReplenishRequest){
+        LOGGER.debug("Enter ProvisionManagementController-> activeAccountManagementReplenish ");
+        ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequestpojo = null;
+        Map <String,Object> replineshResp= null;
+        try{
+            activeAccountManagementReplenishRequestpojo = (ActiveAccountManagementReplenishRequest)hCEControllerSupport.requestFormation(activeAccountManagementReplenishRequest,ActiveAccountManagementReplenishRequest.class);
+            replineshResp = provisionManagementService.ActiveAccountManagementReplenish(activeAccountManagementReplenishRequestpojo);
+        }catch (HCEValidationException replinesRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",replinesRequestValidation);
+            throw replinesRequestValidation;
+        }
+        catch (HCEActionException replinesHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->activeAccountManagementReplenish",replinesHceActionException);
+            throw replinesHceActionException;
+        }catch (Exception replenishPanExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->activeAccountManagementReplenish", replenishPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.debug("exit ProvisionManagementController-> activeAccountManagementReplenish ");
+        return replineshResp;
     }
     @ResponseBody
     @RequestMapping(value = "/activeAccountManagementConfirmReplenishment",method = RequestMethod.POST)
-    public Map<String ,Object>activeAccountManagementConfirmReplenishment(@RequestBody ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequest){
-        return provisionManagementService.ActiveAccountManagementConfirmReplenishment(activeAccountManagementConfirmReplenishmentRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map<String ,Object>activeAccountManagementConfirmReplenishment(@RequestBody String activeAccountManagementConfirmReplenishmentRequest){
+        LOGGER.debug("Enter ProvisionManagementController-> activeAccountManagementConfirmReplenishment ");
+        ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequestpojo = null;
+        Map <String,Object> ConfirmReplenishmentResp= null;
+        try{
+            activeAccountManagementConfirmReplenishmentRequestpojo = (ActiveAccountManagementConfirmReplenishmentRequest)hCEControllerSupport.requestFormation(activeAccountManagementConfirmReplenishmentRequest,ActiveAccountManagementConfirmReplenishmentRequest.class);
+            ConfirmReplenishmentResp = provisionManagementService.ActiveAccountManagementConfirmReplenishment(activeAccountManagementConfirmReplenishmentRequestpojo);
+        }catch (HCEValidationException ConfirmReplenishmentRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",ConfirmReplenishmentRequestValidation);
+            throw ConfirmReplenishmentRequestValidation;
+        }
+        catch (HCEActionException ConfirmReplenishmentHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment",ConfirmReplenishmentHceActionException);
+            throw ConfirmReplenishmentHceActionException;
+        }catch (Exception ConfirmReplenishmentExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment", ConfirmReplenishmentExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.debug("Exit ProvisionManagementController-> activeAccountManagementConfirmReplenishment ");
+        return ConfirmReplenishmentResp;
     }
     @ResponseBody
     @RequestMapping(value = "/replenishODAData",method = RequestMethod.POST)

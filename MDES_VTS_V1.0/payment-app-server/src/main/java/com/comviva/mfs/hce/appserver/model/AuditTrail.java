@@ -25,6 +25,9 @@ public class AuditTrail implements Serializable {
 	@Column(name="CREATED_BY")
 	private String createdBy;
 
+	@Column(name="CLIENT_DEVICE_ID")
+	private String clientDeviceId;
+
 	@Column(name="CREATED_ON")
 	private Timestamp createdOn;
 
@@ -99,5 +102,11 @@ public class AuditTrail implements Serializable {
 		this.serviceType = serviceType;
 	}
 
+	public String getClientDeviceId() {
+		return clientDeviceId;
+	}
 
+	public void setClientDeviceId(String clientDeviceId) {
+		this.clientDeviceId = clientDeviceId;
+	}
 }

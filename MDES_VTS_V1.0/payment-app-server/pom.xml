@@ -288,15 +288,15 @@
             <artifactId>encryption-utilities</artifactId>
             <version>2.40.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.40.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.60.4.jar</systemPath>
         </dependency>
 
         <dependency>
-            <groupId>VisaMapUtil-SBX</groupId>
-            <artifactId>VisaMapUtil-SBX</artifactId>
-            <version>4.6.1</version>
+            <groupId>SDK-MapUtil</groupId>
+            <artifactId>SDK-MapUtil</artifactId>
+            <version>5.1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/VisaMapUtil-SBX-4.6.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-5.1.0.jar</systemPath>
         </dependency>
 
     </dependencies>

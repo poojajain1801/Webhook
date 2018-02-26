@@ -4,6 +4,8 @@ import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import com.google.gson.Gson;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.slf4j.MDC;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,9 +23,15 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @Setter
 public class HitVisaServices extends VtsRequest {
@@ -75,8 +85,30 @@ public class HitVisaServices extends VtsRequest {
                 requestFactory.setProxy(proxy);
 
             }
+           // Gson msdf = new Gson(headers);
+         //   Enumeration headerNames = headers.getHeaderNames();
+
+            Map sdsd = entity.getHeaders();
+            LOGGER.debug("-------------------Begin Headers-------------------------");
+            for (Object name : sdsd.keySet())
+            {
+                // search  for value
+                Object value =  sdsd.get(name);
+                //System.out.println("Key = " + name + ", Value = " + value);
+
+                LOGGER.debug("Key = " + name + ", Value = " + value);
+
+            }
+            LOGGER.debug("-------------------End Headers-------------------------");
+
             restTemplate = new RestTemplate(requestFactory);
+
+            StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+            stringHttpMessageConverter.setWriteAcceptCharset(false);
+            restTemplate.getMessageConverters().add(0, stringHttpMessageConverter);
+
             startTime = System.currentTimeMillis();
+            //url = "http://172.19.4.223:8080/test/Test";
             if("POST".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             }else if("PUT".equals(type)){

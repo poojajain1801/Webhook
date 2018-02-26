@@ -39,6 +39,7 @@ public class LoggingInterceptor {
         long startTime = 0;
         Map responseData =null;
         String requestId = null;
+        String clientDeviceId  = null;
         String startTimeValue = null;
 
         try {
@@ -49,6 +50,7 @@ public class LoggingInterceptor {
                startTime = System.currentTimeMillis();
            }
             requestId = findUserId(requestData);
+           clientDeviceId = findClientDeviceID(requestData);
             responseData = (Map) originalMethod.proceed();
         } catch (HCEActionException hceActionExp){
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", hceActionExp);
@@ -62,7 +64,7 @@ public class LoggingInterceptor {
                 responseCode = (String) responseData.get(HCEConstants.RESPONSE_CODE);
             }
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
-                hceControllerSupport.maintainAudiTrail(requestId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
+                hceControllerSupport.maintainAudiTrail(requestId,clientDeviceId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
             }
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
@@ -90,5 +92,20 @@ public class LoggingInterceptor {
         }
         return userId;
 
+    }
+    private String findClientDeviceID(String requestData)
+    {
+        String clientDeviceId = null;
+        JSONObject jsonObject = new JSONObject(requestData);
+        if (!jsonObject.isNull("clientDeviceID")){
+            clientDeviceId = jsonObject.getString("clientDeviceID");
+        }
+        else{
+            if(!jsonObject.isNull("vprovisionedTokenID"))
+            {
+                clientDeviceId = jsonObject.getString("vprovisionedTokenID");
+            }
+        }
+        return clientDeviceId;
     }
 }
