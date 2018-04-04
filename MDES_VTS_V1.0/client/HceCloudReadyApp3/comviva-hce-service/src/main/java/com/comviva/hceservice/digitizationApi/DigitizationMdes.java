@@ -42,6 +42,11 @@ import javax.crypto.Cipher;
 
 class DigitizationMdes {
     private CardEligibilityResponse cardEligibilityResponse;
+    private static final String RESPONSE = "response";
+    private static final String PAYMENT_APP_INSTANE_ID = "paymentAppInstanceId";
+    private static final String T_N_C = "termsAndConditionsAssetId";
+    private static final String RESPONSE_CODE = "reasonCode";
+    private static final String ELIIBILITY_RECEIPT = "eligibilityReceipt";
 
     private JSONObject prepareCardInfo(CardEligibilityRequest cardEligibilityRequest) throws JSONException,
             GeneralSecurityException, IOException, SdkException {
@@ -78,7 +83,7 @@ class DigitizationMdes {
             cardInfo.put("encryptedData", ArrayUtil.getHexString(baEncryptedData));
             cardInfo.put("encryptedKey", ArrayUtil.getHexString(encryptedKey));
             cardInfo.put("iv", ArrayUtil.getHexString(oneTimeIv));
-            // TODO
+
             cardInfo.put("publicKeyFingerPrint", "");
             return cardInfo;
         } finally {
@@ -123,7 +128,7 @@ class DigitizationMdes {
             super.onPostExecute(httpResponse);
             try {
                 if (httpResponse.getStatusCode() == 200) {
-                    JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject("response");
+                    JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject(RESPONSE);
                     JSONArray arrMediaContents = respObj.getJSONArray("mediaContents");
                     int noOfAssets = arrMediaContents.length();
                     MediaContent[] mediaContents = new MediaContent[noOfAssets];
@@ -140,6 +145,8 @@ class DigitizationMdes {
                             case IMAGE_PNG:
                                 mediaContents[i].setHeight(Integer.parseInt(jsMediaContent.getString("height")));
                                 mediaContents[i].setWidth(Integer.parseInt(jsMediaContent.getString("width")));
+                                break;
+                            default:
                                 break;
                         }
                     }
@@ -171,7 +178,7 @@ class DigitizationMdes {
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             JSONObject cardInfoData = prepareCardInfo(cardEligibilityRequest);
 
-            jsonCardEligibilityReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
+            jsonCardEligibilityReq.put(PAYMENT_APP_INSTANE_ID, comvivaSdk.getPaymentAppInstanceId());
             jsonCardEligibilityReq.put("paymentAppId", comvivaSdk.getPaymentAppProviderId());
             jsonCardEligibilityReq.put("tokenType", "CLOUD");
             jsonCardEligibilityReq.put("cardInfo", cardInfoData);
@@ -218,16 +225,16 @@ class DigitizationMdes {
 
                 try {
                     if (httpResponse.getStatusCode() == 200) {
-                        JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject("response");
+                        JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject(RESPONSE);
 
                         // Card is not eligible
-                        if (!respObj.has("eligibilityReceipt")) {
+                        if (!respObj.has(ELIIBILITY_RECEIPT)) {
                             if (checkEligibilityListener != null) {
                                 checkEligibilityListener.onError(SdkErrorStandardImpl.COMMON_CARD_NOT_ELIGIBLE);
                             }
                         } else {
                             // Card is eligible
-                            JSONObject jsEligibilityReceipt = respObj.getJSONObject("eligibilityReceipt");
+                            JSONObject jsEligibilityReceipt = respObj.getJSONObject(ELIIBILITY_RECEIPT);
                             JSONObject jsApplicableCardInfo = respObj.getJSONObject("applicableCardInfo");
 
                             cardEligibilityResponse = new CardEligibilityResponse();
@@ -240,7 +247,7 @@ class DigitizationMdes {
 
                             // Perform TnC if required
                             String tncAssetId;
-                            if (respObj.has("termsAndConditionsAssetId")) {
+                            if (respObj.has(T_N_C)) {
                                 GetAssetListener getAssetListener = new GetAssetListener() {
                                     @Override
                                     public void onStarted() {
@@ -261,7 +268,7 @@ class DigitizationMdes {
                                     }
                                 };
 
-                                tncAssetId = respObj.getString("termsAndConditionsAssetId");
+                                tncAssetId = respObj.getString(T_N_C);
                                 cardEligibilityResponse.setTermsAndConditionsAssetId(tncAssetId);
                                 GetTnCAssetTask getTnCAssetTask = new GetTnCAssetTask(tncAssetId, getAssetListener);
                                 getTnCAssetTask.execute();
@@ -375,10 +382,9 @@ class DigitizationMdes {
             jsEligibilityReceipt.put("validForMinutes", eligibilityReceipt.getValidForMinutes());
 
             jsonContinueDigitizationReq.put("paymentAppInstanceId", comvivaSdk.getPaymentAppInstanceId());
-            jsonContinueDigitizationReq.put("eligibilityReceipt", jsEligibilityReceipt);
-            //jsonContinueDigitizationReq.put("taskId", digitizationRequest.getTaskId());
+            jsonContinueDigitizationReq.put(ELIIBILITY_RECEIPT, jsEligibilityReceipt);
             jsonContinueDigitizationReq.put("serviceId", cardEligibilityResponse.getServiceId());
-            jsonContinueDigitizationReq.put("termsAndConditionsAssetId", cardEligibilityResponse.getTermsAndConditionsAssetId());
+            jsonContinueDigitizationReq.put(T_N_C, cardEligibilityResponse.getTermsAndConditionsAssetId());
             jsonContinueDigitizationReq.put("termsAndConditionsAcceptedTimestamp", digitizationRequest.getTermsAndConditionsAcceptedTimestamp());
         } catch (JSONException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
@@ -409,7 +415,7 @@ class DigitizationMdes {
 
                 try {
                     if (httpResponse.getStatusCode() == 200) {
-                        JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject("response");
+                        JSONObject respObj = (new JSONObject(httpResponse.getResponse())).getJSONObject(RESPONSE);
 
                         // First Check decision, it's APPROVED, DECLINED or REQUIRE_ADDITIONAL_AUTHENTICATION
                         final String decision = respObj.getString("decision");
@@ -419,10 +425,10 @@ class DigitizationMdes {
                         }
 
                         final String tokenUniqueReference = respObj.getString("tokenUniqueReference");
-                        final String panUniqueReference = respObj.getString("panUniqueReference");
+
 
                         if (decision.equalsIgnoreCase("APPROVED")) {
-                            digitizationListener.onApproved();
+                            digitizationListener.onApproved(null);
                         } else if (decision.equalsIgnoreCase("REQUIRE_ADDITIONAL_AUTHENTICATION")) {
                             JSONArray arrAuthenticationMethods = respObj.getJSONArray("authenticationMethods");
                             int noOfAuthMethods = arrAuthenticationMethods.length();
@@ -516,7 +522,7 @@ class DigitizationMdes {
             }
             jsCardLcmReq.put("tokenUniqueReferences", jsArrCards);
             jsCardLcmReq.put("causedBy", "CARDHOLDER");
-            jsCardLcmReq.put("reasonCode", reasonCode.name());
+            jsCardLcmReq.put(RESPONSE_CODE, reasonCode.name());
             jsCardLcmReq.put("reason", "Not Specified");
             jsCardLcmReq.put("operation", (cardLcmOperation == CardLcmOperation.RESUME) ? "UNSUSPEND" : cardLcmOperation.name());
         } catch (JSONException e) {

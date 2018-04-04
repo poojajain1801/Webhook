@@ -1,6 +1,7 @@
 package com.comviva.hceservice.util;
 
 import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.digitizationApi.CardMetaData;
 
 /**
  * Generic listener.

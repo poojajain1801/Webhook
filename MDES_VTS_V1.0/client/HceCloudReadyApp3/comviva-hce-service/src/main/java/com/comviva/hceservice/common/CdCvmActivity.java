@@ -21,6 +21,7 @@ public class CdCvmActivity extends Activity {
     PowerManager pm;*/
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        ComvivaHceService.setIsPinpageRequired(false);
         super.onCreate(savedInstanceState);
         KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         Intent screenLock = keyguardManager.createConfirmDeviceCredentialIntent("Card Holder Verification", "Please Verify");
@@ -29,6 +30,7 @@ public class CdCvmActivity extends Activity {
         wl.acquire();*/
         startActivityForResult(screenLock, REQ_CODE_SCREEN_LOCK);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -46,6 +48,7 @@ public class CdCvmActivity extends Activity {
                 txnCtx.setFirstTap(true);
                 txnCtx.setTxnFirstTapTime(Calendar.getInstance().getTimeInMillis());
                 ComvivaHceService.setTransactionContext(txnCtx);
+                ComvivaHceService.setIsPinpageRequired(true);
                /* wl.release();*/
                 }
                 if (resultCode == Activity.RESULT_CANCELED) {
@@ -59,13 +62,18 @@ public class CdCvmActivity extends Activity {
                     txnCtx.setFirstTap(false);
                     txnCtx.setTxnFirstTapTime(Calendar.getInstance().getTimeInMillis());
                     ComvivaHceService.setTransactionContext(txnCtx);
+                    ComvivaHceService.setIsPinpageRequired(true);
                    /* wl.release();*/
 
 
                 }
                 break;
+                default:
+                    break;
         }
         finish();
 
     }
+
+
 }

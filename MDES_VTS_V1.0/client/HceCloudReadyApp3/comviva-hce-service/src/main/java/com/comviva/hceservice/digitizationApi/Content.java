@@ -9,6 +9,13 @@ import com.comviva.hceservice.digitizationApi.asset.AssetType;
 public class Content {
     int width;
     int height;
+
+    public Content(int width, int height, AssetType mimeType) {
+        this.width = width;
+        this.height = height;
+        this.mimeType = mimeType;
+    }
+
     private AssetType mimeType;
 
     public int getWidth() {

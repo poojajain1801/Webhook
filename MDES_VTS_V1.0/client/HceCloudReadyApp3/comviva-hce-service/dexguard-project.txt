@@ -45,6 +45,13 @@
 -keep public class com.comviva.hceservice.digitizationApi.Digitization {
     public public *;
 }
+
+-keep public class com.comviva.hceservice.digitizationApi.CardMetaData {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardData {
+    public public *;
+}
 -keep public class com.comviva.hceservice.digitizationApi.ActiveAccountManagementService {
     public public *;
 }
@@ -64,6 +71,9 @@
     public public *;
 }
 -keep public interface com.comviva.hceservice.digitizationApi.DigitizationListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.GetAssetListener {
     public public *;
 }
 -keep public class com.comviva.hceservice.digitizationApi.DigitizationRequest {
@@ -144,6 +154,10 @@
     public public *;
 }
 -keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
+    public public *;
+}
+
+-keep public interface com.comviva.hceservice.util.GetCardMetaDataListener {
     public public *;
 }
 -keep public interface com.comviva.hceservice.common.SdkError {
@@ -250,6 +264,8 @@
 -keep public enum com.comviva.hceservice.common.cdcvm.Type {
     public public *;
 }
+
+-keep public class * extends android.app.Activity
 
 # Visa Packages
 -keep class com.visa.cbp.** { *; }

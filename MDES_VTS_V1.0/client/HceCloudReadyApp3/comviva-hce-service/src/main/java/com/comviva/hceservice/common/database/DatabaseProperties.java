@@ -1,6 +1,11 @@
 package com.comviva.hceservice.common.database;
 
 public class DatabaseProperties {
+
+    private DatabaseProperties()
+    {
+
+    }
     public static final String DATABASE_NAME = "CommonDb";
     public static final int DATABASE_VERSION = 1;
 

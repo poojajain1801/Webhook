@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,12 +15,17 @@ import android.widget.EditText;
 
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.SdkError;
+import com.comviva.hceservice.digitizationApi.CardData;
 import com.comviva.hceservice.digitizationApi.CardEligibilityRequest;
+import com.comviva.hceservice.digitizationApi.CardMetaData;
 import com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener;
 import com.comviva.hceservice.digitizationApi.ConsumerEntryMode;
 import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.digitizationApi.GetAssetListener;
 import com.comviva.hceservice.digitizationApi.PanSource;
+import com.comviva.hceservice.digitizationApi.asset.MediaContent;
+import com.comviva.mdesapp.MyHCEApp;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.constant.Constants;
 
@@ -31,8 +37,9 @@ public class AddCardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_card);
 
+
         final EditText etPan = (EditText) findViewById(R.id.editPan);
-        final EditText etCvc = (EditText) findViewById(R.id.editCvc);
+       // final EditText etCvc = (EditText) findViewById(R.id.editCvc);
         final EditText etExpMonth = (EditText) findViewById(R.id.editExpMonth);
         final EditText etExpYear = (EditText) findViewById(R.id.editExpYear);
         final EditText etCardHolderName = (EditText) findViewById(R.id.editCardHolderName);
@@ -43,7 +50,7 @@ public class AddCardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 cardEligibilityRequest.setAccountNumber(etPan.getText().toString());
-                cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
+               // cardEligibilityRequest.setSecurityCode(etCvc.getText().toString());
                 cardEligibilityRequest.setExpiryMonth(etExpMonth.getText().toString());
                 cardEligibilityRequest.setExpiryYear(etExpYear.getText().toString());
                 cardEligibilityRequest.setCardholderName(etCardHolderName.getText().toString());
@@ -70,6 +77,44 @@ public class AddCardActivity extends AppCompatActivity {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
+                    }
+
+                    @Override
+                    public void getCardMetadataDetails(CardMetaData cardMetaData) {
+                        CardData[] cardDatas =  cardMetaData.getCardDatas();
+
+                        for(int i=0;i<cardDatas.length;i++)
+                        {
+                            System.out.println(cardDatas[i].getGuid());
+                            digitization.getContent(cardDatas[i].getGuid(), new GetAssetListener() {
+                                @Override
+                                public void onStarted() {
+
+                                }
+
+                                @Override
+                                public void onCompleted(ContentGuid contentGuid) {
+                                    System.out.println(contentGuid.getAltText());
+                                    MediaContent[] mediaContents = contentGuid.getContent();
+                                    for (int i=0;i<mediaContents.length;i++)
+                                    {
+                                        String nksdf = mediaContents[i].getAssetType().toString();
+                                        System.out.println(mediaContents[i].getAssetType());
+                                        System.out.println(mediaContents[i].getData());
+                                        System.out.println(mediaContents[i].getHeight());
+                                        System.out.println(mediaContents[i].getWidth());
+                                    }
+                                    System.out.println(contentGuid.getContentType());
+                                    System.out.println(contentGuid.getAltText());
+                                }
+
+                                @Override
+                                public void onError(String message) {
+
+                                }
+                            });
+                        }
+                        System.out.println(cardMetaData);
                     }
 
                     @Override
@@ -103,11 +148,15 @@ public class AddCardActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+
+
                 });
             }
         });
 
     }
+
+
 
     @Override
     public void onBackPressed() {

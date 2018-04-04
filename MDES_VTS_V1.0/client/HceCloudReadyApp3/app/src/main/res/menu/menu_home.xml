@@ -73,13 +73,15 @@
         android:title="Get Card Meta Data" />
 
     <item
-        android:id="@+id/replenish_oda_data"
+        android:id="@+id/unregister_device"
         android:orderInCategory="100"
-        android:title="Replenish ODA Data" />
+        android:title="Un Register Device" />
 
 
     <item
         android:id="@+id/get_content"
         android:orderInCategory="100"
         android:title="Get Content" />
+
+
 </menu>

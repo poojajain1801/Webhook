@@ -21,8 +21,15 @@ import com.visa.cbp.sdk.facade.data.TokenKey;
 
 import java.util.Date;
 
+import static com.comviva.hceservice.common.database.CommonDatabase.INTEGER_VALUE;
+import static com.comviva.hceservice.common.database.CommonDatabase.TEXT;
+import static com.comviva.hceservice.common.database.CommonDatabase.TEXT_COLON;
+
 public class CommonDatabase implements CommonDb {
     private DatabaseHelper commonDb;
+    public static final String TEXT = " TEXT, ";
+    public static final String TEXT_COLON = " TEXT);";
+    public static final String INTEGER_VALUE = " INTEGER, ";
 
     public CommonDatabase(Context context) {
         this.commonDb = new DatabaseHelper(context, DatabaseProperties.DATABASE_NAME);
@@ -55,8 +62,8 @@ public class CommonDatabase implements CommonDb {
                 contentValues.put(DatabaseProperties.COL_HVT_LIMIT, comvivaSdkInitData.getHvtLimit());
             }
             String clientWalletAccId = comvivaSdkInitData.getClientWalletAccountId();
-            if(clientWalletAccId != null || !clientWalletAccId.isEmpty()) {
-                contentValues.put(DatabaseProperties.COL_CLIENT_WALLET_ACC_ID, comvivaSdkInitData.getClientWalletAccountId());
+            if((null != clientWalletAccId) && (!clientWalletAccId.isEmpty())) {
+                    contentValues.put(DatabaseProperties.COL_CLIENT_WALLET_ACC_ID, comvivaSdkInitData.getClientWalletAccountId());
             }
 
             // Need to Update only row
@@ -217,6 +224,9 @@ public class CommonDatabase implements CommonDb {
 
                 case VTS:
                     contentValues.put(DatabaseProperties.COL_CARD_UNIQUE_ID, cardUniqueId);
+                    break;
+
+                default:
                     break;
             }
 
@@ -501,24 +511,24 @@ public class CommonDatabase implements CommonDb {
 
 class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_APP_PROPERTIES = "CREATE TABLE " + DatabaseProperties.TBL_APP_PROPERTIES + " ("
-            + DatabaseProperties.COL_INITIALIZE_STATE + " INTEGER, "
-            + DatabaseProperties.COL_RNS_ID + " TEXT, "
-            + DatabaseProperties.COL_RNS_TYPE + " TEXT, "
-            + DatabaseProperties.COL_VTS_INIT_STATE + " TEXT, "
-            + DatabaseProperties.COL_MDES_INIT_STATE + " TEXT, "
-            + DatabaseProperties.COL_REPLENISH_THRESOLD_LIMIT + " INTEGER, "
-            + DatabaseProperties.COL_HVT_SUPPORTED + " INTEGER, "
+            + DatabaseProperties.COL_INITIALIZE_STATE + INTEGER_VALUE
+            + DatabaseProperties.COL_RNS_ID + TEXT
+            + DatabaseProperties.COL_RNS_TYPE + TEXT
+            + DatabaseProperties.COL_VTS_INIT_STATE + TEXT
+            + DatabaseProperties.COL_MDES_INIT_STATE + TEXT
+            + DatabaseProperties.COL_REPLENISH_THRESOLD_LIMIT + INTEGER_VALUE
+            + DatabaseProperties.COL_HVT_SUPPORTED + INTEGER_VALUE
             + DatabaseProperties.COL_HVT_LIMIT + " REAL, "
-            + DatabaseProperties.COL_CLIENT_WALLET_ACC_ID + " TEXT);";
+            + DatabaseProperties.COL_CLIENT_WALLET_ACC_ID + TEXT_COLON;
 
     private static final String CREATE_TABLE_DEFAULT_CARD = "CREATE TABLE if not exists " + DatabaseProperties.TBL_DEFAULT_CARD + " ("
             + DatabaseProperties.COL_CARD_UNIQUE_ID + " TEXT,"
-            + DatabaseProperties.COL_CARD_TYPE + " TEXT);";
+            + DatabaseProperties.COL_CARD_TYPE + TEXT_COLON;
 
     private static final String CREATE_TABLE_VISA_LUK_INFO = "CREATE TABLE if not exists " + DatabaseProperties.TBL_VISA_LUK_INFO + " ("
             + DatabaseProperties.COL_CARD_UNIQUE_ID + " TEXT,"
             + DatabaseProperties.COL_MAX_PAYMENTS + " INTEGER,"
-            + DatabaseProperties.COL_LUK_EXP_TS + " TEXT);";
+            + DatabaseProperties.COL_LUK_EXP_TS + TEXT_COLON;
 
     public DatabaseHelper(final Context context, final String databaseName) {
         super(context, databaseName, null, DatabaseProperties.DATABASE_VERSION);
@@ -526,6 +536,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Called when DB version upgrade required
     }
 
     @Override

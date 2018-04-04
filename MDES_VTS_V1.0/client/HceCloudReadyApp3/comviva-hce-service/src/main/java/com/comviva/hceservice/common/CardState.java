@@ -9,5 +9,7 @@ public enum CardState {
     /** Card is provisioned but not activated*/
     UNINITIALIZED,
     /** Card is in Suspended State*/
-    SUSPENDED
+    SUSPENDED,
+    /** Card is in UNKNOWN State*/
+    UNKNOWN
 }

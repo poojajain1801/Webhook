@@ -1,7 +1,11 @@
 package com.comviva.hceservice.digitizationApi;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.CardLcmOperation;
@@ -16,6 +20,7 @@ import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
+import com.comviva.hceservice.security.RSAUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
@@ -40,14 +45,19 @@ import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
 import com.visa.cbp.sdk.facade.data.TvlEntry;
+import com.visa.cbp.sdk.facade.error.SDKErrorType;
 import com.visa.cbp.sdk.facade.exception.CryptoException;
+import com.visa.cbp.sdk.facade.exception.RootDetectException;
 import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
+import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -94,6 +104,9 @@ class DigitizationVts {
                 }
             } catch (JSONException e) {
                 listener.onError("Wrong data from server");
+            }catch(Exception e)
+            {
+                listener.onError("SDK Internal Error");
             }
         }
     }
@@ -118,6 +131,9 @@ class DigitizationVts {
                 if (listener != null) {
                     listener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
                 }
+            }catch(Exception e)
+            {
+                listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             }
         }
 
@@ -135,11 +151,14 @@ class DigitizationVts {
         @Override
         protected void onPostExecute(HttpResponse httpResponse) {
             super.onPostExecute(httpResponse);
-
-            if (httpResponse.getStatusCode() == 200) {
-                listener.onCompleted();
-            } else {
-                listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+            try {
+                if (httpResponse.getStatusCode() == 200) {
+                    listener.onCompleted();
+                } else {
+                    listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }catch (Exception e){
+                listener.onError(SdkErrorStandardImpl.SERVER_NOT_RESPONDING);
             }
         }
     }
@@ -177,16 +196,20 @@ class DigitizationVts {
         @Override
         protected void onPostExecute(HttpResponse httpResponse) {
             super.onPostExecute(httpResponse);
-
-            if (httpResponse.getStatusCode() == 200) {
-                listener.onCompleted();
-            } else {
-                listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+            try {
+                if (httpResponse.getStatusCode() == 200) {
+                    listener.onCompleted();
+                } else {
+                    listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }catch(Exception e)
+            {
+                listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             }
         }
     }
 
-    private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException {
+    private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException,Exception {
         ContentGuid contentGuid = new ContentGuid();
         if (jsGetContentResponse.has("altText")) {
             contentGuid.setAltText(jsGetContentResponse.getString("altText"));
@@ -217,7 +240,39 @@ class DigitizationVts {
         return contentGuid;
     }
 
-    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException {
+
+   /* private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException {
+        ContentGuid contentGuid = new ContentGuid();
+        if (jsGetContentResponse.has("altText")) {
+            contentGuid.setAltText(jsGetContentResponse.getString("altText"));
+        }
+        contentGuid.setContentType(ContentType.getContentType(jsGetContentResponse.getString("contentType")));
+        JSONArray jsArrContent = jsGetContentResponse.getJSONArray("content");
+        MediaContent[] mediaContents = new MediaContent[jsArrContent.length()];
+        JSONObject jsContent;
+        for (int i = 0; i < jsArrContent.length(); i++) {
+            jsContent = jsArrContent.getJSONObject(0);
+            mediaContents[i] = new MediaContent();
+            mediaContents[i].setData(jsContent.getString("encodedData"));
+            String contentType = jsContent.getString("mimeType");
+            if (contentType.equalsIgnoreCase("image/pdf")) {
+                mediaContents[i].setAssetType(AssetType.APPLICATION_PDF);
+            } else {
+                mediaContents[i].setAssetType(AssetType.getType(contentType));
+            }
+
+            switch (mediaContents[i].getAssetType()) {
+                case IMAGE_PNG:
+                case APPLICATION_PDF:
+                    mediaContents[i].setHeight(jsContent.getInt("height"));
+                    mediaContents[i].setWidth(jsContent.getInt("width"));
+            }
+        }
+        contentGuid.setContent(mediaContents);
+        return contentGuid;
+    }*/
+
+    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException,Exception {
 
         JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
         JSONObject jsExpirationDateObject = jsTokenInfoObject.getJSONObject("expirationDate");
@@ -249,7 +304,7 @@ class DigitizationVts {
         return tokenInfo;
     }
 
-    private EnrollPanResponse parseEnrollPanResponse(JSONObject jsEnrollPanResp) throws JSONException {
+    private EnrollPanResponse parseEnrollPanResponse(JSONObject jsEnrollPanResp) throws JSONException,Exception {
         EnrollPanResponse enrollPanResponse = new EnrollPanResponse();
         enrollPanResponse.setvPanEnrollmentID(jsEnrollPanResp.getString(Tags.VPAN_ENROLLMENT_ID.getTag()));
 
@@ -269,6 +324,7 @@ class DigitizationVts {
         paymentInstrumentComviva.setEnabledServices(enabledServices);
         enrollPanResponse.setPaymentInstrumentComviva(paymentInstrumentComviva);
 
+
         // Card MetaData
         JSONObject jsCardMetaData = jsEnrollPanResp.getJSONObject("cardMetaData");
         com.comviva.hceservice.digitizationApi.CardMetaData cardMetaData = new com.comviva.hceservice.digitizationApi.CardMetaData();
@@ -278,6 +334,41 @@ class DigitizationVts {
         cardMetaData.setShortDescription(jsCardMetaData.getString("shortDescription"));
         cardMetaData.setLabelColor(jsCardMetaData.getString("labelColor"));
         cardMetaData.setTermsAndConditionsID(jsCardMetaData.getString("termsAndConditionsID"));
+        CardData[] cardDatas ;
+        if(jsCardMetaData.has("cardData"))
+        {
+            JSONArray cardDataArray = jsCardMetaData.getJSONArray("cardData");
+            cardDatas = new CardData[cardDataArray.length()];
+            for(int i=0;i<cardDataArray.length();i++)
+            {
+                JSONObject cardDataObject =  cardDataArray.getJSONObject(i);
+                CardData cardData = new CardData();
+                cardData.setGuid(cardDataObject.getString("guid"));
+                ContentType contentType = ContentType.getContentType(cardDataObject.getString("contentType"));
+                cardData.setContentType(contentType);
+                if(cardDataObject.has("content"))
+                {
+                    JSONArray contentArray = cardDataObject.getJSONArray("content");
+                    Content content = new Content();
+                    if(contentArray.getJSONObject(0).has("width"))
+                    {
+                        content.setWidth(Integer.parseInt(contentArray.getJSONObject(0).getString("width")));
+                    }
+                    if(contentArray.getJSONObject(0).has("height"))
+                    {
+                        content.setHeight(Integer.parseInt(contentArray.getJSONObject(0).getString("height")));
+                    }
+                    if(contentArray.getJSONObject(0).has("mimeType"))
+                    {
+                        content.setMimeType(AssetType.getType(contentArray.getJSONObject(0).getString("mimeType")));
+                    }
+                    cardData.setContent(content);
+                }
+                cardDatas[i] = cardData;
+            }
+            cardMetaData.setCardDatas(cardDatas);
+        }
+
 
         if (jsCardMetaData.has("contactEmail")) {
             cardMetaData.setContactEmail(jsCardMetaData.getString("contactEmail"));
@@ -322,7 +413,7 @@ class DigitizationVts {
         return enrollPanResponse;
     }
 
-    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException {
+    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException,Exception {
         JSONObject jsPaymentInstrument = jsGetMetaDataResponse.getJSONObject("paymentInstrument");
         JSONObject jsExpirationDateObject = jsPaymentInstrument.getJSONObject("expirationDate");
         JSONObject jsCardMetaDataResponseObject = jsGetMetaDataResponse.getJSONObject("cardMetaData");
@@ -350,7 +441,7 @@ class DigitizationVts {
         cardMetaData.setTermsAndConditionsID(jsCardMetaDataResponseObject.getString("termsAndConditionsID"));
     }
 
-    private void parseGetPanData(JSONObject jsGetPanDataResponse) throws JSONException {
+    private void parseGetPanData(JSONObject jsGetPanDataResponse) throws JSONException,Exception {
         JSONObject jsPaymentInstrument = jsGetPanDataResponse.getJSONObject("paymentInstrument");
 
         String last4 = jsPaymentInstrument.getString("last4");
@@ -385,6 +476,7 @@ class DigitizationVts {
 
             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
 
+
             PropertyReader propertyReader = PropertyReader.getInstance(null);
             jsonEnrollPanReq.put("clientAppId", propertyReader.getProperty(PropertyConst.KEY_CLIENT_APP_ID));
             jsonEnrollPanReq.put("clientWalletAccountId", clientWalletAccId);
@@ -393,7 +485,11 @@ class DigitizationVts {
             jsonEnrollPanReq.put("encPaymentInstrument", encPaymentInstrument);
             jsonEnrollPanReq.put("locale", cardEligibilityRequest.getLocale());
             jsonEnrollPanReq.put("panSource", cardEligibilityRequest.getPanSource().name());
-        } catch (Exception e) {
+        }catch (RootDetectException e){
+            ComvivaSdk.reportFraud();
+            checkEligibilityListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+            return;
+        }catch (Exception e) {
             checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
@@ -408,7 +504,16 @@ class DigitizationVts {
 
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), jsonEnrollPanReq.toString());
+                ComvivaSdk comvivaSdk = null;
+                HttpResponse httpResponse = null;
+                try {
+                     comvivaSdk = ComvivaSdk.getInstance(null);
+                    httpResponse =  httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), RSAUtil.doMeth(comvivaSdk.getApplicationContext(),jsonEnrollPanReq.toString()));
+
+                } catch (SdkException e) {
+                    e.printStackTrace();
+                }
+                return httpResponse;
             }
 
             protected void onPostExecute(HttpResponse httpResponse) {
@@ -430,6 +535,7 @@ class DigitizationVts {
                         }
                         enrollPanResponse = parseEnrollPanResponse(jsEnrollPanResp);
 
+
                         GetAssetListener getAssetListener = new GetAssetListener() {
                             @Override
                             public void onStarted() {
@@ -438,6 +544,8 @@ class DigitizationVts {
                             @Override
                             public void onCompleted(ContentGuid contentGuid) {
                                 checkEligibilityListener.onTermsAndConditionsRequired(contentGuid);
+                                checkEligibilityListener.getCardMetadataDetails(enrollPanResponse.getCardMetaData());
+
                             }
 
                             @Override
@@ -491,6 +599,9 @@ class DigitizationVts {
             return;
         } catch (SdkException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+        }catch (RootDetectException e){
+            ComvivaSdk.reportFraud();
+            digitizationListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
         }
 
         class ProvisionTokenTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -508,8 +619,14 @@ class DigitizationVts {
 
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-
                 try {
+                    try {
+                        ComvivaSdk.checkSecurity();
+                    } catch (SdkException e) {
+                        e.printStackTrace();
+                        digitizationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+                        return;
+                    }
                     if (httpResponse.getStatusCode() == 200) {
                         JSONObject jsProvisionResp = new JSONObject(httpResponse.getResponse());
 
@@ -521,6 +638,12 @@ class DigitizationVts {
 
                         // Parse Provision Response and
                         String vProvisionedTokenID = jsProvisionResp.getString("vProvisionedTokenID");
+                        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                        SharedPreferences pref = comvivaSdk.getApplicationContext().getSharedPreferences(Tags.VPAN_ENROLLMENT_ID.getTag(), Context.MODE_PRIVATE); // 0 - for private mode
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString(vProvisionedTokenID,enrollPanResponse.getvPanEnrollmentID()); // Storing string
+                        editor.commit();
+
 
                         Gson gson = new Gson();
                         final ProvisionResponse provisionResponse = gson.fromJson(jsProvisionResp.toString(), ProvisionResponse.class);
@@ -559,7 +682,7 @@ class DigitizationVts {
                                         } catch (SdkException e) {
                                             Log.d("ComvivaSdkError", e.getMessage());
                                         }
-                                        digitizationListener.onApproved();
+                                        digitizationListener.onApproved(enrollPanResponse.getvPanEnrollmentID());
                                     }
 
                                     @Override
@@ -583,7 +706,20 @@ class DigitizationVts {
                     if (digitizationListener != null) {
                         digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
-                } catch (CryptoException e) {
+                } catch (CryptoException cryptoException) {
+                    //cbpError.getErrorCode() == SDKErrorType.CVM_VERIFICATION_REQUIRED.getCode()
+                        if (cryptoException.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode())
+                        {
+                            ComvivaSdk.reportFraud();
+                            if (digitizationListener != null) {
+                                digitizationListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                            }
+                        }else
+                        {
+                            if (digitizationListener != null) {
+                                digitizationListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                            }
+                        }
                     if (digitizationListener != null) {
                         digitizationListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
                     }
@@ -630,15 +766,21 @@ class DigitizationVts {
                         }
                         if (replenishODADataResponse.has(Tags.RESPONSE_CODE.getTag()) && replenishODADataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
                             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                         /*   visaPaymentSDK.setPasscode("1234");
+                            visaPaymentSDK.verifyPasscode("1234");*/
                             visaPaymentSDK.processODAReplenishResponse(tokenData.getTokenKey(), parseReplenishODADataResponse(replenishODADataResponse));
                             if (digitizationListener != null) {
-                                digitizationListener.onApproved();
+                                ComvivaSdk comvivaSdk =  ComvivaSdk.getInstance(null);
+                                SharedPreferences pref = comvivaSdk.getApplicationContext().getSharedPreferences(Tags.VPAN_ENROLLMENT_ID.getTag(), comvivaSdk.getApplicationContext().MODE_PRIVATE);
+                                 digitizationListener.onApproved( pref.getString(tokenData.getVProvisionedTokenID(), null));
                             }
                         }
                     } catch (JSONException e) {
                         if (digitizationListener != null) {
                             digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
+                    } catch (SdkException e) {
+                        e.printStackTrace();
                     }
                 } else {
                     if (digitizationListener != null) {
@@ -711,6 +853,11 @@ class DigitizationVts {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
+
+                } catch (Exception e) {
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                    }
                 }
             }
         }
@@ -733,6 +880,10 @@ class DigitizationVts {
             cardLcmListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
+        catch (Exception e) {
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+            return;
+        }
 
         class CardLcmTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
@@ -750,8 +901,10 @@ class DigitizationVts {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
+                try{
                 if (httpResponse.getStatusCode() == 200) {
                     try {
+
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
                         if (jsResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
@@ -767,6 +920,7 @@ class DigitizationVts {
                                     try {
                                         ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
                                         visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.DELETED);
+                                        comvivaSdk.deSelectCard();
 
                                         // Manage default card if card being deleted is default one
                                         ArrayList<PaymentCard> allCards = comvivaSdk.getAllCards();
@@ -777,13 +931,19 @@ class DigitizationVts {
                                         } else {
                                             String defaultCardUniqueId = comvivaSdk.getDefaultCardUniqueId();
                                             if (defaultCardUniqueId != null && card.getCardUniqueId().equalsIgnoreCase(defaultCardUniqueId)) {
+                                                /*PaymentCard card1;
                                                 switch (noOfCards) {
                                                     case 1:
                                                         // There is single card remaining make it default
                                                     default:
                                                         // There is more than one card remaining, first card card coming from list, will be default
                                                         comvivaSdk.setDefaultCard(allCards.get(0));
-                                                }
+                                                        card1 = allCards.get(0);
+                                                        String last4digit = card1.getCardLast4Digit();
+                                                       // Show push message
+
+                                                }*/
+                                                comvivaSdk.resetDefaultCard();
                                             }
                                         }
 
@@ -810,6 +970,9 @@ class DigitizationVts {
                     }
                 } else {
                     cardLcmListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }catch (Exception e) {
+                    cardLcmListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
@@ -864,6 +1027,11 @@ class DigitizationVts {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
+                }catch (Exception e)
+                {
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                    }
                 }
             }
         }
@@ -911,6 +1079,10 @@ class DigitizationVts {
                 } catch (JSONException e) {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                }catch(Exception e){
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -962,8 +1134,19 @@ class DigitizationVts {
         } catch (TokenInvalidException e) {
             listener.onError(SdkErrorStandardImpl.SDK_INVALID_CARD_NUMBER);
             return;
-        } catch (CryptoException e) {
-            listener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+        } catch (CryptoException cryptoException) {
+            if (cryptoException.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode()) {
+                ComvivaSdk.reportFraud();
+                if (listener != null) {
+                    listener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                }
+            } else {
+                if (listener != null) {
+                    listener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                }
+            }
+        }catch (Exception e) {
+            listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             return;
         }
 
@@ -987,6 +1170,14 @@ class DigitizationVts {
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
                 try {
+                    try {
+                        ComvivaSdk.checkSecurity();
+                    } catch (SdkException e) {
+                        e.printStackTrace();
+                        listener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+                        return;
+                    }
+
                     if(httpResponse!=null) {
                         if (httpResponse.getStatusCode() == 200) {
                             JSONObject jsReplenishResponse = new JSONObject(httpResponse.getResponse());
@@ -1041,6 +1232,13 @@ class DigitizationVts {
                 } catch (JSONException e) {
 
                     listener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                }catch (RootDetectException rootDetection) {
+                    if (listener != null) {
+                        listener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                    }
+                }catch (Exception e) {
+
+                    listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
