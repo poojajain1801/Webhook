@@ -3,14 +3,20 @@ package com.comviva.mdesapp.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.RelativeLayout;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.mdesapp.R;
 
 public class SplashActivity extends AppCompatActivity {
+
+    private RelativeLayout relativeLayout;
+    private static int SPLASH_TIME_OUT = 3000;
 
     private void changeConfiguration(ComvivaSdk comvivaSdk) {
         Intent intent = new Intent(this, ConfigurationActivity.class);
@@ -29,14 +35,14 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
+        relativeLayout = (RelativeLayout) findViewById(R.id.background);
+        //relativeLayout.setBackground(getDrawable(R.drawable.splash));
         final ComvivaSdk comvivaSdk;
 
         try {
             comvivaSdk = ComvivaSdk.getInstance(getApplication());
-
             if(!comvivaSdk.isSdkInitialized()) {
-              /*  new AlertDialog.Builder(SplashActivity.this)
+                new AlertDialog.Builder(SplashActivity.this)
                         .setTitle("Configuration")
                         .setMessage("Do you want to change Configuration")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -51,9 +57,9 @@ public class SplashActivity extends AppCompatActivity {
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();*/
-                startActivity(new Intent(SplashActivity.this, RegisterUserActivity.class));
+                        .show();
             } else {
+                finish();
                 startActivity(new Intent(SplashActivity.this, HomeActivity.class));
             }
         } catch (SdkException e) {
@@ -67,5 +73,26 @@ public class SplashActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         }
+
+
     }
+
+    private void jumpToOtherActivity() {
+        new Handler().postDelayed(new Runnable() {
+            /*
+             * Showing splash screen with a timer. This will be useful when you
+             * want to show case your app logo / company
+             */
+            @Override
+            public void run() {
+                Intent intent = new Intent(SplashActivity.this,HomeActivity.class);
+                // close this activity
+                startActivity(intent);
+                finish();
+
+            }
+        }, SPLASH_TIME_OUT);
+    }
+
+
 }

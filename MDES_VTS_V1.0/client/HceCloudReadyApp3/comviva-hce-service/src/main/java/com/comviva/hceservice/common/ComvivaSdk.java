@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
@@ -30,12 +31,11 @@ import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
+import com.visa.cbp.sdk.facade.error.SDKErrorType;
 import com.visa.cbp.sdk.facade.exception.CryptoException;
 import com.visa.cbp.sdk.facade.exception.InvalidTokenStateException;
 import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
-
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -62,18 +62,18 @@ public class ComvivaSdk {
     /**
      * If device is rooted or tampered we need to clear all data and report to server.
      */
-    private static void reportFraud() {
-        comvivaSdk = null;
-        comvivaSdk.resetDevice();
+    public static void reportFraud() {
 
-        // TODO Report to Server
+        comvivaSdk.resetDevice();
+        comvivaSdk = null;
     }
 
-    private static void checkSecurity() throws SdkException {
+    public  static void checkSecurity() throws SdkException {
         // Check for Debug Mode
         SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
+            Log.d("Security","Debug not allowed");
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
@@ -81,16 +81,12 @@ public class ComvivaSdk {
         // Check that device is Rooted
         if (securityInf.isDeviceRooted()) {
             // Delete all data from SDK and inform to server
+            Log.d("Security","Device is rooted");
             reportFraud();
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
         }
 
-        // Check for Tamper detection
-        if (securityInf.isApkTampered()) {
-            // Delete all data from SDK and inform to server
-            reportFraud();
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
-        }
+
     }
 
     private void loadConfiguration() {
@@ -134,10 +130,11 @@ public class ComvivaSdk {
     public static ComvivaSdk getInstance(Application context) throws SdkException {
         if (comvivaSdk == null) {
             comvivaSdk = new ComvivaSdk(context);
+            checkSecurity();
         }
 
         // Check security
-        //checkSecurity();
+
         return comvivaSdk;
     }
 
@@ -223,7 +220,7 @@ public class ComvivaSdk {
         try {
             McbpCardApi.replenishForCardWithId(tokenUniqueReference);
         } catch (InvalidCardStateException | AlreadyInProcessException e) {
-            e.printStackTrace();
+            Log.d("Error",e.getMessage());
         }
     }
 
@@ -263,12 +260,25 @@ public class ComvivaSdk {
                 try {
                     VisaPaymentSDKImpl.getInstance().selectCard(((TokenData) paymentCard.getCurrentCard()).getTokenKey());
                 } catch (TokenInvalidException | CryptoException | InvalidTokenStateException e) {
+                    if (e.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode())
+                    {
+                        ComvivaSdk.reportFraud();
+                    }
                     return false;
                 }
                 break;
+
+                default:
+                    break;
         }
         return true;
     }
+    public void deSelectCard ()
+    {
+        VisaPaymentSDKImpl.getInstance().deselectCard();
+        this.selectedCard = null;
+    }
+
 
     /**
      * Returns all card stored in in the SDK.
@@ -296,9 +306,6 @@ public class ComvivaSdk {
         }
 
         if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
-            ArrayList<TokenKey> tokensToBeReplenished = new ArrayList<>();
-            ComvivaSdkInitData initData = getInitializationData();
-
             vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
             for (TokenData tokenData : vtsCards) {
                 paymentCard = new PaymentCard(tokenData);
@@ -306,30 +313,14 @@ public class ComvivaSdk {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);
-
-                // Check if current token has reached it's thresold limit or Key is Expired, then replenishment is required
-             /*   LukInfo lukInfo = comvivaSdk.getLukInfo(paymentCard);
-                if (lukInfo!=null) {
-                    boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining()==0);
-
-                    if (isReplenishmentRequired) {
-                        tokensToBeReplenished.add(tokenData.getTokenKey());
-                    }
-                }*/
             }
-            // If there is any token to be replenished then invoke replenish service
-           /* if(tokensToBeReplenished.size() > 0) {
-                Intent intent = new Intent(application.getApplicationContext(), ActiveAccountManagementService.class);
-                intent.putExtra(com.visa.cbp.sdk.facade.data.Constants.REPLENISH_TOKENS_KEY, tokensToBeReplenished);
-                application.getApplicationContext().startService(intent);
-            }*/
+
         }
         return allCards;
     }
-/*public void replenishLUKVisa() {
+public void replenishLUKVisa() {
     List<TokenData> vtsCards;
     ArrayList<TokenKey> tokensToBeReplenished = new ArrayList<>();
-    ComvivaSdkInitData initData = getInitializationData();
     PaymentCard paymentCard;
     vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
     for (TokenData tokenData : vtsCards) {
@@ -338,7 +329,7 @@ public class ComvivaSdk {
         // Check if current token has reached it's thresold limit or Key is Expired, then replenishment is required
         LukInfo lukInfo = comvivaSdk.getLukInfo(paymentCard);
         if (lukInfo != null) {
-            boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining() == 0);
+            boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining() <= 0);
 
             if (isReplenishmentRequired) {
                 tokensToBeReplenished.add(tokenData.getTokenKey());
@@ -351,7 +342,7 @@ public class ComvivaSdk {
         intent.putExtra(com.visa.cbp.sdk.facade.data.Constants.REPLENISH_TOKENS_KEY, tokensToBeReplenished);
         application.getApplicationContext().startService(intent);
     }
-}*/
+}
 
     /**
      * Activates a card recently added.<br>
@@ -373,7 +364,7 @@ public class ComvivaSdk {
             }
             return true;
         } catch (InvalidInput invalidInput) {
-            invalidInput.printStackTrace();
+            Log.d("Error", invalidInput.getMessage());
         }
         return false;
     }
@@ -415,7 +406,7 @@ public class ComvivaSdk {
         // Clear VTS related data
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();
-
+        visaPaymentSDK.reset(comvivaSdk.getApplicationContext());
         // Clear Comviva SDK data
         commonDb.resetDatabase();
         return true;

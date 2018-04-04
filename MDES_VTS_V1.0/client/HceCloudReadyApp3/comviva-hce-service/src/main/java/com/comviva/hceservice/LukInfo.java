@@ -4,6 +4,7 @@ package com.comviva.hceservice;
 import java.util.Date;
 
 public class LukInfo {
+
     private String cardUniqueId;
     private int noOfPaymentsRemaining;
     private Date keyExpTime;

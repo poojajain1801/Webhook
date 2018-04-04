@@ -8,6 +8,7 @@ package com.comviva.hceservice.common;
  * </p>
  */
 public interface SdkError {
+
     /**
      * <p>Some exception occurred at SDK. </p>
      */

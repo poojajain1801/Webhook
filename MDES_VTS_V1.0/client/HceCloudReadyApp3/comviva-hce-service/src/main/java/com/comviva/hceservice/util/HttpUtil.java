@@ -1,7 +1,9 @@
 package com.comviva.hceservice.util;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 
@@ -36,21 +38,12 @@ import javax.net.ssl.TrustManagerFactory;
 public class HttpUtil {
     private static HttpUtil httpUtil;
     private HttpResponse httpResponse;
-    public static final int TIMEOUT = 5 * 60 * 1000;
+    public static final int TIMEOUT = 1 * 60 * 1000;
+    private AssetManager assetManager;
+    private final String unknown_exception = "unknown exception";
+    private final String server_not_responding = "server not responding";
 
     private HttpUtil() {
-    }
-
-    private void setProxy() {
-        System.setProperty("http.proxyHost", "172.19.7.180");
-        System.setProperty("http.proxyPort", "8080");
-        System.setProperty("http.proxyUser", "tarkeshwar.v");
-        System.setProperty("http.proxyPassword", "feb.2017");
-
-        System.setProperty("https.proxyHost", "172.19.7.180");
-        System.setProperty("https.proxyPort", "8080");
-        System.setProperty("https.proxyUser", "tarkeshwar.v");
-        System.setProperty("https.proxyPassword", "feb.2017");
     }
 
     private String convertStreamToString(InputStream inStream) throws Exception {
@@ -71,8 +64,8 @@ public class HttpUtil {
         httpsURLConnection.setReadTimeout(TIMEOUT);
         httpsURLConnection.setUseCaches(false);
         httpsURLConnection.setRequestProperty("Content-Type", "application/json");
-        //httpsURLConnection.setSSLSocketFactory(newSslSocketFactory());
-        httpsURLConnection.setHostnameVerifier(getHostnameVerifier());
+        httpsURLConnection.setSSLSocketFactory(newSslSocketFactory());
+        httpsURLConnection.setHostnameVerifier(getHostnameVerifier(url));
         return httpsURLConnection;
     }
 
@@ -85,13 +78,17 @@ public class HttpUtil {
         return httpURLConnection;
     }
 
-    HostnameVerifier getHostnameVerifier() {
+    public HostnameVerifier getHostnameVerifier(final URL url)
+    {
         return new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
-                //return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
-                //HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                return true;
+               // return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
+                HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                Log.d("Hostname Verifier",url.getHost());
+                Log.d("Hostname Verifier",url.toString());
+                Log.d("Hostname Verifier",String.valueOf(hv.verify(url.getHost(), session)));
+                return hv.verify(url.getHost(), session);
             }
         };
     }
@@ -102,26 +99,34 @@ public class HttpUtil {
             try {
                 cf = CertificateFactory.getInstance("X.509");
             } catch (CertificateException e) {
-                e.printStackTrace();
+                Log.d("CertReading","CertificateFactory Error");
+
             }
             InputStream caInput = null;
             try {
-                caInput = new BufferedInputStream(ComvivaSdk.getInstance(null).getApplicationContext().getAssets().open("paymentAppServer.crt"));
+                assetManager = ComvivaSdk.getInstance(null).getApplicationContext().getAssets();
+                caInput =  assetManager.open("paymentAppServer.crt");
+                //caInput = new BufferedInputStream(ComvivaSdk.getInstance(null).getApplicationContext().getAssets().open("paymentAppServer.crt"));
             } catch (IOException e) {
-                e.printStackTrace();
+
+                Log.d("Certificate Reading","Error Reading Certificate");
+
             }
             Certificate ca = null;
             try {
                 try {
-                    ca = cf.generateCertificate(caInput);
+                    if(null != cf) {
+                        ca = cf.generateCertificate(caInput);
+                    }
                 } catch (CertificateException e) {
-                    e.printStackTrace();
+                    Log.d("Certificate Reading","Generate Certificate Error");
                 }
             } finally {
                 try {
                     caInput.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d("Certificate Reading","Input file close error");
+
                 }
             }
 
@@ -131,21 +136,25 @@ public class HttpUtil {
             try {
                 keyStore = KeyStore.getInstance(keyStoreType);
             } catch (KeyStoreException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","Keystore Error");
+
             }
             try {
-                keyStore.load(null, null);
+                if(null != keyStore) {
+                    keyStore.load(null, null);
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("Error","Keystore Load Error 1");
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","Keystore Load Error 2");
             } catch (CertificateException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","Keystore Load Error 3");
             }
             try {
                 keyStore.setCertificateEntry("ca", ca);
             } catch (KeyStoreException e) {
-                e.printStackTrace();
+
+                Log.d("Certificate Reading","setCertificateEntry Error ");
             }
 
             // Create a TrustManager that trusts the CAs in our KeyStore
@@ -154,12 +163,15 @@ public class HttpUtil {
             try {
                 tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","TrustManagerFactory Error ");
             }
             try {
-                tmf.init(keyStore);
+                if(null != tmf) {
+                    tmf.init(keyStore);
+                }
             } catch (KeyStoreException e) {
-                e.printStackTrace();
+
+                Log.d("Certificate Reading","KeyStoreException Error ");
             }
 
             // Create an SSLContext that uses our TrustManager
@@ -167,17 +179,24 @@ public class HttpUtil {
             try {
                 sslContext = SSLContext.getInstance("TLS");
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","TLS Error ");
             }
             try {
-                sslContext.init(null, tmf.getTrustManagers(), null);
+                if(null != sslContext) {
+                    sslContext.init(null, tmf.getTrustManagers(), null);
+                }
             } catch (KeyManagementException e) {
-                e.printStackTrace();
+                Log.d("Certificate Reading","getTrustManagers Error ");
             }
         /*    SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             sslSocketFactory.se*/
-
-            return sslContext.getSocketFactory();
+            if(null != sslContext.getSocketFactory())
+            {
+                return sslContext.getSocketFactory();
+            }else
+            {
+                return null;
+            }
         } catch (Exception e) {
             return null;
         }
@@ -197,7 +216,6 @@ public class HttpUtil {
 
     public HttpResponse postRequest(String serviceUrl, String requestData) {
         if (serviceUrl.startsWith("https")) {
-            //setProxy();
             httpResponse = new HttpResponse();
             HttpsURLConnection httpsURLConnection = null;
             OutputStream out = null;
@@ -220,16 +238,12 @@ public class HttpUtil {
                 httpResponse.setStatusCode(responseCode);
 
                 in = httpsURLConnection.getInputStream();
-                if (responseCode == 200) {
-                    responseData = convertStreamToString(in);
-                } else {
-                    responseData = convertStreamToString(in);
-                }
+                responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
             } catch (IOException ioe) {
-                httpResponse.setReqStatus("Server is not responding");
+                httpResponse.setReqStatus(server_not_responding);
             } catch (Exception e) {
-                httpResponse.setReqStatus("Unknown exception");
+                httpResponse.setReqStatus(unknown_exception);
             } finally {
                 try {
                     if (null != in) {
@@ -242,11 +256,11 @@ public class HttpUtil {
                         httpsURLConnection.disconnect();
                     }
                 } catch (IOException ioe) {
+                    Log.d("Error", ioe.getMessage());
                 }
             }
             return httpResponse;
         } else {
-            //setProxy();
             httpResponse = new HttpResponse();
             HttpURLConnection httpURLConnection = null;
             OutputStream out = null;
@@ -271,16 +285,12 @@ public class HttpUtil {
                 httpResponse.setStatusCode(responseCode);
 
                 in = httpURLConnection.getInputStream();
-                if (responseCode == 200) {
-                    responseData = convertStreamToString(in);
-                } else {
-                    responseData = convertStreamToString(in);
-                }
+                responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
             } catch (IOException ioe) {
-                httpResponse.setReqStatus("Server is not responding");
+                httpResponse.setReqStatus(server_not_responding);
             } catch (Exception e) {
-                httpResponse.setReqStatus("Unknown exception");
+                httpResponse.setReqStatus(unknown_exception);
             } finally {
                 try {
                     if (null != in) {
@@ -293,6 +303,7 @@ public class HttpUtil {
                         httpURLConnection.disconnect();
                     }
                 } catch (IOException ioe) {
+                    Log.d("Error" , ioe.getMessage());
                 }
             }
             return httpResponse;
@@ -301,7 +312,7 @@ public class HttpUtil {
 
     public HttpResponse getRequest(String serviceUrl, Map<String, String> queryStrings) {
         if (serviceUrl.startsWith("https")) {
-            //setProxy();
+
             httpResponse = new HttpResponse();
 
             HttpsURLConnection httpsURLConnection = null;
@@ -335,16 +346,12 @@ public class HttpUtil {
                 httpResponse.setStatusCode(responseCode);
 
                 in = httpsURLConnection.getInputStream();
-                if (responseCode == 200) {
-                    responseData = convertStreamToString(in);
-                } else {
-                    responseData = convertStreamToString(in);
-                }
+                responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
             } catch (IOException ioe) {
-                httpResponse.setReqStatus("Server is not responding");
+                httpResponse.setReqStatus(server_not_responding);
             } catch (Exception e) {
-                httpResponse.setReqStatus("Unknown exception");
+                httpResponse.setReqStatus(unknown_exception);
             } finally {
                 try {
                     if (null != in) {
@@ -354,11 +361,12 @@ public class HttpUtil {
                         httpsURLConnection.disconnect();
                     }
                 } catch (IOException ioe) {
+                    Log.d("Error" , ioe.getMessage());
                 }
             }
             return httpResponse;
         } else {
-            //setProxy();
+
             httpResponse = new HttpResponse();
             HttpURLConnection httpURLConnection = null;
             InputStream in = null;
@@ -390,16 +398,12 @@ public class HttpUtil {
                 httpResponse.setStatusCode(responseCode);
 
                 in = httpURLConnection.getInputStream();
-                if (responseCode == 200) {
-                    responseData = convertStreamToString(in);
-                } else {
-                    responseData = convertStreamToString(in);
-                }
+                responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
             } catch (IOException ioe) {
-                httpResponse.setReqStatus("Server is not responding");
+                httpResponse.setReqStatus(server_not_responding);
             } catch (Exception e) {
-                httpResponse.setReqStatus("Unknown exception");
+                httpResponse.setReqStatus(unknown_exception);
             } finally {
                 try {
                     if (null != in) {

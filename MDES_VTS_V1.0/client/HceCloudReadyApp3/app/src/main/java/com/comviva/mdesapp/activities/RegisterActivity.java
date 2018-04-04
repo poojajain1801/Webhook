@@ -80,7 +80,9 @@ public class RegisterActivity extends Activity {
             if (progressDialog != null && progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
 
         @Override
@@ -93,6 +95,7 @@ public class RegisterActivity extends Activity {
                     .setMessage(sdkError.getMessage())
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
                             // continue with delete
                         }
                     })
@@ -101,4 +104,9 @@ public class RegisterActivity extends Activity {
         }
     };
 
+    @Override
+    public void onBackPressed() {
+       // super.onBackPressed();
+        System.exit(0);
+    }
 }

@@ -124,7 +124,7 @@ public enum SdkErrorStandardImpl implements SdkError {
                 return COMMON_DEBUG_MODE;
 
             default:
-                return null;
+                return SDK_INTERNAL_ERROR;
         }
     }
 

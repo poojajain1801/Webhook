@@ -10,6 +10,7 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.SdkError;
@@ -39,9 +40,7 @@ public class TnCActivity extends AppCompatActivity {
         final ContentGuid tncContent = (ContentGuid) getIntent().getSerializableExtra("eligibilityResponse");
         MediaContent[] mediaContents = tncContent.getContent();
         if (mediaContents.length != 0) {
-            byte[] data = Base64.decode(mediaContents[0].getData(), Base64.DEFAULT);
-            String text = new String(data, StandardCharsets.UTF_8);
-            etTnC.setText(text);
+            etTnC.setText(mediaContents[0].getData());
         }
         final CardType cardType = (CardType) getIntent().getSerializableExtra("CardType");
 
@@ -84,7 +83,9 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onApproved() {
+                    public void onApproved(String instrumentID) {
+
+                     //   Toast.makeText(TnCActivity.this, "digitization Approved" + instrumentID, Toast.LENGTH_SHORT).show();
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
@@ -102,7 +103,9 @@ public class TnCActivity extends AppCompatActivity {
                                     .setIcon(android.R.drawable.ic_dialog_alert)
                                     .show();
                         } else if(cardType == CardType.VTS) {
-                            startActivity(new Intent(TnCActivity.this, HomeActivity.class));
+                            Intent intent = new Intent(TnCActivity.this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
                         }
                     }
 

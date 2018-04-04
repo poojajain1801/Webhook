@@ -18,7 +18,7 @@
         android:layout_height="50dp"
         android:inputType="number"
         android:hint="Card Number"
-        android:text="4622943127009000" />
+        android:text="4622943127000660" />
 
     <Space
         android:id="@+id/space1"
@@ -26,7 +26,7 @@
         android:layout_height="30dp"
         android:layout_below="@+id/editPan" />
 
-    <!-- MasterCard-688 Visa-633 -->
+<!--    &lt;!&ndash; MasterCard-688 Visa-633 &ndash;&gt;
     <EditText
         android:id="@+id/editCvc"
         android:layout_width="350dp"
@@ -40,14 +40,14 @@
         android:id="@+id/space2"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_below="@+id/editCvc" />
+        android:layout_below="@+id/editCvc" />-->
 
     <!-- MasterCard-07 Visa-12 -->
     <EditText
         android:id="@+id/editExpMonth"
         android:layout_width="350dp"
         android:layout_height="50dp"
-        android:layout_below="@+id/space2"
+        android:layout_below="@+id/space1"
         android:inputType="number"
         android:hint="Expiry Month"
         android:text="12" />

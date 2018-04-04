@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.comviva.hceservice.common.ComvivaHceService;
+import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.util.ArrayUtil;
 
 public class AndroidHceServiceApp extends HostApduService {
@@ -22,6 +24,7 @@ public class AndroidHceServiceApp extends HostApduService {
         if(apduLogListener != null) {
             apduLogListener.onCommandApduReceived(cmdApdu);
         }
+
         ComvivaHceService comvivaHceService = ComvivaHceService.getInstance(getApplication());
         byte[] response = comvivaHceService.processCommandApdu(commandApdu, extras);
         if (response == null) {

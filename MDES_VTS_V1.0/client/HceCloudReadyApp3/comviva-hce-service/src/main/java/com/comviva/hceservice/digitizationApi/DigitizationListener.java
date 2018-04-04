@@ -10,7 +10,7 @@ public interface DigitizationListener extends CommonListener{
     /**
      * Card digitization approved.
      */
-    void onApproved();
+    void onApproved(String instrumentID);
 
     /**
      * Card digitization declined. Card not eligible for digitization.

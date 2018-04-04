@@ -31,7 +31,9 @@ public enum CardType {
 
             case '4':
                 return VTS;
+
+            default:
+                return UNKNOWN;
         }
-        return UNKNOWN;
     }
 }

@@ -17,9 +17,9 @@ public class UrlUtil {
                                   final String cmsDIp,
                                   final String cmsDPort) {
         if(payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("-1")) {
-            PAYMENT_APP_SERVER_ADDRESS = "https://wallet.mahindracomviva.com:443/payment-app/";
+            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + "/payment-app/";
         } else {
-            PAYMENT_APP_SERVER_ADDRESS = "https://wallet.mahindracomviva.com:443/payment-app/";
+            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + ":" + payAppServerPort + "/payment-app/";
         }
 
         //http://localhost:9099/mdes/paymentapp/1/0/requestSession
@@ -36,6 +36,10 @@ public class UrlUtil {
 
     public static String getRegisterDeviceUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/device/deviceRegistration";
+    }
+
+    public static String getUnRegisterDeviceUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/device/deRegister";
     }
 
     public static String getCheckCardEligibilityUrl() {
@@ -116,16 +120,13 @@ public class UrlUtil {
 
     public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {
         switch (operation) {
-            case SUSPEND:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
-
+            case SUSPEND :
             case RESUME:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
-
             case DELETE:
                 return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
+            default:
+                return null;
         }
-        return null;
     }
 
     public static String getVTSCardMetaDataUrl() {

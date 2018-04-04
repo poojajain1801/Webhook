@@ -5,6 +5,11 @@ package com.comviva.hceservice.common.app_properties;
  * All these properties values will be provided by mobile application.
  */
 public class PropertyConst {
+
+    private PropertyConst()
+    {
+
+    }
     /**
      * Name of the property file containing application properties like IP and ports of server
      */

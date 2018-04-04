@@ -1,5 +1,7 @@
 package com.comviva.hceservice.util.crypto;
 
+import android.util.Log;
+
 import com.comviva.hceservice.util.ArrayUtil;
 
 import javax.crypto.Cipher;
@@ -70,7 +72,7 @@ public class RsaCipher {
 
             int i = 10;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d("Exception",e.getMessage());
         }
 
         // Private Key
@@ -136,7 +138,7 @@ public class RsaCipher {
             System.out.println("Dec Data : " + strDecData);
 
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            Log.d("Error",e.getMessage());
         }
 
 

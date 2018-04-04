@@ -18,11 +18,14 @@ import com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus;
 
 import java.util.Random;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 /**
  * Created by tarkeshwar.v on 3/21/2017.
  */
 
-public class MyHCEApp extends Application {
+    public class MyHCEApp extends Application {
     private static MyHCEApp appInstance;
     private ComvivaWalletListener mEventListener;
 
@@ -30,8 +33,11 @@ public class MyHCEApp extends Application {
     public void onCreate() {
         super.onCreate();
         appInstance = this;
-
         mEventListener = new WalletListener();
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        config.shouldDeleteRealmIfMigrationNeeded();
+        Realm.setDefaultConfiguration(config);
         ComvivaFCMService.setComvivaWalletListener(mEventListener);
     }
 
@@ -142,6 +148,7 @@ public class MyHCEApp extends Application {
             return true;
         }
 
+
         @Override
         public boolean onCardPinResetFailure(final String tokenUniqueReference, final int retriesRemaining, final int errorCode) {
             return false;
@@ -229,6 +236,4 @@ public class MyHCEApp extends Application {
             publish("Transaction Notification", "Transaction Notification for Card\n" + tokenUniqueReference);
         }
     }
-
-
 }
