@@ -11,8 +11,8 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
 public class AESUtil {
-    public static byte[] mobSessionKeyConf = ArrayUtil.getByteArray("F767033AB5F7CEBDD38FCED2D74BCD0C");
-    public static byte[] mobSessionKeyMac = ArrayUtil.getByteArray("978DFDB168E119601FB259945BD0FF7F");
+    private static  byte[] mobSessionKeyConf = ArrayUtil.getByteArray("F767033AB5F7CEBDD38FCED2D74BCD0C");
+    private static byte[] mobSessionKeyMac = ArrayUtil.getByteArray("978DFDB168E119601FB259945BD0FF7F");
     private static String tokenUniqueReference;
 
     public static final int BLOCK_SIZE = 16;

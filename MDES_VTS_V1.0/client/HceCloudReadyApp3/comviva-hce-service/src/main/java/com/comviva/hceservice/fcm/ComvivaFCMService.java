@@ -247,19 +247,6 @@ public class ComvivaFCMService {
         return walletEventListener;
     }
 
-    private void publish(String title, String message) {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext());
-        Notification notification = mBuilder.setSmallIcon(android.R.drawable.stat_notify_chat)
-                .setTicker(title)
-                .setWhen(0)
-                .setAutoCancel(true)
-                .setContentTitle(title)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                .setContentText(message).build();
-
-        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(new Random().nextInt(), notification);
-    }
 
 
 }

@@ -151,7 +151,12 @@ public class HttpUtil {
                 Log.d("Certificate Reading","Keystore Load Error 3");
             }
             try {
-                keyStore.setCertificateEntry("ca", ca);
+                if(null != keyStore) {
+                    keyStore.setCertificateEntry("ca", ca);
+                }else
+                {
+                    return null;
+                }
             } catch (KeyStoreException e) {
 
                 Log.d("Certificate Reading","setCertificateEntry Error ");
@@ -182,8 +187,11 @@ public class HttpUtil {
                 Log.d("Certificate Reading","TLS Error ");
             }
             try {
-                if(null != sslContext) {
+                if(null != sslContext && null != tmf) {
                     sslContext.init(null, tmf.getTrustManagers(), null);
+                }else
+                {
+                    return null;
                 }
             } catch (KeyManagementException e) {
                 Log.d("Certificate Reading","getTrustManagers Error ");

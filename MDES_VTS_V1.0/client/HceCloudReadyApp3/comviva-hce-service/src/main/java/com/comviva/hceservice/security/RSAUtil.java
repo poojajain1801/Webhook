@@ -1,6 +1,7 @@
 package com.comviva.hceservice.security;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
@@ -30,10 +31,10 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class RSAUtil {
 
-	PublicKey pub = null;
+	private PublicKey pub = null;
 	private Context context;
-	static InputStream fixer=null;
-	static byte[] key;
+	private static InputStream fixer=null;
+	private static byte[] key;
 	public static RSAUtil getInstance() {
 		return instance;
 	}
@@ -42,7 +43,7 @@ public class RSAUtil {
 		instance = newinstance;
 	}
 
-	static RSAUtil instance=null;
+	private static RSAUtil instance=null;
 	public RSAUtil(Context context) {
 
 		this.context = context;
@@ -62,7 +63,7 @@ public class RSAUtil {
 		try {
 			caInput = new BufferedInputStream(context.getApplicationContext().getAssets().open("mycert.pem"));
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.d("Error", "Error in Reading Cert");
 		}
 
 		 /*= RSAUtil.class.getResourceAsStream("/mycert.pem");*/
@@ -73,8 +74,13 @@ public class RSAUtil {
 			X509Certificate certificate = (X509Certificate)f.generateCertificate(caInput);
 			pk = certificate.getPublicKey();
 		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d("Error", "Error in Reading Cert");
+		}finally {
+			try {
+				caInput.close();
+			} catch (IOException e) {
+				Log.d("Error", "Error in Reading Cert");
+			}
 		}
 		return pk;
 	}
@@ -91,7 +97,7 @@ public class RSAUtil {
 			pk = certificate.getPublicKey();
 		} catch (CertificateException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d("Error", "Error in Reading Cert");
 		}
 		return pk;
 	}
@@ -142,7 +148,7 @@ public class RSAUtil {
 			return secretKey.getEncoded();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d("Error", "Error in Reading Cert");
 		}
 		return null;
 	}

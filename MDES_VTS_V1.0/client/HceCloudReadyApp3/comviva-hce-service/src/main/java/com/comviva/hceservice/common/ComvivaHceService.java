@@ -228,7 +228,7 @@ public class ComvivaHceService {
             if (cbpError != null && cbpError.getErrorCode() == SDKErrorType.CVM_VERIFICATION_REQUIRED.getCode()) {
                 Log.d("CDCVM", "CVM Required in VcpcsService pos hvt threshold crossed");
                 Log.d("CDCVM", "apduResponse.getApduData().length = " + apduResponse.getApduData().length + " \n cbp error - " + cbpError.getErrorCode() + " " + cbpError.getErrorMessage());
-                if ((isGpoReceived && !txnCtx.isFirstTap()) && cdCvm == null || cdCvm.getType() == Type.NONE || !cdCvm.isStatus()) {
+                if ((isGpoReceived && !txnCtx.isFirstTap()) && (null == cdCvm || cdCvm.getType() == Type.NONE || !cdCvm.isStatus())) {
                         if (isPinpageRequired) {
                             if (DeviceLockUtil.checkLockingMech(context)) {
                                 Intent intent = new Intent(context, CdCvmActivity.class);

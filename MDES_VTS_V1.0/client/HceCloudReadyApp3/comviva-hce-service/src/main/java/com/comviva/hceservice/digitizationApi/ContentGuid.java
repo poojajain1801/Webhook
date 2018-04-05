@@ -12,10 +12,8 @@ public class ContentGuid implements Serializable {
     private ContentType contentType;
     private MediaContent[] content;
 
-    public ContentGuid(String altText, ContentType contentType, MediaContent[] content) {
-        this.altText = altText;
-        this.contentType = contentType;
-        this.content = content;
+    public ContentGuid() {
+
     }
 
     /**

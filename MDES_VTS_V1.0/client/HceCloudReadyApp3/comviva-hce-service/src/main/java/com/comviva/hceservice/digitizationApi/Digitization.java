@@ -546,17 +546,10 @@ public class Digitization {
 
                     try {
                         JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
-                        if (jsGetCardMetaDataResponse == null) {
-                            responseListener.onError(SdkErrorImpl.getInstance(jsGetCardMetaDataResponse.getInt(Tags.RESPONSE_CODE.getTag()),
-                                    jsGetCardMetaDataResponse.getString("message")));
-                            return;
-                        }
-                        else  {
                             CardMetaData cardMetaData = parseGetMetaDataResponse(jsGetCardMetaDataResponse);
                             if (responseListener != null) {
                                 responseListener.onSuccess(cardMetaData);
                             }
-                        }
                     } catch (JSONException e) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     } catch (Exception e) {

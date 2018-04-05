@@ -4,6 +4,7 @@ package com.comviva.hceservice.tds;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;
@@ -144,11 +145,11 @@ public class TransactionHistory {
                         tdsRegistrationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Log.d("Exception", e.getMessage());
                     walletListener.onTdsRegistrationError(displayableCardNo, "JSONError");
                     tdsRegistrationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.d("Exception", e.getMessage());
                     walletListener.onTdsRegistrationError(displayableCardNo, "JSONError");
                     tdsRegistrationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
