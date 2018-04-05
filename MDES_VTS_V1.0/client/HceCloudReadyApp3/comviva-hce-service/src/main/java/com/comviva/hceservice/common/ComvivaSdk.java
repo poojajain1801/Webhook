@@ -47,6 +47,7 @@ public class ComvivaSdk {
     private Application application;
     private SecurityInf securityInf;
 
+    
     private PaymentCard selectedCard;
 
     private ComvivaSdk(Application application) {
