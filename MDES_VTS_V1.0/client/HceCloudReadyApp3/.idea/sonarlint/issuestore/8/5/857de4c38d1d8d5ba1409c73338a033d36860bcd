@@ -1,0 +1,35 @@
+
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ïôƒÁûÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ÆÑ¨üÿÿÿÿ
+Xsquid:S1155">Use isEmpty() to check whether the collection is empty or not.(æ™Äıÿÿÿÿ
+jsquid:UselessImportCheck"<Remove this unused import 'android.app.NotificationManager'.(¸˜ùÑûÿÿÿÿ8ØÓ‹©©,
+_squid:UselessImportCheck">Remove this unused import 'android.content.SharedPreferences'.(íÎÉr
+ksquid:S1192"QDefine a constant instead of duplicating this literal "VTS NOtification" 3 times.(ñ‹Ëíûÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(„ÑÄüÿÿÿÿ
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(şÒãûÿÿÿÿ
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(êÓæøùÿÿÿÿ
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(çæÄçøÿÿÿÿ
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(çæÄçøÿÿÿÿ
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ªßÆøÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ø¦¤§øÿÿÿÿ
+usquid:S1450"[Remove the "digitization" field and declare it as a local variable in the relevant methods.(ãÒçÍşÿÿÿÿ
+squid:S1319"zThe type of the "transactionInfo" object should be an interface such as "List" rather than the implementation "ArrayList".(ä–‡¡
+Tsquid:UselessImportCheck"3Remove this unused import 'android.content.Intent'.(³ğ‹G
+Dsquid:S1481"/Remove this unused "comvivaSdk" local variable.(Æ§¤¡
+–squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ä–‡¡
+M
+squid:S106"9Replace this use of System.out or System.err by a logger.(ğöı¼
+nsquid:S1192"TDefine a constant instead of duplicating this literal "vprovisionedTokenId" 3 times.(ÓÈéºüÿÿÿÿ
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ªßÆøÿÿÿÿ
+Ssquid:S1854">Remove this useless assignment to local variable "comvivaSdk".(Æ§¤¡
+osquid:UselessImportCheck"FRemove this unused import 'android.support.v7.app.NotificationCompat'.(—ª±ş8ØÓ‹©©,
+]squid:UselessImportCheck"4Remove this unused import 'android.content.Context'.(©Ê‰è8ØÓ‹©©,
+lsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 37 to the 15 allowed.(Õç¹ìøÿÿÿÿ
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(çæÄçøÿÿÿÿ
+M
+squid:S106"9Replace this use of System.out or System.err by a logger.(£ğÂ•
+[squid:UselessImportCheck"-Remove this unused import 'java.util.Random'.(èøÉ›ùÿÿÿÿ8ØÓ‹©©,
+›squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(ªßÆøÿÿÿÿ
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(›¿ÿÑ

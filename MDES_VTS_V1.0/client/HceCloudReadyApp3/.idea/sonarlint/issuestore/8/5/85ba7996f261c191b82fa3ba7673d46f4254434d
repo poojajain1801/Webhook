@@ -1,0 +1,22 @@
+
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ä÷Âç
+Esquid:S1481"0Remove this unused "requestJson" local variable.(¢†þ‰
+Lsquid:S1135"2Complete the task associated to this TODO comment.(ÕÌ®þÿÿÿÿ
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(Ôñá 
+ƒsquid:S1319"nThe type of the "reqMap" object should be an interface such as "Map" rather than the implementation "HashMap".(Ñ„‰ç
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(Ôñá 
+<squid:S3010""Remove this assignment of "fixer".(Þº±éúÿÿÿÿ
+tsquid:S1488"_Immediately return this expression instead of assigning it to the temporary variable "dataStr".(«·ì™
+usquid:S1488"[Immediately return this expression instead of assigning it to the temporary variable "res".(É¿èÎýÿÿÿÿ
+?squid:S00108")Either remove or fill this block of code.(”ý¾
+Tsquid:S1854"?Remove this useless assignment to local variable "requestJson".(¢†þ‰
+8squid:S1148"#Use a logger to log this exception.(Ç’Çê
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(Ó«ÂÌÿÿÿÿÿ
+M
+squid:S106"9Replace this use of System.out or System.err by a logger.(¹‰Œæ
+;squid:S1168"&Return an empty array instead of null.(¥¹ï
+bsquid:S1192"FDefine a constant instead of duplicating this literal "Error" 5 times.(¢¤¹8´á—©©,
+Lsquid:S1135"2Complete the task associated to this TODO comment.(ÕÌ®þÿÿÿÿ
+rsquid:S1192"VDefine a constant instead of duplicating this literal "Error in Reading Cert" 5 times.(¢¤¹8´á—©©,
+Jsquid:S1068")Remove this unused "fixer" private field.(© £»úÿÿÿÿ8˜•’©©,
