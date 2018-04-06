@@ -26,7 +26,7 @@ public class LukInfo {
     }
 
     public Date getKeyExpTime() {
-        return keyExpTime;
+        return (keyExpTime);
     }
 
     public void setKeyExpTime(Date keyExpTime) {
