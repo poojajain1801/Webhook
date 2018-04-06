@@ -53,7 +53,7 @@ public class ContentGuid implements Serializable {
      * @return Asset's content
      */
     public MediaContent[] getContent() {
-        return content;
+        return (content);
     }
 
     /**
@@ -61,6 +61,6 @@ public class ContentGuid implements Serializable {
      * @param content Asset's content
      */
     public void setContent(MediaContent[] content) {
-        this.content = content;
+        this.content = (content);
     }
 }

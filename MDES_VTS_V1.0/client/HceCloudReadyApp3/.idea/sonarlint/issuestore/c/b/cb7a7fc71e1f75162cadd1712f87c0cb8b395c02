@@ -1,14 +1,0 @@
-
-_squid:S1192"JDefine a constant instead of duplicating this literal "errorCode" 7 times.(¨ÌÝ™
-gsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 41 to the 15 allowed.(™ˆøœ
-jsquid:S1192"UDefine a constant instead of duplicating this literal "paymentAppInstanceId" 4 times.( õ˜²
-\squid:S1854"BRemove this useless assignment to local variable "walletListener".(™“ÈÂþÿÿÿÿ
-gsquid:S1192"MDefine a constant instead of duplicating this literal "merchantName" 3 times.(×ïý»ùÿÿÿÿ
-fsquid:S1192"QDefine a constant instead of duplicating this literal "errorDescription" 3 times.(ûìþ«
-esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ª½®”ûÿÿÿÿ
-N"squid:SwitchLastCaseIsDefaultCheck""Add a default case to this switch.(é´á¬
-Tsquid:S1118":Add a private constructor to hide the implicit public one.(ç„ÁÖüÿÿÿÿ
-=squid:S1185"(Remove this method to simply inherit it.(ËÐƒ
-jsquid:S1192"UDefine a constant instead of duplicating this literal "tokenUniqueReference" 5 times.(ÏùÛ
-gsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(•Ëôþ
-Zsquid:S1854"ERemove this useless assignment to local variable "displayableCardNo".(âùÔŒ

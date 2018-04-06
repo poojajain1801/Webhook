@@ -8,10 +8,10 @@ public class UnsupportedCardVerificationTypes {
     private String[] types;
 
     public String[] getTypes() {
-        return types;
+        return (types);
     }
 
     public void setTypes(String[] types) {
-        this.types = types;
+        this.types = (types);
     }
 }

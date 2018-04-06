@@ -99,11 +99,11 @@ public class CardMetaData {
     }
 
     public CardData[] getCardDatas() {
-        return cardDatas;
+        return (cardDatas);
     }
 
     public void setCardDatas(CardData[] cardDatas) {
-        this.cardDatas = cardDatas;
+        this.cardDatas = (cardDatas);
     }
 
     public UnsupportedCardVerificationTypes getUnsupportedCardVerificationTypes() {

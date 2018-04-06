@@ -43,7 +43,7 @@ public class GetAssetResponse {
      * @return  Media Contents
      */
     public MediaContent[] getMediaContents() {
-        return mediaContents;
+        return (mediaContents);
     }
 
     /**
@@ -51,6 +51,6 @@ public class GetAssetResponse {
      * @param mediaContents Media Contents
      */
     public void setMediaContents(MediaContent[] mediaContents) {
-        this.mediaContents = mediaContents;
+        this.mediaContents = (mediaContents);
     }
 }

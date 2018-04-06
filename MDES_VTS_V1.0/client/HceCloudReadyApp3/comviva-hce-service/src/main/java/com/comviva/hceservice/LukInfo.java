@@ -26,10 +26,10 @@ public class LukInfo {
     }
 
     public Date getKeyExpTime() {
-        return (Date)keyExpTime.clone();
+        return keyExpTime;
     }
 
     public void setKeyExpTime(Date keyExpTime) {
-        this.keyExpTime = keyExpTime;
+        this.keyExpTime = (keyExpTime);
     }
 }

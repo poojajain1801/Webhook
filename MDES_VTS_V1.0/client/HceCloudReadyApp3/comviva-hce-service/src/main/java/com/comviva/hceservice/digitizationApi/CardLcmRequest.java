@@ -18,7 +18,7 @@ public class CardLcmRequest {
      * @return List of Tokens Unique References
      */
     public ArrayList<PaymentCard> getPaymentCards() {
-        return paymentCards;
+        return  (paymentCards);
     }
 
     /**
@@ -26,7 +26,7 @@ public class CardLcmRequest {
      * @param paymentCards List of Tokens Unique References
      */
     public void setPaymentCards(ArrayList<PaymentCard> paymentCards) {
-        this.paymentCards = paymentCards;
+        this.paymentCards = (paymentCards);
     }
 
     /**

@@ -203,7 +203,7 @@ public class RSAUtil {
 			System.out.println("RESP DECRYPTED::::"+new String (decryptedTextBytes));
 			return new String (decryptedTextBytes);
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			Log.d("Exception","Exception Occured");
 			return null;
 		}
 
