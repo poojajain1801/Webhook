@@ -14,6 +14,7 @@ import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.digitizationApi.ActiveAccountManagementService;
 import com.comviva.hceservice.fcm.RnsInfo;
+import com.comviva.hceservice.register.Registration;
 import com.comviva.hceservice.security.DexGuardSecurity;
 import com.comviva.hceservice.security.SecurityInf;
 import com.comviva.hceservice.util.Constants;
@@ -55,6 +56,8 @@ public class ComvivaSdk {
         securityInf = DexGuardSecurity.getInstance(application.getApplicationContext());
         commonDb = new CommonDatabase(application.getApplicationContext());
         VisaPaymentSDKImpl.initialize(application.getApplicationContext());
+        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        visaPaymentSDK.getDeviceInfo("");
         McbpInitializer.setup(application, null);
         loadConfiguration();
     }
@@ -70,7 +73,7 @@ public class ComvivaSdk {
 
     public  static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+      /*  SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
             Log.d("Security","Debug not allowed");
@@ -84,7 +87,7 @@ public class ComvivaSdk {
             Log.d("Security","Device is rooted");
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }
+        }*/
 
 
     }
@@ -402,13 +405,24 @@ public void replenishLUKVisa() {
     public boolean resetDevice() {
         // Clear MDES related data.
         McbpInitializer.getInstance().getLdeRemoteManagementService().unregister();
-
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Registration.user_details,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear();
         // Clear VTS related data
+        try {
+            comvivaSdk = ComvivaSdk.getInstance(application);
+        } catch (SdkException e) {
+            e.printStackTrace();
+        }
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();
         visaPaymentSDK.reset(comvivaSdk.getApplicationContext());
         // Clear Comviva SDK data
         commonDb.resetDatabase();
+        comvivaSdk = null;
+        Registration.setInstance(null);
+        Log.d("SDK Initizlized" , "" +  isSdkInitialized());
+
         return true;
     }
 

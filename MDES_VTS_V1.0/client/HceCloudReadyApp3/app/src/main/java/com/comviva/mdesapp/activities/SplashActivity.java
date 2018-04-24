@@ -1,11 +1,16 @@
 package com.comviva.mdesapp.activities;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RelativeLayout;
 
@@ -38,7 +43,6 @@ public class SplashActivity extends AppCompatActivity {
         relativeLayout = (RelativeLayout) findViewById(R.id.background);
         //relativeLayout.setBackground(getDrawable(R.drawable.splash));
         final ComvivaSdk comvivaSdk;
-
         try {
             comvivaSdk = ComvivaSdk.getInstance(getApplication());
             if(!comvivaSdk.isSdkInitialized()) {
@@ -76,6 +80,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
     }
+
 
     private void jumpToOtherActivity() {
         new Handler().postDelayed(new Runnable() {

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.common.cdcvm.CdCvm;
 import com.comviva.hceservice.common.cdcvm.Entity;
 import com.comviva.hceservice.common.cdcvm.Type;
@@ -201,7 +202,15 @@ public class ComvivaHceService {
                         } else {
                             // No lock mechanism is set on device currently
                             Log.d(CDCVM_ERROR, NO_CURRENT_SECURITY);
-                            showToast("Screen Lock is not enabled on your mobile device. Please set up screenlock or Touch ID for enhanced security.");
+                            PropertyReader propertyReader = PropertyReader.getInstance(context);
+                            String toastMessage  = propertyReader.getToastMessage("NO_SCREEN_LOCK_SET");
+                            if(null != toastMessage)
+                            {
+                                showToast(toastMessage);
+                            }else
+                            {
+                                showToast("Please set device screen lock or fingerprint to make payment using Tap To Pay feature.");
+                            }
                             pinRequiredFlag = false;
                             return new byte[]{0x69, (byte) 0x86};
                         }
@@ -239,8 +248,15 @@ public class ComvivaHceService {
                             } else {
                                 // No lock mechanism is set on device currently
                                 Log.d(CDCVM_ERROR, NO_CURRENT_SECURITY);
-                                showToast("Screen Lock is not enabled on your mobile device. Please set up screenlock or Touch ID for enhanced security.");
-                                pinRequiredFlag = false;
+                                PropertyReader propertyReader = PropertyReader.getInstance(context);
+                                String toastMessage  = propertyReader.getToastMessage("NO_SCREEN_LOCK_SET");
+                                if(null != toastMessage)
+                                {
+                                    showToast(toastMessage);
+                                }else
+                                {
+                                    showToast("Please set device screen lock or fingerprint to make payment using Tap To Pay feature.");
+                                } pinRequiredFlag = false;
                                 return new byte[]{0x69, (byte) 0x86};
                             }
                         } else {

@@ -3,6 +3,7 @@ package com.comviva.hceservice.register;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
@@ -68,6 +69,13 @@ public class Registration {
     private String userId;
     private String clientWalletAccountId;
     private String clientDeviceId;
+    private SharedPreferences sharedPreferences;
+    public  static final String user_details= "USER_DETAILS";
+    public static final String user_id= "USER_ID";
+
+    public static void setInstance(Registration instance) {
+        Registration.instance = instance;
+    }
 
     private static Registration instance;
 
@@ -313,7 +321,13 @@ public class Registration {
     }
 
     private Registration() {
-        visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+        try {
+            visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+            sharedPreferences = ComvivaSdk.getInstance(null).getApplicationContext().getSharedPreferences(user_details,Context.MODE_PRIVATE);
+        } catch (SdkException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -385,6 +399,10 @@ public class Registration {
     public void registerUser(final String userId, final String imei, final RegisterUserListener regUserListener) {
         final HttpUtil httpUtil = HttpUtil.getInstance();
         final JSONObject registerUser = new JSONObject();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(user_id,userId);
+            editor.apply();
+
         this.imei = imei;
         this.userId = userId;
         try {
@@ -461,6 +479,14 @@ public class Registration {
                 regUserListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             }
         }
+    }
+
+    /**
+     * This api provides with the current user ID with the Comviva SDK.
+     */
+    public String getUserId()
+    {
+        return sharedPreferences.getString(user_id, null);
     }
 
     /**
@@ -683,6 +709,7 @@ public class Registration {
      * @param registrationListener UI listener for Activate User
      */
     public void unRegisterDevice(final String imei, final String userID, final  RegistrationListener registrationListener) {
+
         // Un-Register Device
         try {
             final JSONObject unRegisterDevice = new JSONObject();

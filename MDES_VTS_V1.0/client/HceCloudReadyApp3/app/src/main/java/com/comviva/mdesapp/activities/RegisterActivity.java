@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.register.RegisterParam;
@@ -41,9 +42,9 @@ public class RegisterActivity extends Activity {
             final RegisterParam registerParam = new RegisterParam();
             registerParam.setPaymentAppId("ComvivaWallet");
             registerParam.setPublicKeyFingerprint("1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E");
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(getApplication());
 
             final Registration registration = Registration.getInstance();
-
             Button btnReg = (Button) findViewById(R.id.btnReg);
             btnReg.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -55,6 +56,7 @@ public class RegisterActivity extends Activity {
                     try {
                         registration.registerDevice(registerParam, regDeviceListener);
                     } catch (Exception e) {
+
                         e.printStackTrace();
                     }
                 }

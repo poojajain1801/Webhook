@@ -10,9 +10,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/comviva-hce-service" />
-            <option value="$PROJECT_DIR$/mcbp" />
-            <option value="$PROJECT_DIR$/mcbp-android-api" />
-            <option value="$PROJECT_DIR$/mobile-api-core" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -5,9 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/HceCloudReadyApp3.iml" filepath="$PROJECT_DIR$/HceCloudReadyApp3.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" filepath="$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mcbp/mcbp.iml" filepath="$PROJECT_DIR$/mcbp/mcbp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mcbp-android-api/mcbp-android-api.iml" filepath="$PROJECT_DIR$/mcbp-android-api/mcbp-android-api.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mobile-api-core/mobile-api-core.iml" filepath="$PROJECT_DIR$/mobile-api-core/mobile-api-core.iml" />
     </modules>
   </component>
 </project>

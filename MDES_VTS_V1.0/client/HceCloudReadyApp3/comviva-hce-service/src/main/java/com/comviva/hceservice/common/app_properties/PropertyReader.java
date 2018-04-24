@@ -46,4 +46,15 @@ public class PropertyReader {
         }
         return null;
     }
+
+    public String getToastMessage(String key) {
+        Properties properties = new Properties();
+        try {
+            InputStream inputStream = assetManager.open(PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
+            properties.load(inputStream);
+            return properties.getProperty(key);
+        } catch (IOException e) {
+        }
+        return null;
+    }
 }

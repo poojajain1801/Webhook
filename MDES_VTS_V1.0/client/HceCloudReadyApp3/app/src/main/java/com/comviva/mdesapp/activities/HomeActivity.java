@@ -3,10 +3,12 @@ package com.comviva.mdesapp.activities;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -20,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -111,6 +114,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean replenishLukRequired = false;
     private CardEmulation cardEmulation;
+    private static Context context;
 
 
     private ComvivaSdk comvivaSdk;
@@ -184,6 +188,8 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
             image.setAlpha(0.5f);
         }
     }
+
+
 
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -569,6 +575,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
 
                 Log.d("Token Last 4" , last$Token);
                 Log.d("card Last 4" , cardNum);
+
                 int sukCount = currentCard.getTransactionCredentialsLeft();
                 CardState cardState = currentCard.getCardState();
                 tokenUniqueReference = currentCard.getCardUniqueId();
@@ -747,36 +754,10 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        context = this;
         cardEmulation = CardEmulation.getInstance(NfcAdapter.getDefaultAdapter(getApplicationContext()));
-
-        byte[] bytes = new byte[2];
-        String provisionid = "1234";
-        String panID = "232323";
-        String last4 = "23232dxs";
-
-        DataBaseOperations dataBaseOperations = new DataBaseOperations(HomeActivity.this);
-        CardDetails cardDetails = new CardDetails();
-        cardDetails.setCardProvisionID(provisionid);
-        cardDetails.setPanEnrollmentId(panID);
-        cardDetails.setCardLast4(last4);
-        cardDetails.setImage(bytes);
-        dataBaseOperations.addCardData(cardDetails);
-
-       /* CardDetails cardDetail1 = new CardDetails();
-        cardDetails.setCardProvisionID("2234");
-        cardDetails.setPanEnrollmentId("2678");
-        cardDetails.setCardLast4(last4);
-        cardDetails.setImage(bytes);
-        dataBaseOperations.addCardData(cardDetails);
-        dataBaseOperations.addCardData(cardDetail1);
-
-
-        CardDetails cardDetails1 = dataBaseOperations.searchCard("1234");
-
-        System.out.println(cardDetails1.getCardLast4() + " " + cardDetails1.getPanEnrollmentId());*/
-        CardDetails cardDetails1 = dataBaseOperations.searchCard(provisionid);
-
-        System.out.println(cardDetails1.getCardLast4() + " " + cardDetails1.getPanEnrollmentId());
+        Registration registration = Registration.getInstance();
+        Log.d("userID" , registration.getUserId());
        /* Intent intent = new Intent();
         intent.setAction(CardEmulation.ACTION_CHANGE_DEFAULT);
         intent.putExtra(CardEmulation.EXTRA_SERVICE_COMPONENT, new ComponentName(this, com.comviva.mdesapp.AndroidHceServiceApp.class));
@@ -853,6 +834,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
             }
         });
         AndroidHceServiceApp.setApduLogListener(this);
+      //  LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("comviva_broadcast"));
 
     }
 
@@ -911,6 +893,26 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
         if (isLollipopOrHigher()) {
             unsetAsPreferredHceService();
         }
+    }
+
+ /*   private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("operation");
+            if(intent.hasExtra("cardStatus"))
+            {
+                String message1 = intent.getStringExtra("cardStatus");
+                Toast.makeText(context, message1, Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    };*/
+
+    @Override
+    protected void onDestroy() {
+       // LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -1058,7 +1060,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                 return true;
 
             case R.id.token_status:
-                digitization.getTokenStatus(currentCard, new ResponseListener() {
+                /*digitization.getTokenStatus(currentCard, new Toke() {
                     @Override
                     public void onStarted() {
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1104,7 +1106,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                                 .setCancelable(false)
                                 .show();
                     }
-                });
+                });*/
                 return true;
 
             case R.id.replenish:

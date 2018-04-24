@@ -44,6 +44,16 @@ public class DataBaseOperations {
         myRealm.close();
     }
 
+    public void deleteAllData()
+    {
+        myRealm = Realm.getDefaultInstance();
+        RealmResults<CardDetails> cardDetailsRealmResults = myRealm.where(CardDetails.class).findAll();
+        myRealm.beginTransaction();
+        cardDetailsRealmResults.deleteAllFromRealm();
+        myRealm.commitTransaction();
+        myRealm.close();
+    }
+
     public CardDetails searchCard(String provisionID)
     {
         myRealm = Realm.getDefaultInstance();

@@ -23,6 +23,7 @@ import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.LuhnUtil;
 import com.comviva.hceservice.util.ResponseListener;
+import com.comviva.hceservice.util.TokenDataUpdateListener;
 import com.comviva.hceservice.util.UrlUtil;
 import com.google.gson.Gson;
 import com.mastercard.mcbp.api.McbpCardApi;
@@ -434,15 +435,15 @@ public class Digitization {
      * Note- This API is only applicable for VISA .
      *
      * @param paymentCard      Payment Card need to be checked
-     * @param responseListener Listener
+     * @param tokenDataUpdateListener Listener
      */
-    public void getTokenStatus(final PaymentCard paymentCard, final ResponseListener responseListener) {
+    public void getTokenStatus(final PaymentCard paymentCard, final TokenDataUpdateListener tokenDataUpdateListener) {
         final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
         final JSONObject jsonTokenStatusRequest = new JSONObject();
         try {
             jsonTokenStatusRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
         } catch (Exception e) {
-            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            tokenDataUpdateListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
 
@@ -450,8 +451,8 @@ public class Digitization {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                if (responseListener != null) {
-                    responseListener.onStarted();
+                if (tokenDataUpdateListener != null) {
+                    tokenDataUpdateListener.onStarted();
                 }
             }
 
@@ -468,27 +469,27 @@ public class Digitization {
                 if (httpResponse.getStatusCode() == 200) {
                     try {
                         JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
-                        if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) &&
+                            if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) &&
                                 !jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                            responseListener.onError(SdkErrorImpl.getInstance(jsGetTokenResponse.getInt(Tags.RESPONSE_CODE.getTag()),
+                                tokenDataUpdateListener.onError(SdkErrorImpl.getInstance(jsGetTokenResponse.getInt(Tags.RESPONSE_CODE.getTag()),
                                     jsGetTokenResponse.getString("message")));
                             return;
                         }
                         if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) && jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                            parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
-                            if (responseListener != null) {
-                                responseListener.onSuccess();
+                            TokenInfo tokenInfo = parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
+                            if (tokenDataUpdateListener != null) {
+                                tokenDataUpdateListener.onSuccess(tokenInfo.getTokenStatus());
                             }
                         }
                     } catch (JSONException e) {
-                        responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        tokenDataUpdateListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
                 } else {
-                    responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    tokenDataUpdateListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                 }
             }catch(Exception e)
                 {
-                    responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                    tokenDataUpdateListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }

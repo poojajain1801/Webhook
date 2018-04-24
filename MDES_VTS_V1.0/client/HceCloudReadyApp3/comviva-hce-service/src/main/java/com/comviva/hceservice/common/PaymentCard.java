@@ -165,13 +165,15 @@ public class PaymentCard {
                     TokenStatus tokenStatus = TokenStatus.valueOf(tokenData.getTokenStatus());
                     switch (tokenStatus) {
                         case ACTIVE:
-                            return CardState.INITIALIZED;
+                            return CardState.ACTIVE;
 
                         case SUSPENDED:
                             return CardState.SUSPENDED;
 
                         case RESUME:
-                            return CardState.INITIALIZED;
+                            return CardState.ACTIVE;
+                        case DELETED:
+                            return CardState.DELETED;
 
                         default:
                             break;

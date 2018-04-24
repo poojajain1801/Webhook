@@ -8,6 +8,7 @@
     <!-- Permission to vibrate for haptic feedback (when entering PIN) -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+
     <!-- Added extra permission to access MAC address -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
@@ -56,6 +57,13 @@
         <activity android:name=".activities.ActivateActivity" />
         <activity android:name=".activities.ChangePinActivity" />
         <activity android:name=".activities.TransactionHistoryMdesActivity" />
+
+
+        <receiver android:name=".MyBroadcastReceiver" >
+            <intent-filter>
+                <action android:name="comviva_broadcast" />
+            </intent-filter>
+        </receiver>
 
         <!-- Defining Services -->
         <service android:name=".MyAppFCMService">

@@ -34,12 +34,14 @@ import io.realm.RealmConfiguration;
         super.onCreate();
         appInstance = this;
         mEventListener = new WalletListener();
-        Realm.init(this);
+      /*  Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder().build();
         config.shouldDeleteRealmIfMigrationNeeded();
-        Realm.setDefaultConfiguration(config);
+        Realm.setDefaultConfiguration(config);*/
         ComvivaFCMService.setComvivaWalletListener(mEventListener);
     }
+
+
 
     public static MyHCEApp getInstance() {
         return appInstance;

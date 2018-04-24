@@ -11,5 +11,9 @@ public enum CardState {
     /** Card is in Suspended State*/
     SUSPENDED,
     /** Card is in UNKNOWN State*/
-    UNKNOWN
+    ACTIVE,
+    /** Card is in UNKNOWN State*/
+    DELETED
+    /** Card is in UNKNOWN State*/
+
 }
