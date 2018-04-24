@@ -9,4 +9,5 @@ import java.util.Map;
  */
 public interface TransactionManagementService {
     Map<String,Object>getTransactionHistory(GetTransactionHistoryRequest getTransactionHistoryRequest);
+    Map<String,Object>pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq);
 }

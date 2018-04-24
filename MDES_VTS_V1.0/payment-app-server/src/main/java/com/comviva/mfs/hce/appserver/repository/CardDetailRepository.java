@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +21,8 @@ import java.util.Optional;
 @Repository
 public interface CardDetailRepository extends JpaRepository<CardDetails, String>{
 
-    @Query("Select vc from CardDetails vc where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.panUniqueReference=:panUniqueReference")
-    List<CardDetails> findByPanUniqueReferenceAndClientDeviceId(@Param("panUniqueReference")String panUniqueReference,@Param("clientDeviceId")String clientDeviceId);
+    @Query("Select vc from CardDetails vc where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.panUniqueReference=:panUniqueReference and vc.status in (:initiated) order by vc.createdOn DESC")
+    List<CardDetails> findByPanUniqueReferenceAndClientDeviceId(@Param("panUniqueReference")String panUniqueReference,@Param("clientDeviceId")String clientDeviceId ,@Param("initiated") String initiated );
     List<CardDetails> findByPanUniqueReference(String panUniqueReference);
     List<CardDetails> findByVisaProvisionTokenId(String visaProvisionTokenId);
     @Query("Select vc from CardDetails vc where vc.cardIdentifier =:cardIdentifier and vc.deviceInfo.userDetail.clientWalletAccountId=:clientWalletAccountId and vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status in(:active,:suspend)")
@@ -45,6 +46,7 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
 
     }
     @Modifying(clearAutomatically = true)
+    @Transactional
     @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId")
     void updateCardDetails(@Param("clientDeviceId") String clientDeviceId ,@Param("status") String status);
 

@@ -112,7 +112,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
             clientDeviceID =  provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID();
-            cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID,clientDeviceID);
+            cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID,clientDeviceID,HCEConstants.INITIATE);
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
             }else{

@@ -1,10 +1,17 @@
 package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.mapper.CardDetail;
+import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UserLifecycleManagementReq;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -12,6 +19,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -21,6 +29,7 @@ import java.util.*;
 import java.util.Date;
 
 import com.comviva.mfs.hce.appserver.exception.*;
+import sun.rmi.runtime.Log;
 
 /**
  * Perform user registration and activation
@@ -33,14 +42,21 @@ public class UserDetailServiceImpl implements UserDetailService {
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
-
+    private final CardDetailRepository cardDetailRepository;
     @Autowired
     private Environment env;
+
     @Autowired
-    public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport) {
+    private TokenLifeCycleManagementService tokenLifeCycleManagementService;
+    @Autowired
+    PerformUserLifecycle performLCMobj;
+    private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
+    @Autowired
+    public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport,CardDetailRepository cardDetailRepository) {
         this.userDetailRepository = userDetailRepository;
         this.deviceDetailRepository=deviceDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
+        this.cardDetailRepository = cardDetailRepository;
     }
 
 
@@ -140,8 +156,90 @@ public class UserDetailServiceImpl implements UserDetailService {
         return response;
     }
 
+    /**
+     *
+     * @param userLifecycleManagementReq
+     * @return
+     */
+    @Override
+    @Transactional
+    public Map<String, Object> userLifecycleManagement(UserLifecycleManagementReq userLifecycleManagementReq) {
+        UserDetail userDetails;
+        Map responseMap = null;
+        Map userMap = null;
+        LOGGER.debug("Inside userLifecycleManagement");
+        List<String> userIdlist = null;
+        List<Map> userMapList = null;
+        String message = null;
+        String messageCode = null;
+        try {
+            userIdlist = userLifecycleManagementReq.getUserIdList();
+            if (userIdlist.size() <= 0) {
+                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
+            }
+            responseMap = new LinkedHashMap();
+
+            userMapList = new ArrayList<>();
+            for (int i = 0; i < userIdlist.size(); i++) {
+                userMap = new LinkedHashMap();
+                userDetails = userDetailRepository.findByUserId(userIdlist.get(i));
+
+                if (userDetails == null || userDetails.getUserId().isEmpty()) {
+                    message = "User ID does not exist";
+                    messageCode = HCEMessageCodes.getInvalidUser();
+                    userMap.put("UserId", userIdlist.get(i));
+                    userMap.put("Status", HCEConstants.INACTIVE);
+                    userMap.put("Message", message);
+                    userMap.put("MessageCode",messageCode);
+                } else {
+                    if (userDetails.getStatus().equalsIgnoreCase(HCEConstants.ACTIVE)) {
+                        message = "User ID avilable";
+                        messageCode = HCEMessageCodes.getSUCCESS();
+                    } else {
+                        message = "User ID avilable but Inactive";
+                        messageCode = HCEMessageCodes.getInvalidUser();
+                    }
+                    userMap.put("UserId", userIdlist.get(i));
+                    userMap.put("Status", userDetails.getStatus());
+                    userMap.put("Message", message);
+                    userMap.put("MessageCode",messageCode);
+                }
+                userMapList.add(userMap);
+               /* if ((userDetails!=null)&&(!userDetails.getStatus().equalsIgnoreCase(HCEConstants.INACTIVE))) {
+                    performLCMobj.performLCM(userIdlist.get(i), userLifecycleManagementReq.getOperation(), userDetails);
+                }
+*/
+
+            }
+            performLCMobj.performUserLCM(userIdlist,userLifecycleManagementReq.getOperation());
+
+            responseMap.put("UserStaus", userMapList);
+            responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
+            responseMap.put(HCEConstants.MESSAGE, "SUCSSES");
+            // userDetails = userDetailRepository.findByUserId(userLifecycleManagementReq.getUserId());
 
 
+            //Update the user satatus
+            //Update all the card status
+            LOGGER.debug("Exit userLifecycleManagement");
+            return responseMap;
+
+        } catch (HCEActionException userLifecycleManagementException) {
+            LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManagementException);
+            throw userLifecycleManagementException;
+
+        } catch (Exception userLifecycleManageException) {
+            LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManageException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+    }
+
+
+    private void performMastercardLifecycle(List<CardDetails> masterCardList,String operation)
+    {
+
+    }
     private UserDetail saveUserDetails(RegisterUserRequest registerUserRequest) throws Exception{
 
         UserDetail userDetail = null;

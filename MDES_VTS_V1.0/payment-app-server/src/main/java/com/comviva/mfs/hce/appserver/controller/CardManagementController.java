@@ -35,14 +35,70 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/checkCardEligibility", method = RequestMethod.POST)
-    public AddCardResponse addCard(@RequestBody AddCardParm addCardParm) {
-        return cardDetailService.checkDeviceEligibility(addCardParm);
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> addCard(@RequestBody String addCardParm) {
+        Map <String,Object> checkEligibilityResponse= null;
+        AddCardParm addCardParmpojo = null;
+        try{
+            addCardParmpojo =(AddCardParm) hCEControllerSupport.requestFormation(addCardParm,AddCardParm.class);
+            checkEligibilityResponse  = cardDetailService.checkDeviceEligibility(addCardParmpojo);
+        }catch (HCEValidationException addCardRequestValidation){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardRequestValidation);
+            throw addCardRequestValidation;
+        }catch (HCEActionException addCardHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardHceActionException);
+            throw addCardHceActionException;
+        }catch (Exception addCardExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", addCardExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return checkEligibilityResponse;
     }
 
     @ResponseBody
     @RequestMapping(value = "/continueDigitization", method = RequestMethod.POST)
-    public AddCardResponse continueDigitization(@RequestBody DigitizationParam digitizationParam) {
-        return cardDetailService.addCard(digitizationParam);
+    @ServiceFlowStep("paymentApp")
+    public  Map<String, Object> continueDigitization(@RequestBody String digitizationParam) {
+        DigitizationParam digitizationParamPojo = null;
+        Map <String,Object>continueDigitizationResponse= null;
+        try{
+            digitizationParamPojo = (DigitizationParam) hCEControllerSupport.requestFormation(digitizationParam,DigitizationParam.class);
+            continueDigitizationResponse = cardDetailService.addCard(digitizationParamPojo);
+        }catch (HCEValidationException continueDigitizationRequestValidation){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
+            throw continueDigitizationRequestValidation;
+        }catch (HCEActionException continueDigitizationHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
+            throw continueDigitizationHceActionException;
+        }catch (Exception continueDigitizationExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return continueDigitizationResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/tokenize", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public  Map<String, Object> tokenize(@RequestBody String tokenizeRequest) {
+       TokenizeRequest tokenizeRequestPojo= null;
+        Map <String,Object>tokenizeResponse= null;
+        try{
+            tokenizeRequestPojo = (TokenizeRequest) hCEControllerSupport.requestFormation(tokenizeRequest,TokenizeRequest.class);
+            tokenizeResponse = cardDetailService.tokenize(tokenizeRequestPojo);
+        }catch (HCEValidationException continueDigitizationRequestValidation){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
+            throw continueDigitizationRequestValidation;
+        }catch (HCEActionException continueDigitizationHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
+            throw continueDigitizationHceActionException;
+        }catch (Exception continueDigitizationExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return tokenizeResponse;
     }
 
     @RequestMapping(value = "/mdes/digitization/1/0/asset", method = RequestMethod.GET)
@@ -52,8 +108,25 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/activate", method = RequestMethod.POST)
-    public ActivateResp activate(@RequestBody ActivateReq activateReq) {
-        return cardDetailService.activate(activateReq);
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> activate(@RequestBody String activateReq) {
+        ActivateReq activateReqPojo = null;
+        Map <String,Object>activateResponse= null;
+        try{
+            activateReqPojo = (ActivateReq) hCEControllerSupport.requestFormation(activateReq,ActivateReq.class);
+            activateResponse =cardDetailService.activate(activateReqPojo);
+        }
+        catch (HCEValidationException continueDigitizationRequestValidation){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
+            throw continueDigitizationRequestValidation;
+        }catch (HCEActionException continueDigitizationHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
+            throw continueDigitizationHceActionException;
+        }catch (Exception continueDigitizationExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return activateResponse;
     }
 
     @ResponseBody

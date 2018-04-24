@@ -290,9 +290,6 @@
             <column name="CREATED_BY" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="CLIENT_DEVICE_ID" type="VARCHAR2(255)">
-                <constraints nullable="true"/>
-            </column>
 
             <column name="SERVICE_TYPE" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
@@ -304,9 +301,26 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_AUDIT_TRAIL" tableName="AUDIT_TRAIL" />
     </changeSet>
 
+    <changeSet author="tanmay.p" id="201701091465">
+        <addColumn tableName="AUDIT_TRAIL">
+            <column name="CLIENT_DEVICE_ID" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201701091400">
+        <addColumn tableName="AUDIT_TRAIL">
+            <column name="TOTAL_TIME_TAKEN" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 
     <changeSet author="tanmay.p" id="sqlFileInsert">
         <sqlFile path="dbChangelog\mdes-vts.sql"/>
     </changeSet>
 
 </databaseChangeLog>
+
+

@@ -17,6 +17,7 @@ import java.net.URL;
  */
 @Component
 public class HttpClintImpl implements HttpClint {
+
     @Autowired
     private Environment env;
 

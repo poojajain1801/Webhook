@@ -14,7 +14,7 @@ public class ServerConfig {
     //public static final String CMSD_IP = "http://192.168.1.3";
     //public static final String CMSD_IP = "http://172.19.2.24";
     public static final String CMSD_IP = "http://localhost";
-    public static final String CMSD_PORT = "9099";
+    public static final String CMSD_PORT = "7004";
     public static final String TDS_PATH = "/mdes/tds/1/0";
     public static final String RESPONSE_HOST = "com.mahindracomviva.payappserver";
 }

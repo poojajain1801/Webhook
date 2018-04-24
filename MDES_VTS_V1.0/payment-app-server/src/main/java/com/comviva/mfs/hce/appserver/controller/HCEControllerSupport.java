@@ -166,7 +166,7 @@ public class HCEControllerSupport {
 
 
     public  void maintainAudiTrail(String userId,String clientDeviceID, String url, String responseCode,String request,
-                                               String response){
+                                               String response,String totalTime){
         AuditTrail auditTrail = null;
         try{
             LOGGER.debug("Enter HCEControllerSupport->maintainAudiTrail");
@@ -189,6 +189,10 @@ public class HCEControllerSupport {
             }
             if(url!=null && !url.isEmpty()){
                 auditTrail.setServiceType(url);
+            }
+            if(totalTime!=null && !totalTime.isEmpty())
+            {
+                auditTrail.setTotalTimeTaken(totalTime);
             }
             auditTrailRepository.save(auditTrail);
             LOGGER.debug("Exit HCEControllerSupport->maintainAudiTrail");

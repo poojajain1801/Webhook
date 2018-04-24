@@ -9,14 +9,11 @@ import java.lang.reflect.Array;
 @Getter
 @Setter
 public class UnRegisterReq {
-    private String paymentAppInstanceId;
-    private String clientDeviceID;
+
     private String imei;
     private String userId;
 
-    public UnRegisterReq(String paymentAppInstanceId, String clientDeviceID, String imei, String userId) {
-        this.paymentAppInstanceId = paymentAppInstanceId;
-        this.clientDeviceID = clientDeviceID;
+    public UnRegisterReq(String imei, String userId) {
         this.imei = imei;
         this.userId = userId;
     }

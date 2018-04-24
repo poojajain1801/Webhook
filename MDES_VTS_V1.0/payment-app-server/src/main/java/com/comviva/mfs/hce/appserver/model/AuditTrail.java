@@ -28,6 +28,9 @@ public class AuditTrail implements Serializable {
 	@Column(name="CLIENT_DEVICE_ID")
 	private String clientDeviceId;
 
+	@Column(name="TOTAL_TIME_TAKEN")
+	private String totalTimeTaken;
+
 	@Column(name="CREATED_ON")
 	private Timestamp createdOn;
 
@@ -109,4 +112,8 @@ public class AuditTrail implements Serializable {
 	public void setClientDeviceId(String clientDeviceId) {
 		this.clientDeviceId = clientDeviceId;
 	}
+
+	public String getTotalTimeTaken() { return totalTimeTaken;	}
+
+	public void setTotalTimeTaken(String totalTimeTaken) { this.totalTimeTaken = totalTimeTaken;	}
 }

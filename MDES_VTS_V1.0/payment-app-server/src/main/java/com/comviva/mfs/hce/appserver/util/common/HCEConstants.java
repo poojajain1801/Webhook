@@ -29,6 +29,12 @@ public class HCEConstants {
     /** The Constant SUSUPEND. */
     public static final String SUSUPEND = "S";
 
+    /** The Constant SUSUPEND. */
+    public static final String SUSUPEND_USER = "SUSPENDUSER";
+    /** The Constant SUSUPEND. */
+    public static final String DELETE_USER = "DELETEUSER";
+    /** The Constant SUSUPEND. */
+    public static final String UNSUSPEND_USER = "UNSUSPENDUSER";
 
     /** The Constant INITIATE. */
     public static final String INITIATE = "I";

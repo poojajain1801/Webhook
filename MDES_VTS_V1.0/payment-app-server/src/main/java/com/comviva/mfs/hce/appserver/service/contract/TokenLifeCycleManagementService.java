@@ -11,5 +11,5 @@ public interface TokenLifeCycleManagementService {
     Map<String,Object>getPaymentDataGivenTokenID( GetPaymentDataGivenTokenIDRequest getPaymentDataGivenTokenIDRequest);
     Map<String,Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest);
     Map<String,Object>lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest);
-   public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest);
+    public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest);
 }

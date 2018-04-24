@@ -47,8 +47,12 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private final HCEControllerSupport hceControllerSupport;
     private final DeviceRegistrationMdes deviceRegistrationMdes;
     private final EnrollDeviceVts enrollDeviceVts;
+
     @Autowired
     private Environment env;
+
+    @Autowired
+    private HitMasterCardService hitMasterCardService;
 
     @Autowired
     public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,CardDetailRepository cardDetailRepository ) {
@@ -108,7 +112,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
                 devRegRespMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
-                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.STATUS_CODE).toString();
+                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString();
                 // If registration fails for MDES return error
                 if (!HCEMessageCodes.getSUCCESS().equalsIgnoreCase(respCodeMdes)) {
                     mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.STATUS_CODE).toString());
@@ -191,6 +195,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         String userID = null;
         String imei = null;
         DeviceInfo deviceInfo;
+        String paymentAppInstanceID = null;
+        JSONObject requestJson = null;
+        ResponseEntity responseEntitye = null;
+        String url = null;
 
         try {
             userID = unRegisterReq.getUserId();
@@ -205,10 +213,31 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
 
+            //Hit master card for the device unregister
+            //TODO: Retrive the payment app instance in from the device info table
 
+            requestJson = new JSONObject();
+            requestJson.put("responseHost","Wallet.mahindracomviva.com");
+            requestJson.put("requestId","12344");
+            requestJson.put("paymentAppInstanceId",paymentAppInstanceID);
+            url = "https:"+ServerConfig.MDES_IP+ServerConfig.MDES_PORT+"mdes"+"mpamanagement"+"1/0"+"/unregister";
+            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST");
+
+            if (responseEntitye == null || responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7)
+            {
+                //throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+                LOGGER.error("Master card unRegister .....failed");
+            }
+            /*
+            * Get all the imei number for the user id
+            * Update the status for all the IMEI number
+            * Get the FCM registration id for all the IMEI
+            * Send remote notification for to all the device*/
 
             //userid and imei and status
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
+
+
             if(deviceInfo!=null)
             {
                 cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
@@ -218,6 +247,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }else
             {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
+
             }
 
 

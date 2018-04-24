@@ -103,6 +103,7 @@ public class HitVisaServices extends VtsRequest {
 
             restTemplate = new RestTemplate(requestFactory);
 
+            //Restrict spring boot from adding extra header of its own.
             StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
             stringHttpMessageConverter.setWriteAcceptCharset(false);
             restTemplate.getMessageConverters().add(0, stringHttpMessageConverter);

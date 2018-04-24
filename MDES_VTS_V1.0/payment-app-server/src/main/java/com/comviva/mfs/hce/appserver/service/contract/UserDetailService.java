@@ -9,4 +9,5 @@ import java.util.Map;
  */
 public interface UserDetailService {
     Map<String,Object>registerUser(RegisterUserRequest registerUserRequest);
+    Map<String,Object>userLifecycleManagement(UserLifecycleManagementReq userLifecycleManagementReq);
 }

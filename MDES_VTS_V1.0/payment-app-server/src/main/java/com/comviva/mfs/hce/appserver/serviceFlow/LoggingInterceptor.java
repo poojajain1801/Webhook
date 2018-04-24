@@ -60,14 +60,16 @@ public class LoggingInterceptor {
             responseData = hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }finally {
             MDC.remove(HCEConstants.START_TIME);
+
+            final long endTime = System.currentTimeMillis();
+            final long totalTime = endTime - startTime;
+
             if (null != responseData) {
                 responseCode = (String) responseData.get(HCEConstants.RESPONSE_CODE);
             }
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
-                hceControllerSupport.maintainAudiTrail(requestId,clientDeviceId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData));
+                hceControllerSupport.maintainAudiTrail(requestId,clientDeviceId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData),String.valueOf(totalTime));
             }
-            final long endTime = System.currentTimeMillis();
-            final long totalTime = endTime - startTime;
             HCEUtil.writeHCELog(totalTime,responseCode,requestId,requestData, HCEUtil.getJsonStringFromMap(responseData));
         }
         return responseData;

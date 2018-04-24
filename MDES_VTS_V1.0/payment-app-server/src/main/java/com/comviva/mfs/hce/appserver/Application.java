@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.WebApplicationInitializer;
 
 /**
@@ -40,6 +41,7 @@ import org.springframework.web.WebApplicationInitializer;
 @EnableEncryptableProperties
 @EnableAutoConfiguration
 @EntityScan(basePackages = "com.comviva.mfs.hce.appserver.*")
+@EnableAsync
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer{
 
 

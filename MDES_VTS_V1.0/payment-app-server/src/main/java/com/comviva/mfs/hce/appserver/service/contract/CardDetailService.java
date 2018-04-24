@@ -10,10 +10,11 @@ import java.util.Map;
  * Created by Tanmay.Patel on 1/8/2017.
  */
 public interface CardDetailService {
-    AddCardResponse checkDeviceEligibility(AddCardParm addCardParm);
-    AddCardResponse addCard(DigitizationParam digitizationParam);
+    Map<String, Object> checkDeviceEligibility(AddCardParm addCardParm);
+    Map<String, Object>  addCard(DigitizationParam digitizationParam);
+    Map<String, Object>  tokenize(TokenizeRequest tokenizeRequest);
     Asset getAsset(String assetId);
-    ActivateResp activate(ActivateReq activateReq);
+    Map<String, Object> activate(ActivateReq activateReq);
     Map<String, Object> enrollPan(EnrollPanRequest enrollPanRequest);
     Map<String,Object> getCardMetadata(GetCardMetadataRequest getCardMetadataRequest);
     Map<String,Object>getContent(GetContentRequest getContentRequest);

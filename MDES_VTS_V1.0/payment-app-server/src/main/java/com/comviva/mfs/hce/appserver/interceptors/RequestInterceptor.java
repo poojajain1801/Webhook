@@ -51,7 +51,7 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
         String url = request.getRequestURI();
 
         if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
-            hceControllerSupport.maintainAudiTrail(null,null,url,responseCode,requestObject,responseObject);
+            hceControllerSupport.maintainAudiTrail(null,null,url,responseCode,requestObject,responseObject,null);
         }
 
 

@@ -176,4 +176,27 @@ public class HCEMessageCodes {
     public static String getFailedAtThiredParty() {
         return FAILED_AT_THIRED_PARTY;
     }
+
+    /** The Constant INVAILD_PAYMENTAPP_INSTANCE_ID */
+    private static String INVAILD_PAYMENTAPP_INSTANCE_ID;
+    @Value("${INVAILD_PAYMENTAPP_INSTANCE_ID}")
+    public static void setInvaildPaymentappInstanceId(String invaildPaymentappInstanceId) {
+        INVAILD_PAYMENTAPP_INSTANCE_ID = invaildPaymentappInstanceId;
+    }
+    public static String getInvaildPaymentappInstanceId() {
+        return INVAILD_PAYMENTAPP_INSTANCE_ID;
+    }
+
+
+    /** The Constant CARD_NOT_ELIGIBLE*/
+    private static String CARD_NOT_ELIGIBLE;
+    @Value("${CARD_NOT_ELIGIBLE}")
+    public static void setCardNotEligible(String cardNotEligible) {
+        CARD_NOT_ELIGIBLE = cardNotEligible;
+    }
+    public static String getCardNotEligible() {
+        return CARD_NOT_ELIGIBLE;
+    }
+
+
 }

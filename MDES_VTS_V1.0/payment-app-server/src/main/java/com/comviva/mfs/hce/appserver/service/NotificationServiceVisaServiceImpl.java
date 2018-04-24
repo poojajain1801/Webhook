@@ -215,9 +215,17 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         {
             //Return Invalid apiKey
         }
+        //is.txnnotification.requires
+
         String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
+           /* if(env.getProperty("is.txnnotification.requires").equals("N"))
+            {
+                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate->Not supported" );
+                return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+
+            }*/
             RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
             rnsGenericRequest.setIdType(UniqueIdType.VTS);
             rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));

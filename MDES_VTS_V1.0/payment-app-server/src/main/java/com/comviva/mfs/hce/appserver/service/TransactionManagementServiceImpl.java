@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
@@ -116,6 +117,27 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
+
+    public Map<String, Object> pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq) {
+
+        try{
+            //Validate the token unique reference
+            //Send remote notification to the device
+
+            hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+        }catch (HCEActionException tokenizeHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->addCard", tokenizeHCEactionException);
+            throw tokenizeHCEactionException;
+
+        } catch (Exception tokenizeException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->addCard", tokenizeException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return null;
+
+    }
+
 
 
 }

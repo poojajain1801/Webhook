@@ -18,4 +18,9 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (nul
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card details not exist ','707','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Request failed at third party ','708','1');
 
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Invalid Paymentapp Instance ID ','2000','1');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card is not eligible for digitization ','2001','1');
+
+
+
 

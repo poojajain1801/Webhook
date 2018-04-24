@@ -62,5 +62,32 @@ public class UserRegistrationController {
         return registerUser;
     }
 
+    @ServiceFlowStep("paymentApp")
+    @ResponseBody
+    @RequestMapping(value = "/userLifecycleManagement", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String,Object> userLifecycleManagement(@RequestBody String userLifecycleManagementRequest){
+        Map<String,Object> userLifecycleManagementResp = null;
+        UserLifecycleManagementReq userLifecycleManagementPojo = null;
+        try{
+            userLifecycleManagementPojo =(UserLifecycleManagementReq) hCEControllerSupport.requestFormation(userLifecycleManagementRequest,UserLifecycleManagementReq.class);
+            userLifecycleManagementResp = userDetailService.userLifecycleManagement(userLifecycleManagementPojo);
+            LOGGER.debug("Exit UserRegistrationController->registerUser");
+        }catch (HCEValidationException registerUserValidationException){
+            LOGGER.error("Exception Occured in  UserRegistrationController->registerUser",registerUserValidationException);
+            throw registerUserValidationException;
+        }catch (HCEActionException regUserHCEActionException){
+            LOGGER.error("Exception Occured in Enter UserRegistrationController->registerUser",regUserHCEActionException);
+            throw regUserHCEActionException;
+        }catch (Exception regUserException) {
+            LOGGER.error(" Exception Occured in Enter UserRegistrationController->registerUser", regUserException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+
+        return userLifecycleManagementResp;
+    }
+
+
+
 
 }
