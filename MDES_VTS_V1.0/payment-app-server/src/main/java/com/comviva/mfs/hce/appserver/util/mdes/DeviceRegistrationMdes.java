@@ -30,9 +30,9 @@ public class DeviceRegistrationMdes {
     public Environment env;
 
     @Autowired
-    HttpClint httpClint;
+    private HttpClint httpClint;
     @Autowired
-    HitMasterCardService hitMasterCardService;
+    private HitMasterCardService hitMasterCardService;
 
     private final HCEControllerSupport hceControllerSupport;
 
@@ -95,7 +95,7 @@ public class DeviceRegistrationMdes {
         String responseCode = null;
         try {
             response = registerDeviceWithCMSD(enrollDeviceRequest);
-            if (response != null || !response.isEmpty()) {
+            if (null != response) {
                 jsonResponse = new JSONObject(response);
                 if (jsonResponse.has("message"))
                 {

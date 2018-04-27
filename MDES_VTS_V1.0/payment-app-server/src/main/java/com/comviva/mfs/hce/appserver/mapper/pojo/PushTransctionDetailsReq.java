@@ -8,7 +8,7 @@ private List<Transactions> transactions;
 
     public PushTransctionDetailsReq(String requestId, List<Transactions> transactions) {
         this.requestId = requestId;
-        this.transactions = transactions;
+        this.transactions = (transactions);
     } public PushTransctionDetailsReq() {
 
     }
@@ -18,6 +18,6 @@ private List<Transactions> transactions;
     }
 
     public List<Transactions> getTransactions() {
-        return transactions;
+        return (transactions);
     }
 }

@@ -38,7 +38,6 @@ import sun.rmi.runtime.Log;
 public class UserDetailServiceImpl implements UserDetailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDetailServiceImpl.class);
-
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
@@ -49,7 +48,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
     @Autowired
-    PerformUserLifecycle performLCMobj;
+    private PerformUserLifecycle performLCMobj;
     private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
     @Autowired
     public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport,CardDetailRepository cardDetailRepository) {

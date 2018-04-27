@@ -303,7 +303,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     public Map<String,Object> tokenize (TokenizeRequest tokenizeRequest)
     {
-        JSONObject requestJson = null;
+        JSONObject requestJson = new JSONObject();
         String url = null;
         ResponseEntity responseEntity = null;
         String response = null;
@@ -386,7 +386,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         ResponseEntity responseEntity = null;
         String url = null;
         String response = null;
-        JSONObject jsRespMdes = null;
+        JSONObject jsRespMdes = new JSONObject();
         try {
             reqMdes  = new JSONObject();
             reqMdes.put("responseHost", "com.mahindracomviva.payAppServer");
