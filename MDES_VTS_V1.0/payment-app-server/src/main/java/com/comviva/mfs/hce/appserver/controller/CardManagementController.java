@@ -42,9 +42,6 @@ public class CardManagementController {
         try{
             addCardParmpojo =(AddCardParm) hCEControllerSupport.requestFormation(addCardParm,AddCardParm.class);
             checkEligibilityResponse  = cardDetailService.checkDeviceEligibility(addCardParmpojo);
-        }catch (HCEValidationException addCardRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardRequestValidation);
-            throw addCardRequestValidation;
         }catch (HCEActionException addCardHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardHceActionException);
             throw addCardHceActionException;
@@ -64,9 +61,6 @@ public class CardManagementController {
         try{
             digitizationParamPojo = (DigitizationParam) hCEControllerSupport.requestFormation(digitizationParam,DigitizationParam.class);
             continueDigitizationResponse = cardDetailService.addCard(digitizationParamPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
