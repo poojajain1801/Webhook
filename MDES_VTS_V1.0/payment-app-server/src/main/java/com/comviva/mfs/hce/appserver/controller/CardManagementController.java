@@ -204,7 +204,8 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
     public Map unregisterFromTds(@RequestBody Map unregisterTdsReq) {
-        return cardDetailService.unregisterTds(unregisterTdsReq);
+        Map <String, Object> unregisterTdsResp = cardDetailService.unregisterTds(unregisterTdsReq);
+        return unregisterTdsResp;
     }
 
 
