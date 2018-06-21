@@ -42,9 +42,6 @@ public class CardManagementController {
         try{
             addCardParmpojo =(AddCardParm) hCEControllerSupport.requestFormation(addCardParm,AddCardParm.class);
             checkEligibilityResponse  = cardDetailService.checkDeviceEligibility(addCardParmpojo);
-        }catch (HCEValidationException addCardRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardRequestValidation);
-            throw addCardRequestValidation;
         }catch (HCEActionException addCardHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardHceActionException);
             throw addCardHceActionException;
@@ -64,9 +61,6 @@ public class CardManagementController {
         try{
             digitizationParamPojo = (DigitizationParam) hCEControllerSupport.requestFormation(digitizationParam,DigitizationParam.class);
             continueDigitizationResponse = cardDetailService.addCard(digitizationParamPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -87,9 +81,6 @@ public class CardManagementController {
         try{
             tokenizeRequestPojo = (TokenizeRequest) hCEControllerSupport.requestFormation(tokenizeRequest,TokenizeRequest.class);
             tokenizeResponse = cardDetailService.tokenize(tokenizeRequestPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -115,10 +106,6 @@ public class CardManagementController {
         try{
             activateReqPojo = (ActivateReq) hCEControllerSupport.requestFormation(activateReq,ActivateReq.class);
             activateResponse =cardDetailService.activate(activateReqPojo);
-        }
-        catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -139,9 +126,6 @@ public class CardManagementController {
         try{
             enrollPanRequestPojo =(EnrollPanRequest) hCEControllerSupport.requestFormation(enrollPanRequest,EnrollPanRequest.class);
             enrollPanResponse = cardDetailService.enrollPan(enrollPanRequestPojo);
-        }catch (HCEValidationException enrollPanRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanRequestValidation);
-            throw enrollPanRequestValidation;
         }catch (HCEActionException enrollPanHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
             throw enrollPanHceActionException;
@@ -220,7 +204,8 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
     public Map unregisterFromTds(@RequestBody Map unregisterTdsReq) {
-        return cardDetailService.unregisterTds(unregisterTdsReq);
+        Map <String, Object> unregisterTdsResponse = cardDetailService.unregisterTds(unregisterTdsReq);
+        return unregisterTdsResponse;
     }
 
 

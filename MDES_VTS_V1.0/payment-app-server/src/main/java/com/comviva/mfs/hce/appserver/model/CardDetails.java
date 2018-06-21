@@ -99,7 +99,7 @@ public class CardDetails implements Serializable {
     }
 
     public Timestamp getCreatedOn() {
-        return this.createdOn;
+        return (this.createdOn);
     }
 
     public void setCreatedOn(Timestamp createdOn) {
@@ -131,7 +131,7 @@ public class CardDetails implements Serializable {
     }
 
     public Timestamp getModifiedOn() {
-        return this.modifiedOn;
+        return (this.modifiedOn);
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
@@ -147,7 +147,7 @@ public class CardDetails implements Serializable {
     }
 
     public Timestamp getReplenishOn() {
-        return this.replenishOn;
+        return (this.replenishOn);
     }
 
     public void setReplenishOn(Timestamp replenishOn) {
