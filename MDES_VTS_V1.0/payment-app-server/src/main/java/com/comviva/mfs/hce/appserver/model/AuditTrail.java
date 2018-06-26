@@ -1,9 +1,11 @@
 package com.comviva.mfs.hce.appserver.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import sun.rmi.runtime.Log;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 
