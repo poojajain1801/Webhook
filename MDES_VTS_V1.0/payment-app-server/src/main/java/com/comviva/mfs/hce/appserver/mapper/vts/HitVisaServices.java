@@ -153,7 +153,6 @@ public class HitVisaServices extends VtsRequest {
             int statusCode = 0;
             if(response!=null){
                 statusCode = response.getStatusCode().value();
-
             }
             if(null !=response) {
                 HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()));
@@ -161,6 +160,4 @@ public class HitVisaServices extends VtsRequest {
         }
         return response;
     }
-
-
 }

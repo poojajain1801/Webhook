@@ -13,6 +13,7 @@ public class VtsCerts {
 
     private String  vCertificateID;
     private String  certUsage;
+
     public VtsCerts(String vCertificateID,String certUsage) {
 
         this.vCertificateID=vCertificateID;

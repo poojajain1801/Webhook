@@ -5,10 +5,7 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
@@ -20,6 +17,7 @@ import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import org.json.JSONObject;
@@ -220,13 +218,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             requestJson.put("responseHost","Wallet.mahindracomviva.com");
             requestJson.put("requestId","12344");
             requestJson.put("paymentAppInstanceId",paymentAppInstanceID);
-            url = "https:"+ServerConfig.MDES_IP+ServerConfig.MDES_PORT+"mdes"+"mpamanagement"+"1/0"+"/unregister";
+            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport")+ env.getProperty("digitization")+"/unregister";
             responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST");
-
-            if (responseEntitye == null || responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7)
+            if (responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7)
             {
-                //throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-                LOGGER.error("Master card unRegister .....failed");
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
             /*
             * Get all the imei number for the user id
@@ -266,6 +262,43 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         }
 
         return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+    }
+
+    public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfo) {
+        String paymentAppInstanceId = getDeviceInfo.getPaymentAppInstanceId();
+        String tokenUniqueReference = getDeviceInfo.getTokenUniqueReference();
+        HitMasterCardService hitMasterCardService = new HitMasterCardService();
+        JSONObject reqMdes = new JSONObject();
+        ResponseEntity responseMdes ;
+        JSONObject jsonResponse = null;
+        String response = null;
+        String url=null ;
+        try {
+            reqMdes.put("paymentAppInstanceId", paymentAppInstanceId);
+            reqMdes.put("tokenUniqueReference", tokenUniqueReference);
+            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + env.getProperty("digitizationpath") + "/getDeviceInfo" ;
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST");
+
+            if (responseMdes.hasBody()) {
+                response = String.valueOf(responseMdes.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if(responseMdes.getStatusCode().value()==HCEConstants.REASON_CODE7) {
+                hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+            }
+            else{
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+        } catch (HCEActionException getDeviceInfoHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->activate", getDeviceInfoHCEactionException);
+            throw getDeviceInfoHCEactionException;
+
+        } catch (Exception getDeviceInfoException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", getDeviceInfoException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return JsonUtil.jsonToMap(jsonResponse);
     }
 
 }

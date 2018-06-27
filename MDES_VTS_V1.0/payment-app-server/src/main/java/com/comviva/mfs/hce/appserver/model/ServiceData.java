@@ -51,7 +51,7 @@ public class ServiceData implements Serializable {
     }
 
     public byte[] getRequest() {
-        return (this.request);
+        return this.request;
     }
 
     public void setRequest(byte[] request) {
@@ -59,7 +59,7 @@ public class ServiceData implements Serializable {
     }
 
     public byte[] getResponse() {
-        return (this.response);
+        return this.response;
     }
 
     public void setResponse(byte[] response) {

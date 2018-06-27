@@ -34,6 +34,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 
@@ -54,30 +55,30 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
 
     @Autowired
-    public ProvisionManagementServiceImpl(UserDetailService userDetailService,UserDetailRepository userDetailRepository,
-                                          DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport,
+    public ProvisionManagementServiceImpl(UserDetailService userDetailService, UserDetailRepository userDetailRepository,
+                                          DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport,
                                           CardDetailRepository cardDetailRepository) {
         this.userDetailService = userDetailService;
-        this.userDetailRepository=userDetailRepository;
-        this.deviceDetailRepository=deviceDetailRepository;
+        this.userDetailRepository = userDetailRepository;
+        this.deviceDetailRepository = deviceDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
         this.cardDetailRepository = cardDetailRepository;
     }
 
-    public Map<String, Object> ProvisionTokenGivenPanEnrollmentId (ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest) {
+    public Map<String, Object> ProvisionTokenGivenPanEnrollmentId(ProvisionTokenGivenPanEnrollmentIdRequest provisionTokenGivenPanEnrollmentIdRequest) {
         //Calculate Email Hash
         String emailAdress = null;
         String emailHash = "";
         JSONObject reqest = new JSONObject();
         JSONArray presentationType = new JSONArray();
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
+        HitVisaServices hitVisaServices = null;
+        JSONObject jsonResponse = null;
+        ResponseEntity responseEntity = null;
         String response = null;
-       // VisaCardDetails visaCardDetails= null;
+        // VisaCardDetails visaCardDetails= null;
 
         CardDetails cardDetails = null;
-        Map<String,Object> responseMap = null;
+        Map<String, Object> responseMap = null;
         List<CardDetails> cardDetailsList = null;
 
         String vPanEnrollmentID = null;
@@ -111,21 +112,20 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             hitVisaServices = new HitVisaServices(env);
 
             vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
-            clientDeviceID =  provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID();
-            cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID,clientDeviceID,HCEConstants.INITIATE);
-            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+            clientDeviceID = provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID();
+            cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID, clientDeviceID, HCEConstants.INITIATE);
+            if (cardDetailsList != null && !cardDetailsList.isEmpty()) {
                 cardDetails = cardDetailsList.get(0);
-            }else{
+            } else {
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
 
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens" + "?apiKey=" + env.getProperty("apiKey");
             String resourcePath = "vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens";
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, reqest.toString(), resourcePath, "POST");
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
-                LOGGER.debug("Provison Response from VTS = "+response);
+                LOGGER.debug("Provison Response from VTS = " + response);
                 jsonResponse = new JSONObject(response);
             }
             if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
@@ -143,18 +143,16 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 //cardDetails.setStatus(HCEConstants.ACTIVE);
                 cardDetailRepository.save(cardDetails);
-                if (null !=jsonResponse) {
+                if (null != jsonResponse) {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
-                if(null != responseMap) {
+                if (null != responseMap) {
                     responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                     responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 }
 
                 return responseMap;
-            }
-            else
-            {
+            } else {
                 Map errorMap = new LinkedHashMap();
                 if (null != jsonResponse) {
                     errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
@@ -166,31 +164,28 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }catch(HCEActionException provisionHCEActionException){
+        } catch (HCEActionException provisionHCEActionException) {
             LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionHCEActionException);
             throw provisionHCEActionException;
 
-        }catch(Exception provisionException){
+        } catch (Exception provisionException) {
             LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }
 
 
-
-
-
     @Transactional
-    public Map<String, Object> ConfirmProvisioning (ConfirmProvisioningRequest confirmProvisioningRequest) {
+    public Map<String, Object> ConfirmProvisioning(ConfirmProvisioningRequest confirmProvisioningRequest) {
 
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning");
         String provisonStatus = confirmProvisioningRequest.getProvisioningStatus();
         String failureReason = confirmProvisioningRequest.getFailureReason();
         String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenId();
         JSONObject requestMap = new JSONObject();
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
+        HitVisaServices hitVisaServices = null;
+        JSONObject jsonResponse = null;
+        ResponseEntity responseEntity = null;
         String response = null;
         List<CardDetails> cardDetailsList = null;
         CardDetails cardDetails = null;
@@ -198,7 +193,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             requestMap.put("api", confirmProvisioningRequest.getApi());
             requestMap.put("provisioningStatus", provisonStatus);
 
-            if ( provisonStatus.equalsIgnoreCase(HCEConstants.FAILURE) && (!(failureReason.equalsIgnoreCase(HCEConstants.NULL)) || (failureReason.isEmpty())))
+            if (provisonStatus.equalsIgnoreCase(HCEConstants.FAILURE) && (!(failureReason.equalsIgnoreCase(HCEConstants.NULL)) || (failureReason.isEmpty())))
                 requestMap.put("failureReason", confirmProvisioningRequest.getFailureReason());
 
             hitVisaServices = new HitVisaServices(env);
@@ -211,17 +206,16 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning->Update card status to Active");
             cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenId());
-            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+            if (cardDetailsList != null && !cardDetailsList.isEmpty()) {
                 cardDetails = cardDetailsList.get(0);
-            }else{
+            } else {
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
 
             cardDetails.setStatus(HCEConstants.ACTIVE);
             cardDetailRepository.save(cardDetails);
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
             }
@@ -233,9 +227,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
-            }
-            else
-            {
+            } else {
                 Map errorMap = new LinkedHashMap();
                 if (null != jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
@@ -247,20 +239,20 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }catch (Exception e) {
-            LOGGER.error("Exception occured",e);
+        } catch (Exception e) {
+            LOGGER.error("Exception occured", e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ConfirmProvisioning");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
 
-    public Map<String, Object> ProvisionTokenWithPanData (ProvisionTokenWithPanDataRequest provisionTokenWithPanDataRequest) {
+    public Map<String, Object> ProvisionTokenWithPanData(ProvisionTokenWithPanDataRequest provisionTokenWithPanDataRequest) {
 
 
-        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(provisionTokenWithPanDataRequest.getUserId(), HCEConstants.ACTIVE);
-        if(userDetails == null){
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
+        List<UserDetail> userDetails = userDetailRepository.findByUserIdAndStatus(provisionTokenWithPanDataRequest.getUserId(), HCEConstants.ACTIVE);
+        if (userDetails == null) {
+            Map<String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
             return response;
         }
 
@@ -270,7 +262,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         map.add("clientAppID", provisionTokenWithPanDataRequest.getClientAppID());
         map.add("clientWalletAccountID", provisionTokenWithPanDataRequest.getClientWalletAccountID());
         map.add("ip4address", provisionTokenWithPanDataRequest.getIp4address());
-        map.add("location",provisionTokenWithPanDataRequest.getLocation());
+        map.add("location", provisionTokenWithPanDataRequest.getLocation());
         map.add("local", provisionTokenWithPanDataRequest.getLocal());
         map.add("issuerAuthCode", provisionTokenWithPanDataRequest.getIssuerAuthCode());
         map.add("emailAddressHash", provisionTokenWithPanDataRequest.getEmailAddressHash());
@@ -296,24 +288,24 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         // } catch (JsonProcessingException e) {
         //   e.printStackTrace();
         //}
-        HashMap<String,Object> result =null;
+        HashMap<String, Object> result = null;
         try {
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
+            result = new ObjectMapper().readValue(response, HashMap.class);
         } catch (IOException e) {
-            LOGGER.error("Exception occured" +e);
+            LOGGER.error("Exception occured" + e);
         }
         return result;
     }
 
-    public Map<String, Object> ActiveAccountManagementReplenish (ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
+    public Map<String, Object> ActiveAccountManagementReplenish(ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
         //TODO:Check vProvisonID is valid or not
 
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
         String vProvisionedTokenID = "";
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
+        HitVisaServices hitVisaServices = null;
+        JSONObject jsonResponse = null;
+        ResponseEntity responseEntity = null;
         String response = null;
         JSONObject requestMap = new JSONObject();
         JSONObject signature = new JSONObject();
@@ -324,29 +316,27 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         Map responseMap = new LinkedHashMap();
         List tvlData = activeAccountManagementReplenishRequest.getTvl();
 
-        try{
+        try {
 
-            signature.put("mac",activeAccountManagementReplenishRequest.getMac());
-            requestMap.put("signature" ,signature);
-            dynParams.put("api",activeAccountManagementReplenishRequest.getApi());
-            dynParams.put("sc",activeAccountManagementReplenishRequest.getSc());
+            signature.put("mac", activeAccountManagementReplenishRequest.getMac());
+            requestMap.put("signature", signature);
+            dynParams.put("api", activeAccountManagementReplenishRequest.getApi());
+            dynParams.put("sc", activeAccountManagementReplenishRequest.getSc());
 
-            for(int i=0;i<tvlData.size();i++)
-            {
+            for (int i = 0; i < tvlData.size(); i++) {
                 tvl.put(tvlData.get(i));
             }
-            dynParams.put("tvl",tvl);
-            hceData.put("dynParams",dynParams);
-            tokenInfo.put("hceData",hceData);
-            requestMap.put("tokenInfo",tokenInfo);
+            dynParams.put("tvl", tvl);
+            hceData.put("dynParams", dynParams);
+            tokenInfo.put("hceData", hceData);
+            requestMap.put("tokenInfo", tokenInfo);
             vProvisionedTokenID = activeAccountManagementReplenishRequest.getVprovisionedTokenID();
             //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/replenish" + "?apiKey=" + env.getProperty("apiKey");
-            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/replenish";
+            String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/replenish";
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "POST");
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
                 responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
@@ -360,11 +350,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
 
-            }
-            else
-            {
+            } else {
                 Map errorMap = new LinkedHashMap();
-                if (null !=jsonResponse) {
+                if (null != jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
@@ -374,8 +362,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }catch (Exception e) {
-            LOGGER.error("Exception occured",e);
+        } catch (Exception e) {
+            LOGGER.error("Exception occured", e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
@@ -387,9 +375,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
         String vProvisionedTokenID = "";
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
+        HitVisaServices hitVisaServices = null;
+        JSONObject jsonResponse = null;
+        ResponseEntity responseEntity = null;
         String response = null;
         JSONObject requestMap = new JSONObject();
         JSONObject tokenInfo = new JSONObject();
@@ -398,22 +386,21 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONArray tvl = new JSONArray();
         Map responseMap = new LinkedHashMap();
 
-        try{
-            dynParams.put("api",activeAccountManagementConfirmReplenishmentRequest.getApi());
-            dynParams.put("sc",activeAccountManagementConfirmReplenishmentRequest.getSc());
-            hceData.put("dynParams",dynParams);
-            tokenInfo.put("hceData",hceData);
-            requestMap.put("tokenInfo",tokenInfo);
+        try {
+            dynParams.put("api", activeAccountManagementConfirmReplenishmentRequest.getApi());
+            dynParams.put("sc", activeAccountManagementConfirmReplenishmentRequest.getSc());
+            hceData.put("dynParams", dynParams);
+            tokenInfo.put("hceData", hceData);
+            requestMap.put("tokenInfo", tokenInfo);
 
             vProvisionedTokenID = activeAccountManagementConfirmReplenishmentRequest.getVprovisionedTokenID();
             //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmReplenishment" + "?apiKey=" + env.getProperty("apiKey");
-            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/confirmReplenishment";
+            String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/confirmReplenishment";
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
 
@@ -423,11 +410,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
-            }
-            else
-            {
+            } else {
                 Map errorMap = new LinkedHashMap();
-                if (null !=jsonResponse) {
+                if (null != jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
@@ -437,35 +422,34 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }
-        catch (Exception e) {
-            LOGGER.error("Exception occured",e);
+        } catch (Exception e) {
+            LOGGER.error("Exception occured", e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
     }
+
     public Map<String, Object> ReplenishODAData(ReplenishODADataRequest replenishODADataRequest) {
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ReplenishODAData");
         String vProvisionedTokenID = "";
-        HitVisaServices hitVisaServices =null;
-        JSONObject jsonResponse= null;
-        ResponseEntity responseEntity =null;
+        HitVisaServices hitVisaServices = null;
+        JSONObject jsonResponse = null;
+        ResponseEntity responseEntity = null;
         String response = null;
-        String  request = "";
+        String request = "";
         Map responseMap = new LinkedHashMap();
 
-        try{
+        try {
 
             vProvisionedTokenID = replenishODADataRequest.getVprovisionedTokenID();
             //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/replenishODA" + "?apiKey=" + env.getProperty("apiKey");
-            String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/replenishODA";
+            String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/replenishODA";
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "POST");
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
                 responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
@@ -479,10 +463,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
 
-            }            else
-            {
+            } else {
                 Map errorMap = new LinkedHashMap();
-                if (null !=jsonResponse) {
+                if (null != jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
@@ -492,143 +475,144 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
 
 
-        }
-        catch (Exception e) {
-            LOGGER.error("Exception occured",e);
+        } catch (Exception e) {
+            LOGGER.error("Exception occured", e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
 
     }
+
     public Map<String, Object> submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest) {
-
-        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(submitIDandVStepupMethodRequest.getUserId(),HCEConstants.ACTIVE);
-        if(userDetails== null){
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-
-
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("vProvisionedTokenID", submitIDandVStepupMethodRequest.getVProvisionedTokenID());
-        map.add("stepUpRequestID", submitIDandVStepupMethodRequest.getStepUpRequestID());
-        map.add("date", submitIDandVStepupMethodRequest.getDate());
-
-        ObjectMapper objectMapper = new ObjectMapper();
+        String stepUpRequestID = submitIDandVStepupMethodRequest.getStepUpRequestID();
+        String vProvisionedTokenID = submitIDandVStepupMethodRequest.getVProvisionedTokenID();
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        // response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
+        JSONObject reqJson = new JSONObject();
+        ResponseEntity responseVts = null;
+        JSONObject jsonResponse = null;
+        String response;
+        String resourcePath = null;
+        String url;
+        Map responseMap;
+        long unixTimestamp;
+        SimpleDateFormat dateFormat;
         try {
+            //check if the provision id is correct or not
+            unixTimestamp = Instant.now().getEpochSecond();
+            reqJson.put("stepUpRequestID", stepUpRequestID);
+            reqJson.put("date", unixTimestamp);
+            resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions/method";
+            url = env.getProperty("visaBaseUrlSandbox") + "/" + resourcePath + "?apiKey=" + env.getProperty("apiKey");
+            responseVts = hitVisaServices.restfulServiceConsumerVisa(url, reqJson.toString(), resourcePath, "PUT");
+            if (responseVts.hasBody()) {
+                response = String.valueOf(responseVts.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                responseMap = JsonUtil.jsonToMap(jsonResponse);
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            LOGGER.error("Exception occured" +e);
+            } else {
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+
+        } catch (HCEActionException searchTokensHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensHCEactionException);
+            throw searchTokensHCEactionException;
+        } catch (Exception searchTokensException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return result;
-    }
 
+        return responseMap;
+    }
 
     public Map<String, Object> validateOTP(ValidateOTPRequest validateOTPRequest) {
-        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(validateOTPRequest.getUserId(),HCEConstants.ACTIVE);
-        if(userDetails== null){
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("vProvisionedTokenID", validateOTPRequest.getVProvisionedTokenID());
-        map.add("otpValue", validateOTPRequest.getOtpValue());
-        map.add("date", validateOTPRequest.getDate());
-
-        ObjectMapper objectMapper = new ObjectMapper();
+        String vProvisionedTokenID = validateOTPRequest.getvProvisionedTokenID();
+        String otpValue = validateOTPRequest.getOtpValue();
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        // response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
+        JSONObject reqJson = new JSONObject();
+        ResponseEntity responseVts = null;
+        JSONObject jsonResponse = null;
+        Map responseMap;
+        String response;
+        String resourcePath = null;
+        String url;
+        long unixTimestamp;
         try {
+            unixTimestamp = Instant.now().getEpochSecond();
+            reqJson.put("otpValue", otpValue);
+            reqJson.put("date", unixTimestamp);
+            url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions/validateOTP" + "?apiKey=" + env.getProperty("apiKey");
+            resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions/validateOTP";
+            responseVts = hitVisaServices.restfulServiceConsumerVisa(url, reqJson.toString(), resourcePath, "POST");
+            if (responseVts.hasBody()) {
+                response = String.valueOf(responseVts.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                responseMap = JsonUtil.jsonToMap(jsonResponse);
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+            } else {
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            LOGGER.error("Exception occured" +e);
+        } catch (HCEActionException searchTokensHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensHCEactionException);
+            throw searchTokensHCEactionException;
+        } catch (Exception searchTokensException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return result;
+
+        return responseMap;
+
     }
 
-
+    @Override
     public Map<String, Object> validateAuthenticationCode(ValidateAuthenticationCodeRequest validateAuthenticationCodeRequest) {
-        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(validateAuthenticationCodeRequest.getUserId(),HCEConstants.ACTIVE);
-        if(userDetails== null){
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("vProvisionedTokenID", validateAuthenticationCodeRequest.getVProvisionedTokenID());
-        map.add("issuerAuthCode", validateAuthenticationCodeRequest.getIssuerAuthCode());
-        map.add("date", validateAuthenticationCodeRequest.getDate());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        HitVisaServices hitVisaServices = new HitVisaServices(env);
-
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        // response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
-        try {
-
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            LOGGER.error("Exception occured" +e);
-        }
-        return result;
+        return null;
     }
 
 
     public Map<String, Object> getStepUpOptions(GetStepUpOptionsRequest getStepUpOptionsRequest) {
-        List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(getStepUpOptionsRequest.getUserId(),HCEConstants.ACTIVE);
-        if(userDetails== null){
-            Map <String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-            return response;
-        }
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+        String vProvisionedTokenID = getStepUpOptionsRequest.getVProvisionedTokenID();
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-
-        String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-        //  try {
-        // response = hitVisaServices.restfulServieceConsumerVisa("url",objectMapper.writeValueAsString(enrollPanRequest), map);
-        // } catch (JsonProcessingException e) {
-        //   e.printStackTrace();
-        //}
-        HashMap<String,Object> result =null;
+        ResponseEntity responseVts = null;
+        JSONObject jsonResponse = null;
+        String response;
+        String resourcePath = null;
+        String url;
+        Map responseMap;
         try {
+            resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions";
+            url = env.getProperty("visaBaseUrlSandbox") + "/" + resourcePath + "?apiKey=" + env.getProperty("apiKey");
+            responseVts = hitVisaServices.restfulServiceConsumerVisa(url, null, resourcePath, "GET");
+            if (responseVts.hasBody()) {
+                response = String.valueOf(responseVts.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                responseMap = JsonUtil.jsonToMap(jsonResponse);
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+            } else {
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
 
-            result =   new ObjectMapper().readValue(response, HashMap.class);
-        } catch (IOException e) {
-            LOGGER.error("Exception occured" +e);
+
+        } catch (HCEActionException searchTokensHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensHCEactionException);
+            throw searchTokensHCEactionException;
+        } catch (Exception searchTokensException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return result;
-    }
-    public boolean validatevProvisionedID(String vProvisionedTokenID)
-    {
-        List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
-        if (cardDetailsList!=null && !cardDetailsList.isEmpty())
-            return true;
-        else
-            return false;
+
+        return responseMap;
+
     }
 }

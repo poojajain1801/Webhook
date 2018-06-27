@@ -38,6 +38,7 @@ import sun.rmi.runtime.Log;
 public class UserDetailServiceImpl implements UserDetailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDetailServiceImpl.class);
+
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
@@ -48,7 +49,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
     @Autowired
-    private PerformUserLifecycle performLCMobj;
+    PerformUserLifecycle performLCMobj;
     private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
     @Autowired
     public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport,CardDetailRepository cardDetailRepository) {
@@ -162,77 +163,42 @@ public class UserDetailServiceImpl implements UserDetailService {
      */
     @Override
     @Transactional
-    public Map<String, Object> userLifecycleManagement(UserLifecycleManagementReq userLifecycleManagementReq) {
+    public Map<String,Object>userLifecycleManagement(UserLifecycleManagementReq userLifecycleManagementReq){
         UserDetail userDetails;
-        Map responseMap = null;
-        Map userMap = null;
         LOGGER.debug("Inside userLifecycleManagement");
-        List<String> userIdlist = null;
-        List<Map> userMapList = null;
-        String message = null;
-        String messageCode = null;
-        try {
-            userIdlist = userLifecycleManagementReq.getUserIdList();
-            if (userIdlist.size() <= 0) {
+        try{
+            if(userLifecycleManagementReq.getUserId().isEmpty() || userLifecycleManagementReq.getUserId().equalsIgnoreCase("null"))
+            {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
-            responseMap = new LinkedHashMap();
 
-            userMapList = new ArrayList<>();
-            for (int i = 0; i < userIdlist.size(); i++) {
-                userMap = new LinkedHashMap();
-                userDetails = userDetailRepository.findByUserId(userIdlist.get(i));
-
-                if (userDetails == null || userDetails.getUserId().isEmpty()) {
-                    message = "User ID does not exist";
-                    messageCode = HCEMessageCodes.getInvalidUser();
-                    userMap.put("UserId", userIdlist.get(i));
-                    userMap.put("Status", HCEConstants.INACTIVE);
-                    userMap.put("Message", message);
-                    userMap.put("MessageCode",messageCode);
-                } else {
-                    if (userDetails.getStatus().equalsIgnoreCase(HCEConstants.ACTIVE)) {
-                        message = "User ID avilable";
-                        messageCode = HCEMessageCodes.getSUCCESS();
-                    } else {
-                        message = "User ID avilable but Inactive";
-                        messageCode = HCEMessageCodes.getInvalidUser();
-                    }
-                    userMap.put("UserId", userIdlist.get(i));
-                    userMap.put("Status", userDetails.getStatus());
-                    userMap.put("Message", message);
-                    userMap.put("MessageCode",messageCode);
-                }
-                userMapList.add(userMap);
-               /* if ((userDetails!=null)&&(!userDetails.getStatus().equalsIgnoreCase(HCEConstants.INACTIVE))) {
-                    performLCMobj.performLCM(userIdlist.get(i), userLifecycleManagementReq.getOperation(), userDetails);
-                }
-*/
-
+           userDetails = userDetailRepository.findByUserId(userLifecycleManagementReq.getUserId());
+            if(userDetails==null ||userDetails.getUserId().isEmpty())
+            {
+                throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }
-            performLCMobj.performUserLCM(userIdlist,userLifecycleManagementReq.getOperation());
-
-            responseMap.put("UserStaus", userMapList);
-            responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
-            responseMap.put(HCEConstants.MESSAGE, "SUCSSES");
-            // userDetails = userDetailRepository.findByUserId(userLifecycleManagementReq.getUserId());
-
+            performLCMobj.performLCM(userLifecycleManagementReq,userDetails);
 
             //Update the user satatus
             //Update all the card status
             LOGGER.debug("Exit userLifecycleManagement");
-            return responseMap;
+            return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
-        } catch (HCEActionException userLifecycleManagementException) {
+
+
+        }catch(HCEActionException userLifecycleManagementException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManagementException);
             throw userLifecycleManagementException;
 
-        } catch (Exception userLifecycleManageException) {
+        }catch(Exception userLifecycleManageException){
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManageException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+        //Check if user is valid or not
 
+    // return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
     }
+
 
 
     private void performMastercardLifecycle(List<CardDetails> masterCardList,String operation)

@@ -1,19 +1,24 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
 
 /**
  * Created by Tanmay.Patel on 5/11/2017.
  */
 @Getter
+@Setter
 public class GetTransactionHistoryReq {
     private String tokenUniqueReference;
-    private String paymentAppInstanceId;
+    private String authenticationCode;
+    private String lastUpdatedTag ;
 
-
-    public GetTransactionHistoryReq(String tokenUniqueReference, String paymentAppInstanceId) {
+    public GetTransactionHistoryReq(String tokenUniqueReference, String authenticationCode, String lastUpdatedTag) {
         this.tokenUniqueReference = tokenUniqueReference;
-        this.paymentAppInstanceId = paymentAppInstanceId;
+        this.authenticationCode = authenticationCode;
+        this.lastUpdatedTag = lastUpdatedTag;
     }
 
     public GetTransactionHistoryReq()

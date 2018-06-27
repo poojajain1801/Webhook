@@ -57,6 +57,7 @@ public class UserRegistrationControllerTest {
         Map registerUseResponse=ServiceUtils.servicePOSTResponse("userRegistration",request);
         assertResponse(registerUseResponse,"300");
     }
+
     @Test
     public void activateUserSuccess() throws Exception {
         registerUserSuccess();
@@ -65,7 +66,6 @@ public class UserRegistrationControllerTest {
         request.put("activationCode",activationCode);
         Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
         assertResponse(activateUserResponse, "200");
-
     }
     @Test
     public void activateUserFailedForMissingField() throws Exception{

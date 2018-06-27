@@ -36,7 +36,6 @@ public class UserRegistrationController {
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
 
-
     @ServiceFlowStep("paymentApp")
     @ResponseBody
     @RequestMapping(value = "/userRegistration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,8 +56,6 @@ public class UserRegistrationController {
             LOGGER.error(" Exception Occured in Enter UserRegistrationController->registerUser", regUserException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
-
         return registerUser;
     }
 

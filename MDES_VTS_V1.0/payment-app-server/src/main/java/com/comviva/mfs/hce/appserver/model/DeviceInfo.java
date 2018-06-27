@@ -94,7 +94,7 @@ public class DeviceInfo implements Serializable {
 
 
     public Timestamp getCreatedOn() {
-        return (this.createdOn);
+        return this.createdOn;
     }
 
     public void setCreatedOn(Timestamp createdOn) {
@@ -142,7 +142,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public Timestamp getModifiedOn() {
-        return (this.modifiedOn);
+        return this.modifiedOn;
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
@@ -214,7 +214,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public List<CardDetails> getCardDetails() {
-        return (this.cardDetails);
+        return this.cardDetails;
     }
 
     public void setCardDetails(List<CardDetails> cardDetails) {

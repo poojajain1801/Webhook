@@ -26,7 +26,8 @@ import static org.junit.Assert.*;
 public class DeviceRegistrationControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
-    private String userID = "";
+    private String userID = DefaultTemplateUtils.randomString(8);
+    private String clientDeviceID = DefaultTemplateUtils.randomString(24);
     private String paymentAppInstanceId = "";
     private String activationCode="";
 
@@ -35,46 +36,107 @@ public class DeviceRegistrationControllerTest {
     public void Setup(){
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
-       // ServiceUtils.serviceInit("/api/device/");
+        ServiceUtils.serviceInit("/api/");
 
     }
+
     @Test
     public void registerUser() throws Exception {
-        ServiceUtils.serviceInit("/api/user/");
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        userID = DefaultTemplateUtils.randomString(8);
-        request.put("userId",userID);
-        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
-        activationCode= (String) registerUserResponse.get("activationCode");
-        assertResponse(registerUserResponse, "200");
+        Map UserRegistrationRequest = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
+        UserRegistrationRequest.put("userId",userID);
+        UserRegistrationRequest.put("clientDeviceID",clientDeviceID);
+        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",UserRegistrationRequest);
+        assertResponse(registerUserResp, "200");
     }
-    @Test
-    public void activateUser() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
-        request.put("userId",userID);
-        request.put("activationCode",activationCode);
-        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
-        assertResponse(activateUserResponse, "200");
 
-    }
+
     @Test
     public void registerDevice() throws Exception {
-        activateUser();
-        ServiceUtils.serviceInit("/api/device/");
+        registerUser();
         Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
         paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
         request.put("userId",userID);
+        Map mdes = (Map) request.get("mdes");
+        Map deviceInfo = (Map) mdes.get("deviceInfo");
+        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
+        mdes.put("deviceInfo",deviceInfo);
+        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
+        request.put("clientDeviceID",clientDeviceID);
+        request.put("mdes",mdes);
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        assertResponse(regDeviceReaponse, "200");
+    }
 
+    @Test
+    public void registerDeviceWithInvalidUser() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        request.remove("userId");
         Map mdes = (Map) request.get("mdes");
         Map deviceInfo = (Map) mdes.get("deviceInfo");
         deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
         mdes.put("deviceInfo",deviceInfo);
         mdes.put("paymentAppInstanceId",paymentAppInstanceId);
         request.put("mdes",mdes);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "200");
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        assertResponse(regDeviceReaponse, "205");
 
+    }
+
+    @Test
+    public void registerDeviceWithInvalidDeviceId() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        Map mdes = (Map) request.get("mdes");
+        Map deviceInfo = (Map) mdes.get("deviceInfo");
+        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
+        mdes.put("deviceInfo",deviceInfo);
+        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
+        request.put("mdes",mdes);
+        request.put("userId",userID);
+        request.remove("clientDeviceID");
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        assertResponse(regDeviceReaponse, "703");
+    }
+
+    @Test
+    public void registerDeviceWithoutVtsRequest() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        Map mdes = (Map) request.get("mdes");
+        Map deviceInfo = (Map) mdes.get("deviceInfo");
+        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
+        mdes.put("deviceInfo",deviceInfo);
+        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
+        request.put("mdes",mdes);
+        request.put("userId",userID);
+        request.put("clientDeviceID",clientDeviceID);
+        request.remove("vts");
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        assertResponse(regDeviceReaponse, "500");
+    }
+
+    @Test
+    public void registerDeviceWithInvalidRequest() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
+        request.put("random","");
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        assertResponse(regDeviceReaponse, "706");
+    }
+
+    @Test
+    public void getDeviceInfo() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/getDeviceInfoReq.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
+        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
+        request.put("paymentAppInstanceId",paymentAppInstanceId);
+        request.put("tokenUniqueReference",tokenUniqueReference);
+        Map regDeviceResponse = ServiceUtils.servicePOSTResponse("device/getDeviceInfo",request);
+        assertResponse(regDeviceResponse, "200");
     }
 
 }

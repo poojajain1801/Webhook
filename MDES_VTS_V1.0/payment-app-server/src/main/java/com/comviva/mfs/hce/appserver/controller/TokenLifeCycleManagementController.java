@@ -102,9 +102,6 @@ public class TokenLifeCycleManagementController {
             tokenListRequestPojo =(GetTokenListRequest) hceControllerSupport.requestFormation(tokenListRequest,GetTokenListRequest.class);
             tokenListResponse = tokenLifeCycleManagementService.getTokenList(tokenListRequestPojo);
             LOGGER.debug("Exit TokenLifeCycleManagementController->getTokenList");
-        }catch (HCEValidationException registerDeviceValidationException){
-            LOGGER.error("Exception Occured in  TokenLifeCycleManagementController->getTokenList",registerDeviceValidationException);
-            throw registerDeviceValidationException;
         }catch (HCEActionException regDeviceHCEActionException){
             LOGGER.error("Exception Occured in TokenLifeCycleManagementController->getTokenList",regDeviceHCEActionException);
             throw regDeviceHCEActionException;

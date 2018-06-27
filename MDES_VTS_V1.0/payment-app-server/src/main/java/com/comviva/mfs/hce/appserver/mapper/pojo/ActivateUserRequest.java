@@ -16,7 +16,6 @@ public class ActivateUserRequest {
     private String clientDeviceID;
 
     public ActivateUserRequest(String userId, String activationCode,String clientDeviceID) {
-
         this.userId=userId;
         this.activationCode=activationCode;
         this.clientDeviceID=clientDeviceID;

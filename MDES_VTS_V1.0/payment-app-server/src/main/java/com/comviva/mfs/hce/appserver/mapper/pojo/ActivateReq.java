@@ -10,16 +10,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ActivateReq {
-    private String responseHost;
-    private String requestId;
     private String paymentAppInstanceId;
     private String tokenUniqueReference;
     private String authenticationCode;
     private String tokenizationAuthenticationValue;
 
-    public ActivateReq(String responseHost, String requestId, String paymentAppInstanceId, String tokenUniqueReference, String authenticationCode, String tokenizationAuthenticationValue) {
-        this.responseHost = responseHost;
-        this.requestId = requestId;
+    public ActivateReq(String paymentAppInstanceId, String tokenUniqueReference, String authenticationCode, String tokenizationAuthenticationValue) {
         this.paymentAppInstanceId = paymentAppInstanceId;
         this.tokenUniqueReference = tokenUniqueReference;
         this.authenticationCode = authenticationCode;

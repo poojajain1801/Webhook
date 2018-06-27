@@ -2,13 +2,8 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
-
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -45,9 +40,6 @@ public class DeviceRegistrationController {
         try{
             enrollDeviceRequestPojo =(EnrollDeviceRequest) hCEControllerSupport.requestFormation(enrollDeviceRequest,EnrollDeviceRequest.class);
             registerDeviceResponse = deviceDetailService.registerDevice(enrollDeviceRequestPojo);
-        }catch (HCEValidationException registerDeviceValidationException){
-            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",registerDeviceValidationException);
-            throw registerDeviceValidationException;
         }catch (HCEActionException regDeviceHCEActionException){
             LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",regDeviceHCEActionException);
             throw regDeviceHCEActionException;
@@ -62,15 +54,11 @@ public class DeviceRegistrationController {
     @RequestMapping(value = "/deRegister", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map<String,Object> unRegister(@RequestBody String unRegisterReq) {
-
         Map<String,Object> unRegisterResponse = null;
         UnRegisterReq unRegisterReqPojo = null;
         try{
             unRegisterReqPojo =(UnRegisterReq) hCEControllerSupport.requestFormation(unRegisterReq,UnRegisterReq.class);
             unRegisterResponse = deviceDetailService.unRegisterDevice(unRegisterReqPojo);
-        }catch (HCEValidationException deRegValidationException){
-            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",deRegValidationException);
-           throw deRegValidationException;
         }catch (HCEActionException deRegHCEActionException){
             LOGGER.error("Exception Occured in Enter DeviceRegistrationController->registerDevice",deRegHCEActionException);
             throw deRegHCEActionException;
@@ -81,5 +69,24 @@ public class DeviceRegistrationController {
         return unRegisterResponse;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/getDeviceInfo", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object> getDeviceInfo(@RequestBody String getDeviceInfoRequest) {
+
+        Map<String,Object> getDeviceInfoResponse = null;
+        GetDeviceInfoRequest getDeviceInfoRequestPojo = null;
+        try{
+            getDeviceInfoRequestPojo =(GetDeviceInfoRequest) hCEControllerSupport.requestFormation(getDeviceInfoRequest,GetDeviceInfoRequest.class);
+            getDeviceInfoResponse = deviceDetailService.getDeviceInfo(getDeviceInfoRequestPojo);
+        }catch (HCEActionException getDeviceInfoHCEActionException){
+            LOGGER.error("Exception Occured in DeviceRegistrationController->getDeviceInfo",getDeviceInfoHCEActionException);
+            throw getDeviceInfoHCEActionException;
+        }catch (Exception getDeviceInfoException) {
+            LOGGER.error(" Exception Occured in DeviceRegistrationController->getDeviceInfo", getDeviceInfoException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getDeviceInfoResponse;
+    }
 }
 
