@@ -30,7 +30,6 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGener
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.sun.corba.se.impl.naming.cosnaming.NamingUtils;
 import com.visa.dmpd.token.JWTUtility;
 import org.apache.http.annotation.Contract;
 import org.json.JSONArray;
@@ -1047,4 +1046,41 @@ public class CardDetailServiceImpl implements CardDetailService {
         return null;
 
     }
+
+    public Map getSystemHealth() {
+        ResponseEntity responseMdes = null;
+        JSONObject jsonResponse = null;
+        String response = null;
+        Map responseMap = null;
+        String url = null;
+        try {
+            url =  env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + env.getProperty("digitizationpath") + "/health";
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url, null, "GET");
+            if (responseMdes == null)
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            if (responseMdes.hasBody()) {
+                response = String.valueOf(responseMdes.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if (responseMdes.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                responseMap = JsonUtil.jsonToMap(jsonResponse);
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+
+            } else {
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+
+        } catch (HCEActionException getSystemHealthHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->getSystemHealth", getSystemHealthHCEactionException);
+            throw getSystemHealthHCEactionException;
+        } catch (Exception getSystemHealthException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->getSystemHealth", getSystemHealthException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return responseMap;
+    }
+
+
 }

@@ -28,4 +28,5 @@ public interface CardDetailService {
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
     Map searchTokens(SearchTokensReq searchTokensReq);
     Map unregisterTds(Map<String, String> unregisterTdsReq);
+    Map<String,Object> getSystemHealth();
 }

@@ -223,6 +223,19 @@ public class CardManagementController {
         return cardDetailService.unregisterTds(unregisterTdsReq);
     }
 
-
-
+    @ResponseBody
+    @RequestMapping(value = "/getSystemHealth", method = RequestMethod.GET)
+    public Map getSystemHealth() {
+        Map <String, Object> getSystemHealthResp=null ;
+        try{
+            getSystemHealthResp = cardDetailService.getSystemHealth();
+        }catch (HCEActionException getSystemHealthHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->unregisterTds",getSystemHealthHceActionException);
+            throw getSystemHealthHceActionException;
+        }catch (Exception getSystemHealthExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->unregisterTds", getSystemHealthExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getSystemHealthResp;
+    }
 }

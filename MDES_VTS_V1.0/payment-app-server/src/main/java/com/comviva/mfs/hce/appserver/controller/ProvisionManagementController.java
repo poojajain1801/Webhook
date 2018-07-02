@@ -143,13 +143,49 @@ public class ProvisionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/submitIDandVStepupMethodRequest",method =RequestMethod.POST )
-    public Map<String ,Object>submitIDandVStepupMethodRequest(@RequestParam SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest){
-        return  provisionManagementService.submitIDandVStepupMethod(submitIDandVStepupMethodRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map<String ,Object> submitIDandVStepupMethodRequest(@RequestBody String submitIDandVStepupMethodRequest){
+        Map <String,Object> submitIDandVStepupMethodRequestResp= null;
+        try{
+            LOGGER.debug("Enter ProvisionManagementController-> activeAccountManagementConfirmReplenishment ");
+            SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequestPojo = (SubmitIDandVStepupMethodRequest)hCEControllerSupport.requestFormation(submitIDandVStepupMethodRequest,SubmitIDandVStepupMethodRequest.class);
+            submitIDandVStepupMethodRequestResp = provisionManagementService.submitIDandVStepupMethod(submitIDandVStepupMethodRequestPojo);
+        }
+        catch (HCEValidationException ConfirmReplenishmentRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",ConfirmReplenishmentRequestValidation);
+            throw ConfirmReplenishmentRequestValidation;
+        }
+        catch (HCEActionException ConfirmReplenishmentHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment",ConfirmReplenishmentHceActionException);
+            throw ConfirmReplenishmentHceActionException;
+        }catch (Exception ConfirmReplenishmentExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment", ConfirmReplenishmentExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return submitIDandVStepupMethodRequestResp;
     }
     @ResponseBody
     @RequestMapping(value = "/validateOTP",method = RequestMethod.POST)
-    public Map<String,Object>validateOTP(@RequestParam ValidateOTPRequest validateOTPRequest){
-        return provisionManagementService.validateOTP(validateOTPRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>validateOTP(@RequestBody String validateOTPRequest){
+        Map <String,Object> validateOtpResp= null;
+        try{
+            LOGGER.debug("Enter ProvisionManagementController-> activeAccountManagementConfirmReplenishment ");
+            ValidateOTPRequest validateOTPRequestPojo = (ValidateOTPRequest)hCEControllerSupport.requestFormation(validateOTPRequest,ValidateOTPRequest.class);
+            validateOtpResp = provisionManagementService.validateOTP(validateOTPRequestPojo);
+        }
+        catch (HCEValidationException ConfirmReplenishmentRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning",ConfirmReplenishmentRequestValidation);
+            throw ConfirmReplenishmentRequestValidation;
+        }
+        catch (HCEActionException ConfirmReplenishmentHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment",ConfirmReplenishmentHceActionException);
+            throw ConfirmReplenishmentHceActionException;
+        }catch (Exception ConfirmReplenishmentExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->activeAccountManagementConfirmReplenishment", ConfirmReplenishmentExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return validateOtpResp;
     }
     @ResponseBody
     @RequestMapping(value = "/validateAuthenticationCode",method = RequestMethod.POST)
@@ -158,7 +194,25 @@ public class ProvisionManagementController {
     }
     @ResponseBody
     @RequestMapping(value = "/getStepUpOptions",method = RequestMethod.POST)
-    public Map<String ,Object>getStepUpOptions(@RequestParam GetStepUpOptionsRequest getStepUpOptionsRequest){
-        return provisionManagementService.getStepUpOptions(getStepUpOptionsRequest);
+    public Map<String ,Object>getStepUpOptions(@RequestBody String getStepUpOptionsRequest){
+        Map <String,Object> getStepUpOptions= null;
+        try{
+            LOGGER.debug("Enter ProvisionManagementController-> getStepUpOptions ");
+            GetStepUpOptionsRequest getStepUpOptionsRequestPojo = (GetStepUpOptionsRequest)hCEControllerSupport.requestFormation(getStepUpOptionsRequest,GetStepUpOptionsRequest.class);
+            provisionManagementService.getStepUpOptions(getStepUpOptionsRequestPojo);
+        }
+        catch (HCEValidationException getSteopupOptionuestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->getStepUpOptions",getSteopupOptionuestValidation);
+            throw getSteopupOptionuestValidation; 
+        }
+        catch (HCEActionException getSteopupOptionuestHceActionException){
+            LOGGER.error("Exception Occured in ProvisionManagementController->getStepUpOptions",getSteopupOptionuestHceActionException);
+            throw getSteopupOptionuestHceActionException; 
+        }catch (Exception getSteopupOptionuestExcetption) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->getStepUpOptions", getSteopupOptionuestExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getStepUpOptions;
+  
     }
 }
