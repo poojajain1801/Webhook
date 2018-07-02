@@ -115,7 +115,7 @@ public class CardManagementController {
         try{
             activateReqPojo = (ActivateReq) hCEControllerSupport.requestFormation(activateReq,ActivateReq.class);
             activateResponse =cardDetailService.activate(activateReqPojo);
-        
+
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -139,9 +139,6 @@ public class CardManagementController {
         }catch (HCEValidationException enrollPanRequestValidation){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanRequestValidation);
             throw enrollPanRequestValidation;
-        }catch (HCEActionException enrollPanHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
-            throw enrollPanHceActionException;
         }catch (Exception enrollPanExcetption) {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
