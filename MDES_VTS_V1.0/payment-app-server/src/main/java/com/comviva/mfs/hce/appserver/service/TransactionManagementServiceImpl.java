@@ -3,6 +3,7 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
@@ -14,10 +15,7 @@ import com.comviva.mfs.hce.appserver.repository.ServiceDataRepository;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TransactionManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
-import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import com.comviva.mfs.hce.appserver.util.common.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.visa.dmpd.token.JWTUtility;
@@ -119,22 +117,40 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     }
 
     public Map<String, Object> pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq) {
+        String requestId = pushTransctionDetailsReq.getRequestId();
+        List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
+        JSONObject reqMdes = new JSONObject();
+        JSONObject jsonResponse = null ;
+        HitMasterCardService hitMasterCardService = new HitMasterCardService();
+        String response = null;
+        ResponseEntity responseMdes = null;
+        String url = null ;
 
         try{
-            //Validate the token unique reference
-            //Send remote notification to the device
+            reqMdes.put("transactions", transactions);
+            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + "/mdes/transaction/1/0/pushTransactionDetails" ;
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST");
 
-            hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-        }catch (HCEActionException tokenizeHCEactionException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->addCard", tokenizeHCEactionException);
-            throw tokenizeHCEactionException;
+            if (responseMdes.hasBody()) {
+                response = String.valueOf(responseMdes.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if(responseMdes.getStatusCode().value()== HCEConstants.REASON_CODE7) {
+                hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+            }
+            else{
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+        } catch (HCEActionException getDeviceInfoHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->activate", getDeviceInfoHCEactionException);
+            throw getDeviceInfoHCEactionException;
 
-        } catch (Exception tokenizeException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->addCard", tokenizeException);
+        } catch (Exception getDeviceInfoException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", getDeviceInfoException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
-        return null;
+        return JsonUtil.jsonToMap(jsonResponse);
 
     }
 

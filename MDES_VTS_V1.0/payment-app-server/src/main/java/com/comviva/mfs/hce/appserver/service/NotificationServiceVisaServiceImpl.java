@@ -84,9 +84,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             switch (eventType) {
                 case HCEConstants.TOKEN_CREATED:
-                    LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
-                    return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-
                 case HCEConstants.TOKEN_STATUS_UPDATED:
                     //Send remote notification to call getTokenStatus
                     LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
@@ -223,11 +220,12 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
-            if(env.getProperty("is.txnnotification.requires").equals("N"))
+           /* if(env.getProperty("is.txnnotification.requires").equals("N"))
             {
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate->Not supported" );
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-            }
+
+            }*/
             RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
             rnsGenericRequest.setIdType(UniqueIdType.VTS);
             rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));
@@ -240,13 +238,8 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
-            Map rnsResp = null;
-            if(env.getProperty("is.txnnotification.requires").equals("Y"))
-            {
-                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate-> supported" );
-                rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
-            }
-            //Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+
+            Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
 
             LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
 

@@ -1,27 +1,6 @@
 {
-  "responseHost" : "site1.your-server.com",
-  "requestId" : "123456",
-  "paymentAppInstanceId" : "123456781",
-  "serviceId":"-2883140517327442836",
-  "eligibilityReceipt" : {
-    "value" : "f9f027e5-629d-11e3-949a-0800200c9a66"
-  },
-  "termsAndConditionsAssetId" : "81d9f8e0-6292-11e3-949a-0800200c9a66",
-  "termsAndConditionsAcceptedTimestamp" : "2014-07-04T12:08:56.123-07:00",
-  "cardInfo" : {
-    "encryptedData" : "4545433044323232363739304532433610DE1D1461475BEB6D815F31764DDC20298BD779FBE37EE5AB3CBDA9F9825E1DDE321469537FE461E824AA55BA67BF6A",
-    "publicKeyFingerprint" : "4c4ead5927f0df8117f178eea9308daa58e27c2b",
-    "encryptedKey" : "A1B2C3D4E5F6112233445566",
-    "oaepHashingAlgorithm" : "SHA512"
-  },
-  "tokenizationAuthenticationValue" : "RHVtbXkgYmFzZSA2NCBkYXRhIC0gdGhpcyBpcyBub3QgYSByZWFsIFRBViBleGFtcGxl",
-  "decisioningData" : {
-    "recommendation" : "REQUIRE_ADDITIONAL_AUTHENTICATION",
-    "recommendationAlgorithmVersion" : "01",
-    "deviceScore" : "1",
-    "accountScore" : "1",
-    "recommendationReasons" : [
-      "ACCOUNT_TOO_NEW"
-    ]
-  }
+  "paymentAppInstanceId" : "123456789",
+  "termAndConditionAssetId" : "81d9f8e0-6292-11e3-949a-0800200c9a66",
+  "termAndConditionAcceptTimeStamp" : "2014-07-04T12:08:56.123-07:00",
+  "serviceId":"suhdijclkj"
 }

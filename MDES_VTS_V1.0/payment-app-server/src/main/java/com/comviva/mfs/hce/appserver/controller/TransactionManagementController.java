@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TransactionManagementService;
+import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,8 @@ public class TransactionManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/pushTransactionDetails",method = RequestMethod.POST)
-    public Map<String,Object>pushTransctionDetails(String pushTxnDetailsReq ) {
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>pushTransctionDetails(@RequestBody String pushTxnDetailsReq ) {
         LOGGER.debug("Enter TransactionManagementController->pushTransctionDetails");
         Map<String, Object> pushTransctionDetailsResponse = null;
         PushTransctionDetailsReq pushTransctionDetailsReq = null;

@@ -29,16 +29,23 @@ public class HitMasterCardService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
 
+    public HitMasterCardService() {
+
+    }
+
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type) {
+        LOGGER.debug("HitMasterCardService ->Master Card URL"+url);
+        LOGGER.debug("HitMasterCardService ->Master Card requestBody"+requestBody);
+
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
         String result="";
+
         JSONObject jsonObject = null;
         JSONObject jsonResponse=null;
         ResponseEntity<String> response=null;
         String strResponse =null;
         HttpEntity<String> entity = null;
         SimpleClientHttpRequestFactory requestFactory = null;
-
         headers = new HttpHeaders();
         headers.add("Accept", "application/json");
         headers.add("Content-Type", "application/json");
@@ -71,6 +78,11 @@ public class HitMasterCardService {
             {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
+            if (response!=null && response.hasBody())
+            {
+                 strResponse = String.valueOf(response.getBody());
+            }
+            LOGGER.debug("Response from mastercard service = "+strResponse);
         }catch (HttpClientErrorException httpClintException)
         {
 
@@ -82,16 +94,21 @@ public class HitMasterCardService {
             if(error!=null && !error.isEmpty()){
                 response = new ResponseEntity(error, responseHeaders ,statusCode);
             }else{
-                //response = new ResponseEntity(error, responseHeaders ,statusCode);
+
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
 
             return response;
+        }catch(HCEActionException hitVisaServiceExp){
+            LOGGER.error("Exception Occurred HitVisaServices->restfulServiceConsumerVisa"+hitVisaServiceExp);
+            LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa"+hitVisaServiceExp);
+            throw hitVisaServiceExp;
         }
         catch (Exception e){
-            LOGGER.error("Exception occurred in HitMasterCardService");
-            LOGGER.debug("Exception occurred in HitMasterCardService -> restfulServiceConsumerMasterCard");
-            LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
+            //response = new ResponseEntity(error, responseHeaders ,statusCode);
+            LOGGER.error("Exception occurred in HitMasterCardService "+e);
+            LOGGER.debug("Exception occurred in HitMasterCardService -> restfulServiceConsumerMasterCard "+e);
+            LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard "+e);
 
         }
         return response;

@@ -1,22 +1,30 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.List;
-
-@Getter
-@Setter
 public class UserLifecycleManagementReq {
-    private List<String> userIdList;
+    private String userId;
     private String operation;
 
-    public UserLifecycleManagementReq(List<String> userIdList, String operation) {
-        this.userIdList = (userIdList);
+    public UserLifecycleManagementReq(String userId, String operation) {
+        this.userId = userId;
         this.operation = operation;
     }
-
     public UserLifecycleManagementReq() {
 
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
     }
 }

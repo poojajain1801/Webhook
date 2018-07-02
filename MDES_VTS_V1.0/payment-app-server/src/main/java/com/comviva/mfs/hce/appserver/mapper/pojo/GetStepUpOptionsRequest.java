@@ -5,20 +5,15 @@ import lombok.Getter;
 /**
  * Created by amgoth.madan on 5/10/2017.
  */
-
-public class GetStepUpOptionsRequest{
+@Getter
+public class GetStepUpOptionsRequest {
 
     private String vProvisionedTokenID;
 
+    public GetStepUpOptionsRequest() {
+    }
+
     public GetStepUpOptionsRequest(String vProvisionedTokenID) {
-        this.vProvisionedTokenID = vProvisionedTokenID;
-    }
-
-    public String getvProvisionedTokenID() {
-        return vProvisionedTokenID;
-    }
-
-    public void setvProvisionedTokenID(String vProvisionedTokenID) {
         this.vProvisionedTokenID = vProvisionedTokenID;
     }
 }
