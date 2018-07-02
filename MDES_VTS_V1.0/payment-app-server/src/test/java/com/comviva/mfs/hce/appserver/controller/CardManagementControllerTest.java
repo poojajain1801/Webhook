@@ -176,14 +176,6 @@ public class CardManagementControllerTest {
     }
 
     @Test
-    public void enrollPanWithoutDeviceRegistration() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
-        request.put("clientDeviceID",null);
-        Map enrollPanResp = ServiceUtils.servicePOSTResponse("card/enrollPan",request);
-        assertResponse(enrollPanResp, "704");
-    }
-
-    @Test
     public void enrollPanWithInvalidRequest() throws Exception {
         registerDevice();
         Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
@@ -362,7 +354,7 @@ public class CardManagementControllerTest {
     public void provisionWithPanEnrollmentID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/provisionWithPanEnrollmentID.json");
         Map getContentResp = ServiceUtils.servicePOSTResponse("provision/provisionTokenWithPanEnrollmentId",request);
-        assertResponse(getContentResp, "409");
+        assertResponse(getContentResp, "707");
     }
 
 

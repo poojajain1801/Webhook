@@ -1,4 +1,4 @@
-package com.comviva.mfs.hce.appserver.controller;
+package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
@@ -16,14 +16,13 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static org.junit.Assert.*;
 
 /**
- * Created by Rishikesh.kumar on 1/05/2018.
+ * Created by rishikesh.kumar on 02-07-2018.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class DeviceRegistrationControllerTest {
+public class DeviceDetailServiceImplTest {
 
     @Resource
     private WebApplicationContext webApplicationContext;
@@ -39,7 +38,6 @@ public class DeviceRegistrationControllerTest {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
         ServiceUtils.serviceInit("/api/");
-
     }
 
     @Test
@@ -50,7 +48,6 @@ public class DeviceRegistrationControllerTest {
         Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",UserRegistrationRequest);
         assertResponse(registerUserResp, "200");
     }
-
 
     @Test
     public void registerDevice() throws Exception {
@@ -67,14 +64,6 @@ public class DeviceRegistrationControllerTest {
         request.put("mdes",mdes);
         Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
         assertResponse(regDeviceReaponse, "200");
-    }
-
-    @Test
-    public void registerDeviceWithNullRequest() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",null);
-        assertResponse(regDeviceReaponse, "500");
     }
 
     @Test

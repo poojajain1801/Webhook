@@ -1,9 +1,8 @@
-package com.comviva.mfs.hce.appserver.controller;
+package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,19 +13,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
-
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
 
 /**
- * Created by Tanmay.Patel on 5/25/2017.
+ * Created by rishikesh.kumar on 02-07-2018.
  */
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-public class UserRegistrationControllerTest {
+public class UserDetailServiceImplTest {
+
     @Resource
     private WebApplicationContext webApplicationContext;
 
@@ -103,6 +101,5 @@ public class UserRegistrationControllerTest {
         Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
         assertResponse(registerUserResp, "500");
     }
-
 
 }

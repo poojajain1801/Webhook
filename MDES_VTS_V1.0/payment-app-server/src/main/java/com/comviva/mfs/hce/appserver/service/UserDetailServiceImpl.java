@@ -64,7 +64,6 @@ public class UserDetailServiceImpl implements UserDetailService {
     @Transactional
     public Map<String,Object> registerUser(RegisterUserRequest registerUserRequest) {
 
-
         Map <String, Object> response;
         List<UserDetail> userDetails;
         List<DeviceInfo> deviceInfos;
