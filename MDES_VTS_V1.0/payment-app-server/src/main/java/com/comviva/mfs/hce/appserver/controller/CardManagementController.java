@@ -228,6 +228,7 @@ public class CardManagementController {
     public Map getSystemHealth() {
         Map <String, Object> getSystemHealthResp=null ;
         try{
+            //Check master card is accessable or not.
             getSystemHealthResp = cardDetailService.getSystemHealth();
         }catch (HCEActionException getSystemHealthHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->unregisterTds",getSystemHealthHceActionException);
