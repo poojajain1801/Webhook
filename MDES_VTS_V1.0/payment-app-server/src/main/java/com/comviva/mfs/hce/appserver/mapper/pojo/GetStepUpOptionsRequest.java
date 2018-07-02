@@ -5,17 +5,20 @@ import lombok.Getter;
 /**
  * Created by amgoth.madan on 5/10/2017.
  */
-@Getter
-public class GetStepUpOptionsRequest extends PayAppServerReq{
 
-    private String userId;
-    private String activationCode;
+public class GetStepUpOptionsRequest{
 
-    public GetStepUpOptionsRequest(String userId, String activationCode) {
-        this.userId = userId;
-        this.activationCode = activationCode;
+    private String vProvisionedTokenID;
+
+    public GetStepUpOptionsRequest(String vProvisionedTokenID) {
+        this.vProvisionedTokenID = vProvisionedTokenID;
     }
 
-    public GetStepUpOptionsRequest() {
+    public String getvProvisionedTokenID() {
+        return vProvisionedTokenID;
+    }
+
+    public void setvProvisionedTokenID(String vProvisionedTokenID) {
+        this.vProvisionedTokenID = vProvisionedTokenID;
     }
 }

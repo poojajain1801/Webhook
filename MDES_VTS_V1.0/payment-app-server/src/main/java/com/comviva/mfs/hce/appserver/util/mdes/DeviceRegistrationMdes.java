@@ -9,6 +9,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
 import com.comviva.mfs.hce.appserver.util.common.*;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.slf4j.Logger;

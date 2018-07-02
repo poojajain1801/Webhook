@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.Date;
 
 import com.comviva.mfs.hce.appserver.exception.*;
-import sun.rmi.runtime.Log;
+
 
 /**
  * Perform user registration and activation
