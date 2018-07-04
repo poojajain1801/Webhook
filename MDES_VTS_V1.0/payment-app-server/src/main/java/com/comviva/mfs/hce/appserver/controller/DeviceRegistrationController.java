@@ -38,7 +38,6 @@ public class DeviceRegistrationController {
         Map<String,Object> registerDeviceResponse = null;
         EnrollDeviceRequest enrollDeviceRequestPojo = null;
         try{
-            //cvckjkl
             enrollDeviceRequestPojo =(EnrollDeviceRequest) hCEControllerSupport.requestFormation(enrollDeviceRequest,EnrollDeviceRequest.class);
             registerDeviceResponse = deviceDetailService.registerDevice(enrollDeviceRequestPojo);
         }catch (HCEActionException regDeviceHCEActionException){
