@@ -73,6 +73,26 @@ public class CardManagementController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/tokenize", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public  Map<String, Object> tokenize(@RequestBody String tokenizeRequest) {
+        TokenizeRequest tokenizeRequestPojo= null;
+        Map <String,Object>tokenizeResponse= null;
+        try{
+            tokenizeRequestPojo = (TokenizeRequest) hCEControllerSupport.requestFormation(tokenizeRequest,TokenizeRequest.class);
+            tokenizeResponse = cardDetailService.tokenize(tokenizeRequestPojo);
+        }catch (HCEActionException continueDigitizationHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
+            throw continueDigitizationHceActionException;
+        }catch (Exception continueDigitizationExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        return tokenizeResponse;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/getAsset", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map getAsset(@RequestBody String getAsset) {
