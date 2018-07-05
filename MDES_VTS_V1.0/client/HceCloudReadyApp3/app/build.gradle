@@ -6,7 +6,7 @@ android {
         WalletAppSignConfig {
             keyAlias 'Wallet'
             keyPassword 'Wallet@123'
-            storeFile file('D:/Keystoree/keystore')
+            storeFile file('../android_keystore/keystore')
             storePassword 'Wallet@123'
 
         }
