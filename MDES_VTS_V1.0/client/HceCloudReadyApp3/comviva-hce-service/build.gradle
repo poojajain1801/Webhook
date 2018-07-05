@@ -23,7 +23,7 @@ android {
             minifyEnabled false
 
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile 'E:/SbiFinal/WithSecurity/HceCloudReadyApp3/comviva-hce-service/dexguard-project.txt'
+            proguardFile '../comviva-hce-service/dexguard-project.txt'
             //D:\AndroidWorkspace\New work space\Amit\30-11-2017\HceCloudReadyApp3\comviva-hce-service
         }
         debug {
