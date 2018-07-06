@@ -1,5 +1,8 @@
 package com.comviva.mdesapp;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +11,8 @@ import com.comviva.hceservice.common.ComvivaHceService;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.util.ArrayUtil;
+
+import java.util.List;
 
 public class AndroidHceServiceApp extends HostApduService {
     public static final String TAG = "HostApduService";
@@ -47,11 +52,27 @@ public class AndroidHceServiceApp extends HostApduService {
         } else if (reason == DEACTIVATION_LINK_LOSS) {
             log = "onDeactivated DEACTIVATION_LINK_LOSS";
         }
+
         Log.d(TAG, log);
         if(apduLogListener != null) {
             apduLogListener.onDeactivated(log + "\n----------------------------\n");
         }
         ComvivaHceService comvivaHceService = ComvivaHceService.getInstance(getApplication());
         comvivaHceService.onDeactivated(reason);
+    }
+
+    public static boolean isAppOnForeground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (appProcesses == null) {
+            return false;
+        }
+        final String packageName = context.getPackageName();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcess.processName.equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

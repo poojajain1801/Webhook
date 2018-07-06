@@ -56,6 +56,7 @@ import java.security.PublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * This class contains all apis related to user registration and device enrollment.
@@ -88,7 +89,7 @@ public class Registration {
     private String generatePaymentAppInstanceId() {
         byte[] random = ArrayUtil.getRandomNumber(14);
         long currentTimeInMs = new Date().getTime();
-        return ArrayUtil.getHexString(random) + String.format("%020d", currentTimeInMs);
+        return ArrayUtil.getHexString(random) + String.format(Locale.ENGLISH,"%020d", currentTimeInMs);
     }
 
     private boolean isNfcEnabled(Context context) {
@@ -211,7 +212,7 @@ public class Registration {
 
             jsDeviceInfo.put("deviceName", Build.MODEL);
             jsDeviceInfo.put("formFactor", DeviceType.PHONE);
-            jsDeviceInfo.put("id", deviceId);
+           // jsDeviceInfo.put("id", deviceId);
             jsDeviceInfo.put("imei", imei);
             jsDeviceInfo.put("msisdn", mTelephonyMgr.getSubscriberId());
             jsDeviceInfo.put("nfcCapable", (isNfcEnabled(context) ? "true" : "false"));

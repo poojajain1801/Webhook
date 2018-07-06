@@ -73,7 +73,7 @@ public class ComvivaSdk {
 
     public  static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-      /*  SecurityInf securityInf = comvivaSdk.getSecurityInf();
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
             Log.d("Security","Debug not allowed");
@@ -87,7 +87,7 @@ public class ComvivaSdk {
             Log.d("Security","Device is rooted");
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }*/
+        }
 
 
     }

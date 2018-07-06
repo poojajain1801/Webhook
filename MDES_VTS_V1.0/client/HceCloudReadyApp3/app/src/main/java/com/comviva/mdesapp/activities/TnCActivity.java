@@ -21,8 +21,10 @@ import com.comviva.hceservice.digitizationApi.DigitizationRequest;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
+import com.visa.cbp.external.common.StepUpRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class TnCActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -53,6 +55,7 @@ public class TnCActivity extends AppCompatActivity {
                 digitizationRequest.setTermsAndConditionsAcceptedTimestamp("2017-07-04T12:08:56.123-07:00");
                 digitizationRequest.setCardType(cardType);
                 digitizationRequest.setEmailAddress("tarkeshwar.v@mahindracomviva.com");
+
 
                 digitization.digitize(digitizationRequest, new DigitizationListener() {
                     @Override
@@ -127,25 +130,29 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onRequireAdditionalAuthentication(final String tokenUniqueReference, final AuthenticationMethod[] authenticationMethods) {
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-
+                    public void onRequireAdditionalAuthentication(String s, String s1, ArrayList<StepUpRequest> arrayList) {
                         new AlertDialog.Builder(TnCActivity.this)
                                 .setTitle("Authentication Required")
                                 .setMessage("Card digitization needs more authentication")
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent intent = new Intent(TnCActivity.this, SelectAuthenticationActivity.class);
-                                        intent.putExtra("authenticationMethods", authenticationMethods);
-                                        intent.putExtra("tokenUniqueReference", tokenUniqueReference);
+                                       // intent.putExtra("authenticationMethods", authenticationMethods);
+                                       // intent.putExtra("tokenUniqueReference", tokenUniqueReference);
                                         startActivity(intent);
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                 .show();
+
+
+                            /*for(StepUpRequest a:arrayList)
+                            {
+                                ste
+                            }*/
                     }
+
+
                 });
             }
         });

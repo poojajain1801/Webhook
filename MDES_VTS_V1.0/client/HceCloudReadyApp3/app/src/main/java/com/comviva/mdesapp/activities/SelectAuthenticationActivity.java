@@ -67,6 +67,8 @@ public class SelectAuthenticationActivity extends AppCompatActivity {
         });
     }
 
+
+
     public void requestActivationCode(final String tokenUniqueReference, AuthenticationMethod authenticationMethod) {
         Digitization digitization = Digitization.getInstance();
         digitization.requestActivationCode(tokenUniqueReference, authenticationMethod, new RequestActivationCodeListener() {

@@ -139,4 +139,16 @@ public class UrlUtil {
     public static String getVTSTokenStatus() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/token/getTokenStatus";
     }
+
+    public static String getRequestOtpUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/submitIDandVStepupMethodRequest";
+    }
+
+    public static String getVerifyOtpUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
+    }
+
+    public static String getStepUpUrl() {
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
+    }
 }

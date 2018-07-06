@@ -1,18 +1,17 @@
 package com.comviva.mdesapp;
 
-import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
+
 
 /**
  * Created by amit.randhawa on 27-03-2018.
  */
 
-public class CardDetails extends RealmObject {
+public class CardDetails {
 
+
+    /*extends RealmObject
     @PrimaryKey
-    @Required
+    @Required*/
     private String cardProvisionID;
     private byte[] image;
     private String panEnrollmentId;

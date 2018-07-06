@@ -166,14 +166,14 @@ public class PaymentCard {
                     switch (tokenStatus) {
                         case ACTIVE:
                             return CardState.ACTIVE;
-
                         case SUSPENDED:
                             return CardState.SUSPENDED;
-
                         case RESUME:
                             return CardState.ACTIVE;
                         case DELETED:
                             return CardState.DELETED;
+                        case OBSOLETE:
+                            return CardState.INACTIVE;
 
                         default:
                             break;

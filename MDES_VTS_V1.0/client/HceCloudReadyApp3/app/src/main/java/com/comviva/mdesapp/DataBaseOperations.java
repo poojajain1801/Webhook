@@ -5,9 +5,6 @@ import android.content.Context;
 
 import java.util.ArrayList;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by amit.randhawa on 28-03-2018.
@@ -15,7 +12,7 @@ import io.realm.RealmResults;
 
 public class DataBaseOperations {
 
-    private static DataBaseOperations dataBaseOperations;
+   /* private static DataBaseOperations dataBaseOperations;
     private static Realm myRealm;
     private Context context;
 
@@ -76,5 +73,5 @@ public class DataBaseOperations {
         }
         myRealm.close();
         return cardDetailsArrayList;
-    }
+    }*/
 }

@@ -215,6 +215,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
 
     private void addCard() {
         startActivity(new Intent(this, AddCardActivity.class));
+
     }
 
     private void performCardLifeCycleManagement(final ArrayList<PaymentCard> cardList, final CardLcmOperation operation) {
@@ -589,7 +590,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                         break;
 
                     case VTS:
-                        setFlipperImage(R.drawable.large_visa_card, i++, cardNum, cardState.equals(CardState.SUSPENDED));
+                        setFlipperImage(R.drawable.large_visa_card, i++, cardNum, cardState.equals(CardState.SUSPENDED) ||  cardState.equals(CardState.INACTIVE));
                         break;
                 }
                 //enableDefaultCardButton();
@@ -1060,7 +1061,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                 return true;
 
             case R.id.token_status:
-                /*digitization.getTokenStatus(currentCard, new Toke() {
+         /*       digitization.getTokenStatus(currentCard, new TokenDataUpdateListener() {
                     @Override
                     public void onStarted() {
                         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1071,7 +1072,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                     }
 
                     @Override
-                    public void onSuccess() {
+                    public void onSuccess(String newStatus) {
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
@@ -1189,6 +1190,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
 
         switch (requestCode) {
             case REQ_CODE_SCREEN_LOCK:

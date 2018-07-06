@@ -20,6 +20,7 @@ import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
+import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.hceservice.security.RSAUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
@@ -36,6 +37,7 @@ import com.visa.cbp.external.common.HceData;
 import com.visa.cbp.external.common.IccPubKeyCert;
 import com.visa.cbp.external.common.ReplenishODAData;
 import com.visa.cbp.external.common.ReplenishODAResponse;
+import com.visa.cbp.external.common.StepUpRequest;
 import com.visa.cbp.external.common.TokenInfo;
 import com.visa.cbp.external.enp.ProvisionAckRequest;
 import com.visa.cbp.external.enp.ProvisionResponse;
@@ -328,7 +330,9 @@ class DigitizationVts {
         // Card MetaData
         JSONObject jsCardMetaData = jsEnrollPanResp.getJSONObject("cardMetaData");
         com.comviva.hceservice.digitizationApi.CardMetaData cardMetaData = new com.comviva.hceservice.digitizationApi.CardMetaData();
-        cardMetaData.setLongDescription(jsCardMetaData.getString("longDescription"));
+        if(jsCardMetaData.has("longDescription")) {
+            cardMetaData.setLongDescription(jsCardMetaData.getString("longDescription"));
+        }
         cardMetaData.setBackgroundColor(jsCardMetaData.getString("backgroundColor"));
         cardMetaData.setForegroundColor(jsCardMetaData.getString("foregroundColor"));
         cardMetaData.setShortDescription(jsCardMetaData.getString("shortDescription"));
@@ -637,7 +641,7 @@ class DigitizationVts {
                         }
 
                         // Parse Provision Response and
-                        String vProvisionedTokenID = jsProvisionResp.getString("vProvisionedTokenID");
+                        final String vProvisionedTokenID = jsProvisionResp.getString("vProvisionedTokenID");
                         ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
                         SharedPreferences pref = comvivaSdk.getApplicationContext().getSharedPreferences(Tags.VPAN_ENROLLMENT_ID.getTag(), Context.MODE_PRIVATE); // 0 - for private mode
                         SharedPreferences.Editor editor = pref.edit();
@@ -647,8 +651,10 @@ class DigitizationVts {
 
                         Gson gson = new Gson();
                         final ProvisionResponse provisionResponse = gson.fromJson(jsProvisionResp.toString(), ProvisionResponse.class);
-                        provisionResponse.getTokenInfo().setTokenStatus("ACTIVE");
-
+                        String tokenStatus = provisionResponse.getTokenInfo().getTokenStatus();
+                        if(tokenStatus != null && tokenStatus.equalsIgnoreCase("INACTIVE")) {
+                            provisionResponse.getTokenInfo().setTokenStatus(String.valueOf(TokenStatus.OBSOLETE));
+                        }
                         provisionResponse.setVProvisionedTokenID(vProvisionedTokenID);
                         TokenKey tokenKey = visaPaymentSDK.storeProvisionedToken(provisionResponse, enrollPanResponse.getvPanEnrollmentID());
 
@@ -682,7 +688,12 @@ class DigitizationVts {
                                         } catch (SdkException e) {
                                             Log.d("ComvivaSdkError", e.getMessage());
                                         }
-                                        digitizationListener.onApproved(enrollPanResponse.getvPanEnrollmentID());
+                                        // TODO Step-up Options required
+                                        if (provisionResponse.getStepUpRequest().size() !=0) {
+                                            digitizationListener.onRequireAdditionalAuthentication(enrollPanResponse.getvPanEnrollmentID(), vProvisionedTokenID ,provisionResponse.getStepUpRequest());
+                                        }else {
+                                            digitizationListener.onApproved(enrollPanResponse.getvPanEnrollmentID());
+                                        }
                                     }
 
                                     @Override
@@ -693,10 +704,7 @@ class DigitizationVts {
 
                         confirmProvisionTask.execute();
 
-                        // TODO Step-up Options required
-                        if (provisionResponse.getStepUpRequest() != null) {
-                            //digitizationListener.onRequireAdditionalAuthentication(null, null);
-                        }
+
                     } else {
                         if (digitizationListener != null) {
                             digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
@@ -804,64 +812,6 @@ class DigitizationVts {
         getTnCAssetTask.execute();
     }
 
-    /**
-     * Checks token's current status and update accordingly.
-     *
-     * @param paymentCard      Payment Card need to be checked
-     * @param responseListener Listener
-     */
-    public void getTokenStatus(final PaymentCard paymentCard, final ResponseListener responseListener) {
-        final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
-        final JSONObject jsonTokenStatusRequest = new JSONObject();
-        try {
-            jsonTokenStatusRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
-        } catch (Exception e) {
-            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
-            return;
-        }
-
-        class GetTokenStatus extends AsyncTask<Void, Void, HttpResponse> {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                if (responseListener != null) {
-                    responseListener.onStarted();
-                }
-            }
-
-            @Override
-            protected HttpResponse doInBackground(Void... params) {
-                HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSProvisionTokenUrl(), jsonTokenStatusRequest.toString());
-            }
-
-            @Override
-            protected void onPostExecute(HttpResponse httpResponse) {
-                super.onPostExecute(httpResponse);
-                try {
-                    if (httpResponse.getStatusCode() == 200) {
-                        JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
-                        parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
-                        if (responseListener != null) {
-                            responseListener.onSuccess();
-                        }
-
-                    } else if (responseListener != null) {
-                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                    }
-                } catch (JSONException e) {
-                    if (responseListener != null) {
-                        responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-                    }
-
-                } catch (Exception e) {
-                    if (responseListener != null) {
-                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * This API is used to Suspend, UnSuspend and Delete Token

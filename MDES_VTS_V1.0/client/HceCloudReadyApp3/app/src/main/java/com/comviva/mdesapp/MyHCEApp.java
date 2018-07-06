@@ -18,8 +18,6 @@ import com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus;
 
 import java.util.Random;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 /**
  * Created by tarkeshwar.v on 3/21/2017.

@@ -7,6 +7,7 @@ import com.comviva.hceservice.common.SdkException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Miscellaneous utility methods.
@@ -42,7 +43,7 @@ public class Miscellaneous {
         int lenRandNoLen = 4;
         byte[] random = ArrayUtil.getRandomNumber(lenRandNoLen);
         long currentTimeInMs = new Date().getTime();
-        String clientDeviceId = ArrayUtil.getHexString(random) + String.format("%d", currentTimeInMs);
+        String clientDeviceId = ArrayUtil.getHexString(random) + String.format(Locale.ENGLISH,"%d", currentTimeInMs);
         return Miscellaneous.padData(clientDeviceId, Constants.LEN_CLIENT_DEVICE_ID);
         /*String androidId = Settings.Secure.getString(ComvivaSdk.getInstance(null).getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         if(androidId == null) {

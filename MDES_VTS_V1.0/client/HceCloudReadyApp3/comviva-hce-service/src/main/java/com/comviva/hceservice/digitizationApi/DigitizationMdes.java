@@ -441,7 +441,7 @@ class DigitizationMdes {
                                         AuthenticationType.valueOf(jsAuthMethod.getString("type")),
                                         jsAuthMethod.getString("value"));
                             }
-                            digitizationListener.onRequireAdditionalAuthentication(tokenUniqueReference, authenticationMethods);
+                            digitizationListener.onRequireAdditionalAuthentication(null,null, null);
                         }
                     } else {
                         digitizationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));

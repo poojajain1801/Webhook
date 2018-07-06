@@ -35,6 +35,8 @@ import com.visa.cbp.external.common.CardMetadataUpdateResponse;
 import com.visa.cbp.external.common.DynParams;
 import com.visa.cbp.external.common.ExpirationDate;
 import com.visa.cbp.external.common.HceData;
+import com.visa.cbp.external.common.ParamsStatus;
+import com.visa.cbp.external.common.StepUpRequest;
 import com.visa.cbp.external.common.TokenInfo;
 import com.visa.cbp.external.enp.ProvisionResponse;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
@@ -736,8 +738,8 @@ public class Digitization {
             if (jsTokenInfoObject.has("hceData")) {
                 JSONObject jsHCEDataObject = jsTokenInfoObject.getJSONObject("hceData");
                 JSONObject jsDynParamsObject = jsHCEDataObject.getJSONObject("dynParams");
-                com.visa.cbp.external.common.ParamsStatus paramsStatus = (com.visa.cbp.external.common.ParamsStatus) new JSONDeserializer<>().deserialize(jsDynParamsObject.toString(), com.visa.cbp.external.common.ParamsStatus.class);
-                dynParams.setParamsStatus(paramsStatus);
+                //com.visa.cbp.external.common.ParamsStatus paramsStatus = (com.visa.cbp.external.common.ParamsStatus) new JSONDeserializer<>().deserialize(jsDynParamsObject.toString(), com.visa.cbp.external.common.ParamsStatus.class);
+                //dynParams.setParamsStatus(paramsStatus);
                 dynParams.setApi(jsDynParamsObject.getString("api"));
                 hceData.setDynParams(dynParams);
                 tokenInfo.setHceData(hceData);
@@ -919,8 +921,11 @@ public class Digitization {
                         }
 
                         @Override
-                        public void onRequireAdditionalAuthentication(String tokenUniqueReference, AuthenticationMethod[] authenticationMethods) {
+                        public void onRequireAdditionalAuthentication(String panEnrollmentId, String provisionID, ArrayList<StepUpRequest> stepUpRequests) {
+
                         }
+
+
                     });
                 }
             }
@@ -969,5 +974,173 @@ public class Digitization {
         }
         digitizationVts.getContent(guid, getAssetListener);
     }
+
+    /**
+     * generates Otp for step -up
+     *
+     * @param provisionID       provision id of card
+     * @param stepUpRequestId   stepUp Id  for the request
+     * @param responseListener reponse listener to the request
+     */
+
+    public void generateOTP(String provisionID, String stepUpRequestId, final ResponseListener responseListener) {
+        final JSONObject generateOTPReq = new JSONObject();
+        try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            generateOTPReq.put("vProvisionedTokenID", provisionID);
+            generateOTPReq.put("stepUpRequestID", stepUpRequestId);
+        } catch (JSONException e) {
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            responseListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
+        }
+
+        class GenerateOtpTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if(null != responseListener) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getRequestOtpUrl(), generateOTPReq.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    // Activation Code sent successfully
+                    if (httpResponse.getStatusCode() == 200) {
+                        responseListener.onSuccess();
+                    } else {
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    }
+                } catch (Exception e) {
+                    responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                }
+            }
+        }
+        GenerateOtpTask generateOtpTask = new GenerateOtpTask();
+        generateOtpTask.execute();
+    }
+
+
+    /**
+     * generates Otp for step -up
+     *
+     * @param provisionID       provision id of card
+     * @param otpValue          Otp value
+     * @param responseListener reponse listener to the request
+     */
+
+    public void verifyOTP(String provisionID, String otpValue, final ResponseListener responseListener) {
+        final JSONObject verifyOtp = new JSONObject();
+        try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            verifyOtp.put("otpValue", otpValue);
+            verifyOtp.put("vProvisionedTokenID", provisionID);
+        } catch (JSONException e) {
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            responseListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
+        }
+
+        class VerifyOtpTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if(null != responseListener) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVerifyOtpUrl(), verifyOtp.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    // Activation Code sent successfully
+                    if (httpResponse.getStatusCode() == 200) {
+                        responseListener.onSuccess();
+                    } else {
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    }
+                } catch (Exception e) {
+                    responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                }
+            }
+        }
+        VerifyOtpTask generateOtpTask = new VerifyOtpTask();
+        generateOtpTask.execute();
+    }
+
+    /**
+     * API to get Step up options
+     *
+     * @param provisionID       provision id of card
+     * @param responseListener reponse listener to the request
+     */
+
+    public void getStepUpOptions(String provisionID, final ResponseListener responseListener) {
+        final JSONObject stepUpObject = new JSONObject();
+        try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            stepUpObject.put("vProvisionedTokenID", provisionID);
+        } catch (JSONException e) {
+            responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            return;
+        } catch (SdkException e) {
+            responseListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+            return;
+        }
+
+        class StepUpTask extends AsyncTask<Void, Void, HttpResponse> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                if(null != responseListener) {
+                    responseListener.onStarted();
+                }
+            }
+
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVerifyOtpUrl(), stepUpObject.toString());
+            }
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+                super.onPostExecute(httpResponse);
+                try {
+                    // Activation Code sent successfully
+                    if (httpResponse.getStatusCode() == 200) {
+                        responseListener.onSuccess();
+                    } else {
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    }
+                } catch (Exception e) {
+                    responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                }
+            }
+        }
+        StepUpTask stepUpTask = new StepUpTask();
+        stepUpTask.execute();
+    }
+
 
 }
