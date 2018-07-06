@@ -16,6 +16,13 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url 'http://cots.mahindracomviva.com//Thirdparty-Java-Repo'
+            credentials {
+                username = "deployuser"
+                password = "deploy@cots"
+            }
+        }
     }
 }
 
