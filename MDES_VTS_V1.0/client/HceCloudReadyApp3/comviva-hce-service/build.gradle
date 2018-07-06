@@ -54,7 +54,7 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        flatDir { dirs '/lib' }
+        flatDir { dirs './lib' }
     }
 
     dependencies {
