@@ -272,7 +272,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 cardDetailRepository.save(cardDetails);
                 return JsonUtil.jsonStringToHashMap(provisionRespMdes.toString());
                 */
-                responseMap = JsonUtil.jsonToMap( provisionRespMdes);
+                responseMap = JsonUtil.jsonToMap(provisionRespMdes);
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 

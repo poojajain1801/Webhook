@@ -387,7 +387,7 @@ public class HCEUtil {
         for(int i=0;i<p_digit;i++)
             masked.append("X");
 
-        if(p_value!=null && !p_value.isEmpty() ){
+        if(!p_value.isEmpty() ){
 
             if(len == p_digit){
                 maskedValue=masked.toString();

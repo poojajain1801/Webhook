@@ -102,7 +102,7 @@ class DigitizationMdes {
         }
     }
 
-    private class GetTnCAssetTask extends AsyncTask<Void, Void, HttpResponse> {
+    private static class GetTnCAssetTask extends AsyncTask<Void, Void, HttpResponse> {
         private Map<String, String> queryMap;
         private GetAssetListener listener;
 

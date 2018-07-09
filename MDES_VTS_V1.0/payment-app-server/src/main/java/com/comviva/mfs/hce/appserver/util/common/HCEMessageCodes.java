@@ -146,7 +146,7 @@ public class HCEMessageCodes {
     private static String CARD_NOT_ELIGIBLE;
     @Value("${CARD_NOT_ELIGIBLE}")
     public void setCardNotEligible(String cardNotEligible) {
-        CARD_ALREADY_REGISTERED = cardNotEligible;
+        CARD_NOT_ELIGIBLE = cardNotEligible;
     }
     public static String getCardNotEligible() {
         return CARD_NOT_ELIGIBLE;

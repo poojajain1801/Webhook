@@ -71,7 +71,6 @@ public class PerformUserLifecycle {
         List<String> rnsIdList = null;
         String userSatus = null;
         String updatedUserStatus = null;
-        UnRegisterReq unRegisterReq = null;
         String operation = null;
         try {
             operation = userLifecycleManagementReq.getOperation();
@@ -95,7 +94,7 @@ public class PerformUserLifecycle {
 
             //Get the list of device info associated with the userID
             deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), userSatus);
-            if (deviceInfoList.isEmpty() || deviceInfoList == null) {
+            if (deviceInfoList.isEmpty()) {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 

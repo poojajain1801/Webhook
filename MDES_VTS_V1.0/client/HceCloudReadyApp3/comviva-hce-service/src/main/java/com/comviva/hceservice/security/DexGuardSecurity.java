@@ -9,7 +9,7 @@ import com.guardsquare.dexguard.runtime.detection.RootDetector;
 import com.guardsquare.dexguard.runtime.detection.TamperDetector;
 
 public class DexGuardSecurity implements SecurityInf {
-    private final int OK =1;
+    private static final int OK =1;
 
 
     private Context context;

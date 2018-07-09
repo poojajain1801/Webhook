@@ -113,7 +113,7 @@ class DigitizationVts {
         }
     }
 
-    class ConfirmProvisionTask extends AsyncTask<Void, Void, HttpResponse> {
+    class static ConfirmProvisionTask extends AsyncTask<Void, Void, HttpResponse> {
         private ConfirmProvisionListener listener;
         private JSONObject jsConfirmProvisionReq;
 
@@ -165,7 +165,7 @@ class DigitizationVts {
         }
     }
 
-    class ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
+    class static ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
         private ConfirmProvisionListener listener;
         private JSONObject jsConfirmReplenishment;
 
@@ -515,7 +515,7 @@ class DigitizationVts {
                     httpResponse =  httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), RSAUtil.doMeth(comvivaSdk.getApplicationContext(),jsonEnrollPanReq.toString()));
 
                 } catch (SdkException e) {
-                    e.printStackTrace();
+                    Log.d("SdkExceptionError", e.getMessage());
                 }
                 return httpResponse;
             }
@@ -627,7 +627,7 @@ class DigitizationVts {
                     try {
                         ComvivaSdk.checkSecurity();
                     } catch (SdkException e) {
-                        e.printStackTrace();
+                        Log.d("SdkException", e.getMessage());
                         digitizationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                         return;
                     }
@@ -788,7 +788,7 @@ class DigitizationVts {
                             digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
                     } catch (SdkException e) {
-                        e.printStackTrace();
+                        Log.d("SdkException", e.getMessage());
                     }
                 } else {
                     if (digitizationListener != null) {
@@ -1123,7 +1123,7 @@ class DigitizationVts {
                     try {
                         ComvivaSdk.checkSecurity();
                     } catch (SdkException e) {
-                        e.printStackTrace();
+                        Log.d("SdkExceptionError", e.getMessage());
                         listener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                         return;
                     }

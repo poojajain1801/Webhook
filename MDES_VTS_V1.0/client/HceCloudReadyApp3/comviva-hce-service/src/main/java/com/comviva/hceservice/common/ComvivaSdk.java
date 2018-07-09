@@ -412,7 +412,7 @@ public void replenishLUKVisa() {
         try {
             comvivaSdk = ComvivaSdk.getInstance(application);
         } catch (SdkException e) {
-            e.printStackTrace();
+            Log.d("Error", e.getMessage());
         }
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();

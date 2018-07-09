@@ -26,6 +26,7 @@ public class CertificateUtil {
         BufferedReader br = new BufferedReader(reader);
         String line;
         boolean isPrivateKeyStart = false;
+        StringBuffer buf = new StringBuffer();
         while ((line = br.readLine()) != null) {
             if (line.contains("BEGIN") && line.contains("PRIVATE KEY")) {
                 isPrivateKeyStart = true;
@@ -35,9 +36,10 @@ public class CertificateUtil {
                 break;
             }
             if (isPrivateKeyStart) {
-                strKeyPEM += line + "\n";
+                buf.append(line);
             }
         }
+        strKeyPEM = buf.toString();
         br.close();
         return strKeyPEM;
     }

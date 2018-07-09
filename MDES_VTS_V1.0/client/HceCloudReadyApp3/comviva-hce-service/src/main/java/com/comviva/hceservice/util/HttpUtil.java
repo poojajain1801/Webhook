@@ -40,8 +40,8 @@ public class HttpUtil {
     private HttpResponse httpResponse;
     public static final int TIMEOUT = 1 * 60 * 1000;
     private AssetManager assetManager;
-    private final String unknown_exception = "unknown exception";
-    private final String server_not_responding = "server not responding";
+    private static final String unknown_exception = "unknown exception";
+    private static final String server_not_responding = "server not responding";
 
     private HttpUtil() {
     }

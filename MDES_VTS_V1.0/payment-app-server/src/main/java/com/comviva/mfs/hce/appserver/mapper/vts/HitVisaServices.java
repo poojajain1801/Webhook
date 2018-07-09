@@ -83,7 +83,6 @@ public class HitVisaServices extends VtsRequest {
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
                 requestFactory.setProxy(proxy);
-
             }
            // Gson msdf = new Gson(headers);
          //   Enumeration headerNames = headers.getHeaderNames();

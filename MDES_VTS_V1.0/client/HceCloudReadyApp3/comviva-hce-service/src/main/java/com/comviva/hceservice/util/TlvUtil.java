@@ -1,7 +1,7 @@
 package com.comviva.hceservice.util;
 
 public class TlvUtil {
-    public static int getAmountAuthIndex(byte[] pdolValue) {
+    public static int getAmountAuthIndex( byte[] pdolValue) {
         int tagLen;
         int firstLenByte;
         int cursor = 0;
@@ -15,11 +15,11 @@ public class TlvUtil {
             }
             tagLen = getTagLength(pdolValue[cursor]);
             firstLenByte = pdolValue[cursor+tagLen];
-            if(firstLenByte <= 0x7F) {
+            if(0xff & firstLenByte <= 0x7f) {
                 pdolIndex += pdolValue[cursor+tagLen];
                 cursor += tagLen + 1;
             } else {
-                switch (firstLenByte) {
+                switch (0xff & firstLenByte) {
                     case 0x81:
                         pdolIndex += pdolValue[cursor+tagLen+1] & 0xFF;
                         cursor += tagLen + 1;

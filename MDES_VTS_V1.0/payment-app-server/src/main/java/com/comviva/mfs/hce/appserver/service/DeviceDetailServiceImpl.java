@@ -205,7 +205,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();*/
 
             //If user id and imei is null and paymentAppInstanceID or clint device is is null throw Insuficiant input data
-            if(((imei.isEmpty()||imei ==null)||(userID.isEmpty()||userID==null)))
+            if(imei.isEmpty()||userID.isEmpty())
             {
                 //Retrun Insufucaiant input data
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());

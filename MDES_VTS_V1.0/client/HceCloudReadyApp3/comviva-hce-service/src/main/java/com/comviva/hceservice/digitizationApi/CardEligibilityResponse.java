@@ -9,7 +9,7 @@ public class CardEligibilityResponse implements Serializable {
     /**
      * Contains flags to indicate what additional card information is applicable for this product and may be provided in the Digitize request.
      */
-    public class ApplicableCardInfo implements Serializable {
+    public Static class ApplicableCardInfo implements Serializable {
         private boolean isSecurityCodeApplicable;
 
         /**
