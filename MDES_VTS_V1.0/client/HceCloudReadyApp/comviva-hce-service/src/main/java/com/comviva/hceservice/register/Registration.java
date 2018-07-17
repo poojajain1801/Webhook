@@ -1,12 +1,14 @@
 package com.comviva.hceservice.register;
 
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -17,11 +19,11 @@ import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.fcm.RnsInfo;
-import com.comviva.hceservice.tds.UnregisterTdsListener;
 import com.comviva.hceservice.util.ArrayUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
@@ -64,6 +66,8 @@ public class Registration {
     private String fcmRegistrationToken;
     private String imei;
     private String userId;
+    private String clientWalletAccountId;
+    private String clientDeviceId;
 
     private static Registration instance;
 
@@ -89,18 +93,21 @@ public class Registration {
         try {
             paymentAppInstanceId = generatePaymentAppInstanceId();
             fcmRegistrationToken = FirebaseInstanceId.getInstance().getToken();
+            Log.d("fcmRegistrationToken = ",fcmRegistrationToken);
+
             if (fcmRegistrationToken == null) {
                 Log.d(Constants.LOGGER_TAG_SDK_ERROR, "FCM registration Token is not found");
                 throw new SdkException(SdkErrorStandardImpl.SDK_RNS_REG_EXCEPTION);
             }
 
             JSONObject regDevParam = new JSONObject();
+
             // Common Register Parameters
             regDevParam.put("userId", registerParam.getUserId());
             regDevParam.put("gcmRegistrationId", fcmRegistrationToken);
 
             JSONObject jsDeviceInfo = getDeviceInfoInJson();
-            regDevParam.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(jsDeviceInfo.getString("imei")));
+            regDevParam.put("clientDeviceID", clientDeviceId);
 
             // VTS
             if (registerParam.getSchemeType().equals(SchemeType.ALL) || registerParam.getSchemeType().equals(SchemeType.VISA)) {
@@ -144,13 +151,13 @@ public class Registration {
                     throw new SdkException(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
                 } finally {
                     // RGK & Encrypted PIN
-                    if(encRgk != null) {
+                    if (encRgk != null) {
                         Arrays.fill(encRgk, Constants.DEFAULT_FILL_VALUE);
                     }
-                    if(encMobPin != null) {
+                    if (encMobPin != null) {
                         Arrays.fill(encMobPin, Constants.DEFAULT_FILL_VALUE);
                     }
-                    if(publicKey != null) {
+                    if (publicKey != null) {
                         publicKey.clear();
                     }
                 }
@@ -307,6 +314,7 @@ public class Registration {
 
     private Registration() {
         visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+
     }
 
     private void initializeSdkForMdes(final JSONObject jsRegDevResp, final ComvivaSdkInitData comvivaSdkInitData) throws SdkException {
@@ -350,7 +358,7 @@ public class Registration {
             Log.d(Constants.LOGGER_TAG_SERVER_ERROR, e.getMessage());
             throw new SdkException(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
         } catch (VisaPaymentSDKException e) {
-            Log.d(Constants.LOGGER_TAG_SERVER_ERROR, e.getMessage());
+            Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
             throw new SdkException(e.getCbpError().getErrorCode(), e.getCbpError().getErrorMessage());
         }
     }
@@ -380,8 +388,9 @@ public class Registration {
         this.imei = imei;
         this.userId = userId;
         try {
+            clientDeviceId = Miscellaneous.getUniqueClientDeviceId(this.imei);
             registerUser.put("userId", this.userId);
-            registerUser.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(this.imei));
+            registerUser.put("clientDeviceID", clientDeviceId);
             registerUser.put("imei", this.imei);
             registerUser.put("os_name", "ANDROID");
             registerUser.put("device_model", Build.MODEL);
@@ -423,7 +432,9 @@ public class Registration {
                         respCode = respObj.getInt("responseCode");
 
                         // If success then retrieve activation code
-                        if (respCode == 200 || respCode == 201) {
+                        if (respCode == 200 || respCode == 501) {
+                            clientWalletAccountId = respObj.getString(Tags.CLIENT_WALLET_ACCOUNT_ID.getTag());
+
                             regUserListener.onRegistrationCompeted();
                         } else {
                             if (regUserListener != null) {
@@ -472,12 +483,9 @@ public class Registration {
         try {
             activateUserReq.put("userId", userId);
             activateUserReq.put("activationCode", activationCode);
-            activateUserReq.put("clientDeviceID", Miscellaneous.getUniqueClientDeviceId(imei));
+            activateUserReq.put("clientDeviceID", clientDeviceId);
         } catch (JSONException e) {
             registrationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
-            return;
-        } catch (SdkException e) {
-            registrationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
             return;
         }
 
@@ -589,15 +597,40 @@ public class Registration {
                         registrationListener.onError(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR);
                         return;
                     }
+                    try {
+                        if (httpResponse.getStatusCode() == 200) {
+                            JSONObject respObj = new JSONObject(httpResponse.getResponse());
+                            int respCode = respObj.getInt("responseCode");
+                            if (respCode != 200) {
+                                registrationListener.onError(SdkErrorImpl.getInstance(respCode, respObj.getString("message")));
+                                return;
+                            }
+                        }
+                    }catch (Exception e)
+                    {
+                        registrationListener.onError(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR);
+                        return;
+                    }
 
                     ComvivaSdkInitData comvivaSdkInitData = new ComvivaSdkInitData();
                     comvivaSdkInitData.setMdesInitState(false);
                     comvivaSdkInitData.setVtsInitState(false);
                     comvivaSdkInitData.setInitState(false);
+                    comvivaSdkInitData.setClientWalletAccountId(clientWalletAccountId);
 
                     try {
                         JSONObject respObj = new JSONObject(httpResponse.getResponse());
                         SdkError sdkError = SdkErrorStandardImpl.SDK_INTERNAL_ERROR;
+
+                        boolean isHvtSupported = respObj.getBoolean(Tags.HVT_SUPPPORT.getTag());
+
+                        // Fetch these values from server response, when implemented on paymentAppServer
+                        comvivaSdkInitData.setHvtSupport(isHvtSupported);
+                        if(comvivaSdkInitData.isHvtSupport()) {
+                            double hvtLimit = respObj.getDouble(Tags.HVT_LIMIT.getTag());
+                            comvivaSdkInitData.setHvtLimit(hvtLimit);
+                        }
+                        comvivaSdkInitData.setReplenishmentThresold(2);
 
                         // MDES Initialization
                         if (schemeType == null || schemeType == SchemeType.ALL || schemeType == SchemeType.MASTERCARD) {
@@ -641,32 +674,34 @@ public class Registration {
         }
     }
 
-    /**
-     * De-register a user and associated device.
-     * @param userId                User Id to be de-registered
-     * @param unregisterTdsListener Listener
-     */
-    public void unRegister(final String userId, final String imei, final UnregisterTdsListener unregisterTdsListener) {
-        // UnRegister Device
-        try {
-            final JSONObject unRegDeviceJson = new JSONObject();
-            unRegDeviceJson.put("userId", userId);
-            unRegDeviceJson.put("imei", imei);
 
+    /**
+     * Un-Register device of the user.
+     *
+     * @param imei   IMEI of the user device
+     * @param userID  user ID of the user.
+     * @param registrationListener UI listener for Activate User
+     */
+    public void unRegisterDevice(final String imei, final String userID, final  RegistrationListener registrationListener) {
+        // Un-Register Device
+        try {
+            final JSONObject unRegisterDevice = new JSONObject();
+            unRegisterDevice.put("imei", imei);
+            unRegisterDevice.put("userId",userID);
             // Activate User
             class UnRegisterDeviceTask extends AsyncTask<Void, Void, HttpResponse> {
                 @Override
                 protected void onPreExecute() {
                     super.onPreExecute();
-                    if (unregisterTdsListener != null) {
-                        unregisterTdsListener.onStarted();
+                    if (registrationListener != null) {
+                        registrationListener.onStarted();
                     }
                 }
 
                 @Override
                 protected HttpResponse doInBackground(Void... params) {
                     HttpUtil httpUtil = HttpUtil.getInstance();
-                    return httpUtil.postRequest(UrlUtil.getUnRegisterDeviceUrl(), unRegDeviceJson.toString());
+                    return httpUtil.postRequest(UrlUtil.getUnRegisterDeviceUrl(), unRegisterDevice.toString());
                 }
 
                 @Override
@@ -674,26 +709,49 @@ public class Registration {
                     super.onPostExecute(httpResponse);
 
                     if (null == httpResponse) {
-                        unregisterTdsListener.onError(SdkErrorStandardImpl.SERVER_NOT_RESPONDING);
+                        registrationListener.onError(SdkErrorStandardImpl.SERVER_NOT_RESPONDING);
                         return;
                     }
 
                     if (httpResponse.getStatusCode() != 200) {
-                        unregisterTdsListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(),
-                                httpResponse.getReqStatus()));
+                        registrationListener.onError(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR);
                         return;
                     }
-                    unregisterTdsListener.onSuccess();
+                    try {
+                        if (httpResponse.getStatusCode() == 200) {
+                            JSONObject jsEnrollPanResp = new JSONObject(httpResponse.getResponse());
+                            try {
+                                if (jsEnrollPanResp.getInt(Tags.RESPONSE_CODE.getTag()) != 200) {
+                                    registrationListener.onError(SdkErrorImpl.getInstance(jsEnrollPanResp.getInt(Tags.RESPONSE_CODE.getTag()),
+                                            jsEnrollPanResp.getString(Tags.MESSAGE.getTag())));
+                                }else
+                                {
+                                    ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                                    comvivaSdk.resetDevice();
+                                    registrationListener.onCompleted();
+                                }
+                            } catch (Exception e) {
+                                registrationListener.onError(SdkErrorImpl.getInstance(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION.getErrorCode(), jsEnrollPanResp.getString(Tags.MESSAGE.getTag())));
+                            }
+                        } else {
+                            if (registrationListener != null) {
+                                registrationListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                            }
+                        }
+                    }catch (Exception e)
+                    {
+                        if (registrationListener != null) {
+                            registrationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+                        }
+                    }
                 }
             }
-            UnRegisterDeviceTask registerDeviceTask = new UnRegisterDeviceTask();
-            registerDeviceTask.execute();
-        } catch (JSONException e) {
-            Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
-            unregisterTdsListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-        } catch (Exception e) {
-            Log.d(Constants.LOGGER_TAG_SDK_ERROR, e.getMessage());
-            unregisterTdsListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+
+            UnRegisterDeviceTask unRegisterDeviceTask = new UnRegisterDeviceTask();
+            unRegisterDeviceTask.execute();
+        }catch (JSONException e) {
+            e.printStackTrace();
+            registrationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
         }
     }
 }

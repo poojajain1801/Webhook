@@ -18,6 +18,10 @@ import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.UrlUtil;
 import com.mastercard.mcbp.api.McbpCardApi;
+import com.visa.cbp.sdk.facade.VisaPaymentSDK;
+import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
+import com.visa.cbp.sdk.facade.data.TokenData;
+import com.visa.cbp.sdk.facade.data.TokenKey;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,14 +33,59 @@ import java.util.ArrayList;
  * This Class contains all transaction history related APIs.
  */
 public class TransactionHistory {
-    private static ArrayList<String> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
-        String transactionScope = jsTransactionHistory.getString("transactionScope");
+    private static ArrayList<TransactionDetails> parseTransactionHistoryData(JSONObject jsTransactionHistory) throws JSONException {
         JSONArray transactionDetailsArray = jsTransactionHistory.getJSONArray("transactionDetails");
-        ArrayList<String> encTransactionInfo = new ArrayList<>();
-        for (int i = 0; i < transactionDetailsArray.length(); i++) {
-            encTransactionInfo.add(transactionDetailsArray.getJSONObject(0).getString("encTransactionInfo"));
+        ArrayList<TransactionDetails> transactionDetails = new ArrayList<>();
+        TransactionDetails txnDetail;
+
+        JSONObject jsTxnHistoryRec;
+        final int noOfTxnHistory = transactionDetailsArray.length();
+        for (int i = 0; i < noOfTxnHistory; i++) {
+            jsTxnHistoryRec = new JSONObject(transactionDetailsArray.getJSONObject(i).getString("txnHistory"));
+
+            txnDetail = new TransactionDetails();
+            if(jsTxnHistoryRec.has("vProvisionedTokenID")) {
+                String vProvisionedTokenId = jsTxnHistoryRec.getString("vProvisionedTokenID");
+                VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
+                TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
+                txnDetail.setTokenUniqueReference(tokenData.getTokenLast4());
+            }
+
+            txnDetail.setTransactionIdentifier(jsTxnHistoryRec.getString("transactionID"));
+            int transactionType = jsTxnHistoryRec.getInt("transactionType");
+            if(transactionType == 0) {
+                txnDetail.setTransactionType("Purchase");
+            } else if(transactionType == 1) {
+                txnDetail.setTransactionType("Refund");
+            }
+            txnDetail.setTransactionTimestamp(jsTxnHistoryRec.getString("transactionDate"));
+            txnDetail.setMerchantName(jsTxnHistoryRec.getString("merchantName"));
+            txnDetail.setAmount(jsTxnHistoryRec.getDouble("amount"));
+            txnDetail.setCurrencyCode(jsTxnHistoryRec.getString("currencyCode"));
+
+            switch (jsTxnHistoryRec.getInt("transactionStatus")) {
+                case 1:
+                    txnDetail.setAuthorizationStatus("Approved");
+                    break;
+
+                case 2:
+                    txnDetail.setAuthorizationStatus("Refunded");
+                    break;
+
+                case 3:
+                    txnDetail.setAuthorizationStatus("Declined");
+                    break;
+
+                case 4:
+                    txnDetail.setAuthorizationStatus("Settled");
+                    break;
+            }
+            txnDetail.setMerchantPostalCode(jsTxnHistoryRec.getString("merchantZipCode"));
+            txnDetail.setAtc(jsTxnHistoryRec.getString("atc"));
+            transactionDetails.add(txnDetail);
         }
-        return encTransactionInfo;
+        return transactionDetails;
     }
 
     /**
@@ -111,6 +160,7 @@ public class TransactionHistory {
 
     /**
      * TDS Notification data having second part of registration code 2 to complete TDS registration.
+     *
      * @param tdsNotificationData Tds Notification Data
      */
     public static void registerWithTdsFinish(final TdsNotificationData tdsNotificationData) {
@@ -119,7 +169,7 @@ public class TransactionHistory {
         final ComvivaSdk comvivaSdk;
         try {
             comvivaSdk = ComvivaSdk.getInstance(null);
-        }  catch (SdkException e) {
+        } catch (SdkException e) {
             walletListener.onTdsRegistrationError(tdsNotificationData.getTokenUniqueReference(), e.getMessage());
             return;
         }
@@ -353,15 +403,15 @@ public class TransactionHistory {
         try {
             jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId());
             if (count < 0 || count > 10) {
-                if(transactionHistoryListener != null) {
-                transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
+                if (transactionHistoryListener != null) {
+                    transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
                 }
             } else {
                 jsTransactionHistoryObject.put("Count", count);
             }
         } catch (JSONException e) {
-            if(transactionHistoryListener != null) {
-            transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            if (transactionHistoryListener != null) {
+                transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             }
             return;
         }
@@ -370,7 +420,7 @@ public class TransactionHistory {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                if(transactionHistoryListener != null) {
+                if (transactionHistoryListener != null) {
                     transactionHistoryListener.onStarted();
                 }
             }
@@ -384,28 +434,31 @@ public class TransactionHistory {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                    if (httpResponse.getStatusCode() == 200) {
-                        try {
-                            JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
-                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                            if(transactionHistoryListener != null) {
-                                transactionHistoryListener.onError(SdkErrorImpl.getInstance(jsTransactionHistoryResponse.getInt("reasonCode"), jsTransactionHistoryResponse.getString("message")));
-                            }
+                if (httpResponse.getStatusCode() == 200) {
+                    try {
+                        JSONObject jsTransactionHistoryResponse = new JSONObject(httpResponse.getResponse());
+                        if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag())) {
+                            int respCode = jsTransactionHistoryResponse.getInt(Tags.RESPONSE_CODE.getTag());
+                            // Error
+                            if (respCode != 200) {
+                                if (transactionHistoryListener != null) {
+                                    transactionHistoryListener.onError(SdkErrorImpl.getInstance(respCode, jsTransactionHistoryResponse.getString(Tags.MESSAGE.getTag())));
+                                }
                                 return;
-                            }
-                            if (jsTransactionHistoryResponse.has(Tags.RESPONSE_CODE.getTag()) && jsTransactionHistoryResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                                ArrayList<String> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
+                            } else {
+                                ArrayList<TransactionDetails> encryptedTransactionInfo = parseTransactionHistoryData(jsTransactionHistoryResponse);
                                 if (transactionHistoryListener != null) {
                                     transactionHistoryListener.onSuccess(encryptedTransactionInfo);
                                 }
                             }
-                        } catch (JSONException e) {
-                        if(transactionHistoryListener != null) {
+                        }
+                    } catch (JSONException e) {
+                        if (transactionHistoryListener != null) {
                             transactionHistoryListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
                     }
-                    } else {
-                    if(transactionHistoryListener != null) {
+                } else {
+                    if (transactionHistoryListener != null) {
                         transactionHistoryListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 }

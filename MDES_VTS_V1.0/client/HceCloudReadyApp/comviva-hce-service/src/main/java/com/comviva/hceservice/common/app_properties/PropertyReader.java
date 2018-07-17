@@ -46,4 +46,16 @@ public class PropertyReader {
         }
         return null;
     }
+
+    public String getToastMessage(final String key) {
+        final Properties properties = new Properties();
+        try {
+            final InputStream inputStream = this.assetManager.open("ComvivaSdk.properties");
+            properties.load(inputStream);
+            return properties.getProperty(key);
+        }
+        catch (IOException ex) {
+            return null;
+        }
+    }
 }

@@ -58,6 +58,4 @@ public enum AssetType {
         }
         return null;
     }
-
-
 }

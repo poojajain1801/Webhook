@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.SdkError;
@@ -19,6 +21,8 @@ import com.comviva.hceservice.digitizationApi.DigitizationRequest;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.mdesapp.R;
+
+import java.nio.charset.StandardCharsets;
 
 public class TnCActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -36,11 +40,7 @@ public class TnCActivity extends AppCompatActivity {
         final ContentGuid tncContent = (ContentGuid) getIntent().getSerializableExtra("eligibilityResponse");
         MediaContent[] mediaContents = tncContent.getContent();
         if (mediaContents.length != 0) {
-            switch (mediaContents[0].getAssetType()) {
-                case TEXT_PLAIN:
-                    etTnC.setText(mediaContents[0].getData());
-                    break;
-            }
+            etTnC.setText(mediaContents[0].getData());
         }
         final CardType cardType = (CardType) getIntent().getSerializableExtra("CardType");
 
@@ -83,7 +83,9 @@ public class TnCActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onApproved() {
+                    public void onApproved(String instrumentID) {
+
+                     //   Toast.makeText(TnCActivity.this, "digitization Approved" + instrumentID, Toast.LENGTH_SHORT).show();
                         if (progressDialog.isShowing()) {
                             progressDialog.dismiss();
                         }
@@ -101,7 +103,9 @@ public class TnCActivity extends AppCompatActivity {
                                     .setIcon(android.R.drawable.ic_dialog_alert)
                                     .show();
                         } else if(cardType == CardType.VTS) {
-                            startActivity(new Intent(TnCActivity.this, HomeActivity.class));
+                            Intent intent = new Intent(TnCActivity.this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
                         }
                     }
 
@@ -150,8 +154,7 @@ public class TnCActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // T&C Declined so redirect to home
-                digitization.requestSession();
-                //startActivity(new Intent(TnCActivity.this, HomeActivity.class));
+                startActivity(new Intent(TnCActivity.this, HomeActivity.class));
             }
         });
 

@@ -7,11 +7,11 @@
         android:orderInCategory="100"
         android:title="Add Card" />
 
-    <item
+    <!--<item
         android:id="@+id/setPin"
         android:orderInCategory="100"
         android:title="Set PIN"
-        android:visible="false"/>
+        android:visible="false"/>-->
 
     <item
         android:id="@+id/suspendCard"
@@ -28,7 +28,7 @@
         android:orderInCategory="100"
         android:title="Delete Card" />
 
-    <item
+    <!--<item
         android:id="@+id/changePin"
         android:orderInCategory="100"
         android:title="Change Pin"
@@ -44,7 +44,7 @@
         android:id="@+id/transactionDetails"
         android:orderInCategory="100"
         android:title="Transaction History"
-        android:visible="false"/>
+        android:visible="false"/>-->
 
     <item
         android:id="@+id/unregisterTds"
@@ -73,13 +73,15 @@
         android:title="Get Card Meta Data" />
 
     <item
-        android:id="@+id/replenish_oda_data"
+        android:id="@+id/unregister_device"
         android:orderInCategory="100"
-        android:title="Replenish ODA Data" />
+        android:title="Un Register Device" />
 
 
     <item
         android:id="@+id/get_content"
         android:orderInCategory="100"
         android:title="Get Content" />
+
+
 </menu>

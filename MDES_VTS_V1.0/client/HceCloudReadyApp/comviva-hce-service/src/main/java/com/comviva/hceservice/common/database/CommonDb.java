@@ -1,6 +1,7 @@
 package com.comviva.hceservice.common.database;
 
 
+import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.fcm.RnsInfo;
 
@@ -50,4 +51,36 @@ public interface CommonDb {
      * @return Default Card
      */
     PaymentCard getDefaultCard();
+
+    /**
+     * Reset default card.
+     */
+    void resetDefaultCard();
+
+    /**
+     * Returns Luk information i.e. number of payments remaining and key expiry time.
+     * @param cardUniqueId Card
+     * @return LUK Information
+     */
+    LukInfo getLukInfoVisa(String cardUniqueId);
+
+    /**
+     * Update number of payments left for a LUK of a given Token.
+     * @param card   Card
+     * @return <code>true </code>Updated successfully<br>
+     *     <code>false </code>Not able to update
+     */
+    boolean consumeLuk(PaymentCard card);
+
+    /**
+     * Insert LUK info for new token.
+     * @param lukInfo LUK Information
+     * @return <code>true </code>Inserted successfully<br>
+     *     <code>false </code>Not able to insert
+     */
+    boolean insertLukInfo(LukInfo lukInfo);
+
+    boolean updateLukInfo(LukInfo lukInfo);
+
+    void deleteLukInfo(PaymentCard card);
 }

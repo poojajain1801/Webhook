@@ -39,4 +39,21 @@ public class DeviceLockUtil {
         }
     }
 
+    /**
+     * Checks that device is currently locked or not.
+     * @param context Current Context
+     * @return <coe>true </coe>Device is locked <br>
+     *     <code>false </code>Device is UnLocked
+     */
+    public static boolean isDeviceLocked(Context context) {
+        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        if( keyguardManager.inKeyguardRestrictedInputMode() ) {
+            // it is locked
+            return true;
+        } else {
+            //it is not locked
+            return false;
+        }
+    }
+
 }

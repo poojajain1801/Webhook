@@ -16,7 +16,11 @@ public class UrlUtil {
                                   final String payAppServerPort,
                                   final String cmsDIp,
                                   final String cmsDPort) {
-        PAYMENT_APP_SERVER_ADDRESS = "http://" + payAppServerIp + ":" + payAppServerPort + "/payment-app/";
+        if(payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("-1")) {
+            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + "/payment-app/";
+        } else {
+            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + ":" + payAppServerPort + "/payment-app/";
+        }
 
         //http://localhost:9099/mdes/paymentapp/1/0/requestSession
         CMS_D_SERVER_ADDRESS = "http://" + cmsDIp + ":" + cmsDPort + "/mdes/paymentapp/1/0/";
@@ -35,7 +39,7 @@ public class UrlUtil {
     }
 
     public static String getUnRegisterDeviceUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/device/unRegister";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/device/deRegister";
     }
 
     public static String getCheckCardEligibilityUrl() {

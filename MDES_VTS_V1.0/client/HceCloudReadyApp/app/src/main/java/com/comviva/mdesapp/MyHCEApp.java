@@ -22,7 +22,7 @@ import java.util.Random;
  * Created by tarkeshwar.v on 3/21/2017.
  */
 
-public class MyHCEApp extends Application {
+    public class MyHCEApp extends Application {
     private static MyHCEApp appInstance;
     private ComvivaWalletListener mEventListener;
 
@@ -30,7 +30,6 @@ public class MyHCEApp extends Application {
     public void onCreate() {
         super.onCreate();
         appInstance = this;
-
         mEventListener = new WalletListener();
         ComvivaFCMService.setComvivaWalletListener(mEventListener);
     }

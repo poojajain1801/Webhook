@@ -17,6 +17,7 @@ public class TransactionDetails implements Serializable {
     private String merchantName;
     private String merchantType;
     private String merchantPostalCode;
+    private String atc;
 
     /**
      * The Token for this transaction.
@@ -231,4 +232,19 @@ public class TransactionDetails implements Serializable {
         this.merchantPostalCode = merchantPostalCode;
     }
 
+    /**
+     * Returns ATC Value.
+     * @return ATC
+     */
+    public String getAtc() {
+        return atc;
+    }
+
+    /**
+     * Set ATC.
+     * @param atc ATC
+     */
+    public void setAtc(String atc) {
+        this.atc = atc;
+    }
 }

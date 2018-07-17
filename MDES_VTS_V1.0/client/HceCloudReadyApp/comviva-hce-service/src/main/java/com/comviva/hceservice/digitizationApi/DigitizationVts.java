@@ -1,44 +1,42 @@
 package com.comviva.hceservice.digitizationApi;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.CardLcmOperation;
+import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
+import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
+import com.comviva.hceservice.security.RSAUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
 import com.comviva.hceservice.util.HttpUtil;
 import com.comviva.hceservice.util.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
+import com.google.gson.Gson;
 import com.visa.cbp.external.aam.ReplenishAckRequest;
 import com.visa.cbp.external.aam.ReplenishRequest;
 import com.visa.cbp.external.aam.ReplenishResponse;
-import com.visa.cbp.external.common.AidInfo;
 import com.visa.cbp.external.common.DynParams;
 import com.visa.cbp.external.common.ExpirationDate;
 import com.visa.cbp.external.common.HceData;
 import com.visa.cbp.external.common.IccPubKeyCert;
-import com.visa.cbp.external.common.MsdData;
-import com.visa.cbp.external.common.ODAData;
-import com.visa.cbp.external.common.PaymentInstrument;
-import com.visa.cbp.external.common.QVSDCData;
-import com.visa.cbp.external.common.QVSDCWithoutODA;
 import com.visa.cbp.external.common.ReplenishODAData;
 import com.visa.cbp.external.common.ReplenishODAResponse;
-import com.visa.cbp.external.common.StaticParams;
-import com.visa.cbp.external.common.StepUpRequest;
-import com.visa.cbp.external.common.TokenBinPubKeyCert;
 import com.visa.cbp.external.common.TokenInfo;
-import com.visa.cbp.external.common.Track2DataDec;
-import com.visa.cbp.external.common.Track2DataNotDec;
 import com.visa.cbp.external.enp.ProvisionAckRequest;
 import com.visa.cbp.external.enp.ProvisionResponse;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
@@ -46,14 +44,21 @@ import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
+import com.visa.cbp.sdk.facade.data.TvlEntry;
+import com.visa.cbp.sdk.facade.error.SDKErrorType;
 import com.visa.cbp.sdk.facade.exception.CryptoException;
+import com.visa.cbp.sdk.facade.exception.RootDetectException;
 import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
+import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import flexjson.JSONDeserializer;
@@ -99,6 +104,9 @@ class DigitizationVts {
                 }
             } catch (JSONException e) {
                 listener.onError("Wrong data from server");
+            }catch(Exception e)
+            {
+                listener.onError("SDK Internal Error");
             }
         }
     }
@@ -123,6 +131,9 @@ class DigitizationVts {
                 if (listener != null) {
                     listener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
                 }
+            }catch(Exception e)
+            {
+                listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             }
         }
 
@@ -140,11 +151,14 @@ class DigitizationVts {
         @Override
         protected void onPostExecute(HttpResponse httpResponse) {
             super.onPostExecute(httpResponse);
-
-            if (httpResponse.getStatusCode() == 200) {
-                listener.onCompleted();
-            } else {
-                listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+            try {
+                if (httpResponse.getStatusCode() == 200) {
+                    listener.onCompleted();
+                } else {
+                    listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }catch (Exception e){
+                listener.onError(SdkErrorStandardImpl.SERVER_NOT_RESPONDING);
             }
         }
     }
@@ -182,16 +196,20 @@ class DigitizationVts {
         @Override
         protected void onPostExecute(HttpResponse httpResponse) {
             super.onPostExecute(httpResponse);
-
-            if (httpResponse.getStatusCode() == 200) {
-                listener.onCompleted();
-            } else {
-                listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+            try {
+                if (httpResponse.getStatusCode() == 200) {
+                    listener.onCompleted();
+                } else {
+                    listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                }
+            }catch(Exception e)
+            {
+                listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             }
         }
     }
 
-    private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException {
+    private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException,Exception {
         ContentGuid contentGuid = new ContentGuid();
         if (jsGetContentResponse.has("altText")) {
             contentGuid.setAltText(jsGetContentResponse.getString("altText"));
@@ -203,7 +221,7 @@ class DigitizationVts {
         for (int i = 0; i < jsArrContent.length(); i++) {
             jsContent = jsArrContent.getJSONObject(0);
             mediaContents[i] = new MediaContent();
-            mediaContents[i].setData(new String(Base64.decode(jsContent.getString("encodedData"), Base64.DEFAULT)));
+            mediaContents[i].setData(jsContent.getString("encodedData"));
             String contentType = jsContent.getString("mimeType");
             if (contentType.equalsIgnoreCase("image/pdf")) {
                 mediaContents[i].setAssetType(AssetType.APPLICATION_PDF);
@@ -222,7 +240,39 @@ class DigitizationVts {
         return contentGuid;
     }
 
-    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException {
+
+   /* private ContentGuid parseGetContentResponse(JSONObject jsGetContentResponse) throws JSONException {
+        ContentGuid contentGuid = new ContentGuid();
+        if (jsGetContentResponse.has("altText")) {
+            contentGuid.setAltText(jsGetContentResponse.getString("altText"));
+        }
+        contentGuid.setContentType(ContentType.getContentType(jsGetContentResponse.getString("contentType")));
+        JSONArray jsArrContent = jsGetContentResponse.getJSONArray("content");
+        MediaContent[] mediaContents = new MediaContent[jsArrContent.length()];
+        JSONObject jsContent;
+        for (int i = 0; i < jsArrContent.length(); i++) {
+            jsContent = jsArrContent.getJSONObject(0);
+            mediaContents[i] = new MediaContent();
+            mediaContents[i].setData(jsContent.getString("encodedData"));
+            String contentType = jsContent.getString("mimeType");
+            if (contentType.equalsIgnoreCase("image/pdf")) {
+                mediaContents[i].setAssetType(AssetType.APPLICATION_PDF);
+            } else {
+                mediaContents[i].setAssetType(AssetType.getType(contentType));
+            }
+
+            switch (mediaContents[i].getAssetType()) {
+                case IMAGE_PNG:
+                case APPLICATION_PDF:
+                    mediaContents[i].setHeight(jsContent.getInt("height"));
+                    mediaContents[i].setWidth(jsContent.getInt("width"));
+            }
+        }
+        contentGuid.setContent(mediaContents);
+        return contentGuid;
+    }*/
+
+    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException,Exception {
 
         JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
         JSONObject jsExpirationDateObject = jsTokenInfoObject.getJSONObject("expirationDate");
@@ -254,7 +304,7 @@ class DigitizationVts {
         return tokenInfo;
     }
 
-    private EnrollPanResponse parseEnrollPanResponse(JSONObject jsEnrollPanResp) throws JSONException {
+    private EnrollPanResponse parseEnrollPanResponse(JSONObject jsEnrollPanResp) throws JSONException,Exception {
         EnrollPanResponse enrollPanResponse = new EnrollPanResponse();
         enrollPanResponse.setvPanEnrollmentID(jsEnrollPanResp.getString(Tags.VPAN_ENROLLMENT_ID.getTag()));
 
@@ -274,6 +324,7 @@ class DigitizationVts {
         paymentInstrumentComviva.setEnabledServices(enabledServices);
         enrollPanResponse.setPaymentInstrumentComviva(paymentInstrumentComviva);
 
+
         // Card MetaData
         JSONObject jsCardMetaData = jsEnrollPanResp.getJSONObject("cardMetaData");
         com.comviva.hceservice.digitizationApi.CardMetaData cardMetaData = new com.comviva.hceservice.digitizationApi.CardMetaData();
@@ -283,6 +334,41 @@ class DigitizationVts {
         cardMetaData.setShortDescription(jsCardMetaData.getString("shortDescription"));
         cardMetaData.setLabelColor(jsCardMetaData.getString("labelColor"));
         cardMetaData.setTermsAndConditionsID(jsCardMetaData.getString("termsAndConditionsID"));
+        CardData[] cardDatas ;
+        if(jsCardMetaData.has("cardData"))
+        {
+            JSONArray cardDataArray = jsCardMetaData.getJSONArray("cardData");
+            cardDatas = new CardData[cardDataArray.length()];
+            for(int i=0;i<cardDataArray.length();i++)
+            {
+                JSONObject cardDataObject =  cardDataArray.getJSONObject(i);
+                CardData cardData = new CardData();
+                cardData.setGuid(cardDataObject.getString("guid"));
+                ContentType contentType = ContentType.getContentType(cardDataObject.getString("contentType"));
+                cardData.setContentType(contentType);
+                if(cardDataObject.has("content"))
+                {
+                    JSONArray contentArray = cardDataObject.getJSONArray("content");
+                    Content content = new Content();
+                    if(contentArray.getJSONObject(0).has("width"))
+                    {
+                        content.setWidth(Integer.parseInt(contentArray.getJSONObject(0).getString("width")));
+                    }
+                    if(contentArray.getJSONObject(0).has("height"))
+                    {
+                        content.setHeight(Integer.parseInt(contentArray.getJSONObject(0).getString("height")));
+                    }
+                    if(contentArray.getJSONObject(0).has("mimeType"))
+                    {
+                        content.setMimeType(AssetType.getType(contentArray.getJSONObject(0).getString("mimeType")));
+                    }
+                    cardData.setContent(content);
+                }
+                cardDatas[i] = cardData;
+            }
+            cardMetaData.setCardDatas(cardDatas);
+        }
+
 
         if (jsCardMetaData.has("contactEmail")) {
             cardMetaData.setContactEmail(jsCardMetaData.getString("contactEmail"));
@@ -327,174 +413,7 @@ class DigitizationVts {
         return enrollPanResponse;
     }
 
-    private ProvisionResponse parseProvisionResponse(JSONObject jsProvisionResponse) throws JSONException {
-        ProvisionResponse provisionResponse = new ProvisionResponse();
-
-        // Payment Instrument
-        JSONObject jsPaymentInstrument = jsProvisionResponse.getJSONObject("paymentInstrument");
-        PaymentInstrument paymentInstrument = new PaymentInstrument();
-        paymentInstrument.setLast4(jsPaymentInstrument.getString("last4"));
-        JSONObject jsExpirationDate = jsPaymentInstrument.getJSONObject("expirationDate");
-        ExpirationDate expirationDate = new ExpirationDate();
-        expirationDate.setMonth(jsExpirationDate.getString("month"));
-        expirationDate.setYear(jsExpirationDate.getString("year"));
-        paymentInstrument.setExpirationDate(expirationDate);
-        if (jsPaymentInstrument.has("accountStatus")) {
-            paymentInstrument.setAccountStatus(Boolean.getBoolean(jsPaymentInstrument.getString("accountStatus")).name());
-        }
-        if (jsPaymentInstrument.has("isTokenizable")) {
-            paymentInstrument.setIsTokenizable(Boolean.getBoolean(jsPaymentInstrument.getString("isTokenizable")).name());
-        }
-        provisionResponse.setPaymentInstrument(paymentInstrument);
-
-        // TokenInfo
-        JSONObject jsTokenInfo = jsProvisionResponse.getJSONObject("tokenInfo");
-        TokenInfo tokenInfo = new TokenInfo();
-        tokenInfo.setTokenStatus(jsTokenInfo.getString("tokenStatus"));
-        tokenInfo.setTokenRequestorID(jsTokenInfo.getString("tokenRequestorID"));
-        tokenInfo.setTokenReferenceID(jsTokenInfo.getString("tokenReferenceID"));
-        tokenInfo.setLast4(jsTokenInfo.getString("last4"));
-        JSONObject jsExpirationDateTi = jsPaymentInstrument.getJSONObject("expirationDate");
-        ExpirationDate expirationDateTi = new ExpirationDate();
-        expirationDateTi.setMonth(jsExpirationDateTi.getString("month"));
-        expirationDateTi.setYear(jsExpirationDateTi.getString("year"));
-        tokenInfo.setExpirationDate(expirationDateTi);
-        tokenInfo.setAppPrgrmID(jsTokenInfo.getString("appPrgrmID"));
-        tokenInfo.setEncTokenInfo(jsTokenInfo.getString("encTokenInfo"));
-        JSONObject jsHceData = jsTokenInfo.getJSONObject("hceData");
-        HceData hceData = new HceData();
-
-        JSONObject jsDynParams = jsHceData.getJSONObject("dynParams");
-        DynParams dynParams = new DynParams();
-        dynParams.setEncKeyInfo(jsDynParams.getString("encKeyInfo"));
-        dynParams.setMaxPmts(jsDynParams.getInt("maxPmts"));
-        dynParams.setApi(jsDynParams.getString("api"));
-        dynParams.setSc(jsDynParams.getInt("sc"));
-        dynParams.setKeyExpTS(jsDynParams.getLong("keyExpTS"));
-        dynParams.setDki(jsDynParams.getString("dki"));
-        hceData.setDynParams(dynParams);
-
-        JSONObject jsStaticParams = jsHceData.getJSONObject("staticParams");
-        StaticParams staticParams = new StaticParams();
-        JSONArray jsArrAidInfo = jsStaticParams.getJSONArray("aidInfo");
-        List<AidInfo> lsAidInfo = new ArrayList<>();
-        JSONObject jsAidInfo;
-        AidInfo aidInfo;
-        for (int i = 0; i < jsArrAidInfo.length(); i++) {
-            jsAidInfo = jsArrAidInfo.getJSONObject(i);
-            aidInfo = new AidInfo();
-            aidInfo.setApplicationLabel(jsAidInfo.getString("applicationLabel"));
-            aidInfo.setAid(jsAidInfo.getString("aid"));
-            aidInfo.setPriority(jsAidInfo.getString("priority"));
-            aidInfo.setCVMrequired(jsAidInfo.getString("CVMrequired"));
-            aidInfo.setCap(jsAidInfo.getString("cap"));
-            if (jsAidInfo.has("asrpd")) {
-                aidInfo.setAsrpd(jsAidInfo.getString("asrpd"));
-            }
-            lsAidInfo.add(aidInfo);
-        }
-        staticParams.setAidInfo(lsAidInfo);
-        staticParams.setKernelIdentifier(jsStaticParams.getString("kernelIdentifier"));
-        staticParams.setCardHolderNameVCPCS(jsStaticParams.getString("cardHolderNameVCPCS"));
-        staticParams.setPdol(jsStaticParams.getString("pdol"));
-        if (jsStaticParams.has("countrycode5F55")) {
-            staticParams.setCountrycode5F55(jsStaticParams.getString("countrycode5F55"));
-        }
-        if (jsStaticParams.has("issuerIdentificationNumber")) {
-            staticParams.setIssuerIdentificationNumber("issuerIdentificationNumber");
-        }
-        JSONObject jsMsdData = jsStaticParams.getJSONObject("msdData");
-        MsdData msdData = new MsdData();
-        msdData.setAip(jsMsdData.getString("aip"));
-        msdData.setAfl(jsMsdData.getString("afl"));
-        staticParams.setMsdData(msdData);
-
-        JSONObject jsQVSDCData = jsStaticParams.getJSONObject("qVSDCData");
-        QVSDCData qvsdcData = new QVSDCData();
-        qvsdcData.setCtq(jsQVSDCData.getString("ctq"));
-        if (jsQVSDCData.has("ced")) {
-            qvsdcData.setCed(jsQVSDCData.getString("ced"));
-        }
-        qvsdcData.setFfi(jsQVSDCData.getString("ffi"));
-        qvsdcData.setAuc(jsQVSDCData.getString("auc"));
-        qvsdcData.setPsn(jsQVSDCData.getString("psn"));
-        qvsdcData.setCvn(jsQVSDCData.getString("cvn"));
-        qvsdcData.setDigitalWalletID(jsQVSDCData.getString("digitalWalletID"));
-        qvsdcData.setCountryCode(jsQVSDCData.getString("countryCode"));
-        qvsdcData.setCid(jsQVSDCData.getString("cid"));
-        JSONObject jsQVSDCWithoutODA = jsQVSDCData.getJSONObject("qVSDCWithoutODA");
-        QVSDCWithoutODA qvsdcWithoutODA = new QVSDCWithoutODA();
-        qvsdcWithoutODA.setAip(jsQVSDCWithoutODA.getString("aip"));
-        qvsdcWithoutODA.setAfl(jsQVSDCWithoutODA.getString("afl"));
-        qvsdcData.setQVSDCWithoutODA(qvsdcWithoutODA);
-        staticParams.setQVSDCData(qvsdcData);
-
-        JSONObject jsTrack2DataDec = jsStaticParams.getJSONObject("track2DataDec");
-        Track2DataDec track2DataDec = new Track2DataDec();
-        track2DataDec.setSvcCode(jsTrack2DataDec.getString("svcCode"));
-        staticParams.setTrack2DataDec(track2DataDec);
-
-        if (jsStaticParams.has("track2DataNotDec")) {
-            JSONObject jsTrack2DataNotDec = jsStaticParams.getJSONObject("track2DataNotDec");
-            Track2DataNotDec track2DataNotDec = new Track2DataNotDec();
-            track2DataNotDec.setSvcCode(jsTrack2DataNotDec.getString("svcCode"));
-            track2DataNotDec.setPinVerField(jsTrack2DataNotDec.getString("pinVerField"));
-            track2DataNotDec.setTrack2DiscData(jsTrack2DataNotDec.getString("track2DiscData"));
-            staticParams.setTrack2DataNotDec(track2DataNotDec);
-        }
-
-        hceData.setStaticParams(staticParams);
-        tokenInfo.setHceData(hceData);
-
-        provisionResponse.setTokenInfo(tokenInfo);
-
-        // ODAdata
-        if (jsProvisionResponse.has("ODAdata")) {
-            JSONObject jsODAdata = jsProvisionResponse.getJSONObject("ODAdata");
-            ODAData odaData = new ODAData();
-            odaData.setCaPubKeyIndex(jsODAdata.getString("caPubKeyIndex"));
-
-            odaData.setAppFileLocator(jsODAdata.getString("appFileLocator"));
-            odaData.setAppProfile(jsODAdata.getString("appProfile"));
-            odaData.setEnciccPrivateKey(jsODAdata.getString("enciccPrivateKey"));
-
-            JSONObject jsIccPubKeyCert = jsODAdata.getJSONObject("iccPubKeyCert");
-            IccPubKeyCert iccPubKeyCert = new IccPubKeyCert();
-            iccPubKeyCert.setCertificate(jsIccPubKeyCert.getString("certificate"));
-            iccPubKeyCert.setExponent(jsIccPubKeyCert.getString("exponent"));
-            if (jsIccPubKeyCert.has("remainder")) {
-                iccPubKeyCert.setRemainder(jsIccPubKeyCert.getString("remainder"));
-            }
-            JSONObject jsExpirationDateOda = jsIccPubKeyCert.getJSONObject("expirationDate");
-            ExpirationDate expirationDateOda = new ExpirationDate();
-            expirationDate.setMonth(jsExpirationDateOda.getString("month"));
-            expirationDate.setYear(jsExpirationDateOda.getString("year"));
-            iccPubKeyCert.setExpirationDate(expirationDateOda);
-            odaData.setIccPubKeyCert(iccPubKeyCert);
-
-            TokenBinPubKeyCert tokenBinPubKeyCert = new TokenBinPubKeyCert();
-            odaData.setTokenBinPubKeyCert(tokenBinPubKeyCert);
-
-            provisionResponse.setODAData(odaData);
-        }
-
-        // TODO Find how to parse
-        // Step Up Request
-        if (jsProvisionResponse.has("stepUpRequest")) {
-            JSONObject jsStepUpRequest = jsProvisionResponse.getJSONObject("stepUpRequest");
-            int noOfStepupMethods = jsStepUpRequest.length();
-            StepUpRequest stepUpRequest = new StepUpRequest(null);
-
-            StepUpRequest.CREATOR.newArray(noOfStepupMethods);
-
-            ArrayList<StepUpRequest> listStepUpRequests = new ArrayList<>();
-            provisionResponse.setStepUpRequest(listStepUpRequests);
-        }
-
-        return provisionResponse;
-    }
-
-    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException {
+    private void parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException,Exception {
         JSONObject jsPaymentInstrument = jsGetMetaDataResponse.getJSONObject("paymentInstrument");
         JSONObject jsExpirationDateObject = jsPaymentInstrument.getJSONObject("expirationDate");
         JSONObject jsCardMetaDataResponseObject = jsGetMetaDataResponse.getJSONObject("cardMetaData");
@@ -522,34 +441,12 @@ class DigitizationVts {
         cardMetaData.setTermsAndConditionsID(jsCardMetaDataResponseObject.getString("termsAndConditionsID"));
     }
 
-    private void parseGetPanData(JSONObject jsGetPanDataResponse) throws JSONException {
+    private void parseGetPanData(JSONObject jsGetPanDataResponse) throws JSONException,Exception {
         JSONObject jsPaymentInstrument = jsGetPanDataResponse.getJSONObject("paymentInstrument");
 
         String last4 = jsPaymentInstrument.getString("last4");
         String cvv2PrintedInd = jsPaymentInstrument.getString("cvv2PrintedInd");
         String expDatePrintedInd = jsPaymentInstrument.getString("expDatePrintedInd");
-    }
-
-    private ReplenishResponse parseReplenishmentResponse(JSONObject jsReplenishResponse) throws JSONException {
-        ReplenishResponse replenishResponse = new ReplenishResponse();
-
-        JSONObject jsTokenInfo = jsReplenishResponse.getJSONObject("tokenInfo");
-        JSONObject jsHceData = jsTokenInfo.getJSONObject("hceData");
-        JSONObject jsDynParams = jsHceData.getJSONObject("dynParams");
-
-        TokenInfo tokenInfo = new TokenInfo();
-        HceData hceData = new HceData();
-        DynParams dynParams = new DynParams();
-        dynParams.setMaxPmts(jsDynParams.getInt("maxPmts"));
-        dynParams.setApi(jsDynParams.getString("api"));
-        dynParams.setKeyExpTS(jsDynParams.getLong("keyExpTS"));
-        dynParams.setDki(jsDynParams.getString("dki"));
-        dynParams.setEncKeyInfo(jsDynParams.getString("encKeyInfo"));
-        hceData.setDynParams(dynParams);
-
-        tokenInfo.setHceData(hceData);
-        replenishResponse.setTokenInfo(tokenInfo);
-        return replenishResponse;
     }
 
     /**
@@ -561,29 +458,38 @@ class DigitizationVts {
     void enrollPanVts(final CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         final JSONObject jsonEnrollPanReq = new JSONObject();
         try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            final String clientWalletAccId = comvivaSdk.getInitializationData().getClientWalletAccountId();
+
             JSONObject expirationDate = new JSONObject();
             expirationDate.put("month", cardEligibilityRequest.getExpiryMonth());
             expirationDate.put("year", cardEligibilityRequest.getExpiryYear());
 
             JSONObject encPaymentInstrument = new JSONObject();
             encPaymentInstrument.put("accountNumber", cardEligibilityRequest.getAccountNumber());
-            encPaymentInstrument.put("cvv2", cardEligibilityRequest.getSecurityCode());
+            String cvv2 = cardEligibilityRequest.getSecurityCode();
+            if(cvv2 != null && !cvv2.isEmpty()) {
+                encPaymentInstrument.put("cvv2", cardEligibilityRequest.getSecurityCode());
+            }
             encPaymentInstrument.put("expirationDate", expirationDate);
             encPaymentInstrument.put("name", cardEligibilityRequest.getCardholderName());
 
             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
 
+
             PropertyReader propertyReader = PropertyReader.getInstance(null);
             jsonEnrollPanReq.put("clientAppId", propertyReader.getProperty(PropertyConst.KEY_CLIENT_APP_ID));
-            jsonEnrollPanReq.put("clientWalletAccountId", propertyReader.getProperty(PropertyConst.KEY_CLIENT_WALLET_ACCOUNT_ID));
+            jsonEnrollPanReq.put("clientWalletAccountId", clientWalletAccId);
             jsonEnrollPanReq.put("clientDeviceID", visaPaymentSDK.getDeviceId());
             jsonEnrollPanReq.put("consumerEntryMode", cardEligibilityRequest.getConsumerEntryMode().name());
             jsonEnrollPanReq.put("encPaymentInstrument", encPaymentInstrument);
             jsonEnrollPanReq.put("locale", cardEligibilityRequest.getLocale());
             jsonEnrollPanReq.put("panSource", cardEligibilityRequest.getPanSource().name());
-
-            jsonEnrollPanReq.put("userId", cardEligibilityRequest.getUserId());
-        } catch (Exception e) {
+        }catch (RootDetectException e){
+            ComvivaSdk.reportFraud();
+            checkEligibilityListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+            return;
+        }catch (Exception e) {
             checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
@@ -598,7 +504,16 @@ class DigitizationVts {
 
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), jsonEnrollPanReq.toString());
+                ComvivaSdk comvivaSdk = null;
+                HttpResponse httpResponse = null;
+                try {
+                     comvivaSdk = ComvivaSdk.getInstance(null);
+                    httpResponse =  httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), RSAUtil.doMeth(comvivaSdk.getApplicationContext(),jsonEnrollPanReq.toString()));
+
+                } catch (SdkException e) {
+                    e.printStackTrace();
+                }
+                return httpResponse;
             }
 
             protected void onPostExecute(HttpResponse httpResponse) {
@@ -620,6 +535,7 @@ class DigitizationVts {
                         }
                         enrollPanResponse = parseEnrollPanResponse(jsEnrollPanResp);
 
+
                         GetAssetListener getAssetListener = new GetAssetListener() {
                             @Override
                             public void onStarted() {
@@ -628,6 +544,8 @@ class DigitizationVts {
                             @Override
                             public void onCompleted(ContentGuid contentGuid) {
                                 checkEligibilityListener.onTermsAndConditionsRequired(contentGuid);
+                                checkEligibilityListener.getCardMetadataDetails(enrollPanResponse.getCardMetaData());
+
                             }
 
                             @Override
@@ -664,9 +582,12 @@ class DigitizationVts {
         final JSONObject provisionTokenRequestObject = new JSONObject();
         final VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            final String clientWalletAccId = comvivaSdk.getInitializationData().getClientWalletAccountId();
+
             PropertyReader propertyReader = PropertyReader.getInstance(null);
             provisionTokenRequestObject.put(Tags.CLIENT_APP_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_CLIENT_APP_ID));
-            provisionTokenRequestObject.put(Tags.CLIENT_WALLET_ACCOUNT_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_CLIENT_WALLET_ACCOUNT_ID));
+            provisionTokenRequestObject.put(Tags.CLIENT_WALLET_ACCOUNT_ID.getTag(), clientWalletAccId);
             provisionTokenRequestObject.put(Tags.CLIENT_DEVICE_ID.getTag(), visaPaymentSDK.getDeviceId());
             provisionTokenRequestObject.put(Tags.PAN_ENROLLMENT_ID.getTag(), enrollPanResponse.getvPanEnrollmentID());
             provisionTokenRequestObject.put(Tags.TERMS_AND_CONDITION_ID.getTag(), enrollPanResponse.getCardMetaData().getTermsAndConditionsID());
@@ -676,6 +597,11 @@ class DigitizationVts {
         } catch (JSONException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
+        } catch (SdkException e) {
+            digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+        }catch (RootDetectException e){
+            ComvivaSdk.reportFraud();
+            digitizationListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
         }
 
         class ProvisionTokenTask extends AsyncTask<Void, Void, HttpResponse> {
@@ -693,14 +619,36 @@ class DigitizationVts {
 
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-
                 try {
+                    try {
+                        ComvivaSdk.checkSecurity();
+                    } catch (SdkException e) {
+                        e.printStackTrace();
+                        digitizationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+                        return;
+                    }
                     if (httpResponse.getStatusCode() == 200) {
                         JSONObject jsProvisionResp = new JSONObject(httpResponse.getResponse());
 
+                        if (jsProvisionResp.getInt(Tags.RESPONSE_CODE.getTag()) != 200) {
+                            digitizationListener.onError(SdkErrorImpl.getInstance(jsProvisionResp.getInt(Tags.RESPONSE_CODE.getTag()),
+                                    jsProvisionResp.getString(Tags.MESSAGE.getTag())));
+                            return;
+                        }
+
                         // Parse Provision Response and
                         String vProvisionedTokenID = jsProvisionResp.getString("vProvisionedTokenID");
-                        ProvisionResponse provisionResponse = parseProvisionResponse(jsProvisionResp);
+                        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                        SharedPreferences pref = comvivaSdk.getApplicationContext().getSharedPreferences(Tags.VPAN_ENROLLMENT_ID.getTag(), Context.MODE_PRIVATE); // 0 - for private mode
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString(vProvisionedTokenID,enrollPanResponse.getvPanEnrollmentID()); // Storing string
+                        editor.commit();
+
+
+                        Gson gson = new Gson();
+                        final ProvisionResponse provisionResponse = gson.fromJson(jsProvisionResp.toString(), ProvisionResponse.class);
+                        provisionResponse.getTokenInfo().setTokenStatus("ACTIVE");
+
                         provisionResponse.setVProvisionedTokenID(vProvisionedTokenID);
                         TokenKey tokenKey = visaPaymentSDK.storeProvisionedToken(provisionResponse, enrollPanResponse.getvPanEnrollmentID());
 
@@ -714,7 +662,27 @@ class DigitizationVts {
 
                                     @Override
                                     public void onCompleted() {
-                                        digitizationListener.onApproved();
+                                        try {
+                                            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                                            // Insert LUK Information of this token
+                                            LukInfo lukInfo = new LukInfo();
+                                            lukInfo.setCard(provisionResponse.getVProvisionedTokenID());
+                                            DynParams dynParams = provisionResponse.getTokenInfo().getHceData().getDynParams();
+                                            lukInfo.setNoOfPaymentsRemaining(dynParams.getMaxPmts());
+                                            lukInfo.setKeyExpTime(new Date(dynParams.getKeyExpTS()));
+                                            comvivaSdk.insertLukInfo(lukInfo);
+
+
+                                            ArrayList<PaymentCard> cardList = comvivaSdk.getAllCards();
+                                            if (cardList != null && cardList.size() == 1) {
+                                                comvivaSdk.setDefaultCard(cardList.get(0));
+                                            }
+
+
+                                        } catch (SdkException e) {
+                                            Log.d("ComvivaSdkError", e.getMessage());
+                                        }
+                                        digitizationListener.onApproved(enrollPanResponse.getvPanEnrollmentID());
                                     }
 
                                     @Override
@@ -738,14 +706,26 @@ class DigitizationVts {
                     if (digitizationListener != null) {
                         digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                     }
-                } catch (CryptoException e) {
+                } catch (CryptoException cryptoException) {
+                    //cbpError.getErrorCode() == SDKErrorType.CVM_VERIFICATION_REQUIRED.getCode()
+                        if (cryptoException.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode())
+                        {
+                            ComvivaSdk.reportFraud();
+                            if (digitizationListener != null) {
+                                digitizationListener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                            }
+                        }else
+                        {
+                            if (digitizationListener != null) {
+                                digitizationListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                            }
+                        }
                     if (digitizationListener != null) {
                         digitizationListener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
                     }
                 } catch (Exception e) {
                     if (digitizationListener != null) {
-                        digitizationListener.onError(SdkErrorImpl.getInstance(10, e.getMessage()));
-                        //digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                        digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -757,14 +737,14 @@ class DigitizationVts {
     /**
      * Replenish ODA data.
      *
-     * @param paymentCard   Payment Card need to be checked.
+     * @param paymentCard          Payment Card need to be checked.
      * @param digitizationListener Listener
      */
     void replenishODADataRequest(final PaymentCard paymentCard, final DigitizationListener digitizationListener) {
         final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
         final JSONObject replenishODADataObject = new JSONObject();
         try {
-             replenishODADataObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(),tokenData.getVProvisionedTokenID());
+            replenishODADataObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
         } catch (JSONException e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         }
@@ -786,15 +766,21 @@ class DigitizationVts {
                         }
                         if (replenishODADataResponse.has(Tags.RESPONSE_CODE.getTag()) && replenishODADataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
                             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
+                         /*   visaPaymentSDK.setPasscode("1234");
+                            visaPaymentSDK.verifyPasscode("1234");*/
                             visaPaymentSDK.processODAReplenishResponse(tokenData.getTokenKey(), parseReplenishODADataResponse(replenishODADataResponse));
                             if (digitizationListener != null) {
-                            digitizationListener.onApproved();
-                        }
+                                ComvivaSdk comvivaSdk =  ComvivaSdk.getInstance(null);
+                                SharedPreferences pref = comvivaSdk.getApplicationContext().getSharedPreferences(Tags.VPAN_ENROLLMENT_ID.getTag(), comvivaSdk.getApplicationContext().MODE_PRIVATE);
+                                 digitizationListener.onApproved( pref.getString(tokenData.getVProvisionedTokenID(), null));
+                            }
                         }
                     } catch (JSONException e) {
                         if (digitizationListener != null) {
                             digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
+                    } catch (SdkException e) {
+                        e.printStackTrace();
                     }
                 } else {
                     if (digitizationListener != null) {
@@ -861,11 +847,16 @@ class DigitizationVts {
                         }
 
                     } else if (responseListener != null) {
-                            responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+
+                } catch (Exception e) {
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -889,6 +880,10 @@ class DigitizationVts {
             cardLcmListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
             return;
         }
+        catch (Exception e) {
+            cardLcmListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+            return;
+        }
 
         class CardLcmTask extends AsyncTask<Void, Void, HttpResponse> {
             @Override
@@ -906,8 +901,10 @@ class DigitizationVts {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
+                try{
                 if (httpResponse.getStatusCode() == 200) {
                     try {
+
                         // Get all tokens
                         JSONObject jsResponse = new JSONObject(httpResponse.getResponse());
                         if (jsResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
@@ -920,7 +917,40 @@ class DigitizationVts {
                         if (jsResponse.has(Tags.RESPONSE_CODE.getTag()) && jsResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
                             switch (cardLcmOperation) {
                                 case DELETE:
-                                    visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.DELETED);
+                                    try {
+                                        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                                        visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.DELETED);
+                                        comvivaSdk.deSelectCard();
+
+                                        // Manage default card if card being deleted is default one
+                                        ArrayList<PaymentCard> allCards = comvivaSdk.getAllCards();
+                                        int noOfCards = allCards.size();
+                                        if (noOfCards == 0) {
+                                            // There is no card remaining now
+                                            comvivaSdk.resetDefaultCard();
+                                        } else {
+                                            String defaultCardUniqueId = comvivaSdk.getDefaultCardUniqueId();
+                                            if (defaultCardUniqueId != null && card.getCardUniqueId().equalsIgnoreCase(defaultCardUniqueId)) {
+                                                /*PaymentCard card1;
+                                                switch (noOfCards) {
+                                                    case 1:
+                                                        // There is single card remaining make it default
+                                                    default:
+                                                        // There is more than one card remaining, first card card coming from list, will be default
+                                                        comvivaSdk.setDefaultCard(allCards.get(0));
+                                                        card1 = allCards.get(0);
+                                                        String last4digit = card1.getCardLast4Digit();
+                                                       // Show push message
+
+                                                }*/
+                                                comvivaSdk.resetDefaultCard();
+                                            }
+                                        }
+
+                                        //comvivaSdk.deleteLukInfo(card);
+                                    } catch (SdkException e) {
+                                        Log.d("Error", e.getMessage());
+                                    }
                                     cardLcmListener.onSuccess("Card will be Deleted Successfully");
                                     break;
 
@@ -941,6 +971,9 @@ class DigitizationVts {
                 } else {
                     cardLcmListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                 }
+            }catch (Exception e) {
+                    cardLcmListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                }
             }
         }
         CardLcmTask cardLcmTask = new CardLcmTask();
@@ -954,7 +987,7 @@ class DigitizationVts {
             jsonCardMetaDataRequest.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), tokenData.getVProvisionedTokenID());
 
             VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-            
+
 
         } catch (Exception e) {
             responseListener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
@@ -993,6 +1026,11 @@ class DigitizationVts {
                 } catch (JSONException e) {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                }catch (Exception e)
+                {
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -1036,11 +1074,15 @@ class DigitizationVts {
                             responseListener.onSuccess();
                         }
                     } else if (responseListener != null) {
-                            responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
                 } catch (JSONException e) {
                     if (responseListener != null) {
                         responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    }
+                }catch(Exception e){
+                    if (responseListener != null) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 }
             }
@@ -1051,10 +1093,12 @@ class DigitizationVts {
 
     /**
      * Replenish LUK for given token
+     *
      * @param paymentCard Token to be replenished
-     * @param listener UI Listener
+     * @param listener    UI Listener
      */
     void replenishLuk(final PaymentCard paymentCard, final ResponseListener listener) {
+
         final VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();
         final TokenKey tokenKey = tokenData.getTokenKey();
@@ -1066,11 +1110,22 @@ class DigitizationVts {
             jsReplenishReq.put(Tags.MAC.getTag(), replenishRequest.getSignature().getMac());
             jsReplenishReq.put(Tags.API.getTag(), replenishRequest.getTokenInfo().getHceData().getDynParams().getApi());
             jsReplenishReq.put(Tags.SC.getTag(), replenishRequest.getTokenInfo().getHceData().getDynParams().getSc());
-
+            List<String> tvlss =  replenishRequest.getTvls();
+            Log.d("ReplenishmentReq", tvlss == null ? "Getting TVL from visaPaymentSDK.constructReplenishRequest null" :
+                    "Getting TVL from visaPaymentSDK.constructReplenishRequest size : " + tvlss.size());
             JSONArray jsArrTvl = new JSONArray();
-            List<String> tvls = replenishRequest.getTvls();
+
+            List<TvlEntry> tvls = visaPaymentSDK.getTvlLog(tokenKey);
+            Log.d("ReplenishmentReq", tvlss == null ? "Getting TVL from visaPaymentSDK.getTvlLog null" :
+                    "Getting TVL from visaPaymentSDK.getTvlLog size : " + tvlss.size());
+
+            TvlEntry tvlEntry;
             for (int i = 0; i < tvls.size(); i++) {
-                jsArrTvl.put(i, tvls.get(i));
+                tvlEntry = tvls.get(i);
+                jsArrTvl.put(i, tvlEntry.getTimeStamp() + "|" +
+                        tvlEntry.getUnpredictableNumber() + "|" +
+                        tvlEntry.getAtc() + "|" +
+                        tvlEntry.getTransactionType());
             }
             jsReplenishReq.put("tvl", jsArrTvl);
         } catch (JSONException e) {
@@ -1079,8 +1134,19 @@ class DigitizationVts {
         } catch (TokenInvalidException e) {
             listener.onError(SdkErrorStandardImpl.SDK_INVALID_CARD_NUMBER);
             return;
-        } catch (CryptoException e) {
-            listener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+        } catch (CryptoException cryptoException) {
+            if (cryptoException.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode()) {
+                ComvivaSdk.reportFraud();
+                if (listener != null) {
+                    listener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                }
+            } else {
+                if (listener != null) {
+                    listener.onError(SdkErrorStandardImpl.COMMON_CRYPTO_ERROR);
+                }
+            }
+        }catch (Exception e) {
+            listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
             return;
         }
 
@@ -1088,55 +1154,91 @@ class DigitizationVts {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+
             }
 
             @Override
             protected HttpResponse doInBackground(Void... params) {
                 HttpUtil httpUtil = HttpUtil.getInstance();
-                return httpUtil.postRequest(UrlUtil.getVTSReplenishTokenUrl(), jsReplenishReq.toString());
+
+
+                    return httpUtil.postRequest(UrlUtil.getVTSReplenishTokenUrl(), jsReplenishReq.toString());
+
             }
 
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
                 try {
-                    if (httpResponse.getStatusCode() == 200) {
-                        JSONObject jsReplenishResponse = new JSONObject(httpResponse.getResponse());
-                        int statusCode = jsReplenishResponse.getInt(Tags.RESPONSE_CODE.getTag());
+                    try {
+                        ComvivaSdk.checkSecurity();
+                    } catch (SdkException e) {
+                        e.printStackTrace();
+                        listener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
+                        return;
+                    }
 
-                        // Error
-                        if (statusCode != 200) {
-                            listener.onError(SdkErrorImpl.getInstance(statusCode, jsReplenishResponse.getString(Tags.MESSAGE.getTag())));
-                            return;
-                        }
+                    if(httpResponse!=null) {
+                        if (httpResponse.getStatusCode() == 200) {
+                            JSONObject jsReplenishResponse = new JSONObject(httpResponse.getResponse());
+                            int statusCode = jsReplenishResponse.getInt(Tags.RESPONSE_CODE.getTag());
 
-                        ReplenishResponse replenishResponse = parseReplenishmentResponse(jsReplenishResponse);
-                        boolean isReplenishSuccess = visaPaymentSDK.processReplenishmentResponse(tokenKey, replenishResponse.getTokenInfo());
-                        if (isReplenishSuccess) {
-                            ConfirmProvisionListener confirmProvisionListener = new ConfirmProvisionListener() {
-                                @Override
-                                public void onCompleted() {
-                                    listener.onSuccess();
-                                }
+                            // Error
+                            if (statusCode != 200) {
+                                listener.onError(SdkErrorImpl.getInstance(statusCode, jsReplenishResponse.getString(Tags.MESSAGE.getTag())));
+                                return;
+                            }
 
-                                @Override
-                                public void onStarted() {
-                                }
+                            Gson gson = new Gson();
+                            final ReplenishResponse replenishResponse = gson.fromJson(jsReplenishResponse.toString(), ReplenishResponse.class);
 
-                                @Override
-                                public void onError(SdkError sdkError) {
-                                    listener.onError(sdkError);
-                                }
-                            };
+                            final LukInfo lukInfo = new LukInfo();
+                            lukInfo.setCard(paymentCard.getCardUniqueId());
+                            DynParams dynParams = replenishResponse.getTokenInfo().getHceData().getDynParams();
+                            lukInfo.setNoOfPaymentsRemaining(dynParams.getMaxPmts());
+                            lukInfo.setKeyExpTime(new Date(dynParams.getKeyExpTS()));
 
-                            ReplenishAckRequest replenishAckRequest = visaPaymentSDK.constructReplenishAcknowledgementRequest(tokenKey);
-                            ConfirmReplenishTask confirmReplenishTask = new ConfirmReplenishTask(replenishAckRequest,
-                                    tokenData.getVProvisionedTokenID(), confirmProvisionListener);
-                            confirmReplenishTask.execute();
+                            boolean isReplenishSuccess = visaPaymentSDK.processReplenishmentResponse(tokenKey, replenishResponse.getTokenInfo());
+                            if (isReplenishSuccess) {
+                                ConfirmProvisionListener confirmProvisionListener = new ConfirmProvisionListener() {
+                                    @Override
+                                    public void onCompleted() {
+                                        listener.onSuccess();
+                                        try {
+                                            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                                            comvivaSdk.updateLukInfo(lukInfo);
+                                        } catch (SdkException e) {
+                                            Log.d("ComvivaSdkError", e.getMessage());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onStarted() {
+                                    }
+
+                                    @Override
+                                    public void onError(SdkError sdkError) {
+                                        listener.onError(sdkError);
+                                    }
+                                };
+
+                                ReplenishAckRequest replenishAckRequest = visaPaymentSDK.constructReplenishAcknowledgementRequest(tokenKey);
+                                ConfirmReplenishTask confirmReplenishTask = new ConfirmReplenishTask(replenishAckRequest,
+                                        tokenData.getVProvisionedTokenID(), confirmProvisionListener);
+                                confirmReplenishTask.execute();
+                            }
                         }
                     }
                 } catch (JSONException e) {
+
                     listener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                }catch (RootDetectException rootDetection) {
+                    if (listener != null) {
+                        listener.onError(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+                    }
+                }catch (Exception e) {
+
+                    listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }

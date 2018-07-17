@@ -24,7 +24,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_toRightOf="@+id/imageView1"
-        android:text="Token Unique Reference"
+        android:text="Card Number"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/black_color"
         android:textSize="13sp" />

@@ -16,4 +16,13 @@ public interface CheckCardEligibilityListener extends CommonListener {
      * @param contentGuid Asset for Terms & Conditions
      */
     void onTermsAndConditionsRequired(ContentGuid contentGuid);
+
+    /**
+     * Card Meta Data Details
+     * @param cardMetaData  Card Meta Data
+     */
+
+    void getCardMetadataDetails(CardMetaData cardMetaData);
+
+
 }
