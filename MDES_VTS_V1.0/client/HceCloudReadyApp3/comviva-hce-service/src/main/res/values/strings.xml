@@ -1,3 +1,7 @@
 <resources>
-    <!--<string name="app_name">comviva-hce-service</string>-->
+    <string name="error_timeout">Request Timed Out</string>
+    <string name="error_connection">Connection Error</string>
+    <string name="error_parse">Parse Error</string>
+    <string name="error_network">Network Connection Error</string>
+    <string name="error_general">Error</string>
 </resources>

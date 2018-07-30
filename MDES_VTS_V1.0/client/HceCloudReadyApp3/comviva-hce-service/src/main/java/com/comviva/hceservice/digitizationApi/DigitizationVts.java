@@ -3,10 +3,7 @@ package com.comviva.hceservice.digitizationApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.CardLcmOperation;
 import com.comviva.hceservice.common.ComvivaSdk;
@@ -20,7 +17,6 @@ import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
-import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
 import com.comviva.hceservice.security.RSAUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.HttpResponse;
@@ -51,15 +47,10 @@ import com.visa.cbp.sdk.facade.error.SDKErrorType;
 import com.visa.cbp.sdk.facade.exception.CryptoException;
 import com.visa.cbp.sdk.facade.exception.RootDetectException;
 import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
-import com.visa.cbp.sdk.facade.exception.VisaPaymentSDKException;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -113,7 +104,7 @@ class DigitizationVts {
         }
     }
 
-    class static ConfirmProvisionTask extends AsyncTask<Void, Void, HttpResponse> {
+    class ConfirmProvisionTask extends AsyncTask<Void, Void, HttpResponse> {
         private ConfirmProvisionListener listener;
         private JSONObject jsConfirmProvisionReq;
 
@@ -165,7 +156,7 @@ class DigitizationVts {
         }
     }
 
-    class static ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
+    class ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
         private ConfirmProvisionListener listener;
         private JSONObject jsConfirmReplenishment;
 
@@ -515,7 +506,7 @@ class DigitizationVts {
                     httpResponse =  httpUtil.postRequest(UrlUtil.getVTSEnrollPanUrl(), RSAUtil.doMeth(comvivaSdk.getApplicationContext(),jsonEnrollPanReq.toString()));
 
                 } catch (SdkException e) {
-                    Log.d("SdkExceptionError", e.getMessage());
+                    e.printStackTrace();
                 }
                 return httpResponse;
             }
@@ -627,7 +618,7 @@ class DigitizationVts {
                     try {
                         ComvivaSdk.checkSecurity();
                     } catch (SdkException e) {
-                        Log.d("SdkException", e.getMessage());
+                        e.printStackTrace();
                         digitizationListener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                         return;
                     }
@@ -788,7 +779,7 @@ class DigitizationVts {
                             digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
                     } catch (SdkException e) {
-                        Log.d("SdkException", e.getMessage());
+                        e.printStackTrace();
                     }
                 } else {
                     if (digitizationListener != null) {
@@ -1123,7 +1114,7 @@ class DigitizationVts {
                     try {
                         ComvivaSdk.checkSecurity();
                     } catch (SdkException e) {
-                        Log.d("SdkExceptionError", e.getMessage());
+                        e.printStackTrace();
                         listener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                         return;
                     }

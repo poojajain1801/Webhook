@@ -402,7 +402,7 @@ public class TransactionHistory {
     public static void getTransactionHistory(final PaymentCard paymentCard, final int count, final TransactionHistoryListener transactionHistoryListener) {
         final JSONObject jsTransactionHistoryObject = new JSONObject();
         try {
-            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), "f0b82dfefa029ed38e521c128f95b702");
+            jsTransactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId());
             if (count < 0 || count > 10) {
                 if (transactionHistoryListener != null) {
                     transactionHistoryListener.onError(SdkErrorStandardImpl.SDK_INVALID_NO_OF_TXN_RECORDS);
