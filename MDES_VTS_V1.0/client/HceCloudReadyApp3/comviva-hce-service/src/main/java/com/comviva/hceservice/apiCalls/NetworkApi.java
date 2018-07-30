@@ -106,7 +106,8 @@ public class NetworkApi {
     private void handleErrorFromServer(VolleyError error, Object listener) {
         Log.d(Tags.RESPONSE_LOG.getTag(), error.toString());
         if (error != null) {
-            if (error instanceof TimeoutError) {
+            serverResponseListener.onRequestError(" error", listener);
+         /*   if (error instanceof TimeoutError) {
                 serverResponseListener.onRequestError(context.getString(R.string.error_timeout), listener);
             } else if (error instanceof NoConnectionError) {
                 serverResponseListener.onRequestError(context.getString(R.string.error_connection), listener);
@@ -116,7 +117,7 @@ public class NetworkApi {
                 serverResponseListener.onRequestError(context.getString(R.string.error_parse), listener);
             } else {
                 serverResponseListener.onRequestError(context.getString(R.string.error_general), listener);
-            }
+            }*/
         }
 
     }
