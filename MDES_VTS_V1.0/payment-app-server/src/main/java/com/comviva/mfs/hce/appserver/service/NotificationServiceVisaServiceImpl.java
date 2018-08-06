@@ -54,7 +54,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     }
 
 
-
     public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType)
     {
         //Verify vProvisionID
@@ -100,7 +99,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
             }
-
             rnsGenericRequest.setRnsData(lcmNotificationData);
 
             Gson gson = new Gson();
@@ -128,9 +126,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyLCMEvent",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
-
-
     }
     public Map notifyPanMetadataUpdate (NotificationServiceReq notificationServiceReq,String apiKey)
     {
@@ -145,8 +140,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         String vPanEnrollmentId = notificationServiceReq.getvPanEnrollmentID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
-
-
             final List<CardDetails> cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
             String rnsRegID = null;
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
@@ -157,17 +150,13 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                     rnsRegID = deviceInfo.getRnsRegistrationId();
                     RnsGenericRequest rnsGenericRequest=  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
                     sendNotification(rnsGenericRequest);
-
                 }
-
             }
             else{
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
-
             }
-
-           return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+            return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
 
         }catch (Exception e){

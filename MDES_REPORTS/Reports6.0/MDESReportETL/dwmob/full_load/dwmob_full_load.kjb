@@ -1,14 +1,14 @@
 <job>
-  <name>dwmob_delta_load</name>
+  <name>dwmob_full_load</name>
   <description>Copies the data from Staging Database to Target Database</description>
   <extended_description />
   <job_version />
   <job_status>0</job_status>
-  <directory>/home/admin/MDESReportETL/dwmob/delta_load</directory>
+  <directory>/MDESReportETL/dwmob/full_load</directory>
   <created_user>admin</created_user>
   <created_date>2016/08/25 15:10:53.662</created_date>
   <modified_user>admin</modified_user>
-  <modified_date>2018/06/28 15:26:51.866</modified_date>
+  <modified_date>2018/07/23 14:03:11.671</modified_date>
   <parameters>
     </parameters>
   <slaveservers>
@@ -630,7 +630,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>48</xloc>
+      <xloc>192</xloc>
       <yloc>208</yloc>
     </entry>
     <entry>
@@ -640,18 +640,18 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>672</xloc>
+      <xloc>976</xloc>
       <yloc>208</yloc>
     </entry>
     <entry>
-      <name>TRG_DL_DIMENSIONS_JOB</name>
+      <name>TRG_FL_DIMENSIONS_JOB</name>
       <description />
       <type>JOB</type>
       <specification_method>rep_name</specification_method>
       <job_object_id />
       <filename />
-      <jobname>TRG_DL_DIMENSIONS_JOB</jobname>
-      <directory>/home/admin/MDESReportETL/dwmob/delta_load/Dimensions</directory>
+      <jobname>TRG_FL_DIMENSIONS_JOB</jobname>
+      <directory>MDESReportETL/dwmob/full_load/Dimensions</directory>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
@@ -674,18 +674,18 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>304</xloc>
+      <xloc>480</xloc>
       <yloc>208</yloc>
     </entry>
     <entry>
-      <name>TRG_DL_FACTS_JOB</name>
+      <name>TRG_FL_FACTS_JOB</name>
       <description />
       <type>JOB</type>
       <specification_method>rep_name</specification_method>
       <job_object_id />
       <filename />
-      <jobname>TRG_DL_FACTS_JOB</jobname>
-      <directory>/home/admin/MDESReportETL/dwmob/delta_load/Facts</directory>
+      <jobname>TRG_FL_FACTS_JOB</jobname>
+      <directory>MDESReportETL/dwmob/full_load/Facts</directory>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
@@ -708,7 +708,7 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>496</xloc>
+      <xloc>656</xloc>
       <yloc>208</yloc>
     </entry>
     <entry>
@@ -719,51 +719,14 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>416</xloc>
-      <yloc>320</yloc>
-    </entry>
-    <entry>
-      <name>Read property file</name>
-      <description />
-      <type>TRANS</type>
-      <specification_method>rep_name</specification_method>
-      <trans_object_id />
-      <filename />
-      <transname>Read Property File</transname>
-      <directory>/</directory>
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile />
-      <logext />
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <cluster>N</cluster>
-      <slave_server_name />
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <logging_remote_work>N</logging_remote_work>
-      <run_configuration>Pentaho local</run_configuration>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>176</xloc>
-      <yloc>208</yloc>
+      <xloc>576</xloc>
+      <yloc>336</yloc>
     </entry>
   </entries>
   <hops>
     <hop>
-      <from>TRG_DL_DIMENSIONS_JOB</from>
-      <to>TRG_DL_FACTS_JOB</to>
+      <from>TRG_FL_DIMENSIONS_JOB</from>
+      <to>TRG_FL_FACTS_JOB</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -771,7 +734,7 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>TRG_DL_DIMENSIONS_JOB</from>
+      <from>TRG_FL_DIMENSIONS_JOB</from>
       <to>Abort job</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
@@ -780,7 +743,7 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>TRG_DL_FACTS_JOB</from>
+      <from>TRG_FL_FACTS_JOB</from>
       <to>Abort job</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
@@ -789,7 +752,7 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>TRG_DL_FACTS_JOB</from>
+      <from>TRG_FL_FACTS_JOB</from>
       <to>Success</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
@@ -799,21 +762,12 @@
     </hop>
     <hop>
       <from>START</from>
-      <to>Read property file</to>
+      <to>TRG_FL_DIMENSIONS_JOB</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Read property file</from>
-      <to>TRG_DL_DIMENSIONS_JOB</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>

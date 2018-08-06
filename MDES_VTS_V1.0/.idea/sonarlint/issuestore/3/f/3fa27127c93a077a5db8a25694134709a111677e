@@ -1,0 +1,74 @@
+
+dsquid:UnusedPrivateMethod"<Remove this unused private "prepareDigitizeResponse" method.(‘²Îüÿÿÿÿ
+_squid:UnusedPrivateMethod"<Remove this unused private "prepareDigitizeResponse" method.(Œˆ‰
+Osquid:S1191"5Use classes from the Java API instead of Sun classes.(¸¿­úÿÿÿÿ
+`squid:S1192"FDefine a constant instead of duplicating this literal "value" 4 times.(óŸµúÿÿÿÿ
+dsquid:S1192"JDefine a constant instead of duplicating this literal "mdesport" 13 times.(Œ–Àáøÿÿÿÿ
+lsquid:S1192"RDefine a constant instead of duplicating this literal "Exception occured" 4 times.(Ñ¦¸Åÿÿÿÿÿ
+bsquid:S1192"HDefine a constant instead of duplicating this literal "tdspath" 5 times.(ŠÊÊøÿÿÿÿ
+rsquid:S1192"]Use already-defined constant 'PAYMENT_APP_INSTANCE_ID' instead of duplicating its value here.(®û½
+jsquid:S1192"UDefine a constant instead of duplicating this literal "tokenUniqueReference" 8 times.(§˜¢Ê
+\squid:S1192"GDefine a constant instead of duplicating this literal "apiKey" 4 times.(á¶ôš
+osquid:S1192"ZDefine a constant instead of duplicating this literal "termsAndConditionsAssetId" 3 times.(ÅãÉ¤
+msquid:S1192"SDefine a constant instead of duplicating this literal "eligibilityReceipt" 5 times.(óŸµúÿÿÿÿ
+msquid:S1192"SDefine a constant instead of duplicating this literal "visaBaseUrlSandbox" 3 times.(Åå‰õşÿÿÿÿ
+bsquid:S1192"HDefine a constant instead of duplicating this literal "mdesip" 14 times.(Œ–Àáøÿÿÿÿ
+csquid:S1192"IDefine a constant instead of duplicating this literal "message" 21 times.(ÆÇ´„ıÿÿÿÿ
+‚squid:S1192"hDefine a constant instead of duplicating this literal "Exit CardDetailsServiceImpl->getContent" 3 times.(Ç®‘®üÿÿÿÿ
+fsquid:S1192"QDefine a constant instead of duplicating this literal "digitizationpath" 7 times.(¿¡ğÚ
+msquid:S1192"SDefine a constant instead of duplicating this literal "authenticationCode" 3 times.(ÂÔÿêûÿÿÿÿ
+^squid:S1192"IDefine a constant instead of duplicating this literal "cardInfo" 3 times.(şº›
+[squid:S1192"GDefine a constant instead of duplicating this literal "status" 3 times.(†Æ½F
+hsquid:S1192"NDefine a constant instead of duplicating this literal "responseCode" 18 times.(Ë½ççÿÿÿÿÿ
+bsquid:S1192"NDefine a constant instead of duplicating this literal "errorResponse" 6 times.(†Æ½F
+gsquid:S1192"MDefine a constant instead of duplicating this literal "responseHost" 3 times.(æ›¥Œüÿÿÿÿ
+Ssquid:S1068"9Remove this unused "serviceDataRepository" private field.(‹åÍ¶ÿÿÿÿÿ
+Wsquid:S1068"CRemove this unused "transactionRegDetailsRepository" private field.(÷½ï]
+Rsquid:S1068"8Remove this unused "httpRestHandlerUtils" private field.(© Ç“üÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ªÍèçıÿÿÿÿ
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(À¤ñÁ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(û­ øÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ªœÏÍüÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(àÿØúÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(‹ºœµıÿÿÿÿ
+_squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(´ÎĞt
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ü÷ ø
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(‡Å„™
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ª¤äö
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ñ¥ùšøÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(”àÛŠûÿÿÿÿ
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(û¹
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(©¨°
+usquid:S1488"`Immediately return this expression instead of assigning it to the temporary variable "response".(²ôÛ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+msquid:HiddenFieldCheck"HRename "hitMasterCardService" which hides the field declared at line 86.(£ÈâÓıÿÿÿÿ
+Qsquid:S1481"7Remove this unused "deviceInfoOptional" local variable.( ­üàøÿÿÿÿ
+Dsquid:S1481"/Remove this unused "deviceInfo" local variable.(ØíÇë
+Gsquid:S1481"-Remove this unused "response" local variable.(À¬çĞùÿÿÿÿ
+Ksquid:S1481"1Remove this unused "objectMapper" local variable.(¡ôó‰ùÿÿÿÿ
+Nsquid:S1481"4Remove this unused "hitVisaServices" local variable.(ú¬âßÿÿÿÿÿ
+gsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed.(¼†
+Vsquid:S1854"<Remove this useless assignment to local variable "response".(À¬çĞùÿÿÿÿ
+]squid:S1854"CRemove this useless assignment to local variable "hitVisaServices".(ú¬âßÿÿÿÿÿ
+Zsquid:S1854"@Remove this useless assignment to local variable "objectMapper".(¡ôó‰ùÿÿÿÿ
+gsquid:UselessImportCheck"@Remove this unused import 'org.apache.http.annotation.Contract'.(Ã”Ğ’şÿÿÿÿ
+Œsquid:UselessImportCheck"jRemove this unused import 'com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType'.(ş„›à
+Tsquid:UselessImportCheck"-Remove this unused import 'java.util.Random'.(èøÉ›ùÿÿÿÿ
+wsquid:UselessImportCheck"PRemove this unused import 'com.comviva.mfs.hce.appserver.util.common.ArrayUtil'.(Åµ¢‰ıÿÿÿÿ
+osquid:UselessImportCheck"HRemove this unused import 'org.springframework.web.client.RestTemplate'.(Îö¼Şûÿÿÿÿ
+jsquid:UselessImportCheck"CRemove this unused import 'java.security.NoSuchAlgorithmException'.(ŒòÍ¾şÿÿÿÿ
+csquid:UselessImportCheck"ARemove this unused import 'java.io.UnsupportedEncodingException'.(Ãµ…“
+’squid:UselessImportCheck"pRemove this unused import 'com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification'.(Æ®û©
+vsquid:UselessImportCheck"ORemove this unused import 'com.sun.corba.se.impl.naming.cosnaming.NamingUtils'.(¸¿­úÿÿÿÿ
+Rsquid:UselessImportCheck"0Remove this unused import 'java.util.ArrayList'.(÷‰îƒ
+jsquid:UselessImportCheck"CRemove this unused import 'org.springframework.util.MultiValueMap'.(·ÚÀŞùÿÿÿÿ
+‘squid:UselessImportCheck"oRemove this unused import 'com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest'.(³§Ü°
+xsquid:UselessImportCheck"VRemove this unused import 'com.comviva.mfs.hce.appserver.model.TransactionRegDetails'.(÷Í«…
+Vsquid:UselessImportCheck"/Remove this unused import 'org.json.JSONArray'.(¬¸Ê’üÿÿÿÿ
+ksquid:UselessImportCheck"IRemove this unused import 'org.springframework.util.LinkedMultiValueMap'.(µÂî‹

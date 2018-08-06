@@ -42,6 +42,11 @@ import java.util.*;
 public class TransactionManagementServiceImpl implements TransactionManagementService {
     @Autowired
     private Environment env;
+
+    @Autowired
+    private
+    HitMasterCardService hitMasterCardService ;
+
     private final HCEControllerSupport hceControllerSupport;
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementServiceImpl.class);
 
@@ -121,15 +126,16 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
         JSONObject reqMdes = new JSONObject();
         JSONObject jsonResponse = null ;
-        HitMasterCardService hitMasterCardService = new HitMasterCardService();
         String response = null;
         ResponseEntity responseMdes = null;
         String url = null ;
+        String id = null;
 
         try{
             reqMdes.put("transactions", transactions);
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + "/mdes/transaction/1/0/pushTransactionDetails" ;
-            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST");
+            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + "/mdes/transaction/1/0/" ;
+            id = "pushTransactionDetails";
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST",id);
 
             if (responseMdes.hasBody()) {
                 response = String.valueOf(responseMdes.getBody());

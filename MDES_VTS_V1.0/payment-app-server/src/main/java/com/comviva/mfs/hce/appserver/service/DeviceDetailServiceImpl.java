@@ -14,10 +14,7 @@ import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
-import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
-import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
-import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import com.comviva.mfs.hce.appserver.util.common.*;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import org.json.JSONObject;
@@ -25,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,7 +74,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
-        DeviceRegistrationResponse devRegRespMdes = null;
+        //DeviceRegistrationResponse devRegRespMdes = null;
         UserDetail userDetail;
         DeviceInfo deviceInfo;
         try {
@@ -101,26 +99,24 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 
             // *********************MDES : Check device eligibility from MDES api.************************
-            // MDES : Check device eligibility from MDES api.
-            //JSONObject mdesResponse=new JSONObject();
-           // deviceRegistrationMdes.setEnrollDeviceRequest(enrollDeviceRequest);
             isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
 
 
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
-                devRegRespMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
-                respCodeMdes = devRegRespMdes.getResponse().get(HCEConstants.RESPONSE_CODE).toString();
+                JSONObject responseJsonMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
+                respCodeMdes = responseJsonMdes.getString("statusCode");
+                mdesRespMap = JsonUtil.jsonStringToHashMap(responseJsonMdes.getJSONObject("mdes").toString());
                 // If registration fails for MDES return error
                 if (!HCEMessageCodes.getSUCCESS().equalsIgnoreCase(respCodeMdes)) {
-                    mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, devRegRespMdes.getResponse().get(HCEConstants.STATUS_CODE).toString());
-                    mdesRespMap.put(HCEConstants.MDES_MESSAGE, devRegRespMdes.getResponse().get(HCEConstants.STATUS_MESSAGE).toString());
+                    mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE,respCodeMdes);
+                    mdesRespMap.put(HCEConstants.MDES_MESSAGE, responseJsonMdes.getString("message"));
                     response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                     response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
 
                 } else {
-                    response.put(HCEConstants.MDES_RESPONSE_MAP, devRegRespMdes.getResponse());
+                    response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
                     response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getSUCCESS());
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "OK");
                     deviceInfo.setPaymentAppInstanceId(enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
@@ -185,120 +181,87 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }
+
+    /**
+     * @param unRegisterReq
+     * @return
+     */
     @Override
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
-
-
+        DeviceInfo deviceInfo = null;
+        String paymentAppInstanceId = null;
+        JSONObject requestJson = null;
+        ResponseEntity responseMdes = null;
+        JSONObject jsonResponse = null;
+        String id = null;
+        Map responseMap = null;
+        String url = null;
+        String response = null;
         String userID = null;
         String imei = null;
-        DeviceInfo deviceInfo;
-        String paymentAppInstanceID = null;
-        JSONObject requestJson = null;
-        ResponseEntity responseEntitye = null;
-        String url = null;
-
+        HttpStatus statusCode = null;
         try {
-            userID = unRegisterReq.getUserId();
+            paymentAppInstanceId = unRegisterReq.getPaymentAppInstanceId();
             imei = unRegisterReq.getImei();
-           /* clintDeviceID = unRegisterReq.getClientDeviceID();
-            paymentAppInstanceID = unRegisterReq.getPaymentAppInstanceId();*/
+            userID = unRegisterReq.getUserID();
 
-            //If user id and imei is null and paymentAppInstanceID or clint device is is null throw Insuficiant input data
-            if(imei.isEmpty()||userID.isEmpty())
-            {
-                //Retrun Insufucaiant input data
+            LOGGER.debug("MasterCard unregister is called for userID :"+userID);
+
+            if(((imei.isEmpty()||imei==null)||(userID.isEmpty()||userID == null))) {
+                LOGGER.error("Either imei or userid is missing");
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
 
-            //Hit master card for the device unregister
-            //TODO: Retrive the payment app instance in from the device info table
-
+            deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
+            if (deviceInfo == null){
+                LOGGER.error(" No Device is registered with UserID :"+userID);
+                throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
+            }
             requestJson = new JSONObject();
             requestJson.put("responseHost","Wallet.mahindracomviva.com");
-            requestJson.put("requestId","12344");
-            requestJson.put("paymentAppInstanceId",paymentAppInstanceID);
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport")+ env.getProperty("digitization")+"/unregister";
-            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST");
-            if (responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7)
-            {
-                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            requestJson.put("requestId",env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
+            requestJson.put("paymentAppInstanceId",paymentAppInstanceId);
+
+            url = env.getProperty("mdesip") + env.getProperty("mpamanagementpath");
+            id = "unregister";
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
+            if (responseMdes!= null && responseMdes.hasBody()) {
+                response = String.valueOf(responseMdes.getBody());
+                jsonResponse = new JSONObject(response);
+                responseMap = JsonUtil.jsonToMap(jsonResponse);
+                statusCode = responseMdes.getStatusCode();
             }
-            /*
-            * Get all the imei number for the user id
-            * Update the status for all the IMEI number
-            * Get the FCM registration id for all the IMEI
-            * Send remote notification for to all the device*/
-
-            //userid and imei and status
-            deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
-
-
-            if(deviceInfo!=null)
-            {
+            if(statusCode!=null && statusCode.value() == HCEConstants.RESPONSE_CODE_200) {
                 cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
                 deviceInfo.setStatus(HCEConstants.INACTIVE);
                 deviceDetailRepository.save(deviceInfo);
-
-            }else
-            {
-                throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
-
-            }
-
-
-
-           // cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier()
-
-
-        }catch (HCEActionException unRegisterException)
-        {
-            unRegisterException.printStackTrace();
-            throw unRegisterException;
-        }
-        catch(Exception unRegisterException)
-        {
-            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
-        }
-
-        return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-    }
-
-    public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfo) {
-        String paymentAppInstanceId = getDeviceInfo.getPaymentAppInstanceId();
-        String tokenUniqueReference = getDeviceInfo.getTokenUniqueReference();
-        HitMasterCardService hitMasterCardService = new HitMasterCardService();
-        JSONObject reqMdes = new JSONObject();
-        ResponseEntity responseMdes ;
-        JSONObject jsonResponse = null;
-        String response = null;
-        String url=null ;
-        try {
-            reqMdes.put("paymentAppInstanceId", paymentAppInstanceId);
-            reqMdes.put("tokenUniqueReference", tokenUniqueReference);
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + env.getProperty("digitizationpath") + "/getDeviceInfo" ;
-            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST");
-
-            if (responseMdes.hasBody()) {
-                response = String.valueOf(responseMdes.getBody());
-                jsonResponse = new JSONObject(response);
-            }
-            if(responseMdes.getStatusCode().value()==HCEConstants.REASON_CODE7) {
-                hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+                LOGGER.debug("MasterCard UnRegister successful for userID: "+userID);
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
             }
             else{
+                LOGGER.error("MasterCard Unregister failed at masterCard for UserID : "+userID);
+                if (responseMdes!=null) {
+                    responseMap.put("responseCode", responseMdes.getStatusCode().value());
+                }
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
-        } catch (HCEActionException getDeviceInfoHCEactionException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->activate", getDeviceInfoHCEactionException);
-            throw getDeviceInfoHCEactionException;
 
-        } catch (Exception getDeviceInfoException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", getDeviceInfoException);
+        }catch(HCEActionException unRegisterDeviceHCEactionException){
+            LOGGER.error("Exception occured in CardDetailServiceImpl->unRegisterDevice",unRegisterDeviceHCEactionException);
+            throw unRegisterDeviceHCEactionException;
+        }catch(Exception unRegisterDeviceException){
+            LOGGER.error("Exception occured in CardDetailServiceImpl->unRegisterDevice", unRegisterDeviceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
-        return JsonUtil.jsonToMap(jsonResponse);
+        return responseMap;
+    }
+
+    @Override
+    public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfo) {
+        return null;
     }
 
 }

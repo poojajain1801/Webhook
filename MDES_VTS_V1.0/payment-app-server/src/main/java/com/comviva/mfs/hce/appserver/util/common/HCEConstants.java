@@ -219,7 +219,7 @@ public class HCEConstants {
     public static final int REASON_CODE6 = 231;
     public static final int REASON_CODE7 = 200;
     public static final int REASON_CODE8 = 201;
-
+    public static final int RESPONSE_CODE_200 = 200;
 
 
 

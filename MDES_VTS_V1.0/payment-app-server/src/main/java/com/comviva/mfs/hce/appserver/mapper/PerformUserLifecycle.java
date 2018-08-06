@@ -222,14 +222,15 @@ public class PerformUserLifecycle {
         JSONObject requestJson;
         String url;
         ResponseEntity responseEntitye;
-
+        String id = null;
         try {
             requestJson = new JSONObject();
             requestJson.put("responseHost","Wallet.mahindracomviva.com");
             requestJson.put("requestId","12344");
             requestJson.put("paymentAppInstanceId",paymentAppInstanceID);
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport")+"mdes"+"mpamanagement"+"1/0"+"/unregister";
-            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST");
+            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport")+"mdes"+"mpamanagement"+"1/0";
+            id = "unregister";
+            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
             if ((responseEntitye==null) || (responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7))
             {
                LOGGER.error("Mstercard Unregister failed...");

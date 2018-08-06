@@ -147,6 +147,7 @@ public class DeviceRegistrationControllerTest {
         request.put("tokenUniqueReference",tokenUniqueReference);
         Map regDeviceResponse = ServiceUtils.servicePOSTResponse("device/getDeviceInfo",request);
         assertResponse(regDeviceResponse, "200");
+
     }
 
     @Test

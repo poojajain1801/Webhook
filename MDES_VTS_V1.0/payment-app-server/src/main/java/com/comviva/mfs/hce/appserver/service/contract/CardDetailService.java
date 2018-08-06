@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import org.apache.http.entity.mime.MIME;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
@@ -29,4 +31,9 @@ public interface CardDetailService {
     Map searchTokens(SearchTokensReq searchTokensReq);
     Map unregisterTds(UnregisterTdsReq unregisterTdsReq);
     Map<String,Object> getSystemHealth();
+    Object getPublicKeyCertificate();
+    ResponseEntity getPublicKeyCertWrap();
+    Map<String,Object> provision(ProvisionRequest provisionRequest);
+    Map<String,Object> getTaskStatus(GetTaskStatusReq getTaskStatusReq);
+    Map<String,Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo);
 }

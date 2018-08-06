@@ -71,7 +71,7 @@ public class HCEMessageCodes {
     private static String INVALID_USER ;
     @Value("${INVALID_USER}")
     public void setInvalidUser(String invalidUser) {
-         INVALID_USER = invalidUser;
+        INVALID_USER = invalidUser;
     }
 
     public static String getInvalidUser() {
@@ -93,7 +93,7 @@ public class HCEMessageCodes {
     private static String CLIENT_DEVICEID_EXIST;
     @Value("${CLIENT_DEVICEID_EXIST}")
     public void setClientDeviceidExist(String clientDeviceidExist) {
-         CLIENT_DEVICEID_EXIST = clientDeviceidExist;
+        CLIENT_DEVICEID_EXIST = clientDeviceidExist;
     }
 
     public static String getClientDeviceidExist() {
@@ -104,7 +104,7 @@ public class HCEMessageCodes {
     private static String INVALID_CLIENT_DEVICE_ID;
     @Value("${INVALID_CLIENT_DEVICE_ID}")
     public void setInvalidClientDeviceId(String invalidClientDeviceId) {
-         INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
+        INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
     }
 
     public static String getInvalidClientDeviceId() {
@@ -139,19 +139,10 @@ public class HCEMessageCodes {
     public void setCardAlreadyRegistered(String cardAlreadyRegistered) {
         CARD_ALREADY_REGISTERED = cardAlreadyRegistered;
     }
+
     public static String getCardAlreadyRegistered() {
         return CARD_ALREADY_REGISTERED;
     }
-
-    private static String CARD_NOT_ELIGIBLE;
-    @Value("${CARD_NOT_ELIGIBLE}")
-    public void setCardNotEligible(String cardNotEligible) {
-        CARD_NOT_ELIGIBLE = cardNotEligible;
-    }
-    public static String getCardNotEligible() {
-        return CARD_NOT_ELIGIBLE;
-    }
-
 
     /** The Constant VISA_FINAL_CODE. */
     private static String UNABLE_TO_PARSE_REQUEST;
@@ -179,34 +170,32 @@ public class HCEMessageCodes {
     private static String FAILED_AT_THIRED_PARTY;
     @Value("${FAILED_AT_THIRED_PARTY}")
     public void setFailedAtThiredParty(String failedAtThiredParty) {
-        FAILED_AT_THIRED_PARTY = failedAtThiredParty;
+        FAILED_AT_THIRED_PARTY= failedAtThiredParty;
     }
 
     public static String getFailedAtThiredParty() {
         return FAILED_AT_THIRED_PARTY;
     }
 
-    /** invalid token unique reference . */
-    private static String INVALID_TOKEN_UNIQUE_REFERENCE ;
-    @Value("${INVALID_TOKEN_UNIQUE_REFERENCE}")
-    public static void setInvalidTokenUniqueReference(String invalidTokenUniqueReference) {
-        INVALID_TOKEN_UNIQUE_REFERENCE = invalidTokenUniqueReference;
+    /** The Constant INVAILD_PAYMENTAPP_INSTANCE_ID */
+    private static String INVAILD_PAYMENTAPP_INSTANCE_ID;
+    @Value("${INVAILD_PAYMENTAPP_INSTANCE_ID}")
+    public static void setInvaildPaymentappInstanceId(String invaildPaymentappInstanceId) {
+        INVAILD_PAYMENTAPP_INSTANCE_ID = invaildPaymentappInstanceId;
+    }
+    public static String getInvaildPaymentappInstanceId() {
+        return INVAILD_PAYMENTAPP_INSTANCE_ID;
     }
 
-    public static String getInvalidTokenUniqueReference() {
-        return INVALID_TOKEN_UNIQUE_REFERENCE;
+
+    /** The Constant CARD_NOT_ELIGIBLE*/
+    private static String CARD_NOT_ELIGIBLE;
+    @Value("${CARD_NOT_ELIGIBLE}")
+    public static void setCardNotEligible(String cardNotEligible) {
+        CARD_NOT_ELIGIBLE = cardNotEligible;
     }
-
-    /** invalid payment app instance id */
-    private static String INVALID_PAYMENTAPP_INSTANCE_ID ;
-    @Value("${INVALID_PAYMENTAPP_INSTANCE_ID}")
-
-    public static void setInvalidPaymentappInstanceId(String invalidPaymentappInstanceId) {
-        INVALID_PAYMENTAPP_INSTANCE_ID = invalidPaymentappInstanceId;
-    }
-
-    public static String getInvalidPaymentappInstanceId() {
-        return INVALID_PAYMENTAPP_INSTANCE_ID;
+    public static String getCardNotEligible() {
+        return CARD_NOT_ELIGIBLE;
     }
 
 

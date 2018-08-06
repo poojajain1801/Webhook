@@ -1,62 +1,73 @@
 package com.comviva.mfs.hce.appserver.util.mdes;
 
-
-import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
 import com.comviva.mfs.hce.appserver.util.common.*;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
-import lombok.Setter;
+import com.google.common.collect.ImmutableMap.Builder;
+import java.io.PrintStream;
+import java.util.Map;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
-import java.util.Map;
-
-@Setter
 @Component
-public class DeviceRegistrationMdes {
-
+public class DeviceRegistrationMdes
+{
     @Autowired
     public Environment env;
-
     @Autowired
     HttpClint httpClint;
     @Autowired
     HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
+
+    public void setEnv(Environment env)
+    {
+        this.env = env;
+    }
+
+    public void setHttpClint(HttpClint httpClint)
+    {
+        this.httpClint = httpClint;
+    }
+
+    public void setHitMasterCardService(HitMasterCardService hitMasterCardService)
+    {
+        this.hitMasterCardService = hitMasterCardService;
+    }
+
     @Autowired
-    public DeviceRegistrationMdes(HCEControllerSupport hceControllerSupport) {
+    public DeviceRegistrationMdes(HCEControllerSupport hceControllerSupport)
+    {
         this.hceControllerSupport = hceControllerSupport;
     }
 
-    /**
-     * Registers device with CMS-d.
-     * @return Response
-     */
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceRegistrationMdes.class);
 
-    private String registerDeviceWithCMSD(EnrollDeviceRequest enrollDeviceRequest) {
-        ResponseEntity responseEntity=null;
+   /* private String registerDeviceWithCMSD(EnrollDeviceRequest enrollDeviceRequest)
+    {
+        ResponseEntity responseEntity = null;
         String response = null;
         String url = null;
         JSONObject jsonRegDevice = null;
         MdesDeviceRequest mdesDeviceRequest = null;
         JSONObject rnsInfo = null;
-        try {
+        String id = "";
+        try
+        {
             jsonRegDevice = new JSONObject();
             mdesDeviceRequest = enrollDeviceRequest.getMdes();
+            //TODO:Generate a random number for the request ID
+            jsonRegDevice.put("requestId","12345678");
             jsonRegDevice.put("paymentAppId", mdesDeviceRequest.getPaymentAppId());
             jsonRegDevice.put("paymentAppInstanceId", mdesDeviceRequest.getPaymentAppInstanceId());
             jsonRegDevice.put("publicKeyFingerprint", mdesDeviceRequest.getPublicKeyFingerprint());
@@ -68,104 +79,123 @@ public class DeviceRegistrationMdes {
             rnsInfo.put("rnsRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
             jsonRegDevice.put("rnsInfo", rnsInfo);
 
-        /*String response = httpClint.postHttpRequest(jsonRegDevice.toString().getBytes(),
-                ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes/mpamanagement/1/0/register");*/
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + "/mdes/credentials/1/0/deviceRegistration";
-            responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,jsonRegDevice.toString(),"POST");
-            if (responseEntity.hasBody() && (responseEntity.getStatusCode().value() == 200)) {
-                response = String.valueOf(responseEntity.getBody());
-            }
-            return response;
-        } catch (Exception e) {
+
+
+            url = this.env.getProperty("mdesip")  +this.env.getProperty("mpamanagementPath");
+            id = "register";
+
+            responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRegDevice.toString(), "POST",id);
+            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {}
+            return String.valueOf(responseEntity.getBody());
+        }
+        catch (Exception e)
+        {
             LOGGER.error("Exception occured", e);
-            return null;
         }
-    }
+        return null;
+    }*/
 
-    /**
-     * Register device with CMS-d.
-     * @return Response
-     */
-    public DeviceRegistrationResponse registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
-        // Register device with CMS-d
+    public JSONObject registerDevice(EnrollDeviceRequest enrollDeviceRequest)
+    {
+        ResponseEntity responseEntity = null;
         String response = null;
-        JSONObject jsonResponse = null;
-        Map responseMap = null;
-        String message = null;
-        String responseCode = null;
+        String url = null;
+        JSONObject jsonRegDevice = null;
+        JSONObject responseJson = null;
+        JSONObject mdes = null;
+        MdesDeviceRequest mdesDeviceRequest = null;
+        JSONObject rnsInfo = null;
+        String id = "";
+        String requestId = null;
         try {
-            response = registerDeviceWithCMSD(enrollDeviceRequest);
-            if (response != null || !response.isEmpty()) {
-                jsonResponse = new JSONObject(response);
-                if (jsonResponse.has("message"))
-                {
-                    jsonResponse.getString("message");
-                }else{
-                    message = "SUCCESS";
-                }
-                if (jsonResponse.has("responseCode"))
-                {
-                    responseCode = jsonResponse.getString("responseCode");
-                }else{
-                    responseCode = "200";
-                }
-                JSONObject jsonMobKeys = jsonResponse.getJSONObject("mobileKeys");
-                Map mobKeys = ImmutableMap.of("transportKey", jsonMobKeys.getString("transportKey"),
-                        "macKey", jsonMobKeys.getString("macKey"),
-                        "dataEncryptionKey", jsonMobKeys.getString("dataEncryptionKey"));
+            jsonRegDevice = new JSONObject();
+            mdesDeviceRequest = enrollDeviceRequest.getMdes();
+            //TODO:Generate a random number for the request ID
+            requestId = ArrayUtil.getRequestId();
+            jsonRegDevice.put("requestId", requestId);
+            jsonRegDevice.put("paymentAppId", mdesDeviceRequest.getPaymentAppId());
+            jsonRegDevice.put("paymentAppInstanceId", mdesDeviceRequest.getPaymentAppInstanceId());
+            jsonRegDevice.put("publicKeyFingerprint", mdesDeviceRequest.getPublicKeyFingerprint());
+            jsonRegDevice.put("rgk", mdesDeviceRequest.getRgk());
+            jsonRegDevice.put("deviceFingerprint", mdesDeviceRequest.getDeviceFingerprint());
+            jsonRegDevice.put("newMobilePin", mdesDeviceRequest.getMobilePin());
 
-                responseMap = new ImmutableMap.Builder<>()
-                        .put("message",message)
-                        .put("responseCode", responseCode)
-                        .put("responseHost", jsonResponse.getString("responseHost"))
-                        .put("mobileKeysetId", jsonResponse.getString("mobileKeysetId"))
-                        .put("remoteManagementUrl", jsonResponse.getString("remoteManagementUrl"))
-                        .put("mobKeys", mobKeys).build();
-            } else {
-                responseMap = hceControllerSupport.formResponse(HCEConstants.SERVICE_FAILED);
+            rnsInfo = new JSONObject();
+            rnsInfo.put("rnsRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
+            jsonRegDevice.put("rnsInfo", rnsInfo);
+
+
+            url = this.env.getProperty("mdesip") + this.env.getProperty("mpamanagementpath");
+            id = "register";
+
+            responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRegDevice.toString(), "POST", id);
+            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
+                response =  String.valueOf(responseEntity.getBody());
+                mdes = new JSONObject(response);
+                responseJson = new JSONObject();
+                responseJson.put("mdes",mdes);
+                if (mdes.has("errors"))
+                {
+                    responseJson.put("statusCode", HCEMessageCodes.getFailedAtThiredParty());
+                    responseJson.put("message",mdes.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));
+                }
+                else
+                {
+                    responseJson.put("statusCode",HCEMessageCodes.getSUCCESS());
+                    responseJson.put("message","Success");
+                }
+
             }
-        } catch (Exception e) {
-            LOGGER.error("Exceprion Occored in DeviceRegistration",e);
+
+        }catch (Exception e)
+        {
+            LOGGER.error("Exception occord in DeviceRegistrationMdes->registerDevice",e);
         }
-        // Prepare response
-        return new DeviceRegistrationResponse(responseMap);
+        return responseJson;
     }
 
-    /**
-     * Checks device's eligibility with MDES.
-     * @return <code>true </code>Device is eligible <br/>
-     *         <code>false </code>Not eligible
-     */
-    public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest) {
+    public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest)
+    {
         HttpRestHandeler httpRestHandeler = new HttpRestHandelerImpl();
         JSONObject jsonRequest = new JSONObject();
         JSONObject deviceinfo = new JSONObject(enrollDeviceRequest.getMdes().getDeviceInfo());
-        jsonRequest.put("responseHost", "paymentapp-server");
-        jsonRequest.put("requestId", "123456");
+        jsonRequest.put("requestId", "50192640427");
         jsonRequest.put("paymentAppInstanceId", enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
         jsonRequest.put("tokenType", "CLOUD");
         jsonRequest.put("paymentAppId", enrollDeviceRequest.getMdes().getPaymentAppId());
         jsonRequest.put("deviceInfo", deviceinfo);
-        String response="";
+        jsonRequest.put("consumerLanguage","en");
+        jsonRequest.put("cardletId", "1.0");
+        String response = "";
         String url = "";
-        ResponseEntity responseEntity=null;
-        try {
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + env.getProperty("credentialspath")+"/checkEligibility";
-            //response = httpRestHandeler.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/mdes", map);
-            responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,jsonRequest.toString(),"POST");
-            if (responseEntity.hasBody() && (responseEntity.getStatusCode().value() == 200)) {
+        String id = "";
+        ResponseEntity responseEntity = null;
+
+        LOGGER.debug("Enter in DeviceRegistrationMdes:->checkDeviceEligibility");
+        try
+        {
+            // "https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/{id}"
+            //url ="https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/checkEligibility";
+            url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
+            id = "checkEligibility";
+            LOGGER.debug("URL in checkDeviceEligibility"+url);
+            LOGGER.info("URL in checkDeviceEligibility"+url);
+            responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST",id);
+            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
                 response = String.valueOf(responseEntity.getBody());
             }
-
-        }catch (Exception e){
-            LOGGER.error("Exception occured" +e);
         }
-        if("".equals(response)||response==null){
+        catch (Exception e)
+        {
+            LOGGER.error("Exception occured" + e);
+        }
+        if (("".equals(response)) || (response == null)) {
             return false;
-        }else{
-            System.out.println("Response = " + response);
-            JSONObject jsonResponse = new JSONObject(response);
-            return jsonResponse.has("eligibilityReceipt");
         }
+        System.out.println("Response = " + response);
+        JSONObject jsonResponse = new JSONObject(response);
+        LOGGER.debug("Exit in DeviceRegistrationMdes:->checkDeviceEligibility");
+        boolean eligibility = jsonResponse.has("errors");
+        return !eligibility;
     }
 }

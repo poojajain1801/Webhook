@@ -112,7 +112,6 @@ public class HCEUtil {
     }
 
 
-
     public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
                                    String response) {
 
@@ -262,7 +261,6 @@ public class HCEUtil {
      * @return the string
      */
     public static String maskJson(String jsonData){
-
 
         String replaceText = "";
         String[] replaceValue = null;

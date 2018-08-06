@@ -1,0 +1,15 @@
+
+[squid:S1192"FDefine a constant instead of duplicating this literal "UTF-8" 3 times.(¹•Ö¼
+ssquid:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(­¤ úýÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(¨ì›žúÿÿÿÿ
+`squid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(¤ñÚ¹
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ââÜžøÿÿÿÿ
+esquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ÎŒ£µùÿÿÿÿ
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(Ý™ùÒÿÿÿÿÿ
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(ÚöõŸùÿÿÿÿ
+R
+squid:S106"9Replace this use of System.out or System.err by a logger.(í¹•Éþÿÿÿÿ
+M
+squid:S106"9Replace this use of System.out or System.err by a logger.(þµ”‘

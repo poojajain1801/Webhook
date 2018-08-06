@@ -23,14 +23,14 @@ public class ArrayUtil {
 	}
 
 	public static byte[] xor(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
-	    byte[] out = new byte[length];
-        for(int i = 0; i < length; i++) {
-            out[i] = (byte)(arr1[offset1+i] ^ arr2[offset2+i]);
-        }
-        return out;
-    }
+		byte[] out = new byte[length];
+		for(int i = 0; i < length; i++) {
+			out[i] = (byte)(arr1[offset1+i] ^ arr2[offset2+i]);
+		}
+		return out;
+	}
 
-    public static boolean compare(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
+	public static boolean compare(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
 		for(int i = 0; i < length; i++) {
 			if(arr1[offset1+i] != arr2[offset2+i]) {
 				return false;
@@ -44,5 +44,9 @@ public class ArrayUtil {
 		byte[] random = new byte[length];
 		secureRandom.nextBytes(random);
 		return random;
+	}
+	public static String getRequestId ()
+	{
+		return "COMREQID"+getHexString(getRandom(22));
 	}
 }
