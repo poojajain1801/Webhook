@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
+
+
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
 
@@ -9,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -20,7 +22,8 @@ android {
         release {
             minifyEnabled false
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile 'D:/MdesVts/Latest/MDES/MDES_VTS_V1.0/client/HceCloudReadyApp/comviva-hce-service/dexguard-project.txt'
+            proguardFile './dexguard-project.txt'
+            //D:\AndroidWorkspace\New work space\Amit\30-11-2017\HceCloudReadyApp3\comviva-hce-service
         }
         debug {
             debuggable true
@@ -103,6 +106,8 @@ dependencies {
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'commons-codec:commons-codec:1.10'
+    compile files('libs/VisaDigitalSDK-flow2-SBX-5.0.0.jar')
 }
 apply plugin: 'dexguard'
 

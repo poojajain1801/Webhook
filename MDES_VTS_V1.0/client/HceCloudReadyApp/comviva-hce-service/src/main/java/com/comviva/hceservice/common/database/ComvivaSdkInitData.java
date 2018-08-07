@@ -11,6 +11,10 @@ public class ComvivaSdkInitData {
     private RnsInfo rnsInfo;
     private boolean vtsInitState;
     private boolean mdesInitState;
+    private boolean hvtSupport;
+    private double hvtLimit;
+    private int replenishmentThresold;
+    private String clientWalletAccountId;
 
     /**
      * Returns initialization state of the SDK.
@@ -80,5 +84,45 @@ public class ComvivaSdkInitData {
      */
     public void setMdesInitState(boolean mdesInitState) {
         this.mdesInitState = mdesInitState;
+    }
+
+    public boolean isHvtSupport() {
+        return hvtSupport;
+    }
+
+    public void setHvtSupport(boolean hvtSupport) {
+        this.hvtSupport = hvtSupport;
+    }
+
+    public double getHvtLimit() {
+        return hvtLimit;
+    }
+
+    public void setHvtLimit(double hvtLimit) {
+        this.hvtLimit = hvtLimit;
+    }
+
+    public int getReplenishmentThresold() {
+        return replenishmentThresold;
+    }
+
+    public void setReplenishmentThresold(int replenishmentThresold) {
+        this.replenishmentThresold = replenishmentThresold;
+    }
+
+    /**
+     * Get Client-provided consumer ID that identifies the wallet account holder entity
+     * @return Client Wallet Account ID
+     */
+    public String getClientWalletAccountId() {
+        return clientWalletAccountId;
+    }
+
+    /**
+     * Set Client-provided consumer ID that identifies the wallet account holder entity
+     * @param clientWalletAccountId Client Wallet Account ID
+     */
+    public void setClientWalletAccountId(String clientWalletAccountId) {
+        this.clientWalletAccountId = clientWalletAccountId;
     }
 }

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.comviva.hceservice.common.ComvivaSdk;
@@ -23,7 +24,9 @@ public class ConfigurationActivity extends AppCompatActivity {
         final EditText etCmsDIp = (EditText) findViewById(R.id.etCmsDIp);
         final EditText etCmsDPort = (EditText) findViewById(R.id.etCmsDPort);
         final Button btnUpdateConfig = (Button) findViewById(R.id.btnUpdateConfig);
+        final CheckBox cbEnableHttps = (CheckBox) findViewById(R.id.cbEnableHttps);
 
+        comvivaSdk = null;
         try {
             comvivaSdk = ComvivaSdk.getInstance(null);
         } catch (SdkException e) {
@@ -38,7 +41,15 @@ public class ConfigurationActivity extends AppCompatActivity {
         btnUpdateConfig.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                comvivaSdk.setPaymentAppServerConfiguration(etPayAppServerIp.getText().toString(), Integer.parseInt(etPayAppServerPort.getText().toString()));
+                String payAppServerPort = etPayAppServerPort.getText().toString();
+                String paymentAppServerIp = etPayAppServerIp.getText().toString();
+                paymentAppServerIp = cbEnableHttps.isChecked() ? "https://" + paymentAppServerIp : "http://" + paymentAppServerIp;
+
+                if(payAppServerPort == null || payAppServerPort.isEmpty()) {
+                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, -1);
+                } else {
+                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, Integer.parseInt(etPayAppServerPort.getText().toString()));
+                }
                 comvivaSdk.setCmsDServerConfiguration(etCmsDIp.getText().toString(), Integer.parseInt(etCmsDPort.getText().toString()));
                 startActivity(new Intent(ConfigurationActivity.this, RegisterUserActivity.class));
             }

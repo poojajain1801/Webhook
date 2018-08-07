@@ -45,6 +45,16 @@
 -keep public class com.comviva.hceservice.digitizationApi.Digitization {
     public public *;
 }
+
+-keep public class com.comviva.hceservice.digitizationApi.CardMetaData {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.CardData {
+    public public *;
+}
+-keep public class com.comviva.hceservice.digitizationApi.ActiveAccountManagementService {
+    public public *;
+}
 -keep public interface com.comviva.hceservice.digitizationApi.ActivateListener {
     public public *;
 }
@@ -61,6 +71,9 @@
     public public *;
 }
 -keep public interface com.comviva.hceservice.digitizationApi.DigitizationListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.digitizationApi.GetAssetListener {
     public public *;
 }
 -keep public class com.comviva.hceservice.digitizationApi.DigitizationRequest {
@@ -82,12 +95,6 @@
     public public *;
 }
 
--keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
-    public public *;
-}
--keep public interface  com.comviva.hceservice.util.ResponseListener {
-      public public *;
- }
 -keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
     public public *;
 }
@@ -149,6 +156,10 @@
 -keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
     public public *;
 }
+
+-keep public interface com.comviva.hceservice.util.GetCardMetaDataListener {
+    public public *;
+}
 -keep public interface com.comviva.hceservice.common.SdkError {
     public public *;
 }
@@ -178,6 +189,9 @@
     public public *;
 }
 -keep public interface com.comviva.hceservice.tds.UnregisterTdsListener {
+    public public *;
+}
+-keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
     public public *;
 }
 
@@ -228,13 +242,40 @@
 -keep public interface com.comviva.hceservice.util.ResponseListener {
     public public *;
 }
+-keep public interface com.comviva.hceservice.util.ResponseListener {
+      public public *;
+ }
+ -keep public class com.comviva.hceservice.util.ArrayUtil {
+       public public *;
+  }
 
 # Firebase
 -keep public class com.google.firebase.iid.FirebaseInstanceId {
     public public *;
 }
 
+###### CDCVM Classes
+-keep public class com.comviva.hceservice.common.cdcvm.CdCvm {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.cdcvm.Entity {
+    public public *;
+}
+-keep public enum com.comviva.hceservice.common.cdcvm.Type {
+    public public *;
+}
+
+-keep public class * extends android.app.Activity
+
 # Visa Packages
 -keep class com.visa.cbp.** { *; }
 -dontwarn com.visa.cbp.**
+
+#-keep class com.google.gson.** { *; }
+#-dontwarn com.google.gson.**
+
+-keepattributes Signature
+-keepattributes Annotation
+-keep class com.google.** { *; }
+-keep class sun.misc.** { *; }
 

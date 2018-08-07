@@ -6,7 +6,7 @@ public enum SdkErrorStandardImpl implements SdkError {
     SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE(SW_SDK_TRANSACTION_CREDENTIAL_NOT_AVAILABLE,
             "Transaction credential not available"),
     SDK_JSON_EXCEPTION(SW_SDK_JSON_EXCEPTION, "JSON Exception"),
-    SDK_RNS_REG_EXCEPTION(SW_SDK_RNS_REG_EXCEPTION, "JSON Exception"),
+    SDK_RNS_REG_EXCEPTION(SW_SDK_RNS_REG_EXCEPTION, "RNS Registration Error"),
     SDK_INVALID_USER(SW_SDK_INVALID_USER, "Invalid User"),
     SDK_INVALID_CARD_NUMBER(SW_SDK_INVALID_CARD_NUMBER, "Invalid Card Number"),
     SDK_UNSUPPORTED_SCHEME(SW_SDK_UNSUPPORTED_SCHEME, "Unsupported Scheme"),
@@ -124,7 +124,7 @@ public enum SdkErrorStandardImpl implements SdkError {
                 return COMMON_DEBUG_MODE;
 
             default:
-                return null;
+                return SDK_INTERNAL_ERROR;
         }
     }
 

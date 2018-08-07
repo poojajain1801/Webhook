@@ -76,7 +76,7 @@ public class TransactionHistoryAdapter extends BaseAdapter {
         }
 
         if (dataList.get(position).getTokenUniqueReference() != null) {
-            viewHolder.tokenUniqueRef.setText(dataList.get(position).getTokenUniqueReference());
+            viewHolder.tokenUniqueRef.setText("xxxx xxxx xxxx " + dataList.get(position).getTokenUniqueReference());
         }
         if (dataList.get(position).getTransactionType() != null) {
             viewHolder.transactionType.setText(dataList.get(position).getTransactionType());
@@ -93,9 +93,9 @@ public class TransactionHistoryAdapter extends BaseAdapter {
         if (dataList.get(position).getAuthorizationStatus() != null) {
             viewHolder.authorizationStatus.setText(dataList.get(position).getAuthorizationStatus());
         }
-        viewHolder.image.setBackgroundResource(R.drawable.ic_master_card);
 
-
+        //viewHolder.image.setBackgroundResource(R.drawable.ic_master_card);
+        viewHolder.image.setBackgroundResource(R.drawable.ic_visa);
         return item;
     }
 

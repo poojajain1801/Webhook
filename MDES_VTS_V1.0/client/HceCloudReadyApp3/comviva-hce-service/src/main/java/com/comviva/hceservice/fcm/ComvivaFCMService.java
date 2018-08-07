@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.ComvivaWalletListener;

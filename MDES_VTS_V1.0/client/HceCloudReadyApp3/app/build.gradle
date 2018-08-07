@@ -21,6 +21,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "RNS_MESSAGE_TAG", "\"payload\""
@@ -29,6 +30,7 @@ android {
 
         // Default location of the CMS-D
         buildConfigField "String", "CMS_URL", "\"http://54.255.194.235:9100/cms\""
+
     }
     buildTypes {
         release {
@@ -37,6 +39,10 @@ android {
             signingConfig signingConfigs.WalletAppSignConfig
         }
     }
+
+
+
+
 }
 
 dependencies {
@@ -62,6 +68,7 @@ dependencies {
     compile 'com.comviva.mdesapp:comvivaSdk:1.0@aar'
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile project(path: ':comviva-hce-service')
 }
 apply plugin: 'com.google.gms.google-services'
 

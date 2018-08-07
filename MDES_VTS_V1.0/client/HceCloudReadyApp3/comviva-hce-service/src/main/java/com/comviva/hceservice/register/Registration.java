@@ -326,7 +326,7 @@ public class Registration {
             visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
             sharedPreferences = ComvivaSdk.getInstance(null).getApplicationContext().getSharedPreferences(user_details,Context.MODE_PRIVATE);
         } catch (SdkException e) {
-            Log.d("SdkExceptionError", e.getMessage());
+            e.printStackTrace();
         }
 
 

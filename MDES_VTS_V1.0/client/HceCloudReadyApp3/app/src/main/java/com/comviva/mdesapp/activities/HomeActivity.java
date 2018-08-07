@@ -66,6 +66,7 @@ import com.comviva.hceservice.digitizationApi.ContentGuid;
 import com.comviva.hceservice.digitizationApi.ContentType;
 import com.comviva.hceservice.digitizationApi.Digitization;
 import com.comviva.hceservice.digitizationApi.GetAssetListener;
+import com.comviva.hceservice.digitizationApi.StepUpListener;
 import com.comviva.hceservice.register.Registration;
 import com.comviva.hceservice.register.RegistrationListener;
 import com.comviva.hceservice.tds.TdsRegistrationListener;
@@ -88,6 +89,7 @@ import com.comviva.mdesapp.constant.Constants;
 import com.mastercard.mcbp.card.cvm.PinListener;
 import com.mastercard.mcbp.listeners.ProcessContactlessListener;
 import com.mastercard.mcbp.userinterface.DisplayTransactionInfo;
+import com.visa.cbp.external.common.StepUpRequest;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
@@ -163,6 +165,8 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                 enableDefaultCardButton();
 
             }
+
+
             public void onSwipeLeft() {
                 cards.setInAnimation(HomeActivity.this, R.anim.slide_in_from_right);
                 cards.setOutAnimation(HomeActivity.this, R.anim.slide_out_to_left);
@@ -758,6 +762,8 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
         context = this;
         cardEmulation = CardEmulation.getInstance(NfcAdapter.getDefaultAdapter(getApplicationContext()));
         Registration registration = Registration.getInstance();
+
+
         Log.d("userID" , registration.getUserId());
        /* Intent intent = new Intent();
         intent.setAction(CardEmulation.ACTION_CHANGE_DEFAULT);
@@ -768,6 +774,44 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
         digitization = Digitization.getInstance();
+     /*   digitization.verifyOTP("75d16d8ea56c650ec37e14ee9ed89002", "811412", new ResponseListener() {
+            @Override
+            public void onStarted() {
+
+            }
+
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError(SdkError sdkError) {
+
+            }
+        });*/
+
+        digitization.getStepUpOptions("75d16d8ea56c650ec37e14ee9ed89002", new StepUpListener() {
+            @Override
+            public void onRequireAdditionalAuthentication(ArrayList<StepUpRequest> arrayList) {
+
+            }
+
+            @Override
+            public void onStarted() {
+
+            }
+
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError(SdkError sdkError) {
+
+            }
+        });
         payLayout = (LinearLayout) findViewById(R.id.pay_lay);
         noCardAddedLay = (LinearLayout) findViewById(R.id.no_card_added_lay);
         progressDialog = new ProgressDialog(HomeActivity.this);

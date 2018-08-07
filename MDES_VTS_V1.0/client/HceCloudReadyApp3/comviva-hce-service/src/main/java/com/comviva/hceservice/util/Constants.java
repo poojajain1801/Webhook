@@ -10,8 +10,8 @@ public class Constants {
 
     public static final String LOGGER_TAG_SDK_ERROR = "Comviva SDK Error";
     public static final String LOGGER_TAG_SERVER_ERROR = "Server Error";
-
     public static final byte DEFAULT_FILL_VALUE = (byte)0xFF;
+    public static final String HTTP_SUCCESS_RESPONSE_CODE = "200" ;
 
     /** Shared Preference containing Configuration values */
     public static final String SHARED_PREF_CONF = "SharedPreferenceConfiguration";

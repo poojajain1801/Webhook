@@ -21,4 +21,6 @@ public class Constants {
     public static final String KEY_CMS_D_SERVER_PORT = "CmsDServerPort";
     public static final String KEY_MDES_TDS_REG_STATUS = "MdesTdsRegistrationStatus";
     public static final String KEY_TDS_REG_TOKEN_UNIQUE_REF = "MdesTdsRegistrationStatus";
+    public static final String USER_DETAILS = "userDetails";
+
 }

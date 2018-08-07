@@ -1,6 +1,6 @@
--injars 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\bundles\mdesRelease'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
--injars 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\annotations\mdes\release'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
--outjars 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\aar\comviva-hce-service-mdes-release.aar'
+-injars 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\bundles\mdesRelease'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
+-injars 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\annotations\mdes\release'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
+-outjars 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\aar\comviva-hce-service-mdes-release.aar'
 
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\1c1ffa6189d475085b7a950163d35a83ad85c185\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\39eec45ed2cc827279771eb65344d12a5754d839\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
@@ -11,6 +11,7 @@
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\61f2171e5e713852587a811bb21957de4ae9e91a\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\66a857be8020af07d1ab3a809d6f08a32cbc1eba\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\216f0cc02defcc39394163cfbbd405b03f381db9\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
+-libraryjars 'C:\Users\amit.randhawa\.gradle\caches\modules-2\files-2.1\com.mcxiaoke.volley\library\1.0.19\a8f23f65fc1e522ee4a1a697ee569901a46741fa\library-1.0.19.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\92a4204cd24718a6a49c28c4d6d163bad7ad6685\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\21dc066e7e1084f6b3df68074ca5cdc8c0221678\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\b1adbf086180b4538200a9a147dc2896c4ac63c2\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML)
@@ -29,18 +30,18 @@
 
 -forceprocessing
 -dontshrink
--printusage 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\usage.txt'
+-printusage 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\usage.txt'
 -dontoptimize
--printmapping 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\mapping.txt'
--printassetmapping 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\assetmapping.txt'
--printresourcemapping 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourcemapping.txt'
--printnativelibrarymapping 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\nativelibrarymapping.txt'
+-printmapping 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\mapping.txt'
+-printassetmapping 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\assetmapping.txt'
+-printresourcemapping 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourcemapping.txt'
+-printnativelibrarymapping 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\nativelibrarymapping.txt'
 -keepattributes Exceptions,Signature,Annotation,*Annotation*
 -android
 -verbose
 -dontwarn com.mastercard.**,org.apache.cordova.*,com.guardsquare.dexguard.runtime.encryption.*,com.visa.cbp.**,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context
--printconfiguration 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\config.txt'
--printseeds 'C:\Users\amit.randhawa\Desktop\GIT\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\seeds.txt'
+-printconfiguration 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\config.txt'
+-printseeds 'C:\Users\amit.randhawa\Desktop\New folder (2)\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\seeds.txt'
 
 
 -keepresourcefiles jni/**/*.so
@@ -568,6 +569,112 @@
     public <methods>;
 }
 
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
 # Copyright (C) 2016 The Android Open Source Project
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -585,112 +692,6 @@
 -keepclassmembers class android.support.graphics.drawable.VectorDrawableCompat$* {
     void set*(***);
     *** get*();
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
 }
 
 # Proguard flags for consumers of the Google Play services SDK

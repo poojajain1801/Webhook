@@ -16,8 +16,9 @@
         android:id="@+id/editPan"
         android:layout_width="350dp"
         android:layout_height="50dp"
+        android:inputType="number"
         android:hint="Card Number"
-        android:text="4622943127007301" />
+        android:text="4622943127000660" />
 
     <Space
         android:id="@+id/space1"
@@ -25,27 +26,29 @@
         android:layout_height="30dp"
         android:layout_below="@+id/editPan" />
 
-    <!-- MasterCard-688 Visa-633 -->
+<!--    &lt;!&ndash; MasterCard-688 Visa-633 &ndash;&gt;
     <EditText
         android:id="@+id/editCvc"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_below="@+id/space1"
         android:hint="CVC"
-        android:text="633" />
+        android:text="633"
+        android:inputType="number"/>
 
     <Space
         android:id="@+id/space2"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_below="@+id/editCvc" />
+        android:layout_below="@+id/editCvc" />-->
 
     <!-- MasterCard-07 Visa-12 -->
     <EditText
         android:id="@+id/editExpMonth"
         android:layout_width="350dp"
         android:layout_height="50dp"
-        android:layout_below="@+id/space2"
+        android:layout_below="@+id/space1"
+        android:inputType="number"
         android:hint="Expiry Month"
         android:text="12" />
 
@@ -61,6 +64,7 @@
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_below="@+id/space3"
+        android:inputType="number"
         android:hint="Expiry Year"
         android:text="2017" />
 
@@ -88,13 +92,13 @@
         android:id="@+id/btnDigCard"
         style="@style/AppTheme.RoundedCornerMaterialButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/space5"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="4dp"
-        android:backgroundTint="@color/colorPrimary"
         android:paddingLeft="50dp"
         android:paddingRight="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/space5"
+        android:backgroundTint="@color/colorPrimary"
         android:text="Digitize Card"
         android:textColor="@android:color/white" />
 

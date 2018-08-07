@@ -33,9 +33,4 @@ public class PropertyConst {
      * Unique identifier for the client application
      */
     public static final String KEY_CLIENT_APP_ID = "CLIENT_APP_ID";
-    /**
-     * Client-provided consumer ID that identifies the wallet account holder entity
-     */
-    public static final String KEY_CLIENT_WALLET_ACCOUNT_ID = "CLIENT_WALLET_ACCOUNT_ID";
-
 }

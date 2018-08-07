@@ -45,9 +45,10 @@ android {
 
     sourceSets {
         main {
-            //jniLibs.srcDirs = ['libs']
+            jniLibs.srcDirs = ['libs']
         }
     }
+
 }
 
 buildscript {
@@ -109,6 +110,9 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'commons-codec:commons-codec:1.10'
     compile files('libs/VTS-SDK-5.1.1.jar')
+    targetCompatibility = '1.7'
+    sourceCompatibility = '1.7'
+    compile 'com.mcxiaoke.volley:library:1.0.19'
 }
 apply plugin: 'dexguard'
 

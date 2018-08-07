@@ -1,7 +1,6 @@
 package com.comviva.mdesapp.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -73,10 +72,14 @@ public class RegisterUserActivity extends AppCompatActivity {
             editUserDetails.putString(Constants.KEY_USER_ID, edUserId.getText().toString());
             editUserDetails.apply();
 
-            Intent actUser = new Intent(RegisterUserActivity.this, ActivateUserActivity.class);
+            /*Intent actUser = new Intent(RegisterUserActivity.this, ActivateUserActivity.class);
             actUser.putExtra("userId", userId);
-            //actUser.putExtra("activationCode", registerUserResponse.getActivationCode());
-            startActivity(actUser);
+            startActivity(actUser);*/
+
+            Intent regDevice = new Intent(RegisterUserActivity.this, RegisterActivity.class);
+            regDevice.putExtra("userId", userId);
+            //regDevice.putExtra("activationCode", "");
+            startActivity(regDevice);
         }
 
         @Override

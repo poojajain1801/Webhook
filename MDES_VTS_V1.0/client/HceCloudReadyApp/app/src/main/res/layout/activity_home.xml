@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_refresh_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_home"
@@ -11,15 +19,28 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.comviva.mdesapp.activities.HomeActivity">
 
+
+
+
+
+    <ImageButton
+        android:id="@+id/btnMakeDefault"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/btn_default_card"
+        android:textColor="@android:color/black" />
+
     <ViewFlipper
         android:id="@+id/viewFlipperCards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_below="@+id/btnMakeDefault"
         android:background="@android:color/transparent"/>
 
     <LinearLayout
-
         android:id="@+id/pay_lay"
         android:visibility="invisible"
         android:layout_below="@+id/viewFlipperCards"
@@ -82,7 +103,6 @@
         android:visibility="invisible"
         android:orientation="vertical">
 
-
         <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,13 +110,32 @@
             android:text="No Card Added. Please add a card"/>
     </LinearLayout>
 
+   <RelativeLayout
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_centerHorizontal="true"
+       android:layout_marginBottom="5dp">
+    <TextView
+        android:id="@+id/tvApduLog"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:textSize="16sp"
+        android:scrollbars="vertical"/>
+
     <TextView
         android:id="@+id/tvUserId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:textSize="16sp"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
-        android:textSize="16sp" />
+        android:layout_below="@id/tvApduLog"/>
+   </RelativeLayout>
+
+
 
 </RelativeLayout>
+
+</android.support.v4.widget.SwipeRefreshLayout>
+
+

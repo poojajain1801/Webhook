@@ -1,10 +1,9 @@
 package com.comviva.hceservice.digitizationApi;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.comviva.hceservice.apiCalls.NetworkApi;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.PaymentCard;
@@ -12,11 +11,14 @@ import com.comviva.hceservice.common.SdkError;
 import com.comviva.hceservice.common.SdkErrorImpl;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
+import com.comviva.hceservice.common.ServerResponseListener;
 import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.digitizationApi.asset.AssetType;
 import com.comviva.hceservice.digitizationApi.asset.GetAssetResponse;
 import com.comviva.hceservice.digitizationApi.asset.MediaContent;
 import com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod;
+import com.comviva.hceservice.pojo.StepUpResponse;
+import com.comviva.hceservice.pojo.VerifyOTPResponse;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.GetCardMetaDataListener;
 import com.comviva.hceservice.util.HttpResponse;
@@ -38,7 +40,6 @@ import com.visa.cbp.external.common.HceData;
 import com.visa.cbp.external.common.ParamsStatus;
 import com.visa.cbp.external.common.StepUpRequest;
 import com.visa.cbp.external.common.TokenInfo;
-import com.visa.cbp.external.enp.ProvisionResponse;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
@@ -62,12 +63,19 @@ import flexjson.JSONDeserializer;
 /**
  * Contains all Digitization APIs.
  */
-public class Digitization {
+public class Digitization implements ServerResponseListener {
     private static Digitization instance;
     private DigitizationMdes digitizationMdes;
     private DigitizationVts digitizationVts;
+    private NetworkApi networkApi;
 
     private Digitization() {
+        try {
+            ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+            networkApi = new NetworkApi(comvivaSdk.getApplicationContext());
+        } catch (SdkException e) {
+            e.printStackTrace();
+        }
     }
 
     private void resetDigitization() {
@@ -95,7 +103,6 @@ public class Digitization {
      */
     public void checkCardEligibility(CardEligibilityRequest cardEligibilityRequest, final CheckCardEligibilityListener checkEligibilityListener) {
         try {
-
             resetDigitization();
             String cardNumber = cardEligibilityRequest.getAccountNumber();
 
@@ -120,8 +127,7 @@ public class Digitization {
                 default:
                     checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
             }
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             checkEligibilityListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
         }
     }
@@ -185,9 +191,7 @@ public class Digitization {
                 } catch (JSONException e) {
                     getAssetResponse.setResponseCode(httpResponse.getStatusCode());
                     getAssetResponse.setResponseMessage("Wrong data from server");
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     getAssetResponse.setResponseCode(500);
                     getAssetResponse.setResponseMessage("SDK Internal Error");
                 }
@@ -219,39 +223,34 @@ public class Digitization {
             switch (digitizationRequest.getCardType()) {
                 case MDES:
 
-                     if(null == digitizationMdes) {
-                         digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
-                         break;
+                    if (null == digitizationMdes) {
+                        digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+                        break;
                     } else if (digitizationMdes.getCardEligibilityResponse() == null) {
                         digitizationListener.onError(SdkErrorStandardImpl.SDK_CARD_ELIGIBILITY_NOT_PERFORMED);
                         break;
-                    }else
-                    {
+                    } else {
                         digitizationMdes.digitize(digitizationRequest, digitizationListener);
                         break;
                     }
 
                 case VTS:
-                    if(null == digitizationVts)
-                    {
+                    if (null == digitizationVts) {
                         digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                         return;
-                    }else if (digitizationVts.getEnrollPanResponse() == null) {
+                    } else if (digitizationVts.getEnrollPanResponse() == null) {
                         digitizationListener.onError(SdkErrorStandardImpl.SDK_CARD_ELIGIBILITY_NOT_PERFORMED);
                         break;
-                    }else
-                    {
+                    } else {
                         digitizationVts.provisionToken(digitizationRequest, digitizationListener);
                         break;
                     }
                 case UNKNOWN:
                     digitizationListener.onError(SdkErrorStandardImpl.SDK_UNSUPPORTED_SCHEME);
             }
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             digitizationListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
-        }
-        finally {
+        } finally {
             resetDigitization();
         }
     }
@@ -363,8 +362,7 @@ public class Digitization {
                 }
                 digitizationVts.performCardLcm(vtsCardList.get(0), cardLcmRequest.getCardLcmOperation(), cardLcmRequest.getReasonCode(), cardLcmListener);
             }
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
             cardLcmListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
         }
     }
@@ -436,7 +434,7 @@ public class Digitization {
      * <p>
      * Note- This API is only applicable for VISA .
      *
-     * @param paymentCard      Payment Card need to be checked
+     * @param paymentCard             Payment Card need to be checked
      * @param tokenDataUpdateListener Listener
      */
     public void getTokenStatus(final PaymentCard paymentCard, final TokenDataUpdateListener tokenDataUpdateListener) {
@@ -467,30 +465,29 @@ public class Digitization {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                try{
-                if (httpResponse.getStatusCode() == 200) {
-                    try {
-                        JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        try {
+                            JSONObject jsGetTokenResponse = new JSONObject(httpResponse.getResponse());
                             if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) &&
-                                !jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                                    !jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
                                 tokenDataUpdateListener.onError(SdkErrorImpl.getInstance(jsGetTokenResponse.getInt(Tags.RESPONSE_CODE.getTag()),
-                                    jsGetTokenResponse.getString("message")));
-                            return;
-                        }
-                        if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) && jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
-                            TokenInfo tokenInfo = parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
-                            if (tokenDataUpdateListener != null) {
-                                tokenDataUpdateListener.onSuccess(tokenInfo.getTokenStatus());
+                                        jsGetTokenResponse.getString("message")));
+                                return;
                             }
+                            if (jsGetTokenResponse.has(Tags.RESPONSE_CODE.getTag()) && jsGetTokenResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
+                                TokenInfo tokenInfo = parseGetTokenResponse(jsGetTokenResponse, tokenData.getTokenKey());
+                                if (tokenDataUpdateListener != null) {
+                                    tokenDataUpdateListener.onSuccess(tokenInfo.getTokenStatus());
+                                }
+                            }
+                        } catch (JSONException e) {
+                            tokenDataUpdateListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
-                    } catch (JSONException e) {
-                        tokenDataUpdateListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                    } else {
+                        tokenDataUpdateListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
-                } else {
-                    tokenDataUpdateListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                }
-            }catch(Exception e)
-                {
+                } catch (Exception e) {
                     tokenDataUpdateListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
@@ -505,12 +502,12 @@ public class Digitization {
      * <p>
      * Note- This API is only applicable for VISA .
      *
-     * @param vPanEnrollmentID     vPanEnrollmentId of Card
+     * @param vPanEnrollmentID vPanEnrollmentId of Card
      * @param responseListener Listener
      */
 
     public void getCardMetaData(final String vPanEnrollmentID, final GetCardMetaDataListener responseListener) {
-       /* final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();*/
+        /* final TokenData tokenData = (TokenData) paymentCard.getCurrentCard();*/
         final JSONObject jsonCardMetaDataRequest = new JSONObject();
 
         try {
@@ -544,31 +541,26 @@ public class Digitization {
             @Override
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
-                try{
-                if (httpResponse.getStatusCode() == 200) {
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
 
-                    try {
-                        JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
+                        try {
+                            JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
                             CardMetaData cardMetaData = parseGetMetaDataResponse(jsGetCardMetaDataResponse);
                             if (responseListener != null) {
                                 responseListener.onSuccess(cardMetaData);
                             }
-                    } catch (JSONException e) {
-                        responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-                    } catch (Exception e) {
-                        responseListener.onError(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR);
+                        } catch (JSONException e) {
+                            responseListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
+                        } catch (Exception e) {
+                            responseListener.onError(SdkErrorStandardImpl.SERVER_INTERNAL_ERROR);
+                        }
+                    } else {
+                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                     }
-                } else {
-                    responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                }
 
 
-
-
-
-
-
-                // Ideally response should be parsed like below
+                    // Ideally response should be parsed like below
                  /*   try {
                         JSONObject jsGetCardMetaDataResponse = new JSONObject(httpResponse.getResponse());
                         if (jsGetCardMetaDataResponse.has(Tags.RESPONSE_CODE.getTag()) && !jsGetCardMetaDataResponse.getString(Tags.RESPONSE_CODE.getTag()).equalsIgnoreCase("200")) {
@@ -588,8 +580,7 @@ public class Digitization {
                 } else {
                     responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
                 }*/
-            }catch(Exception e)
-                {
+                } catch (Exception e) {
                     responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
@@ -670,8 +661,7 @@ public class Digitization {
     }*/
 
 
-    private CardMetaData parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException,Exception
-    {
+    private CardMetaData parseGetMetaDataResponse(JSONObject jsGetMetaDataResponse) throws JSONException, Exception {
 
         Gson gson = new Gson();
         final CardMetadataUpdateResponse cardMetadataUpdateResponse = gson.fromJson(jsGetMetaDataResponse.toString(), CardMetadataUpdateResponse.class);
@@ -690,31 +680,25 @@ public class Digitization {
         cardMetaData.setShortDescription(visaCardMetaData.getShortDescription());
         cardMetaData.setLabelColor(visaCardMetaData.getLabelColor());
         cardMetaData.setTermsAndConditionsID(visaCardMetaData.getTermsAndConditionsID());
-        CardData[] cardDataArray ;
+        CardData[] cardDataArray;
         List<CardDatum> cardDatumList = visaCardMetaData.getCardData();
-        if(cardDatumList.size() != 0)
-        {
+        if (cardDatumList.size() != 0) {
             cardDataArray = new CardData[cardDatumList.size()];
-            for(int i=0;i<cardDatumList.size();i++)
-            {
+            for (int i = 0; i < cardDatumList.size(); i++) {
                 CardData cardData = new CardData();
                 cardData.setGuid(cardDatumList.get(i).getGuid());
                 ContentType contentType = ContentType.getContentType(cardDatumList.get(i).getContentType());
                 cardData.setContentType(contentType);
-                if(null != cardDatumList.get(i).getContent())
-                {
+                if (null != cardDatumList.get(i).getContent()) {
                     List<com.visa.cbp.external.common.Content> contentList = cardDatumList.get(i).getContent();
                     Content content = new Content();
-                    if(null != contentList.get(0).getWidth())
-                    {
+                    if (null != contentList.get(0).getWidth()) {
                         content.setWidth(Integer.parseInt(contentList.get(0).getWidth()));
                     }
-                    if(null != contentList.get(0).getHeight())
-                    {
+                    if (null != contentList.get(0).getHeight()) {
                         content.setHeight(Integer.parseInt(contentList.get(0).getHeight()));
                     }
-                    if(null != contentList.get(0).getMimeType())
-                    {
+                    if (null != contentList.get(0).getMimeType()) {
                         content.setMimeType(AssetType.getType(contentList.get(0).getMimeType()));
                     }
                     cardData.setContent(content);
@@ -727,7 +711,7 @@ public class Digitization {
         return cardMetaData;
     }
 
-    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException,Exception {
+    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException, Exception {
 
         JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
 
@@ -859,7 +843,7 @@ public class Digitization {
                 McbpCardApi.changePin(tokenUniqueReference, oldPin.getBytes(), newPin.getBytes());
             }
         } catch (AlreadyInProcessException e) {
-            Log.d("Error" , e.getMessage());
+            Log.d("Error", e.getMessage());
         } finally {
             RemoteManagementHandler.getInstance().clearPendingAction();
         }
@@ -879,7 +863,7 @@ public class Digitization {
                 McbpCardApi.setPin(tokenUniqueReference, newPin.getBytes());
             }
         } catch (AlreadyInProcessException e) {
-            Log.d("Error" , e.getMessage());
+            Log.d("Error", e.getMessage());
         } finally {
             RemoteManagementHandler.getInstance().clearPendingAction();
         }
@@ -930,7 +914,7 @@ public class Digitization {
                 }
             }
         } catch (VisaPaymentSDKException e) {
-            Log.d("Error" , e.getMessage());
+            Log.d("Error", e.getMessage());
         }
     }
 
@@ -978,8 +962,8 @@ public class Digitization {
     /**
      * generates Otp for step -up
      *
-     * @param provisionID       provision id of card
-     * @param stepUpRequestId   stepUp Id  for the request
+     * @param provisionID      provision id of card
+     * @param stepUpRequestId  stepUp Id  for the request
      * @param responseListener reponse listener to the request
      */
 
@@ -1001,7 +985,7 @@ public class Digitization {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                if(null != responseListener) {
+                if (null != responseListener) {
                     responseListener.onStarted();
                 }
             }
@@ -1016,11 +1000,17 @@ public class Digitization {
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
                 try {
-                    // Activation Code sent successfully
-                    if (httpResponse.getStatusCode() == 200) {
-                        responseListener.onSuccess();
-                    } else {
-                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    try {
+                        JSONObject resp = new JSONObject(httpResponse.getResponse());
+                        if (resp.has("responseCode")) {
+                            if (("200").equals(resp.get("responseCode"))) {
+                                responseListener.onSuccess();
+                            } else {
+                                responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                            }
+                        }
+                    } catch (Exception e) {
+                        responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                     }
                 } catch (Exception e) {
                     responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
@@ -1035,13 +1025,20 @@ public class Digitization {
     /**
      * generates Otp for step -up
      *
-     * @param provisionID       provision id of card
-     * @param otpValue          Otp value
+     * @param provisionID      provision id of card
+     * @param otpValue         Otp value
      * @param responseListener reponse listener to the request
      */
 
     public void verifyOTP(String provisionID, String otpValue, final ResponseListener responseListener) {
-        final JSONObject verifyOtp = new JSONObject();
+        try {
+            networkApi.setServerAuthenticateListener(this);
+            networkApi.verifyOtp(provisionID,otpValue,responseListener);
+            responseListener.onStarted();
+        } catch (JSONException e) {
+            Log.e(com.comviva.hceservice.constants.Tags.EXCEPTION_LOG.getTag(), String.valueOf(e));
+        }
+       /* final JSONObject verifyOtp = new JSONObject();
         try {
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             verifyOtp.put("otpValue", otpValue);
@@ -1058,7 +1055,7 @@ public class Digitization {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                if(null != responseListener) {
+                if (null != responseListener) {
                     responseListener.onStarted();
                 }
             }
@@ -1073,11 +1070,13 @@ public class Digitization {
             protected void onPostExecute(HttpResponse httpResponse) {
                 super.onPostExecute(httpResponse);
                 try {
-                    // Activation Code sent successfully
-                    if (httpResponse.getStatusCode() == 200) {
-                        responseListener.onSuccess();
-                    } else {
-                        responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    JSONObject resp = new JSONObject(httpResponse.getResponse());
+                    if (resp.has("responseCode")) {
+                        if (("200").equals(resp.get("responseCode"))) {
+                            responseListener.onSuccess();
+                        } else {
+                            responseListener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), resp.get("message").toString()));
+                        }
                     }
                 } catch (Exception e) {
                     responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
@@ -1085,18 +1084,26 @@ public class Digitization {
             }
         }
         VerifyOtpTask generateOtpTask = new VerifyOtpTask();
-        generateOtpTask.execute();
+        generateOtpTask.execute();*/
     }
 
     /**
      * API to get Step up options
      *
-     * @param provisionID       provision id of card
-     * @param responseListener reponse listener to the request
+     * @param provisionID    provision id of card
+     * @param stepUpListener reponse listener to the request
      */
 
-    public void getStepUpOptions(String provisionID, final ResponseListener responseListener) {
-        final JSONObject stepUpObject = new JSONObject();
+    public void getStepUpOptions(String provisionID, StepUpListener stepUpListener) {
+        try {
+            networkApi.setServerAuthenticateListener(this);
+            networkApi.stepUpOptions(provisionID, stepUpListener);
+            stepUpListener.onStarted();
+        } catch (JSONException e) {
+            Log.e(com.comviva.hceservice.constants.Tags.EXCEPTION_LOG.getTag(), String.valueOf(e));
+        }
+
+        /*final JSONObject stepUpObject = new JSONObject();
         try {
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             stepUpObject.put("vProvisionedTokenID", provisionID);
@@ -1139,8 +1146,53 @@ public class Digitization {
             }
         }
         StepUpTask stepUpTask = new StepUpTask();
-        stepUpTask.execute();
+        stepUpTask.execute();*/
     }
 
 
+    @Override
+    public void onRequestCompleted(Object result, Object listener) {
+        try {
+            if (result instanceof StepUpResponse) {
+                StepUpResponse stepUpResponse = (StepUpResponse) result;
+                StepUpListener responseListener = (StepUpListener) listener;
+                if (Constants.HTTP_SUCCESS_RESPONSE_CODE.equals(stepUpResponse.getResponseCode())) {
+                    responseListener.onSuccess();
+                    responseListener.onRequireAdditionalAuthentication(stepUpResponse.getStepUpRequest());
+                } else {
+                    responseListener.onError(SdkErrorImpl.getInstance(Integer.parseInt(stepUpResponse.getResponseCode()), stepUpResponse.getResponseMessage()));
+                }
+            } else if (result instanceof VerifyOTPResponse) {
+                VerifyOTPResponse verifyOTPResponse = (VerifyOTPResponse) result;
+                ResponseListener responseListener = (ResponseListener)listener;
+                if (Constants.HTTP_SUCCESS_RESPONSE_CODE.equals(verifyOTPResponse.getResponseCode())) {
+                    responseListener.onSuccess();
+                } else {
+                    responseListener.onError(SdkErrorImpl.getInstance(Integer.parseInt(verifyOTPResponse.getResponseCode()), verifyOTPResponse.getResponseMessage()));
+                }
+
+            }
+        } catch (Exception e) {
+            Log.e(com.comviva.hceservice.constants.Tags.EXCEPTION_LOG.getTag(), String.valueOf(e));
+            handleError(listener);
+
+        }
+    }
+
+    @Override
+    public void onRequestError(String message,Object listener) {
+        Log.e(com.comviva.hceservice.constants.Tags.EXCEPTION_LOG.getTag(),message);
+        handleError(listener);
+    }
+
+
+    private void handleError(Object listener){
+        if(listener instanceof ResponseListener){
+            ResponseListener responseListener = (ResponseListener)listener;
+            responseListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+        }else if(listener instanceof  StepUpListener){
+            StepUpListener stepUpListener = (StepUpListener) listener;
+            stepUpListener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
+        }
+    }
 }

@@ -6,9 +6,6 @@ import com.comviva.hceservice.common.CardLcmOperation;
  * Get URL of all APIs.
  */
 public class UrlUtil {
-    // Tanmaya IP 172.19.3.167
-    // Tarak Home IP 192.168.1.4
-    // Tarak Office IP 172.19.2.24
     private static String PAYMENT_APP_SERVER_ADDRESS;
     private static String CMS_D_SERVER_ADDRESS;
 
@@ -16,7 +13,7 @@ public class UrlUtil {
                                   final String payAppServerPort,
                                   final String cmsDIp,
                                   final String cmsDPort) {
-        if(payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("-1")) {
+        if (payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("-1")) {
             PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + "/payment-app/";
         } else {
             PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + ":" + payAppServerPort + "/payment-app/";
@@ -27,7 +24,7 @@ public class UrlUtil {
     }
 
     public static String getRegisterUserUrl() {
-       return PAYMENT_APP_SERVER_ADDRESS + "api/user/userRegistration";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/user/userRegistration";
     }
 
     public static String getActivateUserUrl() {
@@ -90,6 +87,7 @@ public class UrlUtil {
     public static String getVTSTransactionHistory() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/transaction/getTransactionHistory";
     }
+
     public static String getVTSEnrollPanUrl() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/enrollPan";
     }
@@ -120,7 +118,7 @@ public class UrlUtil {
 
     public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {
         switch (operation) {
-            case SUSPEND :
+            case SUSPEND:
             case RESUME:
             case DELETE:
                 return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
@@ -134,8 +132,9 @@ public class UrlUtil {
     }
 
     public static String getVTSPanData() {
-         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
     }
+
     public static String getVTSTokenStatus() {
         return PAYMENT_APP_SERVER_ADDRESS + "api/token/getTokenStatus";
     }
@@ -148,7 +147,8 @@ public class UrlUtil {
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
     }
 
+
     public static String getStepUpUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/getStepUpOptions";
     }
 }

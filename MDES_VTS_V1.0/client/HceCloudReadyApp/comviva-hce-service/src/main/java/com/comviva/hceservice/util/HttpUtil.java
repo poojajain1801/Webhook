@@ -1,7 +1,9 @@
 package com.comviva.hceservice.util;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 import com.comviva.hceservice.common.ComvivaSdk;
 
@@ -36,8 +38,8 @@ import javax.net.ssl.TrustManagerFactory;
 public class HttpUtil {
     private static HttpUtil httpUtil;
     private HttpResponse httpResponse;
-    private Boolean isHttpsEnabled = false;
-    public static final int TIMEOUT = 20 * 60 * 1000;
+    public static final int TIMEOUT = 1 * 60 * 1000;
+    private AssetManager assetManager;
 
     private HttpUtil() {
     }
@@ -73,7 +75,7 @@ public class HttpUtil {
         httpsURLConnection.setUseCaches(false);
         httpsURLConnection.setRequestProperty("Content-Type", "application/json");
         httpsURLConnection.setSSLSocketFactory(newSslSocketFactory());
-        httpsURLConnection.setHostnameVerifier(getHostnameVerifier());
+        httpsURLConnection.setHostnameVerifier(getHostnameVerifier(url));
         return httpsURLConnection;
     }
 
@@ -86,13 +88,17 @@ public class HttpUtil {
         return httpURLConnection;
     }
 
-    HostnameVerifier getHostnameVerifier() {
+    public HostnameVerifier getHostnameVerifier(final URL url)
+    {
         return new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
-                //return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
-                //HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                return true;
+               // return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
+                HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                Log.d("Hostname Verifier",url.getHost());
+                Log.d("Hostname Verifier",url.toString());
+                Log.d("Hostname Verifier",String.valueOf(hv.verify(url.getHost(), session)));
+                return hv.verify(url.getHost(), session);
             }
         };
     }
@@ -103,25 +109,33 @@ public class HttpUtil {
             try {
                 cf = CertificateFactory.getInstance("X.509");
             } catch (CertificateException e) {
+                Log.d("CertReading","CertificateFactory Error");
                 e.printStackTrace();
             }
             InputStream caInput = null;
             try {
-                caInput = new BufferedInputStream(ComvivaSdk.getInstance(null).getApplicationContext().getAssets().open("paymentAppServer.crt"));
+                assetManager = ComvivaSdk.getInstance(null).getApplicationContext().getAssets();
+                caInput =  assetManager.open("paymentAppServer.crt");
+                //caInput = new BufferedInputStream(ComvivaSdk.getInstance(null).getApplicationContext().getAssets().open("paymentAppServer.crt"));
             } catch (IOException e) {
+
+                Log.d("Certificate Reading","Error Reading Certificate");
                 e.printStackTrace();
             }
             Certificate ca = null;
             try {
                 try {
+
                     ca = cf.generateCertificate(caInput);
                 } catch (CertificateException e) {
                     e.printStackTrace();
+                    Log.d("Certificate Reading","Generate Certificate Error");
                 }
             } finally {
                 try {
                     caInput.close();
                 } catch (IOException e) {
+                    Log.d("Certificate Reading","Input file close error");
                     e.printStackTrace();
                 }
             }
@@ -132,21 +146,26 @@ public class HttpUtil {
             try {
                 keyStore = KeyStore.getInstance(keyStoreType);
             } catch (KeyStoreException e) {
+                Log.d("Certificate Reading","Keystore Error");
                 e.printStackTrace();
             }
             try {
                 keyStore.load(null, null);
             } catch (IOException e) {
+                Log.d("Certificate Reading","Keystore Load Error 1");
                 e.printStackTrace();
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","Keystore Load Error 2");
             } catch (CertificateException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","Keystore Load Error 3");
             }
             try {
                 keyStore.setCertificateEntry("ca", ca);
             } catch (KeyStoreException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","setCertificateEntry Error ");
             }
 
             // Create a TrustManager that trusts the CAs in our KeyStore
@@ -156,11 +175,13 @@ public class HttpUtil {
                 tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","TrustManagerFactory Error ");
             }
             try {
                 tmf.init(keyStore);
             } catch (KeyStoreException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","KeyStoreException Error ");
             }
 
             // Create an SSLContext that uses our TrustManager
@@ -169,11 +190,13 @@ public class HttpUtil {
                 sslContext = SSLContext.getInstance("TLS");
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","TLS Error ");
             }
             try {
                 sslContext.init(null, tmf.getTrustManagers(), null);
             } catch (KeyManagementException e) {
                 e.printStackTrace();
+                Log.d("Certificate Reading","getTrustManagers Error ");
             }
         /*    SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             sslSocketFactory.se*/
@@ -197,7 +220,7 @@ public class HttpUtil {
     }
 
     public HttpResponse postRequest(String serviceUrl, String requestData) {
-        if (isHttpsEnabled) {
+        if (serviceUrl.startsWith("https")) {
             //setProxy();
             httpResponse = new HttpResponse();
             HttpsURLConnection httpsURLConnection = null;
@@ -301,7 +324,7 @@ public class HttpUtil {
     }
 
     public HttpResponse getRequest(String serviceUrl, Map<String, String> queryStrings) {
-        if (isHttpsEnabled) {
+        if (serviceUrl.startsWith("https")) {
             //setProxy();
             httpResponse = new HttpResponse();
 

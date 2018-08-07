@@ -2,13 +2,20 @@ package com.comviva.hceservice.common;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
+import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.app_properties.PropertyConst;
 import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.common.database.CommonDatabase;
 import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
+import com.comviva.hceservice.digitizationApi.ActiveAccountManagementService;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.security.DexGuardSecurity;
 import com.comviva.hceservice.security.SecurityInf;
@@ -26,9 +33,23 @@ import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
+import com.visa.cbp.sdk.facade.data.TokenKey;
+import com.visa.cbp.sdk.facade.error.SDKErrorType;
+import com.visa.cbp.sdk.facade.exception.CryptoException;
+import com.visa.cbp.sdk.facade.exception.InvalidTokenStateException;
+import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Entry Class for Comviva SDK.
@@ -38,7 +59,7 @@ public class ComvivaSdk {
     private CommonDb commonDb;
     private Application application;
     private SecurityInf securityInf;
-
+    private SharedPreferences sharedPreferences;
     private PaymentCard selectedCard;
 
     private ComvivaSdk(Application application) {
@@ -54,18 +75,20 @@ public class ComvivaSdk {
     /**
      * If device is rooted or tampered we need to clear all data and report to server.
      */
-    private static void reportFraud() {
-        comvivaSdk = null;
+    public static void reportFraud() {
+
         comvivaSdk.resetDevice();
+        comvivaSdk = null;
 
         // TODO Report to Server
     }
 
-    private static void checkSecurity() throws SdkException {
+    public  static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+    /*    SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
+            Log.d("Security","Debug not allowed");
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
@@ -73,16 +96,18 @@ public class ComvivaSdk {
         // Check that device is Rooted
         if (securityInf.isDeviceRooted()) {
             // Delete all data from SDK and inform to server
+            Log.d("Security","Device is rooted");
             reportFraud();
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
-        }
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+        }*/
 
-        // Check for Tamper detection
+      /*  // Check for Tamper detection
         if (securityInf.isApkTampered()) {
             // Delete all data from SDK and inform to server
+            Log.d("Security","Apk is tempered");
             reportFraud();
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
-        }
+            throw new SdkException(SdkErrorStandardImpl.COMMON_APK_TAMPERED);
+        }*/
     }
 
     private void loadConfiguration() {
@@ -111,6 +136,10 @@ public class ComvivaSdk {
                 sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null));
     }
 
+    LukInfo getLukInfo(PaymentCard card) {
+        return commonDb.getLukInfoVisa(card.getCardUniqueId());
+    }
+
     /**
      * <p>Returns Singleton Instance of this class.</p>
      * <p>Note-Invoke this method for at-least once while starting the application to initialize ComvivaSdk object</p>
@@ -122,10 +151,11 @@ public class ComvivaSdk {
     public static ComvivaSdk getInstance(Application context) throws SdkException {
         if (comvivaSdk == null) {
             comvivaSdk = new ComvivaSdk(context);
+            checkSecurity();
         }
 
         // Check security
-        //checkSecurity();
+
         return comvivaSdk;
     }
 
@@ -240,12 +270,105 @@ public class ComvivaSdk {
      *
      * @param paymentCard Card to be selected
      */
-    public void setSelectedCard(PaymentCard paymentCard) {
+    public boolean setSelectedCard(PaymentCard paymentCard) {
         this.selectedCard = paymentCard;
-        if (selectedCard.getCardType() == CardType.MDES) {
-            McbpWalletApi.setCurrentCard((McbpCard) selectedCard.getCurrentCard());
+        switch (selectedCard.getCardType()) {
+            case MDES:
+                McbpWalletApi.setCurrentCard((McbpCard) selectedCard.getCurrentCard());
+                break;
+
+            case VTS:
+                try {
+                    VisaPaymentSDKImpl.getInstance().selectCard(((TokenData) paymentCard.getCurrentCard()).getTokenKey());
+                } catch (TokenInvalidException | CryptoException | InvalidTokenStateException e) {
+                    if (e.getCbpError().getErrorCode() == SDKErrorType.SUPER_USER_PERMISSION_DETECTED.getCode())
+                    {
+                        ComvivaSdk.reportFraud();
+                    }
+                    return false;
+                }
+                break;
         }
+        return true;
     }
+
+    public void setDefaultCardAndLastFour(final Bitmap bitmap, final String last4) {
+        final String absolutePath = this.saveToInternalStorage(bitmap);
+        sharedPreferences = getApplicationContext().getSharedPreferences(Constants.USER_DETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("path", absolutePath);
+        editor.putString("last4", last4);
+        editor.apply();
+    }
+
+    public Map<String, Object> getDefaultCardAndLast4() {
+        final Bitmap bitmap = loadImageFromStorage();
+        sharedPreferences = getApplicationContext().getSharedPreferences(Constants.USER_DETAILS, Context.MODE_PRIVATE);
+        final String last4 = sharedPreferences.getString("last4", (String)null);
+        final Map<String, Object> defaultCard = new HashMap<String, Object>();
+        defaultCard.put("image", bitmap);
+        defaultCard.put("last4", last4);
+        return defaultCard;
+    }
+
+    private String saveToInternalStorage(final Bitmap bitmapImage) {
+        final ContextWrapper cw = new ContextWrapper(this.getApplicationContext());
+        final File directory = cw.getDir("CardImage", 0);
+        final File mypath = new File(directory, "defaultCardImage.jpg");
+        if (bitmapImage == null) {
+            if (mypath.exists()) {
+                mypath.delete();
+            }
+        }
+        else {
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(mypath);
+                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, (OutputStream)fos);
+            }
+            catch (Exception e) {
+                Log.d("ComvivaSdk Exception", e.getMessage());
+                try {
+                    fos.close();
+                }
+                catch (IOException e2) {
+                    Log.d("ComvivaSdk Exception", e2.getMessage());
+                }
+            }
+            finally {
+                try {
+                    fos.close();
+                }
+                catch (IOException e3) {
+                    Log.d("ComvivaSdk Exception", e3.getMessage());
+                }
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    private Bitmap loadImageFromStorage() {
+        sharedPreferences = getApplicationContext().getSharedPreferences("USER_DETAILS", 0);
+        final String path = sharedPreferences.getString("path", (String)null);
+        Bitmap bitmap = null;
+        try {
+            final File f = new File(path, "defaultCardImage.jpg");
+            bitmap = BitmapFactory.decodeStream((InputStream)new FileInputStream(f));
+        }
+        catch (FileNotFoundException e) {
+            Log.d("ComvivaSdk Exception", "File Not Exists");
+            return null;
+        }
+        return bitmap;
+    }
+
+    public void deSelectCard ()
+    {
+       boolean deSelect  = VisaPaymentSDKImpl.getInstance().deselectCard();
+       this.selectedCard = null;
+
+    }
+
 
     /**
      * Returns all card stored in in the SDK.
@@ -257,8 +380,7 @@ public class ComvivaSdk {
         List<McbpCard> mdesCards;
         List<TokenData> vtsCards;
 
-        //String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
-        String defaultCardUniqueId = "";
+        String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
         SchemeType enrollmentStatus = checkEnrolmentStatus();
         PaymentCard paymentCard;
 
@@ -274,17 +396,62 @@ public class ComvivaSdk {
         }
 
         if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
+            ArrayList<TokenKey> tokensToBeReplenished = new ArrayList<>();
+            ComvivaSdkInitData initData = getInitializationData();
+
             vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
             for (TokenData tokenData : vtsCards) {
                 paymentCard = new PaymentCard(tokenData);
-                if (defaultCardUniqueId.equalsIgnoreCase(String.format("%d", tokenData.getTokenKey().getTokenId()))) {
+                if (paymentCard.getCardUniqueId().equalsIgnoreCase(defaultCardUniqueId)) {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);
+
+                // Check if current token has reached it's thresold limit or Key is Expired, then replenishment is required
+             /*   LukInfo lukInfo = comvivaSdk.getLukInfo(paymentCard);
+                if (lukInfo!=null) {
+                    boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining()==0);
+
+                    if (isReplenishmentRequired) {
+                        tokensToBeReplenished.add(tokenData.getTokenKey());
+                    }
+                }*/
             }
+            // If there is any token to be replenished then invoke replenish service
+           /* if(tokensToBeReplenished.size() > 0) {
+                Intent intent = new Intent(application.getApplicationContext(), ActiveAccountManagementService.class);
+                intent.putExtra(com.visa.cbp.sdk.facade.data.Constants.REPLENISH_TOKENS_KEY, tokensToBeReplenished);
+                application.getApplicationContext().startService(intent);
+            }*/
         }
         return allCards;
     }
+public void replenishLUKVisa() {
+    List<TokenData> vtsCards;
+    ArrayList<TokenKey> tokensToBeReplenished = new ArrayList<>();
+    ComvivaSdkInitData initData = getInitializationData();
+    PaymentCard paymentCard;
+    vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
+    for (TokenData tokenData : vtsCards) {
+        paymentCard = new PaymentCard(tokenData);
+
+        // Check if current token has reached it's thresold limit or Key is Expired, then replenishment is required
+        LukInfo lukInfo = comvivaSdk.getLukInfo(paymentCard);
+        if (lukInfo != null) {
+            boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining() <= 0);
+
+            if (isReplenishmentRequired) {
+                tokensToBeReplenished.add(tokenData.getTokenKey());
+            }
+        }
+
+    }
+    if(tokensToBeReplenished.size() > 0) {
+        Intent intent = new Intent(application.getApplicationContext(), ActiveAccountManagementService.class);
+        intent.putExtra(com.visa.cbp.sdk.facade.data.Constants.REPLENISH_TOKENS_KEY, tokensToBeReplenished);
+        application.getApplicationContext().startService(intent);
+    }
+}
 
     /**
      * Activates a card recently added.<br>
@@ -348,7 +515,11 @@ public class ComvivaSdk {
         // Clear VTS related data
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();
-
+        visaPaymentSDK.reset(comvivaSdk.getApplicationContext());
+        sharedPreferences = getApplicationContext().getSharedPreferences(Constants.USER_DETAILS, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
         // Clear Comviva SDK data
         commonDb.resetDatabase();
         return true;
@@ -391,9 +562,14 @@ public class ComvivaSdk {
     }
 
     /**
-     * Update Payment App Server IP & Port Number.
-     * @param paymentAppServerIp Server IP
-     * @param port Port Number
+     * Update Payment App Server IP & Port Number. <br>
+     * <p>
+     *     Example - If you have IP as 172.19.4.107 then pass paymentAppServerIp as http://172.19.4.107 or https://172.19.4.107 depending on HTTP or HTTPS.<br>
+     *         If you have only server url and no port number then pass your url as paymentAppServerIp and port number as -1.
+     * </p>
+     *
+     * @param paymentAppServerIp Server IP.
+     * @param port               Port Number. If you do not have port number then please use value -1.
      */
     public void setPaymentAppServerConfiguration(String paymentAppServerIp, int port) {
         SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
@@ -406,8 +582,9 @@ public class ComvivaSdk {
 
     /**
      * Update CMS-D Server IP & Port Number.
+     *
      * @param cmsDServerIp Server IP
-     * @param port Port Number
+     * @param port         Port Number
      */
     public void setCmsDServerConfiguration(String cmsDServerIp, int port) {
         SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
@@ -419,6 +596,7 @@ public class ComvivaSdk {
 
     /**
      * Return Payment Server IP address.
+     *
      * @return IP Address
      */
     public String getPaymentAppServerIP() {
@@ -428,6 +606,7 @@ public class ComvivaSdk {
 
     /**
      * Return Payment Server Port Number.
+     *
      * @return Port Number
      */
     public String getPaymentAppServerPort() {
@@ -437,6 +616,7 @@ public class ComvivaSdk {
 
     /**
      * Return CMS-D Server IP address.
+     *
      * @return IP Address
      */
     public String getCmsDServerIP() {
@@ -446,10 +626,43 @@ public class ComvivaSdk {
 
     /**
      * Return CMS-D Server Port Number.
+     *
      * @return Port Number
      */
     public String getCmsDServerPort() {
         SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null);
+    }
+
+    /**
+     * Reset default card. There will be no card set as default card.
+     */
+    public void resetDefaultCard() {
+        commonDb.resetDefaultCard();
+    }
+
+    /**
+     * Returns Default Card's Unique ID.
+     *
+     * @return Card Unique Id
+     */
+    public String getDefaultCardUniqueId() {
+        return commonDb.getDefaultCardUniqueId();
+    }
+
+    public boolean consumeLuk(PaymentCard card) {
+        return commonDb.consumeLuk(card);
+    }
+
+    public boolean insertLukInfo(LukInfo lukInfo) {
+        return commonDb.insertLukInfo(lukInfo);
+    }
+
+    public boolean updateLukInfo(LukInfo lukInfo) {
+        return commonDb.updateLukInfo(lukInfo);
+    }
+
+    public  void deleteLukInfo(PaymentCard card) {
+        commonDb.deleteLukInfo(card);
     }
 }

@@ -422,7 +422,7 @@ class DigitizationMdes {
                         final String panUniqueReference = respObj.getString("panUniqueReference");
 
                         if (decision.equalsIgnoreCase("APPROVED")) {
-                            digitizationListener.onApproved();
+                            digitizationListener.onApproved(null);
                         } else if (decision.equalsIgnoreCase("REQUIRE_ADDITIONAL_AUTHENTICATION")) {
                             JSONArray arrAuthenticationMethods = respObj.getJSONArray("authenticationMethods");
                             int noOfAuthMethods = arrAuthenticationMethods.length();
