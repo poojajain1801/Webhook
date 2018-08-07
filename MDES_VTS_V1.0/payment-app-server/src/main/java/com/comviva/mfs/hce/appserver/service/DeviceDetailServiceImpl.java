@@ -206,20 +206,19 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             imei = unRegisterReq.getImei();
             userID = unRegisterReq.getUserID();
 
-            LOGGER.debug("MasterCard unregister is called for userID :"+userID);
-
             if(((imei.isEmpty()||imei==null)||(userID.isEmpty()||userID == null))) {
                 LOGGER.error("Either imei or userid is missing");
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
 
+            LOGGER.debug("MasterCard unregister is called for userID :"+userID);
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
             if (deviceInfo == null){
                 LOGGER.error(" No Device is registered with UserID :"+userID);
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
             requestJson = new JSONObject();
-            requestJson.put("responseHost","Wallet.mahindracomviva.com");
+            requestJson.put("responseHost",env.getProperty("responsehost"));
             requestJson.put("requestId",env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
             requestJson.put("paymentAppInstanceId",paymentAppInstanceId);
 

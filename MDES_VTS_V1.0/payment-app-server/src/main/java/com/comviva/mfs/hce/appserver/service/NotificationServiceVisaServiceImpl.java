@@ -168,7 +168,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     }
 
 
-
     public RnsGenericRequest preparetNotificationRequest(String panUniqueReference,String rnsId){
         LOGGER.debug("Inside preparetNotificationRequest");
         HashMap<String, String> lcmNotificationData = new HashMap<>();
