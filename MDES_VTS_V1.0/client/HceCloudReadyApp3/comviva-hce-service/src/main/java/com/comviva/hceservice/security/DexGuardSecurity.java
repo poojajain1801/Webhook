@@ -67,7 +67,7 @@ public class DexGuardSecurity implements SecurityInf {
 
     @Override
     public boolean isDeviceRooted() {
-        int isDeviceRooted =  RootDetector.isDeviceRooted(OK);
+        int isDeviceRooted =  RootDetector.isDeviceRooted(context,OK);
         if(isDeviceRooted != OK)
         {
             Log.d("security","Device is rooted");

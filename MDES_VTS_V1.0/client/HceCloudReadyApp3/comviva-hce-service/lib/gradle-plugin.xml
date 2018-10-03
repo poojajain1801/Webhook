@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.guardsquare.dexguard.gradle</groupId>
   <artifactId>dexguard-gradle-plugin</artifactId>
-  <version>8.0.00</version>
+  <version>8.2.14</version>
   <packaging>jar</packaging>
   <name>DexGuard Gradle Plugin</name>
   <description>Gradle Plugin for DexGuard for DexGuard, the specialized optimizer and obfuscator for Android.</description>

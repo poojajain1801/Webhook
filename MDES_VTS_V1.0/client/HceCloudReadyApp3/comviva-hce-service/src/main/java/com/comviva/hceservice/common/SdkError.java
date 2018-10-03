@@ -64,6 +64,12 @@ public interface SdkError {
 
 
     /**
+     * <p>Invalid number of records provided to fetch for transaction history </p>
+     */
+    int SW_SDK_ROLLOVER_IN_PROGRESS= SW_SDK_TASK_ALREADY_IN_PROGRESS + 1;
+
+
+    /**
      * <p>Internal error from server. </p>
      */
     int SW_SERVER_INTERNAL_ERROR =  5000;

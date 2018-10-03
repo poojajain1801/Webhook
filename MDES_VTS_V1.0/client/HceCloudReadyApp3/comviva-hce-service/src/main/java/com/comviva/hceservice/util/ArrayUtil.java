@@ -1,9 +1,22 @@
 package com.comviva.hceservice.util;
 
+import com.mastercard.mpsdk.utils.Utils;
+import com.mastercard.upgrade.utils.bytes.ByteArray;
+
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class ArrayUtil {
-	public static String getHexString(byte[] buffer){
+		public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 
 		for(int i = 0; i < buffer.length; i++){
@@ -50,5 +63,28 @@ public class ArrayUtil {
 		random.nextBytes(randomNumber);
 		return randomNumber;
 	}
+
+
+
+	public static final ByteArray encryptRandomGeneratedKey(final byte[] data, final byte[] key)
+			throws Exception {
+		final byte[] result;
+		try {
+			final Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+			final X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(key);
+
+			cipher.init(Cipher.ENCRYPT_MODE, KeyFactory.getInstance("RSA").
+					generatePublic(x509EncodedKeySpec));
+
+			result = cipher.doFinal(data);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
+				InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+			throw new Exception(e.getMessage());
+		}
+		final ByteArray encryptedData = ByteArray.of(result);
+		Utils.clearByteArray(result);  // We need to clean up temporary variables
+		return encryptedData;
+	}
+
 
 }

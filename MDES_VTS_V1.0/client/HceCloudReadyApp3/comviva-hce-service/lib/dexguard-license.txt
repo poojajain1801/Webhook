@@ -1,10 +1,11 @@
-# DexGuard license file
-licensee              = Mahindra Comviva
-contact               = Gopal Gupta
-contactEmail          = rajasekhara.p@mahindracomviva.com
+# GuardSquare test license file
+licensee              = DexGuard licensees, for samples
+contact               = GuardSquare NV
+contactEmail          = support@guardsquare.com
+package               = com.amazon.sample.buttonclicker,com.amazon.sample.iap.consumable,com.android.vending.expansion.downloader,com.android.vending.expansion.zipfile,com.badlogicgames.superjumper.android,com.example,com.example.android.keyczardemo,com.example.android.market.licensing,com.example.android.trivialdrivesample,com.example.dagger.simple,com.example.dungeons,com.example.expansion.downloader,com.example.library,com.google.android.gms,com.google.android.gms.samples.ads,com.google.android.gms.samples.wallet,com.google.android.vending.licensing,com.securepreferences.sample,info.guardianproject.iocipherexample,sample.netcipher
+certificate           = FA:F8:0A:CB:26:C9:08:DD:3F:E4:A4:76:1B:37:3E:C1
+expiryDate            = 2018-12-31
+maintenanceExpiryDate = 2018-11-30
 product               = DexGuard
-version               = 7.*,8.*
-package               = com.mastercard.mcbp_android
-expiryDate            = 2019-04-29
-maintenanceExpiryDate = 2019-04-29
-key                   = 3ae77710fc9c97e68066ebc7a4b1b9a69c9422761ef72aad46a85c31aed566441ad5f970717ba49cac04d3387113dc1895471eec805cedaa20ae4c9d1cc69ce9
+version               = 8.*
+key                   = 06b4f9d8b38d5c6551a797b3535b856d4d669823e6157b720a98a1678b3bcf1e4a727d62df7e67e178764cf6d69396fde6a8d4cbf5216a89e4ecda4b7994929c

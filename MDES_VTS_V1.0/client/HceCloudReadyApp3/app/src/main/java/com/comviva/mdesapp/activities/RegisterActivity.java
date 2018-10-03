@@ -13,9 +13,9 @@ import android.widget.EditText;
 import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.common.SdkError;
-import com.comviva.hceservice.register.RegisterParam;
+import com.comviva.hceservice.listeners.ResponseListener;
 import com.comviva.hceservice.register.Registration;
-import com.comviva.hceservice.register.RegistrationListener;
+import com.comviva.hceservice.requestobjects.RegisterRequestParam;
 import com.comviva.mdesapp.R;
 
 public class RegisterActivity extends Activity {
@@ -39,9 +39,8 @@ public class RegisterActivity extends Activity {
         }
 
         try {
-            final RegisterParam registerParam = new RegisterParam();
-            registerParam.setPaymentAppId("ComvivaWallet");
-            registerParam.setPublicKeyFingerprint("1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E");
+            final RegisterRequestParam registerParam = new RegisterRequestParam();
+            registerParam.setPaymentAppId("SBICANDROID");
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(getApplication());
 
             final Registration registration = Registration.getInstance();
@@ -66,7 +65,19 @@ public class RegisterActivity extends Activity {
         }
     }
 
-    RegistrationListener regDeviceListener = new RegistrationListener() {
+    ResponseListener regDeviceListener = new ResponseListener() {
+        @Override
+        public void onSuccess() {
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
+            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+        }
+
+
         @Override
         public void onStarted() {
             progressDialog = new ProgressDialog(RegisterActivity.this);
@@ -77,15 +88,7 @@ public class RegisterActivity extends Activity {
             progressDialog.show();
         }
 
-        @Override
-        public void onCompleted() {
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
-            }
-            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
+
 
         @Override
         public void onError(SdkError sdkError) {

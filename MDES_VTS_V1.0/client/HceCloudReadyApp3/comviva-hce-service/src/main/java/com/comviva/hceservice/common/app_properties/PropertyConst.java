@@ -35,7 +35,25 @@ public class PropertyConst {
      */
     public static final String KEY_PAYMENT_APP_PROVIDER_ID = "PAYMENT_APP_PROVIDER_ID";
     /**
+     * The Payment App Instance Id (Wallet Identifier)
+     */
+    public static final String KEY_PAYMENT_APP_INSTANCE_ID = "PAYMENT_APP_INSTANCE_ID";
+    /**
      * Unique identifier for the client application
      */
     public static final String KEY_CLIENT_APP_ID = "CLIENT_APP_ID";
+    /**
+     * Public key fingerprint for Add Card
+     */
+    public static final String PUBLIC_KEY_FINGERPRINT = "PUBLIC_KEY_FINGERPRINT";
+
+    /**
+     * Public key fingerprint for Add Card
+     */
+    public static final String CARDLET_ID = "CARDLET_ID";
+    /**
+     * Public key fingerprint for Add Card
+     */
+    public static final String CERT_NAME = "CERT_NAME";
+
 }

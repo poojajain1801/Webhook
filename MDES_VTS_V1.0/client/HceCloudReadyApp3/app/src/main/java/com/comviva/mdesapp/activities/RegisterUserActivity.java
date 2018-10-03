@@ -15,11 +15,10 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.comviva.hceservice.common.SdkError;
-import com.comviva.hceservice.register.RegisterUserListener;
+import com.comviva.hceservice.listeners.ResponseListener;
 import com.comviva.hceservice.register.Registration;
 import com.comviva.mdesapp.R;
 import com.comviva.mdesapp.UiUtil;
-import com.comviva.mdesapp.constant.Constants;
 
 public class RegisterUserActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
@@ -43,33 +42,27 @@ public class RegisterUserActivity extends AppCompatActivity {
                 }
                 userId = edUserId.getText().toString();
                 Registration registration = Registration.getInstance();
-                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 
-                registration.registerUser(userId, imei, registerUserListener);
+                String imei = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+                try {
+                    registration.registerUser(userId, imei, registerUserListener);
+                }catch (Exception e){}
+
             }
         });
     }
 
-    final RegisterUserListener registerUserListener = new RegisterUserListener() {
+    final ResponseListener registerUserListener = new ResponseListener() {
         @Override
-        public void onStarted() {
-            progressDialog = new ProgressDialog(RegisterUserActivity.this);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setMessage("Please wait...");
-            progressDialog.setIndeterminate(true);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-        }
+        public void onSuccess() {
 
-        @Override
-        public void onRegistrationCompeted() {
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
-            SharedPreferences sharedPrefsUserDetails = getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_USER,
+            SharedPreferences sharedPrefsUserDetails = getApplicationContext().getSharedPreferences("user_details",
                     getApplicationContext().MODE_PRIVATE);
             SharedPreferences.Editor editUserDetails = sharedPrefsUserDetails.edit();
-            editUserDetails.putString(Constants.KEY_USER_ID, edUserId.getText().toString());
+            editUserDetails.putString("user_id", edUserId.getText().toString());
             editUserDetails.apply();
 
             /*Intent actUser = new Intent(RegisterUserActivity.this, ActivateUserActivity.class);
@@ -80,7 +73,20 @@ public class RegisterUserActivity extends AppCompatActivity {
             regDevice.putExtra("userId", userId);
             //regDevice.putExtra("activationCode", "");
             startActivity(regDevice);
+
         }
+
+
+        @Override
+        public void onStarted() {
+            progressDialog = new ProgressDialog(RegisterUserActivity.this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setIndeterminate(true);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
 
         @Override
         public void onError(SdkError sdkError) {

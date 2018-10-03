@@ -1,154 +1,175 @@
 package com.comviva.hceservice.util;
 
-import com.comviva.hceservice.common.CardLcmOperation;
+import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.common.CommonUtil;
 
 /**
  * Get URL of all APIs.
  */
 public class UrlUtil {
+
     private static String PAYMENT_APP_SERVER_ADDRESS;
-    private static String CMS_D_SERVER_ADDRESS;
+
 
     public static void initialize(final String payAppServerIp,
-                                  final String payAppServerPort,
-                                  final String cmsDIp,
-                                  final String cmsDPort) {
-        if (payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("-1")) {
-            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + "/payment-app/";
-        } else {
-            PAYMENT_APP_SERVER_ADDRESS = payAppServerIp + ":" + payAppServerPort + "/payment-app/";
-        }
+                                  final String payAppServerPort) {
 
-        //http://localhost:9099/mdes/paymentapp/1/0/requestSession
-        CMS_D_SERVER_ADDRESS = "http://" + cmsDIp + ":" + cmsDPort + "/mdes/paymentapp/1/0/";
+        if (payAppServerPort == null || payAppServerPort.isEmpty() || payAppServerPort.equalsIgnoreCase("")) {
+            PAYMENT_APP_SERVER_ADDRESS = CommonUtil.decrypt(payAppServerIp) + Constants.CONTEXT_ROOT;
+        } else {
+            PAYMENT_APP_SERVER_ADDRESS = CommonUtil.decrypt(payAppServerIp) + ":" + CommonUtil.decrypt(payAppServerPort) + Constants.CONTEXT_ROOT;
+        }
     }
 
+
     public static String getRegisterUserUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/user/userRegistration";
     }
 
-    public static String getActivateUserUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/user/activateUser";
-    }
 
     public static String getRegisterDeviceUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/device/deviceRegistration";
     }
 
+
     public static String getUnRegisterDeviceUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/device/deRegister";
     }
 
+
     public static String getCheckCardEligibilityUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/checkCardEligibility";
     }
 
+
     public static String getAssetUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/mdes/digitization/1/0/asset";
+
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/mdes/asset";
     }
+
 
     public static String getContinueDigitizationUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/continueDigitization";
-    }
 
-    public static String getRequestSessionUrl() {
-        return CMS_D_SERVER_ADDRESS + "requestSession";
+        return PAYMENT_APP_SERVER_ADDRESS + "api/card/continueDigitization";
     }
 
 
     public static String getCardLifeCycleManagementMdesUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/lifeCycleManagement";
     }
 
-    public static String getRequestActivationCodeUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/requestActivationCode";
+
+    public static String getMDESTransactionHistory() {
+
+        return PAYMENT_APP_SERVER_ADDRESS + "api/transaction/getTransactions";
     }
 
-    public static String getActivateUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/activate";
+
+    public static String getRegisterForTransactionHistoryMdes() {
+
+        return PAYMENT_APP_SERVER_ADDRESS + "api/transaction/registerWithTDS";
     }
 
-    public static String getRegCodeTdsUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getRegistrationCode";
-    }
-
-    public static String getRegisterTdsUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/registerWithTDS";
-    }
-
-    public static String getTransactionDetailsUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/getTransactions";
-    }
-
-    public static String getUnregisterTdsUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/card/unregisterTds";
-    }
 
     public static String getVTSTransactionHistory() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/transaction/getTransactionHistory";
     }
 
+
     public static String getVTSEnrollPanUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/enrollPan";
     }
 
+
     public static String getVTSProvisionTokenUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/provisionTokenWithPanEnrollmentId";
     }
 
+
     public static String getVTSReplenishTokenUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/activeAccountManagementReplenish";
     }
 
+
     public static String getVTSConfirmReplenishTokenUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/activeAccountManagementConfirmReplenishment";
     }
 
+
     public static String getVTSReplenishODADataTokenUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/replenishODAData";
     }
 
+
     public static String getVTSContentUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getContent";
     }
 
+
     public static String getVTSConfirmProvisioningUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/confirmProvisioning";
     }
 
-    public static String getCardLifeCycleManagementVtsUrl(CardLcmOperation operation) {
-        switch (operation) {
-            case SUSPEND:
-            case RESUME:
-            case DELETE:
-                return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
-            default:
-                return null;
-        }
+
+    public static String getCardLifeCycleManagementVtsUrl() {
+
+        return PAYMENT_APP_SERVER_ADDRESS + "api/token/lifeCycleManagementVisa";
     }
 
+
     public static String getVTSCardMetaDataUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getCardMetadata";
     }
 
+
     public static String getVTSPanData() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/card/getPANData";
     }
 
+
     public static String getVTSTokenStatus() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/token/getTokenStatus";
     }
 
-    public static String getRequestOtpUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/submitIDandVStepupMethodRequest";
+
+    public static String getRequestOtpUrl(CardType cardType) {
+
+        if (cardType.equals(CardType.VTS)) {
+            return PAYMENT_APP_SERVER_ADDRESS + "api/provision/submitIDandVStepupMethodRequest";
+        } else {
+            return PAYMENT_APP_SERVER_ADDRESS + "api/card/requestActivationCode";
+        }
     }
 
-    public static String getVerifyOtpUrl() {
-        return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
+
+    public static String getVerifyOtpUrl(CardType cardType) {
+
+        if (cardType.equals(CardType.VTS)) {
+            return PAYMENT_APP_SERVER_ADDRESS + "api/provision/validateOTP";
+        } else {
+            return PAYMENT_APP_SERVER_ADDRESS + "api/card/activate";
+        }
     }
 
 
     public static String getStepUpUrl() {
+
         return PAYMENT_APP_SERVER_ADDRESS + "api/provision/getStepUpOptions";
     }
 }

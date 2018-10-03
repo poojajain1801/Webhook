@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.guardsquare.dexguard.maven</groupId>
   <artifactId>dexguard-maven-plugin</artifactId>
-  <version>8.0.00</version>
+  <version>8.2.14</version>
   <packaging>maven-plugin</packaging>
   <name>DexGuard Maven Plugin</name>
   <description>Maven Plugin for DexGuard, the specialized optimizer and obfuscator for Android.</description>

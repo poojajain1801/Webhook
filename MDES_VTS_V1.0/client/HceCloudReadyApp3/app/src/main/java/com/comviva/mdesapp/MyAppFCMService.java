@@ -24,7 +24,7 @@ public class MyAppFCMService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         try {
 
-           // publish("Notification", "recived");
+            publish("Notification", "recived");
             ComvivaFCMService comvivaFCMService = ComvivaFCMService.getInstance(getApplication());
             Log.d("onMessageReceived","Notification Recived and send to the comvivaSDK for processing");
             comvivaFCMService.onMessageReceived(remoteMessage);

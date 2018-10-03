@@ -18,6 +18,19 @@ import com.comviva.hceservice.common.ComvivaSdk;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.mdesapp.R;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import static com.visa.cbp.sdk.facade.util.ContextHelper.getApplicationContext;
+
 public class SplashActivity extends AppCompatActivity {
 
     private RelativeLayout relativeLayout;
@@ -35,6 +48,10 @@ public class SplashActivity extends AppCompatActivity {
         startActivity(intent);
         this.finish();
     }
+
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

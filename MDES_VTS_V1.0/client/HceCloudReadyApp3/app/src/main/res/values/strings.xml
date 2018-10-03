@@ -13,4 +13,5 @@
     <string name="aidDescription">Hce Solutions AID desc</string>
 
     <string name="set_pin">Set Pin</string>
+    <string name="title_activity_verify_otp">VerifyOtp</string>
 </resources>

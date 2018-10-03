@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SdkError;
-import com.comviva.hceservice.util.ResponseListener;
+import com.comviva.hceservice.listeners.ResponseListener;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.Constants;

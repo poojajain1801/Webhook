@@ -8,7 +8,6 @@
     <!-- Permission to vibrate for haptic feedback (when entering PIN) -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
-
     <!-- Added extra permission to access MAC address -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
@@ -25,7 +24,7 @@
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE" />
     <!-- <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> -->
 
     <uses-feature
@@ -38,7 +37,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.SplashActivity"
+        <activity
+            android:name=".activities.SplashActivity"
             android:theme="@style/NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,16 +50,12 @@
         <activity android:name=".activities.AddCardActivity" />
         <activity android:name=".activities.RegisterActivity" />
         <activity android:name=".activities.RegisterUserActivity" />
-        <activity android:name=".activities.ActivateUserActivity" />
         <activity android:name=".activities.TnCActivity" />
-        <activity android:name=".activities.AuthenticationMethodActivity" />
-        <activity android:name=".activities.SelectAuthenticationActivity" />
         <activity android:name=".activities.ActivateActivity" />
         <activity android:name=".activities.ChangePinActivity" />
         <activity android:name=".activities.TransactionHistoryMdesActivity" />
 
-
-        <receiver android:name=".MyBroadcastReceiver" >
+        <receiver android:name=".MyBroadcastReceiver">
             <intent-filter>
                 <action android:name="comviva_broadcast" />
             </intent-filter>
@@ -90,7 +86,11 @@
         </service>
 
         <activity android:name=".activities.SetPinActivity" />
-        <activity android:name=".activities.ConfigurationActivity"/>
+        <activity android:name=".activities.ConfigurationActivity" />
+        <activity
+            android:name=".activities.VerifyOtp"
+            android:label="@string/title_activity_verify_otp"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

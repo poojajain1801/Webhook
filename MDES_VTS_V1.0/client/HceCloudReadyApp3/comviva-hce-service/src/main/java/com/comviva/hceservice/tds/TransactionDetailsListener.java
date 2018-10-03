@@ -1,6 +1,7 @@
 package com.comviva.hceservice.tds;
 
-import com.comviva.hceservice.common.CommonListener;
+import com.comviva.hceservice.internalSdkListeners.CommonListener;
+import com.comviva.hceservice.responseobject.transactionhistory.TransactionDetails;
 
 import java.util.ArrayList;
 

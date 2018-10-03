@@ -11,13 +11,13 @@ public interface ServerResponseListener {
      *
      * @param result Result Object which needs to be casted to specific class as required
      */
-    void onRequestCompleted(Object result, Object listener);
+     void onRequestCompleted(Object result, Object listener);
 
     /**
      * Called when unexpected error occurs.
      *
      * @param message Error description
      */
-    void onRequestError(String message, Object listener);
+     void onRequestError(String message, Object listener);
 
 }

@@ -29,7 +29,7 @@ public class SetPinActivity extends AppCompatActivity {
                 }
 
                 Digitization digitization = Digitization.getInstance();
-                digitization.setPin(null, etSetPin.getText().toString());
+               // digitization.setPin(null, etSetPin.getText().toString());
             }
         });
     }

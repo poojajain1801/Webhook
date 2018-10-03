@@ -19,7 +19,8 @@ public class AESUtil {
 
     public enum Padding {
         NoPadding,      // JCA standard
-        PKCS5Padding,   // JCA standard
+        PKCS5PADDING,
+        PKCS7PADDING,// JCA standard
         ISO7816_4
     }
 

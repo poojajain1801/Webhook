@@ -14,61 +14,237 @@ import com.comviva.hceservice.common.database.CommonDb;
 import com.comviva.hceservice.common.database.ComvivaSdkInitData;
 import com.comviva.hceservice.digitizationApi.ActiveAccountManagementService;
 import com.comviva.hceservice.fcm.RnsInfo;
-import com.comviva.hceservice.register.Registration;
+import com.comviva.hceservice.internalSdkListeners.MdesCardManagerEventListener;
+import com.comviva.hceservice.internalSdkListeners.TransactionCompletionListener;
+import com.comviva.hceservice.mdes.CardSelectionManagerForTransaction;
+import com.comviva.hceservice.mdes.DefaultMcbpLogger;
 import com.comviva.hceservice.security.DexGuardSecurity;
 import com.comviva.hceservice.security.SecurityInf;
 import com.comviva.hceservice.util.Constants;
+import com.comviva.hceservice.listeners.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;
-import com.mastercard.mcbp.api.McbpCardApi;
-import com.mastercard.mcbp.api.McbpWalletApi;
-import com.mastercard.mcbp.card.McbpCard;
-import com.mastercard.mcbp.card.profile.ProfileState;
-import com.mastercard.mcbp.exceptions.AlreadyInProcessException;
-import com.mastercard.mcbp.init.McbpInitializer;
-import com.mastercard.mcbp.lde.services.LdeRemoteManagementService;
-import com.mastercard.mcbp.utils.exceptions.datamanagement.InvalidInput;
-import com.mastercard.mcbp.utils.exceptions.mcbpcard.InvalidCardStateException;
+import com.mastercard.mchipengine.walletinterface.walletcallbacks.WalletAdviceManager;
+import com.mastercard.mchipengine.walletinterface.walletcallbacks.WalletConsentManager;
+import com.mastercard.mchipengine.walletinterface.walletcommonenumeration.Advice;
+import com.mastercard.mchipengine.walletinterface.walletdatatypes.AdviceAndReasons;
+import com.mastercard.mchipengine.walletinterface.walletdatatypes.TerminalInformation;
+import com.mastercard.mchipengine.walletinterface.walletdatatypes.TransactionInformation;
+import com.mastercard.mpsdk.componentinterface.Card;
+import com.mastercard.mpsdk.componentinterface.crypto.WalletDataCrypto;
+import com.mastercard.mpsdk.componentinterface.crypto.WalletIdentificationDataProvider;
+import com.mastercard.mpsdk.componentinterface.crypto.keys.WalletDekEncryptedData;
+import com.mastercard.mpsdk.componentinterface.http.HttpManager;
+import com.mastercard.mpsdk.httpmanager.MpSdkHttpManager;
+import com.mastercard.mpsdk.implementation.MasterCardMobilePaymentLibrary;
+import com.mastercard.mpsdk.implementation.MasterCardMobilePaymentLibraryInitializer;
+import com.mastercard.mpsdk.interfaces.CdCvmStatusProvider;
+import com.mastercard.mpsdk.interfaces.KeyRolloverEventListener;
+import com.mastercard.mpsdk.interfaces.Mcbp;
+import com.mastercard.mpsdk.interfaces.McbpInitializer;
+import com.mastercard.mpsdk.mcbp.androidcrypto.McbpCryptoEngineFactory;
+import com.mastercard.mpsdk.utils.Utils;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
-import com.visa.cbp.sdk.facade.error.SDKErrorType;
-import com.visa.cbp.sdk.facade.exception.CryptoException;
-import com.visa.cbp.sdk.facade.exception.InvalidTokenStateException;
-import com.visa.cbp.sdk.facade.exception.TokenInvalidException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Entry Class for Comviva SDK.
  */
 public class ComvivaSdk {
+
     private static ComvivaSdk comvivaSdk;
     private CommonDb commonDb;
-    private Application application;
     private SecurityInf securityInf;
-    private PaymentCard selectedCard;
+    private static SDKData sdkData;
+    private DefaultMcbpLogger mLogger;
+    private HttpManager mHttpManager;
+
 
     private ComvivaSdk(Application application) {
-        this.application = application;
-        selectedCard = null;
-        securityInf = DexGuardSecurity.getInstance(application.getApplicationContext());
-        commonDb = new CommonDatabase(application.getApplicationContext());
-        VisaPaymentSDKImpl.initialize(application.getApplicationContext());
-        VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-        visaPaymentSDK.getDeviceInfo("");
-        McbpInitializer.setup(application, null);
+
+        sdkData.setContext((application.getApplicationContext()));
+        //selectedCard = null;
+        securityInf = DexGuardSecurity.getInstance(sdkData.getContext());
+        commonDb = new CommonDatabase(sdkData.getContext());
+        VisaPaymentSDKImpl.initialize(sdkData.getContext());
+        // MasterCard
+        Locale current = Locale.getDefault();
+       /* if (current != Locale.ENGLISH) {
+            Locale.setDefault(Locale.ENGLISH);
+        }*/
+        MasterCardMobilePaymentLibrary mobilePaymentLibrary = MasterCardMobilePaymentLibraryInitializer.INSTANCE.forApplication(application).initialize();
+        com.mastercard.mpsdk.interfaces.McbpInitializer mcbpInitializer = mobilePaymentLibrary.getMcbpInitializer();
         loadConfiguration();
+        initializeMcbp(mcbpInitializer, application);
+        /*if (current != Locale.ENGLISH) {
+            Locale.setDefault(current);
+        }*/
     }
+
+
+    private HttpManager getHttpManager() {
+
+        if (mHttpManager == null) {
+            List<String> hostNames = new ArrayList<>();
+            hostNames.add("ws.mastercard.com");
+            hostNames.add("www.mastercard.com");
+            hostNames.add("services.mastercard.com");
+            hostNames.add("stl.services.mastercard.com");
+            hostNames.add("ksc.services.mastercard.com");
+            return new MpSdkHttpManager(hostNames, CommonUtil.getBytesFromInputStream(Constants.PROVISION_CERTIFICATE_NAME),
+                    Constants.FORCE_TLS_PROTOCOL);
+        }
+        return mHttpManager;
+    }
+
+
+    /**
+     * Method to initialize MCBP Object
+     */
+    private void initializeMcbp(McbpInitializer mcbpInitializer, Application application) {
+
+        WalletConsentManager walletConsentManager = new WalletConsentManager() {
+            @Override
+            public boolean isConsentGiven() {
+
+                if (null == sdkData.getCdCvm()) {
+                    return false;
+                }
+                return sdkData.getCdCvm().isStatus();
+            }
+        };
+        WalletAdviceManager walletAdviceManager = new WalletAdviceManager() {
+            @Override
+            public Advice getFinalAssessment(AdviceAndReasons adviceAndReasons, TransactionInformation transactionInformation, TerminalInformation terminalInformation) {
+                if(sdkData.getSelectedCard().getTransactionCredentialsLeft()!=0){
+                    return Advice.PROCEED;
+                }else{
+                    return Advice.DECLINE;
+                }
+
+            }
+        };
+        WalletIdentificationDataProvider walletIdentificationDataProvider = new WalletIdentificationDataProvider() {
+            @Override
+            public byte[] getPaymentAppInstanceId() {
+
+                return Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag()));
+            }
+
+
+            @Override
+            public byte[] getPaymentAppProviderId() {
+
+                PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
+                return Utils.fromHexStringToByteArray(propertyReader.getProperty(PropertyConst.KEY_PAYMENT_APP_PROVIDER_ID));
+            }
+
+
+            @Override
+            public WalletDekEncryptedData getEncryptedDeviceFingerPrint() {
+
+                WalletDataCrypto walletDataCrypto = sdkData
+                        .getMcbp()
+                        .getWalletSecurityServices()
+                        .getWalletCryptoApi();
+                return walletDataCrypto.encryptWalletData(Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Tags.USER_DETAILS.getTag())));
+            }
+
+
+            @Override
+            public void onKeyRollover(WalletDekEncryptedData walletDekEncryptedData) {
+
+            }
+        };
+        KeyRolloverEventListener keyRolloverEventListener = new KeyRolloverEventListener() {
+            @Override
+            public void onTransactionsSuspended() {
+
+            }
+
+
+            @Override
+            public void onTransactionsResumed() {
+
+            }
+        };
+        CdCvmStatusProvider cdCvmStatusProvider = new CdCvmStatusProvider() {
+            @Override
+            public boolean isCdCvmEnabled() {
+
+                if (null == sdkData.getCdCvm()) {
+                    return false;
+                }
+                return sdkData.getCdCvm().isStatus();
+                // return false;
+            }
+
+
+            @Override
+            public boolean isCdCvmSuccessful(Card card) {
+
+                if (null == sdkData.getCdCvm()) {
+                    return false;
+                }
+                return sdkData.getCdCvm().isStatus();
+                // return false;
+            }
+
+
+            @Override
+            public long getTimeOfLastSuccessfulCdCvm() {
+
+                if (null == sdkData.getCdCvm()) {
+                    return 0;
+                }
+                return sdkData.getCdCvm().getTimeStampOFLastSuccessfulCdcvm();
+                //  return 0;
+            }
+
+
+            @Override
+            public boolean isCdCvmBlocked() {
+
+                return false;
+            }
+        };
+        TransactionCompletionListener transactionCompletionListener = new TransactionCompletionListener();
+        CardSelectionManagerForTransaction cardSelectionManagerForTransaction = new CardSelectionManagerForTransaction();
+        MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
+        mLogger = new DefaultMcbpLogger("MP-SDK", application);
+        //.usingOptionalMcbpLogger(new DefaultMcbpLogger("MCBP_LOG", application))
+        Mcbp mcbp = mcbpInitializer
+                .usingOptionalAdviceManager(walletAdviceManager)
+                .withWalletConsentManager(walletConsentManager)
+                .withCdCvmStatusProvider(cdCvmStatusProvider)
+                .withActiveCardProvider(cardSelectionManagerForTransaction)
+                .withCardManagerEventListener(mdesCardManagerEventListener)
+                .withCryptoEngine(new McbpCryptoEngineFactory().getCryptoEngine(application))
+                .withWalletIdentificationDataProvider(walletIdentificationDataProvider)
+                .withHttpManager(getHttpManager())
+                .withKeyRolloverEventListener(keyRolloverEventListener)
+                .withTransactionEventListener(transactionCompletionListener)
+                .initialize();
+        sdkData.setMcbp(mcbp);
+        sdkData.setTransactionCompletionListener(transactionCompletionListener);
+        sdkData.setCardSelectionManagerForTransaction(cardSelectionManagerForTransaction);
+    }
+
 
     /**
      * If device is rooted or tampered we need to clear all data and report to server.
      */
     public static void reportFraud() {
+
         comvivaSdk.resetDevice();
         comvivaSdk = null;
     }
+
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
@@ -87,38 +263,52 @@ public class ComvivaSdk {
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
         }*/
-
     }
+
 
     private void loadConfiguration() {
-        Context ctx = application.getApplicationContext();
+
+        Context ctx = sdkData.getContext();
         PropertyReader propertyReader = PropertyReader.getInstance(ctx);
         SharedPreferences sharedPrefConf = ctx.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
-        if (!sharedPrefConf.contains(Constants.KEY_PAYMENT_APP_SERVER_IP)) {
+        if (!sharedPrefConf.contains(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP))) {
             String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER);
             String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER);
-            String cmsdServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_CMS_D);
-            String cmsdServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_CMS_D);
-
             SharedPreferences.Editor editor = sharedPrefConf.edit();
-            editor.putString(Constants.KEY_PAYMENT_APP_SERVER_IP, paymentAppServerIp);
-            editor.putString(Constants.KEY_PAYMENT_APP_SERVER_PORT, paymentAppServerPort);
-            editor.putString(Constants.KEY_CMS_D_SERVER_IP, cmsdServerIp);
-            editor.putString(Constants.KEY_CMS_D_SERVER_PORT, cmsdServerPort);
+            editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP), CommonUtil.encrypt(paymentAppServerIp));
+            editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_PORT), CommonUtil.encrypt(paymentAppServerPort));
             editor.putBoolean(Constants.KEY_MDES_TDS_REG_STATUS, false);
             editor.putString(Constants.KEY_TDS_REG_TOKEN_UNIQUE_REF, null);
+            editor.putString(Constants.KEY_TDS_REG_TOKEN_UNIQUE_REF, null);
+            if (null != paymentAppServerIp && paymentAppServerIp.startsWith(Tags.HTTPS.getTag())) {
+                editor.putBoolean(CommonUtil.encrypt(Constants.KEY_HTTPS_ENABLED), true);
+            } else {
+                editor.putBoolean(CommonUtil.encrypt(Constants.KEY_HTTPS_ENABLED), false);
+            }
             editor.apply();
         }
-
-        UrlUtil.initialize(sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_IP, null),
-                sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_PORT, null),
-                sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_IP, null),
-                sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null));
+        if (null == CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag())) {
+            CommonUtil.setSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), CommonUtil.generatePaymentAppInstanceId(), Tags.USER_DETAILS.getTag());
+        }
+        if (null == CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Tags.USER_DETAILS.getTag())) {
+            try {
+                CommonUtil.setSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Utils.fromByteArrayToHexString(CommonUtil.getDeviceFingerprint(CommonUtil.getDeviceInfoInJson().toString().getBytes())), Tags.USER_DETAILS.getTag());
+            } catch (SdkException e) {
+                e.printStackTrace();
+            }
+        }
+        SharedPreferences userDetailsSharedPreferences = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_USER_DETAILS, Context.MODE_PRIVATE);
+        sdkData.setImei(userDetailsSharedPreferences.getString(Tags.IMEI.getTag(), ""));
+        UrlUtil.initialize(sharedPrefConf.getString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP), null),
+                sharedPrefConf.getString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_PORT), null));
     }
+
 
     LukInfo getLukInfo(PaymentCard card) {
+
         return commonDb.getLukInfoVisa(card.getCardUniqueId());
     }
+
 
     /**
      * <p>Returns Singleton Instance of this class.</p>
@@ -129,15 +319,17 @@ public class ComvivaSdk {
      * @throws SdkException If debug mode is on, device is rooted or apk is tampered
      */
     public static ComvivaSdk getInstance(Application context) throws SdkException {
-        if (comvivaSdk == null) {
+
+        sdkData = SDKData.getInstance();
+        if (null == sdkData.getComvivaSdk()) {
             comvivaSdk = new ComvivaSdk(context);
+            sdkData.setComvivaSdk(comvivaSdk);
             checkSecurity();
         }
-
         // Check security
-
-        return comvivaSdk;
+        return sdkData.getComvivaSdk();
     }
+
 
     /**
      * Checks that SDK is initialized of not.
@@ -146,8 +338,10 @@ public class ComvivaSdk {
      * <code>false </code> SDK is uninitialized
      */
     public boolean isSdkInitialized() {
+
         return commonDb.getInitializationData().isInitState();
     }
+
 
     /**
      * Returns Remote Notification Detail.
@@ -155,8 +349,10 @@ public class ComvivaSdk {
      * @return RnsInfo object
      */
     public RnsInfo getRnsInfo() {
+
         return commonDb.getInitializationData().getRnsInfo();
     }
+
 
     /**
      * Saves Remote Notification Detail
@@ -164,8 +360,10 @@ public class ComvivaSdk {
      * @param rnsInfo
      */
     public void saveRnsInfo(RnsInfo rnsInfo) {
+
         commonDb.setRnsInfo(rnsInfo);
     }
+
 
     /**
      * Initialize ComvivaSdk with initial data.
@@ -173,8 +371,10 @@ public class ComvivaSdk {
      * @param initData Initialization data
      */
     public void initializeSdk(ComvivaSdkInitData initData) {
+
         commonDb.initializeComvivaSdk(initData);
     }
+
 
     /**
      * Returns Initialization Data.
@@ -182,17 +382,10 @@ public class ComvivaSdk {
      * @return Initialization data
      */
     public ComvivaSdkInitData getInitializationData() {
+
         return commonDb.getInitializationData();
     }
 
-    /**
-     * Returns Application context
-     *
-     * @return Application Context
-     */
-    public Context getApplicationContext() {
-        return application;
-    }
 
     /**
      * Returns PaymentAppInstanceId
@@ -200,8 +393,10 @@ public class ComvivaSdk {
      * @return PaymentAppInstanceId
      */
     public String getPaymentAppInstanceId() {
-        return McbpInitializer.getInstance().getProperty(McbpInitializer.PAYMENT_APP_INSTANCE_ID, null);
+        //return McbpInitializer.getInstance().getProperty(McbpInitializer.PAYMENT_APP_INSTANCE_ID, null);
+        return null;
     }
+
 
     /**
      * Returns PaymentAppProviderId
@@ -209,21 +404,27 @@ public class ComvivaSdk {
      * @return PaymentAppProviderId
      */
     public String getPaymentAppProviderId() {
-        return McbpInitializer.getInstance().getProperty(McbpInitializer.PAYMENT_APP_PROVIDER_ID, null);
+        //return McbpInitializer.getInstance().getProperty(McbpInitializer.PAYMENT_APP_PROVIDER_ID, null);
+        return null;
     }
+
 
     /**
      * replenish new Transaction credentials for given Token
      *
-     * @param tokenUniqueReference TokenUniqueReference which needs to be replenished.
+     * @param paymentCard Card which needs to be replenished.
      */
-    public void replenishCard(String tokenUniqueReference) {
-        try {
+    public void replenishCard(PaymentCard paymentCard, ResponseListener listener) {
+
+        Card card = (Card) paymentCard;
+        card.replenishCredentials();
+        /*try {
             McbpCardApi.replenishForCardWithId(tokenUniqueReference);
         } catch (InvalidCardStateException | AlreadyInProcessException e) {
-            Log.d("Error", e.getMessage());
-        }
+            e.printStackTrace();
+        }*/
     }
+
 
     /**
      * Checks that given token is registered for given token or not.
@@ -232,9 +433,11 @@ public class ComvivaSdk {
      * <code>false </code>Not registered yet for TDS
      */
     public boolean isTdsRegistered() {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getBoolean(Constants.KEY_MDES_TDS_REG_STATUS, false);
     }
+
 
     /**
      * Returns currently Selected Cards
@@ -242,21 +445,23 @@ public class ComvivaSdk {
      * @return Selected Card
      */
     public PaymentCard getSelectedCard() {
-        return selectedCard;
+        // return selectedCard;
+        return null;
     }
 
-    /**
+
+    /* *//**
      * Set currently selected card
      *
-     * @param paymentCard Card to be selected
-     */
+
+     *//*
     public boolean setSelectedCard(PaymentCard paymentCard) {
+
         this.selectedCard = paymentCard;
         switch (selectedCard.getCardType()) {
             case MDES:
-                McbpWalletApi.setCurrentCard((McbpCard) selectedCard.getCurrentCard());
+                // McbpWalletApi.setCurrentCard((McbpCard) selectedCard.getCurrentCard());
                 break;
-
             case VTS:
                 try {
                     VisaPaymentSDKImpl.getInstance().selectCard(((TokenData) paymentCard.getCurrentCard()).getTokenKey());
@@ -267,17 +472,11 @@ public class ComvivaSdk {
                     return false;
                 }
                 break;
-
             default:
                 break;
         }
         return true;
-    }
-
-    public void deSelectCard() {
-        VisaPaymentSDKImpl.getInstance().deselectCard();
-        this.selectedCard = null;
-    }
+    }*/
 
 
     /**
@@ -285,18 +484,17 @@ public class ComvivaSdk {
      *
      * @return List of cards
      */
-    public ArrayList<PaymentCard> getAllCards() {
-        ArrayList<PaymentCard> allCards = new ArrayList<>();
-        List<McbpCard> mdesCards;
-        List<TokenData> vtsCards;
+    public ArrayList<PaymentCard> getAllCards() throws Exception {
 
+        ArrayList<PaymentCard> allCards = new ArrayList<>();
+        List<Card> mdesCards;
+        List<TokenData> vtsCards;
         String defaultCardUniqueId = commonDb.getDefaultCardUniqueId();
         SchemeType enrollmentStatus = checkEnrolmentStatus();
         PaymentCard paymentCard;
-
         if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.MASTERCARD) {
-            mdesCards = McbpWalletApi.getCards(true);
-            for (McbpCard mcbpCard : mdesCards) {
+            mdesCards = sdkData.getMcbp().getCardManager().getAllCards();
+            for (Card mcbpCard : mdesCards) {
                 paymentCard = new PaymentCard(mcbpCard);
                 if (mcbpCard.getDigitizedCardId().equalsIgnoreCase(defaultCardUniqueId)) {
                     paymentCard.setDefaultCard();
@@ -304,7 +502,6 @@ public class ComvivaSdk {
                 allCards.add(paymentCard);
             }
         }
-
         if (enrollmentStatus == SchemeType.ALL || enrollmentStatus == SchemeType.VISA) {
             vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
             for (TokenData tokenData : vtsCards) {
@@ -314,36 +511,35 @@ public class ComvivaSdk {
                 }
                 allCards.add(paymentCard);
             }
-
         }
         return allCards;
     }
 
+
     public void replenishLUKVisa() {
+
         List<TokenData> vtsCards;
         ArrayList<TokenKey> tokensToBeReplenished = new ArrayList<>();
         PaymentCard paymentCard;
         vtsCards = VisaPaymentSDKImpl.getInstance().getAllTokenData();
         for (TokenData tokenData : vtsCards) {
             paymentCard = new PaymentCard(tokenData);
-
             // Check if current token has reached it's thresold limit or Key is Expired, then replenishment is required
             LukInfo lukInfo = comvivaSdk.getLukInfo(paymentCard);
             if (lukInfo != null) {
                 boolean isReplenishmentRequired = (lukInfo.getNoOfPaymentsRemaining() <= 0);
-
                 if (isReplenishmentRequired) {
                     tokensToBeReplenished.add(tokenData.getTokenKey());
                 }
             }
-
         }
         if (tokensToBeReplenished.size() > 0) {
-            Intent intent = new Intent(application.getApplicationContext(), ActiveAccountManagementService.class);
+            Intent intent = new Intent(sdkData.getContext(), ActiveAccountManagementService.class);
             intent.putExtra(com.visa.cbp.sdk.facade.data.Constants.REPLENISH_TOKENS_KEY, tokensToBeReplenished);
-            application.getApplicationContext().startService(intent);
+            sdkData.getContext().startService(intent);
         }
     }
+
 
     /**
      * Activates a card recently added.<br>
@@ -354,7 +550,7 @@ public class ComvivaSdk {
      * <code>false </code>Card is not activated
      */
     public boolean activateCard(final String tokenUniqueReference) {
-        try {
+       /* try {
             String digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
 
             LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
@@ -366,9 +562,10 @@ public class ComvivaSdk {
             return true;
         } catch (InvalidInput invalidInput) {
             Log.d("Error", invalidInput.getMessage());
-        }
+        }*/
         return false;
     }
+
 
     /**
      * Checks Enrollment status of device with all supported scheme.
@@ -376,23 +573,22 @@ public class ComvivaSdk {
      * @return Enrollment status
      */
     public SchemeType checkEnrolmentStatus() {
+
         ComvivaSdkInitData initData = commonDb.getInitializationData();
         boolean isVtsInitialized = initData.isVtsInitialized();
         boolean isMdesInitialized = initData.isMdesInitialized();
-
         if (isMdesInitialized && isVtsInitialized) {
             return SchemeType.ALL;
         }
-
         if (isVtsInitialized) {
             return SchemeType.VISA;
         }
-
         if (isMdesInitialized) {
             return SchemeType.MASTERCARD;
         }
         return SchemeType.NONE;
     }
+
 
     /**
      * Clears all data andd reset device to un-initialized state.
@@ -401,28 +597,21 @@ public class ComvivaSdk {
      * <code>false </code>Reset device failed
      */
     public boolean resetDevice() {
-        // Clear MDES related data.
-        McbpInitializer.getInstance().getLdeRemoteManagementService().unregister();
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Registration.user_details, Context.MODE_PRIVATE);
+
+        SharedPreferences pref = sdkData.getContext().getSharedPreferences(Tags.USER_DETAILS.getTag(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
-        // Clear VTS related data
-        try {
-            comvivaSdk = ComvivaSdk.getInstance(application);
-        } catch (SdkException e) {
-            e.printStackTrace();
-        }
+        // Clear Vts related data
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();
-        visaPaymentSDK.reset(comvivaSdk.getApplicationContext());
+        visaPaymentSDK.reset(sdkData.getContext());
         // Clear Comviva SDK data
         commonDb.resetDatabase();
-        comvivaSdk = null;
-        Registration.setInstance(null);
+        sdkData.setInstanceNull();
         Log.d("SDK Initizlized", "" + isSdkInitialized());
-
         return true;
     }
+
 
     /**
      * Set default card.
@@ -430,8 +619,10 @@ public class ComvivaSdk {
      * @param paymentCard Payment Card to be set as default card
      */
     public void setDefaultCard(PaymentCard paymentCard) {
+
         commonDb.setDefaultCard(paymentCard);
     }
+
 
     /**
      * Returns default card set.
@@ -439,8 +630,10 @@ public class ComvivaSdk {
      * @return Default Card
      */
     public PaymentCard getDefaultPaymentCard() {
+
         return commonDb.getDefaultCard();
     }
+
 
     /**
      * Returns SecurityInf instance.
@@ -448,8 +641,10 @@ public class ComvivaSdk {
      * @return SecurityInf Instance
      */
     public SecurityInf getSecurityInf() {
+
         return securityInf;
     }
+
 
     /**
      * Set SecurityInf instance.
@@ -457,8 +652,10 @@ public class ComvivaSdk {
      * @param securityInf SecurityInf Instance
      */
     public void setSecurityInf(SecurityInf securityInf) {
+
         this.securityInf = securityInf;
     }
+
 
     /**
      * Update Payment App Server IP & Port Number. <br>
@@ -470,28 +667,21 @@ public class ComvivaSdk {
      * @param paymentAppServerIp Server IP.
      * @param port               Port Number. If you do not have port number then please use value -1.
      */
-    public void setPaymentAppServerConfiguration(String paymentAppServerIp, int port) {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+    public void setPaymentAppServerConfiguration(String paymentAppServerIp, String port) {
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPrefConf.edit();
-        editor.putString(Constants.KEY_PAYMENT_APP_SERVER_IP, paymentAppServerIp);
-        editor.putString(Constants.KEY_PAYMENT_APP_SERVER_PORT, String.format("%d", port));
+        editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP), CommonUtil.encrypt(paymentAppServerIp));
+        editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_PORT), CommonUtil.encrypt(port));
+        if (paymentAppServerIp.startsWith(Tags.HTTPS.getTag())) {
+            editor.putBoolean(CommonUtil.encrypt(Constants.KEY_HTTPS_ENABLED), true);
+        } else {
+            editor.putBoolean(CommonUtil.encrypt(Constants.KEY_HTTPS_ENABLED), false);
+        }
         editor.commit();
         loadConfiguration();
     }
 
-    /**
-     * Update CMS-D Server IP & Port Number.
-     *
-     * @param cmsDServerIp Server IP
-     * @param port         Port Number
-     */
-    public void setCmsDServerConfiguration(String cmsDServerIp, int port) {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPrefConf.edit();
-        editor.putString(Constants.KEY_CMS_D_SERVER_IP, cmsDServerIp);
-        editor.putString(Constants.KEY_CMS_D_SERVER_PORT, String.format("%d", port));
-        editor.commit();
-    }
 
     /**
      * Return Payment Server IP address.
@@ -499,9 +689,11 @@ public class ComvivaSdk {
      * @return IP Address
      */
     public String getPaymentAppServerIP() {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_IP, null);
     }
+
 
     /**
      * Return Payment Server Port Number.
@@ -509,9 +701,11 @@ public class ComvivaSdk {
      * @return Port Number
      */
     public String getPaymentAppServerPort() {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getString(Constants.KEY_PAYMENT_APP_SERVER_PORT, null);
     }
+
 
     /**
      * Return CMS-D Server IP address.
@@ -519,9 +713,11 @@ public class ComvivaSdk {
      * @return IP Address
      */
     public String getCmsDServerIP() {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_IP, null);
     }
+
 
     /**
      * Return CMS-D Server Port Number.
@@ -529,16 +725,20 @@ public class ComvivaSdk {
      * @return Port Number
      */
     public String getCmsDServerPort() {
-        SharedPreferences sharedPrefConf = application.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
+
+        SharedPreferences sharedPrefConf = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         return sharedPrefConf.getString(Constants.KEY_CMS_D_SERVER_PORT, null);
     }
+
 
     /**
      * Reset default card. There will be no card set as default card.
      */
     public void resetDefaultCard() {
+
         commonDb.resetDefaultCard();
     }
+
 
     /**
      * Returns Default Card's Unique ID.
@@ -546,22 +746,31 @@ public class ComvivaSdk {
      * @return Card Unique Id
      */
     public String getDefaultCardUniqueId() {
+
         return commonDb.getDefaultCardUniqueId();
     }
 
+
     public boolean consumeLuk(PaymentCard card) {
+
         return commonDb.consumeLuk(card);
     }
 
+
     public boolean insertLukInfo(LukInfo lukInfo) {
+
         return commonDb.insertLukInfo(lukInfo);
     }
 
+
     public boolean updateLukInfo(LukInfo lukInfo) {
+
         return commonDb.updateLukInfo(lukInfo);
     }
 
+
     public void deleteLukInfo(PaymentCard card) {
+
         commonDb.deleteLukInfo(card);
     }
 }

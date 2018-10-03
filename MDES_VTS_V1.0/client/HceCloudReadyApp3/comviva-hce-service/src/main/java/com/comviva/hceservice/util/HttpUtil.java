@@ -5,7 +5,10 @@ import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import com.comviva.hceservice.common.CommonUtil;
 import com.comviva.hceservice.common.ComvivaSdk;
+import com.comviva.hceservice.common.SDKData;
+import com.comviva.hceservice.common.SdkError;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -42,8 +45,10 @@ public class HttpUtil {
     private AssetManager assetManager;
     private final String unknown_exception = "unknown exception";
     private final String server_not_responding = "server not responding";
+    private SDKData sdkData;
 
     private HttpUtil() {
+        sdkData= SDKData.getInstance();
     }
 
     private String convertStreamToString(InputStream inStream) throws Exception {
@@ -102,32 +107,17 @@ public class HttpUtil {
                 Log.d("CertReading","CertificateFactory Error");
 
             }
-            InputStream caInput = null;
-            try {
-                assetManager = ComvivaSdk.getInstance(null).getApplicationContext().getAssets();
-                caInput =  assetManager.open("paymentAppServer.crt");
-                //caInput = new BufferedInputStream(ComvivaSdk.getInstance(null).getApplicationContext().getAssets().open("paymentAppServer.crt"));
-            } catch (IOException e) {
-
-                Log.d("Certificate Reading","Error Reading Certificate");
-
-            }
             Certificate ca = null;
             try {
                 try {
                     if(null != cf) {
-                        ca = cf.generateCertificate(caInput);
+                        ca = CommonUtil.getCertificateFromKeystore(Constants.PAYMENT_APP_CERTIFICATE);
                     }
                 } catch (CertificateException e) {
                     Log.d("Certificate Reading","Generate Certificate Error");
                 }
-            } finally {
-                try {
-                    caInput.close();
-                } catch (IOException e) {
-                    Log.d("Certificate Reading","Input file close error");
+            }catch (Exception e){
 
-                }
             }
 
             // Create a KeyStore containing our trusted CAs

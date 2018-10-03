@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import com.comviva.hceservice.tds.TransactionDetails;
+import com.comviva.hceservice.responseobject.transactionhistory.TransactionDetails;
 
 import java.util.ArrayList;
 
@@ -74,7 +74,7 @@ public class TransactionHistoryAdapter extends BaseAdapter {
             viewHolder.image = (ImageView) item.findViewById(R.id.imageView1);
             viewHolder.tokenUniqueRef = (TextView) item.findViewById(R.id.textView1);
         }
-
+/*
         if (dataList.get(position).getTokenUniqueReference() != null) {
             viewHolder.tokenUniqueRef.setText("xxxx xxxx xxxx " + dataList.get(position).getTokenUniqueReference());
         }
@@ -96,7 +96,8 @@ public class TransactionHistoryAdapter extends BaseAdapter {
 
         //viewHolder.image.setBackgroundResource(R.drawable.ic_master_card);
         viewHolder.image.setBackgroundResource(R.drawable.ic_visa);
-        return item;
+        return item;*/
+        return  null;
     }
 
 /*	private void setDateTime(ViewHolder viewHolder, int pos) {

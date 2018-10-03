@@ -46,58 +46,26 @@
     public public *;
 }
 
--keep public class com.comviva.hceservice.digitizationApi.CardMetaData {
-    public public *;
+-keep public class com.comviva.hceservice.responseobject.**{
+  public protected *;
 }
--keep public class com.comviva.hceservice.digitizationApi.CardData {
-    public public *;
+
+-keep public class com.comviva.hceservice.listeners.**{
+public protected *;
+}
+-keep public class com.comviva.hceservice.requestobjects.**{
+public protected *;
+}
+-keep public class com.comviva.hceservice.pojo.**{
+public protected *;
+}
+-keep public class com.comviva.hceservice.internalSdkListeners.**{
+public protected *;
 }
 -keep public class com.comviva.hceservice.digitizationApi.ActiveAccountManagementService {
     public public *;
 }
--keep public interface com.comviva.hceservice.digitizationApi.ActivateListener {
-    public public *;
-}
--keep public enum com.comviva.hceservice.digitizationApi.ActivationCodeType {
-    public public *;
-}
--keep public interface com.comviva.hceservice.digitizationApi.CardLcmListener {
-    public public *;
-}
--keep public enum com.comviva.hceservice.digitizationApi.CardLcmReasonCode {
-    public public *;
-}
--keep public class com.comviva.hceservice.digitizationApi.CardLcmRequest {
-    public public *;
-}
--keep public interface com.comviva.hceservice.digitizationApi.DigitizationListener {
-    public public *;
-}
--keep public interface com.comviva.hceservice.digitizationApi.GetAssetListener {
-    public public *;
-}
--keep public class com.comviva.hceservice.digitizationApi.DigitizationRequest {
-    public public *;
-}
--keep public class com.comviva.hceservice.digitizationApi.CardEligibilityRequest {
-    public public *;
-}
--keep public interface com.comviva.hceservice.digitizationApi.CheckCardEligibilityListener {
-    public public *;
-}
--keep public class com.comviva.hceservice.digitizationApi.ContentGuid {
-    public public *;
-}
--keep public enum com.comviva.hceservice.digitizationApi.ContentType {
-    public public *;
-}
--keep public interface com.comviva.hceservice.digitizationApi.RequestActivationCodeListener {
-    public public *;
-}
 
--keep public class com.comviva.hceservice.digitizationApi.asset.MediaContent {
-    public public *;
-}
 -keep public enum com.comviva.hceservice.digitizationApi.asset.AssetType {
     public public *;
 }
@@ -105,22 +73,11 @@
 -keep public enum com.comviva.hceservice.digitizationApi.authentication.AuthenticationType {
     public public *;
 }
--keep public class com.comviva.hceservice.digitizationApi.authentication.AuthenticationMethod {
-    public public *;
-}
 
--keep public interface com.comviva.hceservice.register.RegistrationListener {
-    public public *;
-}
 -keep public class com.comviva.hceservice.register.Registration {
     public public *;
 }
--keep public class com.comviva.hceservice.register.RegisterParam {
-    public public *;
-}
--keep public interface com.comviva.hceservice.register.RegisterUserListener {
-    public public *;
-}
+
 -keep public class com.comviva.hceservice.digitizationApi.PanSource {
     public public *;
 }
@@ -130,9 +87,6 @@
 
 ###### com.comviva.hceservice.common
 -keep public enum com.comviva.hceservice.common.CardType {
-    public public *;
-}
--keep public enum com.comviva.hceservice.common.CardLcmOperation {
     public public *;
 }
 -keep public enum com.comviva.hceservice.common.CardState {
@@ -153,19 +107,16 @@
 -keep public class com.comviva.hceservice.common.ComvivaHceService {
     public public *;
 }
--keep public interface com.comviva.hceservice.common.ComvivaWalletListener {
+
+
+-keep public interface com.comviva.hceservice.common.ProcessContactlessListener {
     public public *;
 }
 
--keep public interface com.comviva.hceservice.util.GetCardMetaDataListener {
-    public public *;
-}
 -keep public interface com.comviva.hceservice.common.SdkError {
     public public *;
 }
--keep public interface com.comviva.hceservice.common.CommonListener {
-    public public *;
-}
+
 
 ###### com.comviva.hceservice.security
 -keep public interface com.comviva.hceservice.security.SecurityInf {
@@ -201,33 +152,13 @@
 }
 
 ###### MasterCard
--keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedPinChangeResult {
-    public public *;
-}
--keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedTaskStatus {
-    public public *;
-}
--keep public interface com.mastercard.mcbp.listeners.ProcessContactlessListener {
-    public public *;
-}
--keep public interface com.mastercard.mcbp.card.cvm.PinListener {
-    public public *;
-}
--keep public interface com.mastercard.mcbp.userinterface.DisplayTransactionInfo {
-    public public *;
-}
 
--keep public interface com.mastercard.mcbp.listeners.MdesCmsDedicatedWalletEventListener {
-    public public *;
-}
 
-#-keep public class com.mastercard.mcbp.hce.DefaultHceService {
-#    public public *;
-#}
 
-#-keep public class com.mastercard.mcbp.hce.AndroidHceService {
-#    public public *;
-#}
+
+
+
+
 
 ###### Utility Classes
 -keep public class com.comviva.hceservice.util.DeviceLockUtil {
@@ -239,12 +170,8 @@
 -keep public enum com.comviva.hceservice.util.NfcSetting {
     public public *;
 }
--keep public interface com.comviva.hceservice.util.ResponseListener {
-    public public *;
-}
--keep public interface com.comviva.hceservice.util.ResponseListener {
-      public public *;
- }
+
+
  -keep public class com.comviva.hceservice.util.ArrayUtil {
        public public *;
   }
@@ -279,3 +206,24 @@
 -keep class com.google.** { *; }
 -keep class sun.misc.** { *; }
 
+
+##---------------Begin: proguard configuration for Gson  ----------
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+# Gson specific classes
+-dontwarn sun.misc.**
+#-keep class com.google.gson.stream.** { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.google.gson.examples.android.model.** { *; }
+
+# Prevent proguard from stripping interface information from TypeAdapterFactory,
+# JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer

@@ -10,7 +10,7 @@ public enum CardType {
     MDES,
 
     /**
-     * VISA Cards following VTS product.
+     * VISA Cards following Vts product.
      */
     VTS,
 

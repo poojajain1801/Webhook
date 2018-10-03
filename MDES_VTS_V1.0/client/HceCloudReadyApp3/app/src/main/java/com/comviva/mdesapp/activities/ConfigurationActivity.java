@@ -46,11 +46,10 @@ public class ConfigurationActivity extends AppCompatActivity {
                 paymentAppServerIp = cbEnableHttps.isChecked() ? "https://" + paymentAppServerIp : "http://" + paymentAppServerIp;
 
                 if(payAppServerPort == null || payAppServerPort.isEmpty()) {
-                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, -1);
+                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, "");
                 } else {
-                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, Integer.parseInt(etPayAppServerPort.getText().toString()));
+                    comvivaSdk.setPaymentAppServerConfiguration(paymentAppServerIp, etPayAppServerPort.getText().toString());
                 }
-                comvivaSdk.setCmsDServerConfiguration(etCmsDIp.getText().toString(), Integer.parseInt(etCmsDPort.getText().toString()));
                 startActivity(new Intent(ConfigurationActivity.this, RegisterUserActivity.class));
             }
         });

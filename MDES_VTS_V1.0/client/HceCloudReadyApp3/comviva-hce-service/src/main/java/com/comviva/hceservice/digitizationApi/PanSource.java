@@ -15,5 +15,9 @@ public enum PanSource {
     /**
      * The PAN data was provided by the issuer of the PAN; see provider field in Encrypted Payment Instrument.
      */
-    ISSUER_PUSH_PROVISION
+    ISSUER_PUSH_PROVISION,
+
+    CARD_ADDED_MANUALLY,
+    CARD_ON_FILE,
+    CARD_ADDED_VIA_APPLICATION
 }

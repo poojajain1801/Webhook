@@ -84,4 +84,11 @@
         android:title="Get Content" />
 
 
+    <item
+        android:id="@+id/generate_otp"
+        android:orderInCategory="100"
+        android:title="Generate Otp" />
+
+
+
 </menu>

@@ -42,7 +42,7 @@ public class ChangePinActivity extends AppCompatActivity {
                 }
 
                 Digitization digitization = Digitization.getInstance();
-                digitization.changePin(null, oldPin, newPin);
+                //digitization.changePin(null, oldPin, newPin);
             }
         });
 

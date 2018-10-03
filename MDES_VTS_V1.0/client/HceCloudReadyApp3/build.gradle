@@ -3,6 +3,7 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
@@ -17,12 +18,12 @@ allprojects {
     repositories {
         jcenter()
         maven {
-            url 'http://cots.mahindracomviva.com//Thirdparty-Java-Repo'
-            credentials {
-                username = "deployuser"
-                password = "deploy@cots"
-            }
+            url "https://maven.google.com"
         }
+        flatDir {
+            dirs 'libs'
+        }
+        google()
     }
 }
 

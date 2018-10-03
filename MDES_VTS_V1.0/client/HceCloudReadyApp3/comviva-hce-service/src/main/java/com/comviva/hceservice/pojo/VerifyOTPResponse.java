@@ -12,13 +12,15 @@ public class VerifyOTPResponse {
     @Expose
     private String responseMessage;
 
+
     public String getResponseCode() {
+
         return responseCode;
     }
 
+
     public String getResponseMessage() {
+
         return responseMessage;
     }
-
-
 }

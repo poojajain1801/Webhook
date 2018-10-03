@@ -17,7 +17,7 @@ public class DatabaseProperties {
     public static final String COL_RNS_ID = "RNS_REG_ID";
     /** Type of RNS i.e. GCM or FCM */
     public static final String COL_RNS_TYPE = "RNS_TYPE";
-    /** Initialization state of VTS SDK */
+    /** Initialization state of Vts SDK */
     public static final String COL_VTS_INIT_STATE = "VTS_INIT_STATE";
     /** Initialization state of MDES SDK */
     public static final String COL_MDES_INIT_STATE = "MDES_INIT_STATE";

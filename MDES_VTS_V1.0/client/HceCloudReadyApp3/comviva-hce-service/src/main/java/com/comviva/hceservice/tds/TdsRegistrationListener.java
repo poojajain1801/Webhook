@@ -1,6 +1,6 @@
 package com.comviva.hceservice.tds;
 
-import com.comviva.hceservice.common.CommonListener;
+import com.comviva.hceservice.internalSdkListeners.CommonListener;
 
 /**
  * UI Listener for TDS registration.

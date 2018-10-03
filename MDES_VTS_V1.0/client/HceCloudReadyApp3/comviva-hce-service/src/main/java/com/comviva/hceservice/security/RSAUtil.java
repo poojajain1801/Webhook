@@ -3,15 +3,21 @@ package com.comviva.hceservice.security;
 import android.content.Context;
 import android.util.Log;
 
+import com.comviva.hceservice.common.CommonUtil;
+import com.comviva.hceservice.common.Tags;
+import com.comviva.hceservice.util.Constants;
+
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -66,14 +72,27 @@ public class RSAUtil {
 
 
 	public PublicKey getPublicKeyFromCert(){
-		InputStream caInput = null;
+
+		Certificate certificate = null;
+		try {
+			certificate = CommonUtil.getCertificateFromKeystore(Constants.END_TO_END_ENCYPTION);
+		} catch (KeyStoreException e) {
+			Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
+		} catch (IOException e) {
+			Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
+		} catch (CertificateException e) {
+			Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
+		} catch (NoSuchAlgorithmException e) {
+			Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
+		}
+	/*	InputStream caInput = null;
 		try {
 			caInput = new BufferedInputStream(context.getApplicationContext().getAssets().open("mycert.pem"));
 		} catch (IOException e) {
 			Log.d("Error", "Error in Reading Cert");
 		}
 
-		 /*= RSAUtil.class.getResourceAsStream("/mycert.pem");*/
+		 *//*= RSAUtil.class.getResourceAsStream("/mycert.pem");*//*
 		CertificateFactory f;
 		PublicKey pk=null;
 		try {
@@ -88,8 +107,8 @@ public class RSAUtil {
 			} catch (IOException e) {
 				Log.d("Error", "Error in Reading Cert");
 			}
-		}
-		return pk;
+		}*/
+		return certificate.getPublicKey();
 	}
 
 	public PublicKey getPublicKeyFromCertFile(InputStream file){

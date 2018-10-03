@@ -7,7 +7,7 @@
         android:category="payment"
         android:description="@string/aidDescription" >
         <aid-filter android:name="325041592E5359532E4444463031" />
-       <!-- <aid-filter android:name="A0000000041010" />-->
+        <aid-filter android:name="A0000000041010" />
         <aid-filter android:name="A0000000031010" />
         <!--<aid-filter android:name="A0000000980840" />
         <aid-filter android:name="A0000000042203" />-->

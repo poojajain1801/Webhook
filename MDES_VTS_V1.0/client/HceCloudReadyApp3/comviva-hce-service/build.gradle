@@ -1,56 +1,3 @@
-apply plugin: 'com.android.library'
-
-android {
-
-
-    compileSdkVersion 25
-    buildToolsVersion "25.0.3"
-
-
-    lintOptions {
-        abortOnError false
-    }
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFile './dexguard-project.txt'
-            //D:\AndroidWorkspace\New work space\Amit\30-11-2017\HceCloudReadyApp3\comviva-hce-service
-        }
-        debug {
-            debuggable true
-            minifyEnabled false
-        }
-    }
-    productFlavors {
-        mdes {
-            buildConfigField "String", "RNS_MESSAGE_TAG", "\"payload\""
-            buildConfigField "com.mastercard.mcbp.init.McbpInitializer.RemoteProtocol",
-                    "remoteProtocolMode", "com.mastercard.mcbp.init.McbpInitializer.RemoteProtocol.Mdes"
-        }
-    }
-    configurations {
-        mdesDebugCompile
-        mdesReleaseCompile
-    }
-
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['libs']
-        }
-    }
-
-}
-
 buildscript {
     repositories {
         mavenCentral()
@@ -62,6 +9,56 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath ':dexguard:'
     }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'dexguard'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //proguardFiles getDefaultDexGuardFile('dexguard-library-release-aggressive.pro')
+           // proguardFile './dexguard-project.txt'
+            //D:\AndroidWorkspace\New work space\Amit\30-11-2017\HceCloudReadyApp3\comviva-hce-service
+        }
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
+    }
+    productFlavors {
+        mdes {
+            buildConfigField "String", "RNS_MESSAGE_TAG", "\"payload\""
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
 }
 
 //task to delete the old jar
@@ -110,9 +107,17 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'commons-codec:commons-codec:1.10'
     compile files('libs/VTS-SDK-5.1.1.jar')
-    targetCompatibility = '1.7'
-    sourceCompatibility = '1.7'
     compile 'com.mcxiaoke.volley:library:1.0.19'
+    compile files('libs/dexguard-runtime .jar')
+    compile files('libs/sample-native-crypto-2.3.0-release.jar')
+    compile files('libs/sample-android-crypto-2.3.0-release.jar')
+    compile files('libs/mchipengine-2.3.0-debug.jar')
+    compile files('libs/mpsdk-2.3.0-debug.jar')
+    compile files('libs/sample-android-crypto-2.3.0-debug.jar')
+    compile files('libs/mchipengine-2.3.0-release.jar')
+    compile files('libs/mpsdk-2.3.0-release.jar')
 }
-apply plugin: 'dexguard'
+
+
+
 

@@ -1,44 +1,47 @@
 package com.comviva.hceservice.fcm;
 
-import android.Manifest;
 import android.app.Application;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.NotificationCompat;
+import android.util.Base64;
 import android.util.Log;
-import android.widget.Switch;
-import android.widget.Toast;
 
+import com.comviva.hceservice.apiCalls.NetworkApi;
+import com.comviva.hceservice.common.CardState;
+import com.comviva.hceservice.common.CardType;
+import com.comviva.hceservice.common.CommonUtil;
 import com.comviva.hceservice.common.ComvivaSdk;
-import com.comviva.hceservice.common.ComvivaWalletListener;
 import com.comviva.hceservice.common.PaymentCard;
+import com.comviva.hceservice.common.SDKData;
 import com.comviva.hceservice.common.SdkError;
-import com.comviva.hceservice.digitizationApi.CardMetaData;
+import com.comviva.hceservice.common.ServerResponseListener;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.digitizationApi.Digitization;
+import com.comviva.hceservice.listeners.GetCardMetaDataListener;
+import com.comviva.hceservice.listeners.TokenDataUpdateListener;
+import com.comviva.hceservice.pojo.transactionhistorymdes.TransactionHistoryRegisterMdesResponse;
+import com.comviva.hceservice.responseobject.cardmetadata.CardMetaData;
 import com.comviva.hceservice.tds.TdsNotificationData;
 import com.comviva.hceservice.tds.TransactionHistory;
-import com.comviva.hceservice.tds.TransactionHistoryListener;
-import com.comviva.hceservice.util.GetCardMetaDataListener;
-import com.comviva.hceservice.util.ResponseListener;
-import com.comviva.hceservice.util.TokenDataUpdateListener;
+import com.comviva.hceservice.listeners.ResponseListener;
+import com.comviva.hceservice.util.Constants;
 import com.google.firebase.messaging.RemoteMessage;
-import com.mastercard.mcbp.api.McbpCardApi;
-import com.mastercard.mcbp.api.McbpNotificationApi;
-import com.mastercard.mcbp.api.McbpWalletApi;
+import com.mastercard.mpsdk.componentinterface.RolloverInProgressException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 import com.visa.cbp.sdk.facade.data.TokenKey;
 import com.visa.cbp.sdk.facade.data.TokenStatus;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
+import static com.comviva.hceservice.util.Constants.DELETE_USER;
+import static com.comviva.hceservice.util.Constants.SUSUPEND_USER;
+import static com.comviva.hceservice.util.Constants.TOKEN_STATUS_UPDATED;
+import static com.comviva.hceservice.util.Constants.UNSUSPEND_USER;
+import static com.comviva.hceservice.util.Constants.UPDATE_TXN_HISTORY;
 import static com.visa.cbp.sdk.facade.util.ContextHelper.getApplicationContext;
 
 /**
@@ -46,27 +49,27 @@ import static com.visa.cbp.sdk.facade.util.ContextHelper.getApplicationContext;
  */
 public class ComvivaFCMService {
 
-    private static final String MESSAGE_TAG = "notificationData";
-    private static final String KEY_NOTIFICATION_TYPE = "notificationType";
-    private static final String OPERATION = "OPERATION";
-    /** The Constant SUSUPEND. */
-    public static final String SUSUPEND_USER = "SUSPENDUSER";
-    /** The Constant SUSUPEND. */
-    public static final String DELETE_USER = "DELETEUSER";
-    /** The Constant SUSUPEND. */
-    public static final String UNSUSPEND_USER = "UNSUSPENDUSER";
-
-    private static final String TOKEN_STATUS_UPDATED = "TOKEN_STATUS_UPDATED";
-    private static final String KEY_STATUS_UPDATED = "KEY_STATUS_UPDATED";
-    private static final String UPDATE_CARD_META_DATA = "UPDATE_CARD_METADATA";
-    private static final String UPDATE_TXN_HISTORY = "UPDATE_TXN_HISTORY";
-    private static final String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";
-    private static final String TYPE_TDS_NOTIFICATION = "notificationTds";
     private Digitization digitization;
-
-    private static ComvivaWalletListener walletEventListener;
     private static ComvivaFCMService comvivaFCMService;
     private static Application applicationContext;
+    private SDKData sdkData;
+    private String tokenRef;
+    private NetworkApi networkApi;
+
+
+    private ComvivaFCMService(Application application) {
+
+        try {
+            sdkData = SDKData.getInstance();
+            if (null == sdkData.getComvivaSdk()) {
+                sdkData.setComvivaSdk(ComvivaSdk.getInstance(application));
+            }
+            networkApi = new NetworkApi();
+        } catch (Exception e) {
+            Log.d(Tags.DEBUG_LOG.getTag(), e.getMessage());
+        }
+    }
+
 
     /**
      * Returns Singleton Instance of this class.
@@ -74,12 +77,34 @@ public class ComvivaFCMService {
      * @return ComvivaFCMService instance
      */
     public static ComvivaFCMService getInstance(Application application) {
+
         if (comvivaFCMService == null) {
             applicationContext = application;
-            comvivaFCMService = new ComvivaFCMService();
+            comvivaFCMService = new ComvivaFCMService(application);
         }
         return comvivaFCMService;
     }
+
+
+    private ServerResponseListener serverResponseListener = new ServerResponseListener() {
+        @Override
+        public void onRequestCompleted(Object result, Object listener) {
+
+            if (result != null && result instanceof TransactionHistoryRegisterMdesResponse) {
+                TransactionHistoryRegisterMdesResponse transactionHistoryRegisterMdesResponse = (TransactionHistoryRegisterMdesResponse) result;
+                if (Constants.HTTP_RESPONSE_CODE_200.equals(transactionHistoryRegisterMdesResponse.getResponseCode()) && null != transactionHistoryRegisterMdesResponse.getRegistrationStatus()) {
+                    CommonUtil.setSharedPreference(tokenRef, transactionHistoryRegisterMdesResponse.getRegistrationStatus(), Constants.SHARED_PREF_MDES_CARD_STATUS_DETAILS);
+                }
+            }
+        }
+
+
+        @Override
+        public void onRequestError(String message, Object listener) {
+
+        }
+    };
+
 
     /**
      * Invoke this API when FCM notification comes.
@@ -87,84 +112,122 @@ public class ComvivaFCMService {
      * @param remoteMessage RemoteMessage object received through FCM notification
      */
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
         Map data;
         String strNotificationData;
-
         // Grab the dataReceived
         data = remoteMessage.getData();
-
         try {
             if (data.containsKey("TYPE")) {
                 String type = data.get("TYPE").toString();
-
                 if (type.equalsIgnoreCase("MDES")) {
-
-                    if (data.containsKey(KEY_NOTIFICATION_TYPE)) {
-                        String notificationType = data.get(KEY_NOTIFICATION_TYPE).toString();
-                        if (notificationType.equalsIgnoreCase(TYPE_TDS_REGISTRATION_NOTIFICATION)) {
+                    if (data.containsKey(Constants.KEY_NOTIFICATION_TYPE)) {
+                        String notificationType = data.get(Constants.KEY_NOTIFICATION_TYPE).toString();
+                        if (notificationType.equalsIgnoreCase(Constants.TYPE_TDS_REGISTRATION_NOTIFICATION)) {
                             // New TDS registration
                             String tokenUniqueRef = (String) data.get("tokenUniqueReference");
-                            walletEventListener.onTdsRegistrationCode2Received(McbpCardApi.getDisplayablePanDigits(tokenUniqueRef));
+                            //walletEventListener.onTdsRegistrationCode2Received(McbpCardApi.getDisplayablePanDigits(tokenUniqueRef));
                             TdsNotificationData tdsNotificationData = new TdsNotificationData();
                             tdsNotificationData.setTokenUniqueReference(tokenUniqueRef);
                             tdsNotificationData.setRegistrationCode2((String) data.get("registrationCode2"));
                             tdsNotificationData.setTdsUrl((String) data.get("tdsUrl"));
                             tdsNotificationData.setPaymentAppInstanceId((String) data.get("paymentAppInstanceId"));
-                            TransactionHistory.registerWithTdsFinish(tdsNotificationData);
-                        } else if (notificationType.equalsIgnoreCase(TYPE_TDS_NOTIFICATION)) {
+                            // TransactionHistory.registerWithTdsFinish(tdsNotificationData);
+                        } else if (notificationType.equalsIgnoreCase(Constants.TYPE_TDS_NOTIFICATION)) {
                             // New TDS notification
-                            walletEventListener.onTdsNotificationReceived((String) data.get("tokenUniqueReference"));
+                            //walletEventListener.onTdsNotificationReceived((String) data.get("tokenUniqueReference"));
                         }
-                    } else if (data.containsKey(MESSAGE_TAG)) {  // Remote Notification data for MDES initiated from CMS-d
-                        strNotificationData = data.get(MESSAGE_TAG).toString();
-
-                        // If there are no listeners to wallet events, create one that notifies the user via a local
-                        // notification about what has happened
-                        boolean isListening = false;
-                        if (McbpWalletApi.getWalletEventListeners().size() == 0) {
-                            isListening = true;
-                            McbpWalletApi.addWalletEventListener(walletEventListener);
+                    } else if (data.containsKey(Constants.MESSAGE_TAG)) {
+                        JSONObject jsonObject = new JSONObject(data);
+                        strNotificationData = jsonObject.getString(Constants.MESSAGE_TAG);
+                        strNotificationData = new String(Base64.decode(strNotificationData, Base64.DEFAULT));
+                        SDKData sdkData = SDKData.getInstance();
+                        sdkData.getMcbp().getRemoteCommunicationManager().processNotificationData(strNotificationData);
+                        Log.d(Tags.DEBUG_LOG.getTag(), "sent for processing");
+                    } else if (data.containsKey(Tags.SUBTYPE.getTag()) && null != data.get(Tags.SUBTYPE.getTag()) && data.get(Tags.SUBTYPE.getTag()).equals(Tags.MDES_LCM.getTag())) {
+                        JSONArray jsonArray = new JSONArray(data.get(Tags.TOKENS.getTag()).toString());
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject cardDetails = jsonArray.getJSONObject(i);
+                            if (cardDetails.has(Tags.TOKEN_UNIQUE_REFERENCE.getTag())) {
+                                if (cardDetails.has(Tags.STATUS.getTag())) {
+                                    switch (CommonUtil.getCardStatusFromString(cardDetails.get(Tags.STATUS.getTag()).toString())) {
+                                        case ACTIVE:
+                                            try {
+                                                sdkData.getMcbp().getCardManager().activateCard(sdkData.getMcbp().getCardManager().getCardById(cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString()));
+                                                sdkData.getMcbp().getCardManager().getCardById(cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString()).replenishCredentials();
+                                                ArrayList<PaymentCard> cardList = null;
+                                                try {
+                                                    cardList = sdkData.getComvivaSdk().getAllCards();
+                                                    if ((cardList != null) && (cardList.size() == 1) && (cardList.get(0).getCardState().equals(CardState.ACTIVE))) {
+                                                        sdkData.getComvivaSdk().setDefaultCard(cardList.get(0));
+                                                    }
+                                                } catch (Exception e) {
+                                                    Log.d(Tags.DEBUG_LOG.getTag(), e.getMessage());
+                                                }
+                                                networkApi.getRegisterTransactionHistoryMdes(cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString());
+                                                networkApi.setServerAuthenticateListener(serverResponseListener);
+                                                tokenRef = cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString();
+                                            } catch (RolloverInProgressException e1) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e1));
+                                            } catch (Exception e2) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e2));
+                                            }
+                                            break;
+                                        case SUSPENDED:
+                                            try {
+                                                sdkData.getMcbp().getCardManager().suspendCard(sdkData.getMcbp().getCardManager().getCardById(cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString()));
+                                            } catch (RolloverInProgressException e1) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e1));
+                                            } catch (Exception e2) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e2));
+                                            }
+                                            break;
+                                        case MARKED_FOR_DELETION:
+                                            try {
+                                                sdkData.getMcbp().getCardManager().deleteCard(sdkData.getMcbp().getCardManager().getCardById(cardDetails.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString()));
+                                            } catch (RolloverInProgressException e1) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e1));
+                                            } catch (Exception e2) {
+                                                Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e2));
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
                         }
-
-                        // Allow the SDK to process the message with the CMS system
-                        if (strNotificationData != null && !strNotificationData.isEmpty()) {
-                            McbpNotificationApi.handleNotification(strNotificationData);
-                        }
-
-                        // Stop listener if we were listening
-                        if (isListening) {
-                            //McbpWalletApi.removeWalletEventListener(walletEventListener);
-                        }
+                    } else if ((data.containsKey(Tags.SUBTYPE.getTag()) && null != data.get(Tags.SUBTYPE.getTag()) && data.get(Tags.SUBTYPE.getTag()).equals(Tags.MDES_TXN.getTag()))) {
+                        CommonUtil.setSharedPreference(data.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString(),data.get(Tags.REGISTRATION_STATUS.getTag()).toString(),Constants.SHARED_PREF_MDES_CARD_STATUS_DETAILS);
                     }
-                } else if (type.equalsIgnoreCase("VTS")) { // Remote Notifications for VTS
+                } else if (type.equalsIgnoreCase("Vts")) { // Remote Notifications for Vts
                     digitization = Digitization.getInstance();
                     ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(applicationContext);
-                    if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(TOKEN_STATUS_UPDATED)) {
+                    if (data.containsKey(Constants.OPERATION) && data.get(Constants.OPERATION).toString().equalsIgnoreCase(TOKEN_STATUS_UPDATED)) {
                         final String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
                         final VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                         TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
                         TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
                         final PaymentCard paymentCard = PaymentCard.getPaymentCard(tokenData);
                         digitization.getTokenStatus(paymentCard, new TokenDataUpdateListener() {
-
                             @Override
-                            public void onSuccess(String newStatus) {
-                                broadcastMessage(TOKEN_STATUS_UPDATED,paymentCard.getCardLast4Digit(),newStatus);
+                            public void onSuccess(String newString) {
+
+                                CommonUtil.broadcastMessage(getApplicationContext(), TOKEN_STATUS_UPDATED, paymentCard.getCardUniqueId(), newString);
                             }
+
 
                             @Override
                             public void onError(SdkError sdkError) {
 
                             }
 
+
                             @Override
                             public void onStarted() {
 
                             }
                         });
-
                         // call get Token status
-                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(KEY_STATUS_UPDATED)) {
+                    } else if (data.containsKey(Constants.OPERATION) && data.get(Constants.OPERATION).toString().equalsIgnoreCase(Constants.KEY_STATUS_UPDATED)) {
                         String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
                         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                         TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
@@ -176,11 +239,13 @@ public class ComvivaFCMService {
 
                             }
 
+
                             @Override
                             public void onSuccess() {
-                                Log.d("VTS NOtification","replenishTransactionCredential Successful");
 
+                                Log.d("Vts NOtification", "replenishTransactionCredential Successful");
                             }
+
 
                             @Override
                             public void onError(SdkError sdkError) {
@@ -188,7 +253,7 @@ public class ComvivaFCMService {
                             }
                         });
                         //Call replenish, conform replenish and replenish ODA data
-                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(UPDATE_CARD_META_DATA)) {
+                    } else if (data.containsKey(Constants.OPERATION) && data.get(Constants.OPERATION).toString().equalsIgnoreCase(Constants.UPDATE_CARD_META_DATA)) {
                         String vPanEnrollmentID = data.get("vPanEnrollmentId").toString();
                        /* VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                         TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vPanEnrollmentID);
@@ -197,34 +262,32 @@ public class ComvivaFCMService {
                         digitization.getCardMetaData(vPanEnrollmentID, new GetCardMetaDataListener() {
                             @Override
                             public void onStarted() {
+
                             }
+
 
                             @Override
                             public void onSuccess(CardMetaData cardMetaData) {
-                                Log.d("VTS NOtification","replenishTransactionCredential Successful");
-                               // publish("Meta Data Updated " , "Success" );
 
+                                Log.d("Vts NOtification", "replenishTransactionCredential Successful");
+                                // publish("Meta Data Updated " , "Success" );
                             }
+
 
                             @Override
                             public void onError(SdkError sdkError) {
+
                             }
                         });
                         //UPDATE_CARD_METADATA
-                    } else if (data.containsKey(OPERATION) && data.get(OPERATION).toString().equalsIgnoreCase(UPDATE_TXN_HISTORY)) {
+                    } else if (data.containsKey(Constants.OPERATION) && data.get(Constants.OPERATION).toString().equalsIgnoreCase(UPDATE_TXN_HISTORY)) {
                         String vProvisionedTokenId = data.get("vprovisionedTokenId").toString();
                         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                         TokenKey tokenKey = visaPaymentSDK.getTokenKeyForProvisionedToken(vProvisionedTokenId);
                         TokenData tokenData = visaPaymentSDK.getTokenData(tokenKey);
                         PaymentCard paymentCard = PaymentCard.getPaymentCard(tokenData);
-
-                        broadcastMessage(UPDATE_TXN_HISTORY,paymentCard.getCardLast4Digit(),null);
-                        Intent intent = new Intent("comviva_broadcast");
-                        intent.putExtra("cardLast4", paymentCard.getCardLast4Digit());
-                        intent.putExtra("operation", "UPDATE_TXN");
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                        Log.d("Comviva Broadcast","Broadcast Successful");
-                     /*   TransactionHistory.getTransactionHistory(paymentCard, 4, new TransactionHistoryListener() {
+                        CommonUtil.broadcastMessage(getApplicationContext(), UPDATE_TXN_HISTORY, paymentCard.getCardUniqueId(), null);
+                     /*   TransactionHistoryData.getTransactionHistory(paymentCard, 4, new TransactionHistoryListener() {
                             @Override
                             public void onSuccess(ArrayList transactionInfo) {
 
@@ -240,98 +303,34 @@ public class ComvivaFCMService {
                         });*/
                         //Call getTransctionHistory and update txnHistory
                     }
-                }else if(type.equalsIgnoreCase("ALL"))
-                {
+                } else if (type.equalsIgnoreCase("ALL")) {
                     ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(applicationContext);
                     VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
                     ArrayList<PaymentCard> paymentCards = ComvivaSdk.getInstance(applicationContext).getAllCards();
-                    for(int i = 0; i<paymentCards.size();i++)
-                    {
-                        if(paymentCards.get(i).getCardType().toString().equalsIgnoreCase("VTS")) {
-                            if(data.containsKey(OPERATION)) {
-                                if(data.get(OPERATION).toString().equalsIgnoreCase(SUSUPEND_USER))
-                                {
+                    for (int i = 0; i < paymentCards.size(); i++) {
+                        if (paymentCards.get(i).getCardType().toString().equalsIgnoreCase(CardType.VTS.toString())) {
+                            if (data.containsKey(Constants.OPERATION)) {
+                                if (data.get(Constants.OPERATION).toString().equalsIgnoreCase(SUSUPEND_USER)) {
                                     visaPaymentSDK.updateTokenStatus(((TokenData) paymentCards.get(i).getCurrentCard()).getTokenKey(), TokenStatus.SUSPENDED);
-                                }else if(data.get(OPERATION).toString().equalsIgnoreCase(UNSUSPEND_USER))
-                                {
+                                } else if (data.get(Constants.OPERATION).toString().equalsIgnoreCase(UNSUSPEND_USER)) {
                                     visaPaymentSDK.updateTokenStatus(((TokenData) paymentCards.get(i).getCurrentCard()).getTokenKey(), TokenStatus.RESUME);
                                 }
                             }
-                        }else if((paymentCards.get(i).getCardType().toString().equalsIgnoreCase("MDES")))
-                        {
-
+                        } else if ((paymentCards.get(i).getCardType().toString().equalsIgnoreCase(CardType.MDES.toString()))) {
                         }
                     }
-                    if(data.containsKey(OPERATION))
-                    {
-                        broadcastMessage(data.get(OPERATION).toString(),null,null);
+                    if (data.containsKey(Constants.OPERATION)) {
+                        CommonUtil.broadcastMessage(getApplicationContext(), data.get(Constants.OPERATION).toString(), null, null);
                     }
-                     if(data.get(OPERATION).toString().equalsIgnoreCase(DELETE_USER))
-                    {
+                    if (data.get(Constants.OPERATION).toString().equalsIgnoreCase(DELETE_USER)) {
                         comvivaSdk.resetDevice();
-                        broadcastMessage(DELETE_USER,null,null);
+                        CommonUtil.broadcastMessage(getApplicationContext(), DELETE_USER, null, null);
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println("" + e.getMessage());
+            Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
             return;
         }
     }
-
-
-    private void broadcastMessage(String operation, String last4, String status)
-    {
-        //Intent intent = new Intent("comviva_broadcast");
-        Intent intent = new Intent();
-        intent.setAction("comviva_broadcast");
-
-        switch (operation)
-        {
-            case DELETE_USER:
-                intent.putExtra("operation", DELETE_USER);
-                break;
-            case TOKEN_STATUS_UPDATED:
-                intent.putExtra("cardLast4", last4);
-                intent.putExtra("operation", "CARD_STATUS_UPDATE");
-                intent.putExtra("cardStatus", status);
-                break;
-            case UPDATE_TXN_HISTORY:
-                intent.putExtra("cardLast4", last4);
-                intent.putExtra("operation", "UPDATE_TXN");
-                break;
-            case SUSUPEND_USER:
-                intent.putExtra("operation", SUSUPEND_USER);
-                break;
-
-            case UNSUSPEND_USER:
-                intent.putExtra("operation",UNSUSPEND_USER );
-                break;
-            default:
-                break;
-        }
-        getApplicationContext().sendBroadcast(intent);
-        //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-
-    }
-
-    /***
-     * Set Wallet Event Listener.
-     * @param walletEventListener Wallet Event Listener
-     */
-    public static void setComvivaWalletListener(ComvivaWalletListener walletEventListener) {
-        ComvivaFCMService.walletEventListener = walletEventListener;
-    }
-
-    /**
-     * Returns Wallet Event Listener
-     *
-     * @return Wallet Event Listener
-     */
-    public static ComvivaWalletListener getWalletEventListener() {
-        return walletEventListener;
-    }
-
-
-
 }
