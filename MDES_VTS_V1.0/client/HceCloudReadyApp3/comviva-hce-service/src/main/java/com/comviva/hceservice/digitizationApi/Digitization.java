@@ -39,7 +39,6 @@ import org.json.JSONObject;
  */
 public class Digitization {
 
-    private static Digitization instance;
     private DigitizationMdes digitizationMdes;
     private DigitizationVts digitizationVts;
     private static SDKData sdkData;

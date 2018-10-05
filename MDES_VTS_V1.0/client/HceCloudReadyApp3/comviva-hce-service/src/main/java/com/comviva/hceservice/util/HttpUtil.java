@@ -1,16 +1,11 @@
 package com.comviva.hceservice.util;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.comviva.hceservice.common.CommonUtil;
-import com.comviva.hceservice.common.ComvivaSdk;
-import com.comviva.hceservice.common.SDKData;
-import com.comviva.hceservice.common.SdkError;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,22 +34,23 @@ import javax.net.ssl.TrustManagerFactory;
  * Created by tarkeshwa r.v on 3/3/2017.
  */
 public class HttpUtil {
+
     private static HttpUtil httpUtil;
     private HttpResponse httpResponse;
     public static final int TIMEOUT = 1 * 60 * 1000;
-    private AssetManager assetManager;
-    private final String unknown_exception = "unknown exception";
-    private final String server_not_responding = "server not responding";
-    private SDKData sdkData;
+    private static final String unknown_exception = "unknown exception";
+    private static final String server_not_responding = "server not responding";
+
 
     private HttpUtil() {
-        sdkData= SDKData.getInstance();
+
     }
 
+
     private String convertStreamToString(InputStream inStream) throws Exception {
+
         InputStreamReader inputStream = new InputStreamReader(inStream);
         BufferedReader bReader = new BufferedReader(inputStream);
-
         StringBuilder sb = new StringBuilder();
         String line;
         while ((line = bReader.readLine()) != null) {
@@ -63,7 +59,9 @@ public class HttpUtil {
         return sb.toString();
     }
 
+
     private HttpsURLConnection createHttpsConnection(URL url) throws IOException {
+
         HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
         httpsURLConnection.setConnectTimeout(TIMEOUT);
         httpsURLConnection.setReadTimeout(TIMEOUT);
@@ -74,7 +72,9 @@ public class HttpUtil {
         return httpsURLConnection;
     }
 
+
     private HttpURLConnection createHttpConnection(URL url) throws IOException {
+
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setConnectTimeout(TIMEOUT);
         httpURLConnection.setReadTimeout(TIMEOUT);
@@ -83,116 +83,107 @@ public class HttpUtil {
         return httpURLConnection;
     }
 
-    public HostnameVerifier getHostnameVerifier(final URL url)
-    {
+
+    public HostnameVerifier getHostnameVerifier(final URL url) {
+
         return new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
-               // return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
+                // return true; // verify always returns true, which could cause insecure network traffic due to trusting TLS/SSL server certificates for wrong hostnames
                 HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
-                Log.d("Hostname Verifier",url.getHost());
-                Log.d("Hostname Verifier",url.toString());
-                Log.d("Hostname Verifier",String.valueOf(hv.verify(url.getHost(), session)));
+                Log.d("Hostname Verifier", url.getHost());
+                Log.d("Hostname Verifier", url.toString());
+                Log.d("Hostname Verifier", String.valueOf(hv.verify(url.getHost(), session)));
                 return hv.verify(url.getHost(), session);
             }
         };
     }
 
+
     private SSLSocketFactory newSslSocketFactory() {
+
         try {
             CertificateFactory cf = null;
             try {
                 cf = CertificateFactory.getInstance("X.509");
             } catch (CertificateException e) {
-                Log.d("CertReading","CertificateFactory Error");
-
+                Log.d("CertReading", "CertificateFactory Error");
             }
             Certificate ca = null;
             try {
                 try {
-                    if(null != cf) {
+                    if (null != cf) {
                         ca = CommonUtil.getCertificateFromKeystore(Constants.PAYMENT_APP_CERTIFICATE);
                     }
                 } catch (CertificateException e) {
-                    Log.d("Certificate Reading","Generate Certificate Error");
+                    Log.d("Certificate Reading", "Generate Certificate Error");
                 }
-            }catch (Exception e){
-
+            } catch (Exception e) {
             }
-
             // Create a KeyStore containing our trusted CAs
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = null;
             try {
                 keyStore = KeyStore.getInstance(keyStoreType);
             } catch (KeyStoreException e) {
-                Log.d("Certificate Reading","Keystore Error");
-
+                Log.d("Certificate Reading", "Keystore Error");
             }
             try {
-                if(null != keyStore) {
+                if (null != keyStore) {
                     keyStore.load(null, null);
                 }
             } catch (IOException e) {
-                Log.d("Error","Keystore Load Error 1");
+                Log.d("Error", "Keystore Load Error 1");
             } catch (NoSuchAlgorithmException e) {
-                Log.d("Certificate Reading","Keystore Load Error 2");
+                Log.d("Certificate Reading", "Keystore Load Error 2");
             } catch (CertificateException e) {
-                Log.d("Certificate Reading","Keystore Load Error 3");
+                Log.d("Certificate Reading", "Keystore Load Error 3");
             }
             try {
-                if(null != keyStore) {
+                if (null != keyStore) {
                     keyStore.setCertificateEntry("ca", ca);
-                }else
-                {
+                } else {
                     return null;
                 }
             } catch (KeyStoreException e) {
-
-                Log.d("Certificate Reading","setCertificateEntry Error ");
+                Log.d("Certificate Reading", "setCertificateEntry Error ");
             }
-
             // Create a TrustManager that trusts the CAs in our KeyStore
             String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
             TrustManagerFactory tmf = null;
             try {
                 tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
             } catch (NoSuchAlgorithmException e) {
-                Log.d("Certificate Reading","TrustManagerFactory Error ");
+                Log.d("Certificate Reading", "TrustManagerFactory Error ");
             }
             try {
-                if(null != tmf) {
+                if (null != tmf) {
                     tmf.init(keyStore);
                 }
             } catch (KeyStoreException e) {
-
-                Log.d("Certificate Reading","KeyStoreException Error ");
+                Log.d("Certificate Reading", "KeyStoreException Error ");
             }
-
             // Create an SSLContext that uses our TrustManager
             SSLContext sslContext = null;
             try {
                 sslContext = SSLContext.getInstance("TLS");
             } catch (NoSuchAlgorithmException e) {
-                Log.d("Certificate Reading","TLS Error ");
+                Log.d("Certificate Reading", "TLS Error ");
             }
             try {
-                if(null != sslContext && null != tmf) {
+                if (null != sslContext && null != tmf) {
                     sslContext.init(null, tmf.getTrustManagers(), null);
-                }else
-                {
+                } else {
                     return null;
                 }
             } catch (KeyManagementException e) {
-                Log.d("Certificate Reading","getTrustManagers Error ");
+                Log.d("Certificate Reading", "getTrustManagers Error ");
             }
         /*    SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             sslSocketFactory.se*/
-            if(null != sslContext.getSocketFactory())
-            {
+            if (null != sslContext.getSocketFactory()) {
                 return sslContext.getSocketFactory();
-            }else
-            {
+            } else {
                 return null;
             }
         } catch (Exception e) {
@@ -200,31 +191,35 @@ public class HttpUtil {
         }
     }
 
+
     public static HttpUtil getInstance() {
+
         if (null == httpUtil) {
             httpUtil = new HttpUtil();
         }
         return httpUtil;
     }
 
+
     public boolean isNetworkAvailable(final Context context) {
+
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
     }
 
+
     public HttpResponse postRequest(String serviceUrl, String requestData) {
+
         if (serviceUrl.startsWith("https")) {
             httpResponse = new HttpResponse();
             HttpsURLConnection httpsURLConnection = null;
             OutputStream out = null;
             InputStream in = null;
-
             int responseCode;
             String responseData;
             try {
                 byte[] postData = requestData.getBytes();
                 URL url = new URL(serviceUrl);
-
                 httpsURLConnection = createHttpsConnection(url);
                 httpsURLConnection.setRequestMethod("POST");
                 httpsURLConnection.setDoOutput(true);
@@ -234,7 +229,6 @@ public class HttpUtil {
                 out.close();
                 responseCode = httpsURLConnection.getResponseCode();
                 httpResponse.setStatusCode(responseCode);
-
                 in = httpsURLConnection.getInputStream();
                 responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
@@ -263,25 +257,20 @@ public class HttpUtil {
             HttpURLConnection httpURLConnection = null;
             OutputStream out = null;
             InputStream in = null;
-
             int responseCode;
             String responseData;
             try {
                 byte[] postData = requestData.getBytes();
-
                 URL url = new URL(serviceUrl);
-
                 httpURLConnection = createHttpConnection(url);
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setRequestProperty("Content-Length", Integer.toString(postData.length));
-
                 out = httpURLConnection.getOutputStream();
                 out.write(postData);
                 out.close();
                 responseCode = httpURLConnection.getResponseCode();
                 httpResponse.setStatusCode(responseCode);
-
                 in = httpURLConnection.getInputStream();
                 responseData = convertStreamToString(in);
                 httpResponse.setResponse(responseData);
@@ -301,122 +290,12 @@ public class HttpUtil {
                         httpURLConnection.disconnect();
                     }
                 } catch (IOException ioe) {
-                    Log.d("Error" , ioe.getMessage());
+                    Log.d("Error", ioe.getMessage());
                 }
             }
             return httpResponse;
         }
     }
-
-    public HttpResponse getRequest(String serviceUrl, Map<String, String> queryStrings) {
-        if (serviceUrl.startsWith("https")) {
-
-            httpResponse = new HttpResponse();
-
-            HttpsURLConnection httpsURLConnection = null;
-            InputStream in = null;
-
-            int responseCode;
-            String responseData;
-            try {
-                // Prepare Query String
-                if (queryStrings.size() > 0) {
-                    String strQueries = "";
-                    boolean isFirstElement = true;
-                    for (String key : queryStrings.keySet()) {
-                        if (isFirstElement) {
-                            strQueries += "?" + key + "=" + queryStrings.get(key);
-                            isFirstElement = false;
-                        } else {
-                            strQueries += "&" + key + "=" + queryStrings.get(key);
-                        }
-                    }
-                    serviceUrl += strQueries;
-                }
-
-                URL url = new URL(serviceUrl);
-                httpsURLConnection = createHttpsConnection(url);
-                httpsURLConnection.setDoOutput(true);
-                httpsURLConnection.setRequestMethod("GET");
-
-                httpsURLConnection.connect();
-                responseCode = httpsURLConnection.getResponseCode();
-                httpResponse.setStatusCode(responseCode);
-
-                in = httpsURLConnection.getInputStream();
-                responseData = convertStreamToString(in);
-                httpResponse.setResponse(responseData);
-            } catch (IOException ioe) {
-                httpResponse.setReqStatus(server_not_responding);
-            } catch (Exception e) {
-                httpResponse.setReqStatus(unknown_exception);
-            } finally {
-                try {
-                    if (null != in) {
-                        in.close();
-                    }
-                    if (null != httpsURLConnection) {
-                        httpsURLConnection.disconnect();
-                    }
-                } catch (IOException ioe) {
-                    Log.d("Error" , ioe.getMessage());
-                }
-            }
-            return httpResponse;
-        } else {
-
-            httpResponse = new HttpResponse();
-            HttpURLConnection httpURLConnection = null;
-            InputStream in = null;
-            int responseCode;
-            String responseData;
-            try {
-                // Prepare Query String
-                if (queryStrings.size() > 0) {
-                    String strQueries = "";
-                    boolean isFirstElement = true;
-                    for (String key : queryStrings.keySet()) {
-                        if (isFirstElement) {
-                            strQueries += "?" + key + "=" + queryStrings.get(key);
-                            isFirstElement = false;
-                        } else {
-                            strQueries += "&" + key + "=" + queryStrings.get(key);
-                        }
-                    }
-                    serviceUrl += strQueries;
-                }
-
-                URL url = new URL(serviceUrl);
-                httpURLConnection = createHttpConnection(url);
-                httpURLConnection.setDoOutput(true);
-                httpURLConnection.setRequestMethod("GET");
-
-                httpURLConnection.connect();
-                responseCode = httpURLConnection.getResponseCode();
-                httpResponse.setStatusCode(responseCode);
-
-                in = httpURLConnection.getInputStream();
-                responseData = convertStreamToString(in);
-                httpResponse.setResponse(responseData);
-            } catch (IOException ioe) {
-                httpResponse.setReqStatus(server_not_responding);
-            } catch (Exception e) {
-                httpResponse.setReqStatus(unknown_exception);
-            } finally {
-                try {
-                    if (null != in) {
-                        in.close();
-                    }
-                    if (null != httpURLConnection) {
-                        httpURLConnection.disconnect();
-                    }
-                } catch (IOException ioe) {
-                }
-            }
-            return httpResponse;
-        }
-    }
-
 }
 
 

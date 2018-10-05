@@ -19,8 +19,6 @@ import com.comviva.hceservice.listeners.GetCardMetaDataListener;
 import com.comviva.hceservice.listeners.TokenDataUpdateListener;
 import com.comviva.hceservice.pojo.transactionhistorymdes.TransactionHistoryRegisterMdesResponse;
 import com.comviva.hceservice.responseobject.cardmetadata.CardMetaData;
-import com.comviva.hceservice.tds.TdsNotificationData;
-import com.comviva.hceservice.tds.TransactionHistory;
 import com.comviva.hceservice.listeners.ResponseListener;
 import com.comviva.hceservice.util.Constants;
 import com.google.firebase.messaging.RemoteMessage;
@@ -121,27 +119,12 @@ public class ComvivaFCMService {
             if (data.containsKey("TYPE")) {
                 String type = data.get("TYPE").toString();
                 if (type.equalsIgnoreCase("MDES")) {
-                    if (data.containsKey(Constants.KEY_NOTIFICATION_TYPE)) {
-                        String notificationType = data.get(Constants.KEY_NOTIFICATION_TYPE).toString();
-                        if (notificationType.equalsIgnoreCase(Constants.TYPE_TDS_REGISTRATION_NOTIFICATION)) {
-                            // New TDS registration
-                            String tokenUniqueRef = (String) data.get("tokenUniqueReference");
-                            //walletEventListener.onTdsRegistrationCode2Received(McbpCardApi.getDisplayablePanDigits(tokenUniqueRef));
-                            TdsNotificationData tdsNotificationData = new TdsNotificationData();
-                            tdsNotificationData.setTokenUniqueReference(tokenUniqueRef);
-                            tdsNotificationData.setRegistrationCode2((String) data.get("registrationCode2"));
-                            tdsNotificationData.setTdsUrl((String) data.get("tdsUrl"));
-                            tdsNotificationData.setPaymentAppInstanceId((String) data.get("paymentAppInstanceId"));
-                            // TransactionHistory.registerWithTdsFinish(tdsNotificationData);
-                        } else if (notificationType.equalsIgnoreCase(Constants.TYPE_TDS_NOTIFICATION)) {
-                            // New TDS notification
-                            //walletEventListener.onTdsNotificationReceived((String) data.get("tokenUniqueReference"));
-                        }
-                    } else if (data.containsKey(Constants.MESSAGE_TAG)) {
+                    if (data.containsKey(Constants.MESSAGE_TAG)) {
                         JSONObject jsonObject = new JSONObject(data);
                         strNotificationData = jsonObject.getString(Constants.MESSAGE_TAG);
                         strNotificationData = new String(Base64.decode(strNotificationData, Base64.DEFAULT));
                         SDKData sdkData = SDKData.getInstance();
+                        Log.d(Tags.DEBUG_LOG.getTag(), strNotificationData);
                         sdkData.getMcbp().getRemoteCommunicationManager().processNotificationData(strNotificationData);
                         Log.d(Tags.DEBUG_LOG.getTag(), "sent for processing");
                     } else if (data.containsKey(Tags.SUBTYPE.getTag()) && null != data.get(Tags.SUBTYPE.getTag()) && data.get(Tags.SUBTYPE.getTag()).equals(Tags.MDES_LCM.getTag())) {
@@ -196,7 +179,7 @@ public class ComvivaFCMService {
                             }
                         }
                     } else if ((data.containsKey(Tags.SUBTYPE.getTag()) && null != data.get(Tags.SUBTYPE.getTag()) && data.get(Tags.SUBTYPE.getTag()).equals(Tags.MDES_TXN.getTag()))) {
-                        CommonUtil.setSharedPreference(data.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString(),data.get(Tags.REGISTRATION_STATUS.getTag()).toString(),Constants.SHARED_PREF_MDES_CARD_STATUS_DETAILS);
+                        CommonUtil.setSharedPreference(data.get(Tags.TOKEN_UNIQUE_REFERENCE.getTag()).toString(), data.get(Tags.REGISTRATION_STATUS.getTag()).toString(), Constants.SHARED_PREF_MDES_CARD_STATUS_DETAILS);
                     }
                 } else if (type.equalsIgnoreCase("Vts")) { // Remote Notifications for Vts
                     digitization = Digitization.getInstance();
@@ -329,7 +312,7 @@ public class ComvivaFCMService {
                 }
             }
         } catch (Exception e) {
-            Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
+            Log.e(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
             return;
         }
     }

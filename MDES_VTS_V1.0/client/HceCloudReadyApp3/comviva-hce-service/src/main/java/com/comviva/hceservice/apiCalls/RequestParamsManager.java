@@ -1,7 +1,6 @@
 package com.comviva.hceservice.apiCalls;
 
 import android.os.Build;
-import android.util.Base64;
 import android.util.Log;
 
 import com.comviva.hceservice.common.CardType;
@@ -13,8 +12,6 @@ import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.common.Tags;
-import com.comviva.hceservice.common.app_properties.PropertyConst;
-import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.pojo.checkcardeligibility.CheckCardEligibilityResponse;
 import com.comviva.hceservice.pojo.enrollpanVts.EnrollPanResponse;
 import com.comviva.hceservice.requestobjects.CardEligibilityRequestParam;
@@ -25,7 +22,6 @@ import com.comviva.hceservice.util.ArrayUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.crypto.AESUtil;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.JsonArray;
 import com.mastercard.mcbp_android.R;
 import com.mastercard.mpsdk.componentinterface.remotemanagement.RegistrationRequestParameters;
 import com.visa.cbp.external.enp.ProvisionAckRequest;
@@ -33,7 +29,6 @@ import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
 
-import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +39,6 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.crypto.Cipher;
@@ -53,7 +47,6 @@ public class RequestParamsManager {
 
     private static SDKData sdkData = SDKData.getInstance();
     private static VisaPaymentSDK visaPaymentSDK;
-    private static PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
 
 
     public static JSONObject getRegisterUserParams(String userID, String clientDeviceID) throws SdkException {
@@ -86,10 +79,7 @@ public class RequestParamsManager {
             registerRequestParam.setSchemeType(SchemeType.ALL);
         }
         try {
-            // deviceFingerprint = CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(),Tags.USER_DETAILS.getTag());
             paymentAppInstanceId = CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag());
-            // CommonUtil.setSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), paymentAppInstanceId, Tags.USER_DETAILS.getTag());
-            // CommonUtil.setSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), deviceFingerprint, Tags.USER_DETAILS.getTag());
             fcmRegistrationToken = FirebaseInstanceId.getInstance().getToken();
             if (fcmRegistrationToken == null) {
                 Log.e(Tags.ERROR_LOG.getTag(), sdkData.getContext().getResources().getString(R.string.fcm_registration_error));
@@ -112,7 +102,7 @@ public class RequestParamsManager {
             if (registerRequestParam.getSchemeType().equals(SchemeType.ALL) || registerRequestParam.getSchemeType().equals(SchemeType.MASTERCARD)) {
                 JSONObject mdesRegDevJson = new JSONObject();
                 mdesRegDevJson.put(Tags.DEVICE_INFO.getTag(), jsDeviceInfo);
-                mdesRegDevJson.put(Tags.PAYMENT_APP_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_PAYMENT_APP_INSTANCE_ID));
+                mdesRegDevJson.put(Tags.PAYMENT_APP_ID.getTag(), Constants.PAYMENT_APP_INSTANCE_ID);
                 mdesRegDevJson.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), paymentAppInstanceId);
                 PublicKey publicKey = CommonUtil.getPublicKeyFromCert(Constants.CMS_D_CERTIFICATE_NAME);
                 byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(Constants.CMS_D_CERTIFICATE_NAME);
@@ -161,11 +151,11 @@ public class RequestParamsManager {
             JSONObject cardInfoData = prepareCardInfo(cardEligibilityRequestParam);
             JSONObject jsDeviceInfo = CommonUtil.getDeviceInfoInJson();
             checkEligibilityObject.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag()));
-            checkEligibilityObject.put(Tags.PAYMENT_APP_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_PAYMENT_APP_INSTANCE_ID));
+            checkEligibilityObject.put(Tags.PAYMENT_APP_ID.getTag(), Constants.PAYMENT_APP_INSTANCE_ID);
             checkEligibilityObject.put(Tags.TOKEN_TYPE.getTag(), Constants.TOKEN_TYPE);
             checkEligibilityObject.put(Tags.DEVICE_INFO.getTag(), jsDeviceInfo);
             checkEligibilityObject.put(Tags.CARD_INFO.getTag(), cardInfoData);
-            checkEligibilityObject.put(Tags.CARDLET_ID.getTag(), propertyReader.getProperty(PropertyConst.CARDLET_ID));
+            checkEligibilityObject.put(Tags.CARDLET_ID.getTag(), Constants.CARDLET_ID);
             checkEligibilityObject.put(Tags.CONSUMER_LANGUAGE.getTag(), Constants.CONSUMER_LAN);
             return checkEligibilityObject;
         } catch (JSONException e) {
@@ -203,11 +193,8 @@ public class RequestParamsManager {
             getEligibilityRecieptObject.put(Tags.VALUE.getTag(), checkCardEligibilityResponse.getEligibilityReceipt().getValue());
             getEligibilityRecieptObject.put(Tags.VALUE_FOR_MINUTES.getTag(), checkCardEligibilityResponse.getEligibilityReceipt().getValidForMinutes());
             getDigitizationMdesObject.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag()));
-            // getDigitizationMdesObject.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), comvivaSdk.getPaymentAppInstanceId());
-            //getDigitizationMdesObject.put(Tags.ELIGIBILITY_RECEIPT.getTag(), getEligibilityRecieptObject);
             getDigitizationMdesObject.put(Tags.SERVICE_ID.getTag(), checkCardEligibilityResponse.getServiceId());
             getDigitizationMdesObject.put(Tags.T_N_C_ID.getTag(), checkCardEligibilityResponse.getTermsAndConditionsAssetId());
-            // getDigitizationMdesObject.put("termsAndConditionsAcceptedTimestamp", digitizationRequestParam.getTermsAndConditionsAcceptedTimestamp());
             return getDigitizationMdesObject;
         } catch (JSONException e) {
             Log.e(Tags.ERROR_LOG.getTag(), String.valueOf(e));
@@ -237,7 +224,7 @@ public class RequestParamsManager {
             encPaymentInstrument.put(Tags.EXPIRATION_DATE.getTag(), expirationDate);
             encPaymentInstrument.put(Tags.NAME.getTag(), cardEligibilityRequestParam.getCardholderName());
             visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
-            enrollPanObject.put(Tags.CLIENT_APP_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_CLIENT_APP_ID));
+            enrollPanObject.put(Tags.CLIENT_APP_ID.getTag(), Constants.CLIENT_APP_ID);
             enrollPanObject.put(Tags.CLIENT_WALLET_ACCOUNT_ID.getTag(), clientWalletAccId);
             enrollPanObject.put(Tags.CLIENT_DEVICE_ID.getTag(), visaPaymentSDK.getDeviceId());
             enrollPanObject.put(Tags.CONSUER_ENTRY_MODE.getTag(), cardEligibilityRequestParam.getConsumerEntryMode().name());
@@ -277,7 +264,7 @@ public class RequestParamsManager {
             JSONObject provisionVtsObject = new JSONObject();
             ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
             final String clientWalletAccId = comvivaSdk.getInitializationData().getClientWalletAccountId();
-            provisionVtsObject.put(Tags.CLIENT_APP_ID.getTag(), propertyReader.getProperty(PropertyConst.KEY_CLIENT_APP_ID));
+            provisionVtsObject.put(Tags.CLIENT_APP_ID.getTag(), Constants.CLIENT_APP_ID);
             provisionVtsObject.put(Tags.CLIENT_WALLET_ACCOUNT_ID.getTag(), clientWalletAccId);
             visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
             provisionVtsObject.put(Tags.CLIENT_DEVICE_ID.getTag(), visaPaymentSDK.getDeviceId());
@@ -490,7 +477,7 @@ public class RequestParamsManager {
             cardInfo.put(Tags.ENCRYPTED_DATA.getTag(), ArrayUtil.getHexString((byte[]) keyMap.get(Tags.ENCRYPTED_DATA.getTag())));
             cardInfo.put(Tags.ENCRYPTED_KEY.getTag(), ArrayUtil.getHexString((byte[]) keyMap.get(Tags.ENCRYPTED_KEY.getTag())));
             cardInfo.put(Tags.IV.getTag(), ArrayUtil.getHexString((byte[]) keyMap.get(Tags.IV.getTag())));
-            cardInfo.put(Tags.PUBLIC_KEY_FINGER_PRINT.getTag(), propertyReader.getProperty(PropertyConst.PUBLIC_KEY_FINGERPRINT));
+            cardInfo.put(Tags.PUBLIC_KEY_FINGER_PRINT.getTag(), Constants.PUBLIC_KEY_FINGERPRINT);
             return cardInfo;
         } catch (GeneralSecurityException e) {
             Log.e(Tags.ERROR_LOG.getTag(), String.valueOf(e));
@@ -499,16 +486,16 @@ public class RequestParamsManager {
             Log.e(Tags.ERROR_LOG.getTag(), String.valueOf(e));
             throw new SdkException(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
         } finally {
-            if (keyMap.get(Tags.AES_KEY.getTag()) != null) {
+            if (null != keyMap && keyMap.get(Tags.AES_KEY.getTag()) != null) {
                 Arrays.fill((byte[]) keyMap.get(Tags.AES_KEY.getTag()), Constants.DEFAULT_FILL_VALUE);
             }
-            if (keyMap.get(Tags.IV.getTag()) != null) {
+            if (null != keyMap && keyMap.get(Tags.IV.getTag()) != null) {
                 Arrays.fill((byte[]) keyMap.get(Tags.IV.getTag()), Constants.DEFAULT_FILL_VALUE);
             }
-            if (keyMap.get(Tags.ENCRYPTED_KEY.getTag()) != null) {
+            if (null != keyMap && keyMap.get(Tags.ENCRYPTED_KEY.getTag()) != null) {
                 Arrays.fill((byte[]) keyMap.get(Tags.ENCRYPTED_KEY.getTag()), Constants.DEFAULT_FILL_VALUE);
             }
-            if (keyMap.get(Tags.ENCRYPTED_DATA.getTag()) != null) {
+            if (null != keyMap && keyMap.get(Tags.ENCRYPTED_DATA.getTag()) != null) {
                 Arrays.fill((byte[]) keyMap.get(Tags.ENCRYPTED_DATA.getTag()), Constants.DEFAULT_FILL_VALUE);
             }
         }
@@ -527,13 +514,11 @@ public class RequestParamsManager {
         oneTimeAesKey = ArrayUtil.getRandomNumber(16);
         oneTimeIv = ArrayUtil.getRandomNumber(16);
         baEncryptedData = AESUtil.cipherCBC(cardInfoData.toString().getBytes(), oneTimeAesKey, oneTimeIv, AESUtil.Padding.PKCS5PADDING, true);
-        // masterPubKey = CommonUtil.getPublicKeyFromCert(Constants.CARD_ENCYPTION_CERTIFICATE_NAME);
-        masterPubKey = CommonUtil.getPublicKeyFromCert(propertyReader.getProperty(PropertyConst.CERT_NAME));
+        masterPubKey = CommonUtil.getPublicKeyFromCert(Constants.CERT_NAME);
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, masterPubKey);
         encryptedKey = cipher.doFinal(oneTimeAesKey);
-        // byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(Constants.CARD_ENCYPTION_CERTIFICATE_NAME);
-        byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(propertyReader.getProperty(PropertyConst.CERT_NAME));
+        byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(Constants.CERT_NAME);
         byte[] publicKeyFingerPrint = CommonUtil.sha256(bytesFromInputStream);
         map.put(Tags.PUBLIC_KEY_FINGER_PRINT.getTag(), publicKeyFingerPrint);
         map.put(Tags.ENCRYPTED_KEY.getTag(), encryptedKey);

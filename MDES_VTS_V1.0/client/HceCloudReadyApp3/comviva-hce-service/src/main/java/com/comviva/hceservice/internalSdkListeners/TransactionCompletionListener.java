@@ -42,9 +42,9 @@ public class TransactionCompletionListener implements TransactionEventListener {
     @Override
     public void onTransactionStopped() {
 
-        if (getProcessContactlessListener() != null) {
+        /*if (getProcessContactlessListener() != null) {
             getProcessContactlessListener().onContactlessPaymentAborted(null);
-        }
+        }*/
     }
 
 

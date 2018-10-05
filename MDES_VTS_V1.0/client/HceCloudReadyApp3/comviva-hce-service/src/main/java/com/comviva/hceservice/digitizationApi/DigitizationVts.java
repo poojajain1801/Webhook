@@ -163,57 +163,52 @@ class DigitizationVts implements ServerResponseListener {
     }
 
 
-    class ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
+    public void ConfirmReplenishTask(ReplenishAckRequest replenishAckRequest, String vProvisionedTokenID, final ConfirmProvisionListener listener) {
 
-        private ConfirmProvisionListener listener;
-        private JSONObject jsConfirmReplenishment;
+        final JSONObject jsConfirmReplenishment = new JSONObject();
+        try {
+            jsConfirmReplenishment.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionedTokenID);
+            jsConfirmReplenishment.put(Tags.API.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getApi());
+            jsConfirmReplenishment.put(Tags.SC.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getSc());
+        } catch (JSONException e) {
+            if (listener != null) {
+                listener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+            }
+        }
+        class ConfirmReplenishTask extends AsyncTask<Void, Void, HttpResponse> {
+
+            @Override
+            protected void onPreExecute() {
+
+                super.onPreExecute();
+            }
 
 
-        public ConfirmReplenishTask(ReplenishAckRequest replenishAckRequest, String vProvisionedTokenID, ConfirmProvisionListener listener) {
+            @Override
+            protected HttpResponse doInBackground(Void... params) {
 
-            this.listener = listener;
-            try {
-                jsConfirmReplenishment = new JSONObject();
-                jsConfirmReplenishment.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), vProvisionedTokenID);
-                jsConfirmReplenishment.put(Tags.API.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getApi());
-                jsConfirmReplenishment.put(Tags.SC.getTag(), replenishAckRequest.getTokenInfo().getHceData().getDynParams().getSc());
-            } catch (JSONException e) {
-                if (listener != null) {
-                    listener.onError(SdkErrorStandardImpl.SDK_JSON_EXCEPTION);
+                HttpUtil httpUtil = HttpUtil.getInstance();
+                return httpUtil.postRequest(UrlUtil.getVTSConfirmReplenishTokenUrl(), jsConfirmReplenishment.toString());
+            }
+
+
+            @Override
+            protected void onPostExecute(HttpResponse httpResponse) {
+
+                super.onPostExecute(httpResponse);
+                try {
+                    if (httpResponse.getStatusCode() == 200) {
+                        listener.onCompleted();
+                    } else {
+                        listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
+                    }
+                } catch (Exception e) {
+                    listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
                 }
             }
         }
-
-
-        @Override
-        protected void onPreExecute() {
-
-            super.onPreExecute();
-        }
-
-
-        @Override
-        protected HttpResponse doInBackground(Void... params) {
-
-            HttpUtil httpUtil = HttpUtil.getInstance();
-            return httpUtil.postRequest(UrlUtil.getVTSConfirmReplenishTokenUrl(), jsConfirmReplenishment.toString());
-        }
-
-
-        @Override
-        protected void onPostExecute(HttpResponse httpResponse) {
-
-            super.onPostExecute(httpResponse);
-            try {
-                if (httpResponse.getStatusCode() == 200) {
-                    listener.onCompleted();
-                } else {
-                    listener.onError(SdkErrorImpl.getInstance(httpResponse.getStatusCode(), httpResponse.getReqStatus()));
-                }
-            } catch (Exception e) {
-                listener.onError(SdkErrorStandardImpl.SDK_INTERNAL_ERROR);
-            }
-        }
+        ConfirmReplenishTask confirmReplenishTask = new ConfirmReplenishTask();
+        confirmReplenishTask.execute();
     }
 
 
@@ -245,32 +240,6 @@ class DigitizationVts implements ServerResponseListener {
         }
         contentGuid.setContent(mediaContents);
         return contentGuid;
-    }
-
-
-    private TokenInfo parseGetTokenResponse(JSONObject jsGetTokenResponse, TokenKey tokenKey) throws JSONException, Exception {
-
-        JSONObject jsTokenInfoObject = jsGetTokenResponse.getJSONObject("tokenInfo");
-        JSONObject jsExpirationDateObject = jsTokenInfoObject.getJSONObject("expirationDate");
-        JSONObject jsHCEDataObject = jsTokenInfoObject.getJSONObject("hceData");
-        JSONObject jsDynParamsObject = jsHCEDataObject.getJSONObject("dynParams");
-        ExpirationDate expirationDate = new ExpirationDate();
-        expirationDate.setMonth(jsExpirationDateObject.getString("month"));
-        expirationDate.setYear(jsExpirationDateObject.getString("year"));
-        com.visa.cbp.external.common.ParamsStatus paramsStatus = (com.visa.cbp.external.common.ParamsStatus) new JSONDeserializer<>().deserialize(jsDynParamsObject.toString(), com.visa.cbp.external.common.ParamsStatus.class);
-        /*com.visa.cbp.external.common.ParamsStatus paramsStatus = new com.visa.cbp.external.common.ParamsStatus();
-        paramsStatus.*/
-        DynParams dynParams = new DynParams();
-        dynParams.setParamsStatus(paramsStatus);
-        dynParams.setApi(jsDynParamsObject.getString("api"));
-        HceData hceData = new HceData();
-        hceData.setDynParams(dynParams);
-        TokenInfo tokenInfo = new TokenInfo();
-        tokenInfo.setHceData(hceData);
-        tokenInfo.setExpirationDate(expirationDate);
-        tokenInfo.setTokenStatus(jsTokenInfoObject.getString("tokenStatus"));
-        visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.getTokenStatus(jsTokenInfoObject.getString("tokenStatus")));
-        return tokenInfo;
     }
 
 
@@ -739,9 +708,7 @@ class DigitizationVts implements ServerResponseListener {
                                     }
                                 };
                                 ReplenishAckRequest replenishAckRequest = visaPaymentSDK.constructReplenishAcknowledgementRequest(tokenKey);
-                                ConfirmReplenishTask confirmReplenishTask = new ConfirmReplenishTask(replenishAckRequest,
-                                        tokenData.getVProvisionedTokenID(), confirmProvisionListener);
-                                confirmReplenishTask.execute();
+                                ConfirmReplenishTask(replenishAckRequest, tokenData.getVProvisionedTokenID(), confirmProvisionListener);
                             }
                         }
                     }
@@ -769,7 +736,7 @@ class DigitizationVts implements ServerResponseListener {
             switch (cardLcmRequestParam.getCardLcmOperation()) {
                 case DELETE:
                     try {
-                        ComvivaSdk comvivaSdk = ComvivaSdk.getInstance(null);
+                        comvivaSdk = sdkData.getComvivaSdk();
                         visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.DELETED);
                         sdkData.getCardSelectionManagerForTransaction().unSetPaymentCardForTransaction();
                         // Manage default card if card being deleted is default one
@@ -801,7 +768,7 @@ class DigitizationVts implements ServerResponseListener {
                     responseListener.onSuccess();
                     break;
                 case RESUME:
-                    visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.RESUME);
+                    visaPaymentSDK.updateTokenStatus(tokenKey, TokenStatus.ACTIVE);
                     responseListener.onSuccess();
                     break;
             }

@@ -16,6 +16,7 @@ import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.DeviceLockUtil;
 import com.comviva.hceservice.util.Miscellaneous;
 import com.comviva.hceservice.util.TlvUtil;
+import com.mastercard.mpsdk.componentinterface.RolloverInProgressException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.ApduResponse;
@@ -51,18 +52,6 @@ public class ComvivaHceService {
     private final byte[] PAYMENT_CONDITION_NOT_SATISFIED = new byte[]{0x69, (byte) 0x85};
 
 
-    public static void setIsPinpageRequired(boolean isPinpageRequired) {
-
-        ComvivaHceService.isPinpageRequired = isPinpageRequired;
-    }
-
-
-    public static boolean isIsPinpageRequired() {
-
-        return isPinpageRequired;
-    }
-
-
     private ComvivaHceService(Application ctx) {
 
         this.context = ctx;
@@ -74,6 +63,18 @@ public class ComvivaHceService {
         } catch (Exception e) {
             Log.d(Tags.DEBUG_LOG.getTag(), e.getMessage());
         }
+    }
+
+
+    public static void setIsPinpageRequired(boolean isPinpageRequired) {
+
+        ComvivaHceService.isPinpageRequired = isPinpageRequired;
+    }
+
+
+    public static boolean isIsPinpageRequired() {
+
+        return isPinpageRequired;
     }
 
 
@@ -104,12 +105,8 @@ public class ComvivaHceService {
                 boolean isComvivaRequiredCDCVM = false;
                 if (null != sdkData.getCdCvm()) {
                     isComvivaRequiredCDCVM = ((!sdkData.getCdCvm().isStatus()) && (initData.isHvtSupport()) && (transactionAmt > initData.getHvtLimit()));
-                    Log.d(Tags.DEBUG_LOG.getTag()," foreground isComvivaRequiredCDCVM ********************* "  + isComvivaRequiredCDCVM);
                 } else {
-
                     isComvivaRequiredCDCVM = ((initData.isHvtSupport()) && (transactionAmt > initData.getHvtLimit()));
-                    Log.d(Tags.DEBUG_LOG.getTag()," Background isComvivaRequiredCDCVM ********************* "  + isComvivaRequiredCDCVM);
-
                 }
                 if (isComvivaRequiredCDCVM) {
                     showCDCVMActivity(isAppInForeground);
@@ -158,7 +155,6 @@ public class ComvivaHceService {
                 if (indexOfAmountInPdolData != -1) {
                     String amount = ArrayUtil.getHexString(Arrays.copyOfRange(commandApdu, 7 + indexOfAmountInPdolData, 7 + indexOfAmountInPdolData + 6));
                     transactionAmt = Double.parseDouble(amount) / 100;
-                    Log.d("TxnAmt", Double.toString(transactionAmt));
                 }
                 //CDCVM
                 boolean isComvivaRequiredCDCVM = false;
@@ -232,7 +228,12 @@ public class ComvivaHceService {
             default:
                 break;
         }
-        return apduResponse.getApduData();
+        if(null != apduResponse){
+            return apduResponse.getApduData();
+        }else{
+            return null;
+        }
+
     }
 
 
@@ -244,7 +245,7 @@ public class ComvivaHceService {
                 intent.putExtra(Tags.STATUS.getTag(), isAppInForeground);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
-                 pinRequiredFlag = true;
+                pinRequiredFlag = true;
             } else {
                 // No lock mechanism is set on device currently
                 Log.d(Tags.DEBUG_LOG.getTag(), NO_CURRENT_SECURITY);
@@ -273,8 +274,6 @@ public class ComvivaHceService {
     }
 
 
-
-
     /**
      * Provides Singleton instance of this class.
      *
@@ -299,22 +298,14 @@ public class ComvivaHceService {
     public byte[] processCommandApdu(byte[] commandApdu, Bundle extras) {
 
         boolean isAppInForeground;
-        try {
-            isAppInForeground = Miscellaneous.isAppOnForeground(context);
-            Log.d(Tags.DEBUG_LOG.getTag(), "isAppInForeground" + isAppInForeground);
-            // Application is in Foreground
-            if (isAppInForeground) {
-                paymentCard = sdkData.getSelectedCard();
-            } else {
-                // Application is in Background
-                paymentCard = sdkData.getComvivaSdk().getDefaultPaymentCard();
-                if (paymentCard != null) {
-                    sdkData.getCardSelectionManagerForTransaction().setPaymentCardForTransaction(paymentCard.getCardType(), paymentCard);
-                    // sdkData.getComvivaSdk().setSelectedCard(paymentCard);
-                }
-            }
-        } catch (Exception e) {
-            return PAYMENT_INTERNAL_ERROR;
+        isAppInForeground = Miscellaneous.isAppOnForeground(context);
+        Log.d(Tags.DEBUG_LOG.getTag(), "isAppInForeground" + isAppInForeground);
+        // Application is in Foreground
+        if (isAppInForeground) {
+            paymentCard = sdkData.getSelectedCard();
+        } else {
+            // Application is in Background
+            paymentCard = sdkData.getComvivaSdk().getDefaultPaymentCard();
         }
         // Check that there is no card selected or no default card card is set
         if (paymentCard == null) {
@@ -333,6 +324,13 @@ public class ComvivaHceService {
                 return PAYMENT_CONDITION_NOT_SATISFIED;
             default:
                 break;
+        }
+        if (paymentCard != null) {
+            try {
+                sdkData.getCardSelectionManagerForTransaction().setPaymentCardForTransaction(paymentCard.getCardType(), paymentCard);
+            } catch (RolloverInProgressException e) {
+                return PAYMENT_INTERNAL_ERROR;
+            }
         }
         switch (paymentCard.getCardType()) {
             case MDES:

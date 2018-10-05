@@ -14,7 +14,7 @@ import com.comviva.hceservice.listeners.CheckCardEligibilityListener;
 import com.comviva.hceservice.listeners.DigitizationListener;
 import com.comviva.hceservice.listeners.GetAssetListener;
 import com.comviva.hceservice.listeners.ResponseListener;
-import com.comviva.hceservice.tds.TransactionHistoryListener;
+import com.comviva.hceservice.listeners.TransactionHistoryListener;
 import com.comviva.hceservice.util.ArrayUtil;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.util.crypto.MessageDigestUtil;
@@ -121,14 +121,8 @@ public class CommonUtil {
             String cert = CertificateInStringFormat(getCertificateFromKeystore(certificateName).getEncoded());
             for (int i = 0; i < cert.length(); ++i)
                 outStream.write(cert.charAt(i));
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
+           Log.e(Tags.ERROR_LOG.getTag(),e.getMessage());
         }
         return outStream.toByteArray();
     }
@@ -268,8 +262,8 @@ public class CommonUtil {
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         // Provide location of Java Keystore and password for access
-        InputStream inputStream = getApplicationContext().getAssets().open("sdkKeystore.bks");
-        keyStore.load(inputStream, "sdkKeystore".toCharArray());
+        InputStream inputStream = getApplicationContext().getAssets().open(Constants.SDK_KEYSTORE_NAME);
+        keyStore.load(inputStream, Constants.SDK_KEYSTORE_PASS.toCharArray());
         Certificate certificate = keyStore.getCertificate(aliasName);
         return certificate;
     }

@@ -4,17 +4,13 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v7.app.NotificationCompat;
 
-import com.comviva.hceservice.common.ComvivaSdk;
-import com.comviva.hceservice.common.SdkException;
-import com.comviva.hceservice.fcm.ComvivaFCMService;
-import com.comviva.mdesapp.activities.HomeActivity;
-
 import java.util.Random;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 /**
  * Created by tarkeshwar.v on 3/21/2017.
@@ -27,11 +23,17 @@ import java.util.Random;
     public void onCreate() {
         super.onCreate();
         appInstance = this;
+        Realm.init(this);
+        RealmConfiguration realmConfig = new RealmConfiguration.Builder()
+                .name("app_db")
+                .schemaVersion(0)
+                .build();
+        Realm.setDefaultConfiguration(realmConfig);
        // mEventListener = new WalletListener();
-      /*  Realm.init(this);
+        Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder().build();
         config.shouldDeleteRealmIfMigrationNeeded();
-        Realm.setDefaultConfiguration(config);*/
+        Realm.setDefaultConfiguration(config);
      //   ComvivaFCMService.setComvivaWalletListener(mEventListener);
     }
 

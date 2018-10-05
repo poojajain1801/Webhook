@@ -19,14 +19,13 @@
 # Remove logging code.
 ##############################################################################
 -assumenosideeffects class android.util.Log {
-    public static boolean isLoggable(java.lang.String, int);
-    public static int v(...);
-    public static int i(...);
-    public static int w(...);
-    public static int d(...);
-    public static int e(...);
-}
 
+    public static *** v(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** d(...);
+    public static *** e(...);
+}
 ###### Common Rules
 -keepresourcefiles jni/**/*.so
 -keepattributes Exceptions
@@ -53,15 +52,14 @@
 -keep public class com.comviva.hceservice.listeners.**{
 public protected *;
 }
+
+-keep public class com.comviva.hceservice.internalSdkListeners.CommonListener{
+public protected *;
+}
 -keep public class com.comviva.hceservice.requestobjects.**{
 public protected *;
 }
--keep public class com.comviva.hceservice.pojo.**{
-public protected *;
-}
--keep public class com.comviva.hceservice.internalSdkListeners.**{
-public protected *;
-}
+
 -keep public class com.comviva.hceservice.digitizationApi.ActiveAccountManagementService {
     public public *;
 }
@@ -98,6 +96,7 @@ public protected *;
 -keep public class com.comviva.hceservice.common.PaymentCard {
     public public *;
 }
+
 -keep public class com.comviva.hceservice.common.SdkException {
     public public *;
 }
@@ -118,33 +117,15 @@ public protected *;
 }
 
 
-###### com.comviva.hceservice.security
--keep public interface com.comviva.hceservice.security.SecurityInf {
-    public public *;
-}
--keep public enum com.comviva.hceservice.security.DeviceStatus {
+
+
+###### com.comviva.hceservice.transactionHistory
+
+
+-keep public class com.comviva.hceservice.transactionHistory.TransactionHistory {
     public public *;
 }
 
-###### com.comviva.hceservice.tds
--keep public interface com.comviva.hceservice.tds.TdsRegistrationListener {
-    public public *;
-}
--keep public class com.comviva.hceservice.tds.TransactionDetails {
-    public public *;
-}
--keep public interface com.comviva.hceservice.tds.TransactionDetailsListener {
-    public public *;
-}
--keep public class com.comviva.hceservice.tds.TransactionHistory {
-    public public *;
-}
--keep public interface com.comviva.hceservice.tds.UnregisterTdsListener {
-    public public *;
-}
--keep public interface com.comviva.hceservice.tds.TransactionHistoryListener {
-    public public *;
-}
 
 ###### com.comviva.hceservice.fcm
 -keep public class com.comviva.hceservice.fcm.ComvivaFCMService {
@@ -175,6 +156,8 @@ public protected *;
  -keep public class com.comviva.hceservice.util.ArrayUtil {
        public public *;
   }
+
+
 
 # Firebase
 -keep public class com.google.firebase.iid.FirebaseInstanceId {
@@ -227,3 +210,70 @@ public protected *;
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
+
+
+
+-assumenosideeffects class android.util.Log {
+     public static boolean isLoggable(java.lang.String, int);
+     public static int v(...);
+     public static int i(...);
+     public static int w(...);
+     public static int d(...);
+     public static int e(...);
+ }
+
+#For Remote Management
+-keep class com.mastercard.mcbp.mpsdk.remotemanagement.json.**{*;}
+-keep class com.mastercard.mpsdk.remotemanagement.**{
+ public private protected *;
+ }
+-keep class com.mastercard.mpsdk.mcbp.utils.utils.Date { *; }
+-dontnote flexjson.**
+
+# For SDK card profiles
+-keep class com.mastercard.mpsdk.card.core.profile.**{*;}
+
+## For Database Upgrade ##
+-keep class com.mastercard.mpsdk.upgrade.utils.bytes.ByteArray{*;}
+
+
+# For MP SDK version 1.0.x
+-keep class com.mastercard.mpsdk.upgrade.profile.**{*;}
+## End of database upgrade ##
+
+# For exception thrown
+-keepattributes Exceptions
+
+# For libraries module, including component interface
+-keep class com.mastercard.mpsdk.mcbp.componentinterface.**{*;}
+-keep class com.mastercard.mpsdk.mcbp.utils.bytes.ByteArray{*;}
+
+# For Mchip Engine
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.assessment.MchipAdviceAndReasons{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.MChipEngine{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.walletinterface.**{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.Iso7816{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.commands.ReadRecordCommandApdu{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.commands.SelectCommandApdu{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipByteArray{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipDate{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipLogger{*;}
+-keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.Wipeable{*;}
+-keepclassmembers class *{
+   public static *** getBuilder();
+}
+
+# For SDK business logic
+-keep class com.mastercard.api.implementation.TransactionCredentialsManager{*;}
+-keep class com.mastercard.api.implementation.AdviceManager{*;}
+-keep class com.mastercard.api.implementation.MpSdkApduProcessor{*;}
+-keep class com.mastercard.api.implementation.TransactionLogJson{*;}
+-keep class com.mastercard.api.implementation.SingleUseKeyJson{*;}
+-keep class com.mastercard.api.interfaces.**{*;}
+-keep class com.mastercard.api.exceptions.**{*;}
+-keep class com.mastercard.api.implementation.MastercardMobilePaymentLibraryInitializer{*;}
+-keep class com.mastercard.api.implementation.MastercardMobilePaymentLibrary{*;}
+-keep class com.mastercard.api.implementation.MPSdkCardManagerEventListener{*;}
+-keep class com.mastercard.api.implementation.TransactionLogImpl{*;}
+-keep class com.mastercard.api.implementation.MPSdkApduListener{*;}
+-keep class com.mastercard.api.implementation.MPSdkTransactionEventListener{*;}

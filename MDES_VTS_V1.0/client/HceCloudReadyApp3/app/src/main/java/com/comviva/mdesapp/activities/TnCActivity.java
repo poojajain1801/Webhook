@@ -145,10 +145,10 @@ public class TnCActivity extends AppCompatActivity {
                     @Override
                     public void onRequireAdditionalAuthentication(String s, String s1, List<StepUpRequest> arrayList, Object object) {
 
-                        ProductConfig productConfig = (ProductConfig)object;
+                         /* ProductConfig productConfig = (ProductConfig)object;
                         String guid = productConfig.getCardBackgroundCombinedAssetId();
 
-                        try {
+                      try {
                             digitization.getContent(cardType, guid, new GetAssetListener() {
                                 @Override
                                 public void onCompleted(ContentGuid contentGuid) {
@@ -169,7 +169,7 @@ public class TnCActivity extends AppCompatActivity {
                             });
                         } catch (SdkException e) {
                             Log.e("Exception", String.valueOf(e));
-                        }
+                        }*/
 
 
                         final String panId = s1;

@@ -16,8 +16,7 @@ import com.comviva.hceservice.digitizationApi.ActiveAccountManagementService;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.internalSdkListeners.MdesCardManagerEventListener;
 import com.comviva.hceservice.internalSdkListeners.TransactionCompletionListener;
-import com.comviva.hceservice.mdes.CardSelectionManagerForTransaction;
-import com.comviva.hceservice.mdes.DefaultMcbpLogger;
+import com.comviva.hceservice.security.DeviceStatus;
 import com.comviva.hceservice.security.DexGuardSecurity;
 import com.comviva.hceservice.security.SecurityInf;
 import com.comviva.hceservice.util.Constants;
@@ -61,29 +60,27 @@ public class ComvivaSdk {
     private CommonDb commonDb;
     private SecurityInf securityInf;
     private static SDKData sdkData;
-    private DefaultMcbpLogger mLogger;
     private HttpManager mHttpManager;
 
 
     private ComvivaSdk(Application application) {
 
         sdkData.setContext((application.getApplicationContext()));
-        //selectedCard = null;
         securityInf = DexGuardSecurity.getInstance(sdkData.getContext());
         commonDb = new CommonDatabase(sdkData.getContext());
         VisaPaymentSDKImpl.initialize(sdkData.getContext());
         // MasterCard
         Locale current = Locale.getDefault();
-       /* if (current != Locale.ENGLISH) {
+        if (current != Locale.ENGLISH) {
             Locale.setDefault(Locale.ENGLISH);
-        }*/
+        }
         MasterCardMobilePaymentLibrary mobilePaymentLibrary = MasterCardMobilePaymentLibraryInitializer.INSTANCE.forApplication(application).initialize();
         com.mastercard.mpsdk.interfaces.McbpInitializer mcbpInitializer = mobilePaymentLibrary.getMcbpInitializer();
         loadConfiguration();
         initializeMcbp(mcbpInitializer, application);
-        /*if (current != Locale.ENGLISH) {
+        if (current != Locale.ENGLISH) {
             Locale.setDefault(current);
-        }*/
+        }
     }
 
 
@@ -121,12 +118,12 @@ public class ComvivaSdk {
         WalletAdviceManager walletAdviceManager = new WalletAdviceManager() {
             @Override
             public Advice getFinalAssessment(AdviceAndReasons adviceAndReasons, TransactionInformation transactionInformation, TerminalInformation terminalInformation) {
-                if(sdkData.getSelectedCard().getTransactionCredentialsLeft()!=0){
+
+                if (sdkData.getSelectedCard().getTransactionCredentialsLeft() != 0) {
                     return Advice.PROCEED;
-                }else{
+                } else {
                     return Advice.DECLINE;
                 }
-
             }
         };
         WalletIdentificationDataProvider walletIdentificationDataProvider = new WalletIdentificationDataProvider() {
@@ -140,8 +137,7 @@ public class ComvivaSdk {
             @Override
             public byte[] getPaymentAppProviderId() {
 
-                PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
-                return Utils.fromHexStringToByteArray(propertyReader.getProperty(PropertyConst.KEY_PAYMENT_APP_PROVIDER_ID));
+                return Utils.fromHexStringToByteArray(Constants.PAYMENT_APP_PROVIDER_ID);
             }
 
 
@@ -213,26 +209,21 @@ public class ComvivaSdk {
                 return false;
             }
         };
-        TransactionCompletionListener transactionCompletionListener = new TransactionCompletionListener();
-        CardSelectionManagerForTransaction cardSelectionManagerForTransaction = new CardSelectionManagerForTransaction();
-        MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
-        mLogger = new DefaultMcbpLogger("MP-SDK", application);
-        //.usingOptionalMcbpLogger(new DefaultMcbpLogger("MCBP_LOG", application))
+         MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
+
         Mcbp mcbp = mcbpInitializer
                 .usingOptionalAdviceManager(walletAdviceManager)
                 .withWalletConsentManager(walletConsentManager)
                 .withCdCvmStatusProvider(cdCvmStatusProvider)
-                .withActiveCardProvider(cardSelectionManagerForTransaction)
+                .withActiveCardProvider(sdkData.getCardSelectionManagerForTransaction())
                 .withCardManagerEventListener(mdesCardManagerEventListener)
                 .withCryptoEngine(new McbpCryptoEngineFactory().getCryptoEngine(application))
                 .withWalletIdentificationDataProvider(walletIdentificationDataProvider)
                 .withHttpManager(getHttpManager())
                 .withKeyRolloverEventListener(keyRolloverEventListener)
-                .withTransactionEventListener(transactionCompletionListener)
+                .withTransactionEventListener(sdkData.getTransactionCompletionListener())
                 .initialize();
         sdkData.setMcbp(mcbp);
-        sdkData.setTransactionCompletionListener(transactionCompletionListener);
-        sdkData.setCardSelectionManagerForTransaction(cardSelectionManagerForTransaction);
     }
 
 
@@ -248,10 +239,9 @@ public class ComvivaSdk {
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-       /* SecurityInf securityInf = comvivaSdk.getSecurityInf();
-        if (securityInf.isDebuggable()) {
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+        if (DeviceStatus.NOT_SAFE.equals(securityInf.getDeviceStatus())) {
             // Close the application
-            Log.e(Tags.EXCEPTION_LOG.getTag(), "Debug not allowed");
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
@@ -259,10 +249,9 @@ public class ComvivaSdk {
         // Check that device is Rooted
         if (securityInf.isDeviceRooted()) {
             // Delete all data from SDK and inform to server
-            Log.d("Security", "Device is rooted");
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }*/
+        }
     }
 
 
@@ -301,7 +290,12 @@ public class ComvivaSdk {
         sdkData.setImei(userDetailsSharedPreferences.getString(Tags.IMEI.getTag(), ""));
         UrlUtil.initialize(sharedPrefConf.getString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP), null),
                 sharedPrefConf.getString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_PORT), null));
+        TransactionCompletionListener transactionCompletionListener = new TransactionCompletionListener();
+        CardSelectionManagerForTransaction cardSelectionManagerForTransaction = new CardSelectionManagerForTransaction();
+        sdkData.setTransactionCompletionListener(transactionCompletionListener);
+        sdkData.setCardSelectionManagerForTransaction(cardSelectionManagerForTransaction);
     }
+
 
 
     LukInfo getLukInfo(PaymentCard card) {
@@ -496,7 +490,7 @@ public class ComvivaSdk {
             mdesCards = sdkData.getMcbp().getCardManager().getAllCards();
             for (Card mcbpCard : mdesCards) {
                 paymentCard = new PaymentCard(mcbpCard);
-                if (mcbpCard.getDigitizedCardId().equalsIgnoreCase(defaultCardUniqueId)) {
+                if (mcbpCard.getCardId().equalsIgnoreCase(defaultCardUniqueId)) {
                     paymentCard.setDefaultCard();
                 }
                 allCards.add(paymentCard);
@@ -541,31 +535,6 @@ public class ComvivaSdk {
     }
 
 
-    /**
-     * Activates a card recently added.<br>
-     * Invoke this method within public boolean onCardAdded(final String tokenUniqueReference) method of ComvivaWalletListener.
-     *
-     * @param tokenUniqueReference TokenUniqueReference received in onCardAdded method as parameter..
-     * @return <code>true </code>If card is activated successfully<br>
-     * <code>false </code>Card is not activated
-     */
-    public boolean activateCard(final String tokenUniqueReference) {
-       /* try {
-            String digitizedCardId = McbpInitializer.getInstance().getLdeRemoteManagementService().getCardIdFromTokenUniqueReference(tokenUniqueReference);
-
-            LdeRemoteManagementService ldeRemoteManagementService = McbpInitializer.getInstance().getLdeRemoteManagementService();
-            ProfileState cardState = ldeRemoteManagementService.getCardState(digitizedCardId);
-
-            if (!cardState.equals(ProfileState.INITIALIZED)) {
-                return McbpCardApi.activateCard(ldeRemoteManagementService.getTokenUniqueReferenceFromCardId(digitizedCardId));
-            }
-            return true;
-        } catch (InvalidInput invalidInput) {
-            Log.d("Error", invalidInput.getMessage());
-        }*/
-        return false;
-    }
-
 
     /**
      * Checks Enrollment status of device with all supported scheme.
@@ -605,6 +574,8 @@ public class ComvivaSdk {
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();
         visaPaymentSDK.reset(sdkData.getContext());
+        //clear data from Master Card Sdk.
+        sdkData.getMcbp().resetToUninitializedState();
         // Clear Comviva SDK data
         commonDb.resetDatabase();
         sdkData.setInstanceNull();

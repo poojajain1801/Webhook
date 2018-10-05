@@ -15,13 +15,13 @@ public class TlvUtil {
             }
             tagLen = getTagLength(pdolValue[cursor]);
             firstLenByte = pdolValue[cursor+tagLen];
-            if(firstLenByte <= 0x7F) {
+            if(firstLenByte <= (0xFF & 0x7F)) {
                 pdolIndex += pdolValue[cursor+tagLen];
                 cursor += tagLen + 1;
             } else {
                 switch (firstLenByte) {
                     case 0x81:
-                        pdolIndex += pdolValue[cursor+tagLen+1] & 0xFF;
+                        pdolIndex += (pdolValue[cursor+tagLen+1] & 0xFF);
                         cursor += tagLen + 1;
                         break;
 

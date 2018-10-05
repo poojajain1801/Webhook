@@ -28,7 +28,6 @@ public class Constants {
     public static final String KEY_HTTPS_ENABLED = "httpsEnabled";
     public static final String OS_NAME = "ANDROID";
     public static final String TOKEN_TYPE = "CLOUD";
-    public static final String CARDLET_ID = "1.0";
     public static final String CONSUMER_LAN = "en";
     public static final String BROADCAST_ACTION = "comviva_broadcast";
     public static final String UNKNOWN_RESPONSE_CODE = "9000";
@@ -71,5 +70,13 @@ public class Constants {
     public static final String PAYMENT_APP_CERTIFICATE = "paymentappserver";
     public static final String END_TO_END_ENCYPTION = "mycert";
     public static final String PAYMENT_CARD_NULL = "Payment Card is Null";
+    public static final String PUBLIC_KEY_FINGERPRINT= "d2faf6b54aad68f8c9ade54637098047d0fe6ebe";
+    public static final String CERT_NAME= "nbk";
+    public static final String PAYMENT_APP_INSTANCE_ID= "NBKEWALLET";
+    public static final String PAYMENT_APP_PROVIDER_ID= "479";
+    public static final String SDK_KEYSTORE_PASS= "sdkKeystore";
+    public static final String SDK_KEYSTORE_NAME= "sdkKeystore.bks";
+    public static final String CLIENT_APP_ID= "NBKewallet";
+    public static final String CARDLET_ID= "MCBP_479";
 
 }

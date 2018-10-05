@@ -53,7 +53,7 @@ import com.comviva.hceservice.requestobjects.DigitizationRequestParam;
 import com.comviva.hceservice.requestobjects.RegisterRequestParam;
 import com.comviva.hceservice.responseobject.transactionhistory.TransactionHistoryData;
 import com.comviva.hceservice.security.RSAUtil;
-import com.comviva.hceservice.tds.TransactionHistoryListener;
+import com.comviva.hceservice.listeners.TransactionHistoryListener;
 import com.comviva.hceservice.util.Constants;
 import com.comviva.hceservice.listeners.ResponseListener;
 import com.comviva.hceservice.util.UrlUtil;

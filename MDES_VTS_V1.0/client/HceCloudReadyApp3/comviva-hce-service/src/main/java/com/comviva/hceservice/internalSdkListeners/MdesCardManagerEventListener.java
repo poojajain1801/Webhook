@@ -52,7 +52,7 @@ public class MdesCardManagerEventListener implements CardManagerEventListener {
     @Override
     public synchronized boolean onReplenishCompleted(String cardId, int numberOfTransactionCredentials) {
 
-        CommonUtil.broadcastMessage(sdkData.getContext(), Constants.TOKEN_STATUS_UPDATED, cardId, "onReplenishCompleted" );
+       // CommonUtil.broadcastMessage(sdkData.getContext(), Constants.TOKEN_STATUS_UPDATED, cardId, "onReplenishCompleted" );
         return true;
     }
 
@@ -63,7 +63,7 @@ public class MdesCardManagerEventListener implements CardManagerEventListener {
                                                   String errorMessage,
                                                   Exception exception) {
 
-        CommonUtil.broadcastMessage(sdkData.getContext(), Constants.TOKEN_STATUS_UPDATED, null, "onReplenishFailed" );
+      //  CommonUtil.broadcastMessage(sdkData.getContext(), Constants.TOKEN_STATUS_UPDATED, null, "onReplenishFailed" );
 
         return true;
     }

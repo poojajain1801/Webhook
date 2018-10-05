@@ -1,15 +1,12 @@
 package com.comviva.hceservice.common;
 
-import android.app.Application;
 import android.content.Context;
 
 import com.comviva.hceservice.common.cdcvm.CdCvm;
 import com.comviva.hceservice.common.cdcvm.Entity;
 import com.comviva.hceservice.common.cdcvm.Type;
 import com.comviva.hceservice.digitizationApi.Digitization;
-import com.comviva.hceservice.fcm.RnsInfo;
 import com.comviva.hceservice.internalSdkListeners.TransactionCompletionListener;
-import com.comviva.hceservice.mdes.CardSelectionManagerForTransaction;
 import com.comviva.hceservice.register.Registration;
 import com.mastercard.mpsdk.interfaces.Mcbp;
 

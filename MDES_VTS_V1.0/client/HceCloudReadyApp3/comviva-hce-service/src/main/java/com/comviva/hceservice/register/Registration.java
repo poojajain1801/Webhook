@@ -275,12 +275,6 @@ public class Registration {
                     RegisterDeviceResponse registerDeviceResponse = (RegisterDeviceResponse) result;
                     SdkError sdkError = SdkErrorStandardImpl.SDK_INTERNAL_ERROR;
                     if (Constants.HTTP_RESPONSE_CODE_200.equals(registerDeviceResponse.getResponseCode())) {
-                       /* AppProperties appProperties = new AppProperties();
-                        appProperties.setMdesInitState(false);
-                        appProperties.setVtsInitState(false);
-                        appProperties.setInitState(false);
-                        appProperties.setClientWalletAccId(clientWalletAccountId);
-                        sdkData.getSdkDatabase().appPropertiesDao().update(appProperties);*/
                         ComvivaSdkInitData comvivaSdkInitData = new ComvivaSdkInitData();
                         comvivaSdkInitData.setMdesInitState(false);
                         comvivaSdkInitData.setVtsInitState(false);
