@@ -61,7 +61,7 @@ public class RSAUtil {
     private static RSAUtil instance = null;
 
 
-    public RSAUtil(Context context) {
+    public RSAUtil() {
 
         pub = getPublicKeyFromCert();
     }
@@ -205,7 +205,7 @@ public class RSAUtil {
 
     public static String doMeth(Context context, String input) {
         /*Request Encryption Starts*/
-        RSAUtil rsaUtils = new RSAUtil(context);
+        RSAUtil rsaUtils = new RSAUtil();
         setInstance(rsaUtils);
         HashMap reqMap = new HashMap<>();
         key = rsaUtils.aesEncryption(input, reqMap); // store this key until response is received. This key is used to decrypt response.
