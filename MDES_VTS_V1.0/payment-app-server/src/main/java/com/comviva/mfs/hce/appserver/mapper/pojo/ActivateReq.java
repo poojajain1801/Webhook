@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ActivateReq {
+
     private String paymentAppInstanceId;
     private String tokenUniqueReference;
     private String authenticationCode;

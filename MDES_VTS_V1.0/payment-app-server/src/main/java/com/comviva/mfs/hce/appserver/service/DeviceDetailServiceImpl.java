@@ -5,7 +5,10 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
@@ -74,6 +77,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
+        String schemeType = "";
         //DeviceRegistrationResponse devRegRespMdes = null;
         UserDetail userDetail;
         DeviceInfo deviceInfo;
@@ -99,13 +103,20 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 
             // *********************MDES : Check device eligibility from MDES api.************************
-            isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
+            schemeType = enrollDeviceRequest.getSchemeType();
+            if(null == schemeType || "".equalsIgnoreCase(schemeType))
+            {
+                schemeType = "ALL";
+            }
+
+            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MDES")))
+                isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
 
 
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
                 JSONObject responseJsonMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
-                respCodeMdes = responseJsonMdes.getString("statusCode");
+                respCodeMdes = responseJsonMdes.getString("responseCode");
                 mdesRespMap = JsonUtil.jsonStringToHashMap(responseJsonMdes.getJSONObject("mdes").toString());
                 // If registration fails for MDES return error
                 if (!HCEMessageCodes.getSUCCESS().equalsIgnoreCase(respCodeMdes)) {
@@ -132,33 +143,43 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }else{
 
                 //throw error device not eligible.
-                mdesRespMap.put(HCEConstants.MDES_MESSAGE, "Device is not eligible");
-                mdesRespMap.put(HCEConstants.MDES_RESPONSE_CODE, "207");
+                mdesRespMap = hceControllerSupport.formResponse("207");
                 response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
                 response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
 
             }
             // *******************VTS : Register with VTS Start**********************
-            String vtsResp = enrollDeviceVts.register(vClientID,enrollDeviceRequest);
-            JSONObject vtsJsonObject = new JSONObject(vtsResp);
-            if (!vtsJsonObject.get(HCEConstants.STATUS_CODE).equals(HCEMessageCodes.getSUCCESS())) {
-                vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.STATUS_MESSAGE));
-                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.STATUS_CODE));
+            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("VTS"))) {
+                String vtsResp = enrollDeviceVts.register(vClientID, enrollDeviceRequest);
+                JSONObject vtsRespJson = null;
+                JSONObject vtsJsonObject = new JSONObject(vtsResp);
+                if (!vtsJsonObject.get(HCEConstants.STATUS_CODE).equals(HCEMessageCodes.getSUCCESS())) {
+                    vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.STATUS_MESSAGE));
+                    vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE, vtsJsonObject.get(HCEConstants.STATUS_CODE));
+                    response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
+                    response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
+                    response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
+                } else {
+                    vtsRespMap = JsonUtil.jsonStringToHashMap(vtsResp);
+                    //vtsRespJson = new JSONObject(vtsResp);
+                    response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
+                    deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
+                    deviceInfo.setVClientId(vClientID);
+                    deviceInfo.setStatus(HCEConstants.ACTIVE);
+                    deviceInfo.setDeviceName(enrollDeviceRequest.getVts().getDeviceInfo().getDeviceName());
+                    deviceInfo.setOsVersion(enrollDeviceRequest.getVts().getDeviceInfo().getOsVersion());
+                    deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    deviceDetailRepository.save(deviceInfo);
+                    response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getSUCCESS());
+                    response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
+                }
+            }else{
+                vtsRespMap.put(HCEConstants.VTS_MESSAGE,"INVALID OPERATION");
+                vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE,HCEMessageCodes.getInvalidOperation());
                 response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
-            } else {
-                response.put(HCEConstants.VTS_RESPONSE_MAP, vtsResp);
-                deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
-                deviceInfo.setVClientId(vClientID);
-                deviceInfo.setStatus(HCEConstants.ACTIVE);
-                deviceInfo.setDeviceName(enrollDeviceRequest.getVts().getDeviceInfo().getDeviceName());
-                deviceInfo.setOsVersion(enrollDeviceRequest.getVts().getDeviceInfo().getOsVersion());
-                deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                deviceDetailRepository.save(deviceInfo);
-                response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getSUCCESS());
-                response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
             }
 
             if(HCEConstants.ACTIVE.equals(env.getProperty("is.hvt.supported"))){
@@ -204,9 +225,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         try {
             paymentAppInstanceId = unRegisterReq.getPaymentAppInstanceId();
             imei = unRegisterReq.getImei();
-            userID = unRegisterReq.getUserID();
+            userID = unRegisterReq.getUserId();
 
-            if(((imei.isEmpty()||imei==null)||(userID.isEmpty()||userID == null))) {
+            if((imei.isEmpty()||(userID.isEmpty()))) {
                 LOGGER.error("Either imei or userid is missing");
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
@@ -219,10 +240,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }
             requestJson = new JSONObject();
             requestJson.put("responseHost",env.getProperty("responsehost"));
-            requestJson.put("requestId",env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
+            requestJson.put("requestId",env.getProperty("reqestid")+ ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
             requestJson.put("paymentAppInstanceId",paymentAppInstanceId);
 
-            url = env.getProperty("mdesip") + env.getProperty("mpamanagementpath");
+            url = env.getProperty("mdesip") + env.getProperty("mpamanagementPath");
             id = "unregister";
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
             if (responseMdes!= null && responseMdes.hasBody()) {
@@ -231,7 +252,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 responseMap = JsonUtil.jsonToMap(jsonResponse);
                 statusCode = responseMdes.getStatusCode();
             }
-            if(statusCode!=null && statusCode.value() == HCEConstants.RESPONSE_CODE_200) {
+            if(statusCode!=null && statusCode.value() == HCEConstants.REASON_CODE7) {
                 cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
                 deviceInfo.setStatus(HCEConstants.INACTIVE);
                 deviceDetailRepository.save(deviceInfo);
@@ -242,6 +263,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             else{
                 LOGGER.error("MasterCard Unregister failed at masterCard for UserID : "+userID);
                 if (responseMdes!=null) {
+                    responseMap = JsonUtil.jsonToMap(jsonResponse);
                     responseMap.put("responseCode", responseMdes.getStatusCode().value());
                 }
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
@@ -258,9 +280,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         return responseMap;
     }
 
-    @Override
-    public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfo) {
-        return null;
-    }
+
 
 }

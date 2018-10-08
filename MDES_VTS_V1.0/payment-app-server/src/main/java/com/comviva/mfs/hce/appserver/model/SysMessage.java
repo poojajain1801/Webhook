@@ -5,7 +5,7 @@ import javax.persistence.*;
 
 /**
  * The persistent class for the SYS_MESSAGES database table.
- * 
+ *
  */
 @Entity
 @Table(name = "SYS_MESSAGES")
@@ -21,6 +21,8 @@ public class SysMessage implements Serializable {
     // @Column(name="\"MESSAGE\"")
     private String message;
 
+    private String reasonCode ;
+
     /**
      * Instantiates a new sys message.
      */
@@ -28,28 +30,36 @@ public class SysMessage implements Serializable {
     }
 
     public SysMessagePK getId() {
-        return this.id;
+        return id;
+    }
+
+    public String getBearer() {
+        return bearer;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getReasonCode() {
+        return reasonCode;
     }
 
     public void setId(SysMessagePK id) {
         this.id = id;
     }
 
-    public String getBearer() {
-        return this.bearer;
-    }
-
     public void setBearer(String bearer) {
         this.bearer = bearer;
-    }
-
-    public String getMessage() {
-        return this.message;
     }
 
     public void setMessage(String message) {
         this.message = message;
     }
 
+    public void setReasonCode(String reasonCode) {
+        this.reasonCode = reasonCode;
+    }
 
 }
+

@@ -10,11 +10,11 @@ import lombok.Setter;
 @Setter
 public class TDSRegistrationReq {
     private String tokenUniqueReference;
-    private String registrationHash;
+    private String paymentAppInstanceId;
 
-    public TDSRegistrationReq(String tokenUniqueReference, String registrationHash) {
+    public TDSRegistrationReq(String tokenUniqueReference, String paymentAppInstanceId) {
         this.tokenUniqueReference = tokenUniqueReference;
-        this.registrationHash = registrationHash;
+        this.paymentAppInstanceId = paymentAppInstanceId;
     }
 
     public TDSRegistrationReq(){

@@ -1,9 +1,7 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.model.SysMessage;
-import com.comviva.mfs.hce.appserver.repository.CommonRepository;
-import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.SysMessageRepository;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +35,7 @@ public class HCEUtil {
     private static final String ALPHA_NUMERIC_CHARACTERS= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static SecureRandom srnd = null;
     @Autowired
-    private CommonRepository commonRepository;
+    private SysMessageRepository sysMessageRepository;
 
 
     protected static List<String> maskingPropertiesList = new ArrayList<String>();
@@ -90,6 +88,9 @@ public class HCEUtil {
         if (responseCode != null && !"".equals(responseCode)) {
             logMessage.append(responseCode);
         }
+
+
+
         logMessage.append("|");
         if (requestId != null && !"".equals(requestId)) {
             logMessage.append(requestId);
@@ -110,6 +111,7 @@ public class HCEUtil {
             LOGGER.info(logMessage.toString());
         }
     }
+
 
 
     public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
@@ -217,12 +219,12 @@ public class HCEUtil {
 
     }
 
-    public CommonRepository getCommonRepository(){
-        return commonRepository;
+    public SysMessageRepository getSysMessageRepository(){
+        return sysMessageRepository;
     }
 
-    public void setCommonRepository(CommonRepository commonRepository){
-        this.commonRepository = commonRepository;
+    public void setSysMessageRepository(SysMessageRepository sysMessageRepository){
+        this.sysMessageRepository = sysMessageRepository;
     }
 
 
@@ -261,6 +263,7 @@ public class HCEUtil {
      * @return the string
      */
     public static String maskJson(String jsonData){
+
 
         String replaceText = "";
         String[] replaceValue = null;
@@ -385,7 +388,7 @@ public class HCEUtil {
         for(int i=0;i<p_digit;i++)
             masked.append("X");
 
-        if(!p_value.isEmpty() ){
+        if(p_value!=null && !p_value.isEmpty() ){
 
             if(len == p_digit){
                 maskedValue=masked.toString();

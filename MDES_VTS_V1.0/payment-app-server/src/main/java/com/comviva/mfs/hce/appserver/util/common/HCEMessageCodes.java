@@ -17,9 +17,37 @@ public class HCEMessageCodes {
     public void setServiceFailed(String serviceFailed){
         SERVICE_FAILED = serviceFailed;
     }
-
     public static String getServiceFailed() {
         return SERVICE_FAILED;
+    }
+
+    private static String INVALID_TOKEN_UNIQUE_REFERENCE;
+    @Value("${INVALID_TOKEN_UNIQUE_REFERENCE}")
+    public void setInvalidTokenUniqueReference(String invalidTokenUniqueReference){
+        INVALID_TOKEN_UNIQUE_REFERENCE = invalidTokenUniqueReference ;
+    }
+    public static String getInvalidTokenUniqueReference() {
+        return INVALID_TOKEN_UNIQUE_REFERENCE;
+    }
+
+
+    private static String TOKEN_NOT_REGISTERED;
+    @Value("${TOKEN_NOT_REGISTERED}")
+    public void setTokenNotRegistered(String tokenNotRegistered){
+        TOKEN_NOT_REGISTERED = tokenNotRegistered;
+    }
+    public static String getTokenNotRegistered() {
+        return TOKEN_NOT_REGISTERED;
+    }
+
+    private static String INCORRECT_OTP;
+    @Value("${INCORRECT_OTP}")
+    public void setIncorrectOtp(String incorrectOTP){
+        INCORRECT_OTP = incorrectOTP ;
+    }
+
+    public static String getIncorrectOtp(){
+        return INCORRECT_OTP;
     }
 
     /** The Constant SUCCESS. */
@@ -71,7 +99,7 @@ public class HCEMessageCodes {
     private static String INVALID_USER ;
     @Value("${INVALID_USER}")
     public void setInvalidUser(String invalidUser) {
-        INVALID_USER = invalidUser;
+         INVALID_USER = invalidUser;
     }
 
     public static String getInvalidUser() {
@@ -93,7 +121,7 @@ public class HCEMessageCodes {
     private static String CLIENT_DEVICEID_EXIST;
     @Value("${CLIENT_DEVICEID_EXIST}")
     public void setClientDeviceidExist(String clientDeviceidExist) {
-        CLIENT_DEVICEID_EXIST = clientDeviceidExist;
+         CLIENT_DEVICEID_EXIST = clientDeviceidExist;
     }
 
     public static String getClientDeviceidExist() {
@@ -104,7 +132,7 @@ public class HCEMessageCodes {
     private static String INVALID_CLIENT_DEVICE_ID;
     @Value("${INVALID_CLIENT_DEVICE_ID}")
     public void setInvalidClientDeviceId(String invalidClientDeviceId) {
-        INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
+         INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
     }
 
     public static String getInvalidClientDeviceId() {

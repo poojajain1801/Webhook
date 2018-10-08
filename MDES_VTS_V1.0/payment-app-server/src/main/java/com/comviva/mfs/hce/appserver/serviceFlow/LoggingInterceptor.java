@@ -44,13 +44,13 @@ public class LoggingInterceptor {
 
         try {
             startTimeValue = MDC.get(HCEConstants.START_TIME);
-           if(startTimeValue!= null){
-               startTime = Long.valueOf(startTimeValue);
-           }else{
-               startTime = System.currentTimeMillis();
-           }
-            requestId = findUserId(requestData);
-           clientDeviceId = findClientDeviceID(requestData);
+            if(startTimeValue!= null){
+                startTime = Long.valueOf(startTimeValue);
+            }else{
+                startTime = System.currentTimeMillis();
+            }
+            requestId = hceControllerSupport.findUserId(requestData);
+            clientDeviceId = hceControllerSupport.findClientDeviceID(requestData);
             responseData = (Map) originalMethod.proceed();
         } catch (HCEActionException hceActionExp){
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", hceActionExp);
@@ -75,39 +75,5 @@ public class LoggingInterceptor {
         return responseData;
     }
 
-
-
-
-
-    private String findUserId(String requestData){
-
-        String userId = null;
-        String clientWalletAccountId = null;
-        JSONObject jsonObject = new JSONObject(requestData);
-        if(jsonObject.isNull("userId")){
-            if(!jsonObject.isNull("clientWalletAccountId")){
-                clientWalletAccountId = (String)jsonObject.get("clientWalletAccountId");
-                userId = hceControllerSupport.findUserId(clientWalletAccountId);
-            }
-        }else{
-            userId = (String)jsonObject.get("userId");
-        }
-        return userId;
-
-    }
-    private String findClientDeviceID(String requestData)
-    {
-        String clientDeviceId = null;
-        JSONObject jsonObject = new JSONObject(requestData);
-        if (!jsonObject.isNull("clientDeviceID")){
-            clientDeviceId = jsonObject.getString("clientDeviceID");
-        }
-        else{
-            if(!jsonObject.isNull("vprovisionedTokenID"))
-            {
-                clientDeviceId = jsonObject.getString("vprovisionedTokenID");
-            }
-        }
-        return clientDeviceId;
-    }
 }
+

@@ -7,16 +7,16 @@ import lombok.Getter;
  */
 @Getter
 public class DigitizationParam extends PayAppServerReq {
-    private String termAndConditionAssetId;
+    private String termsAndConditionsAssetId;
     private String termAndConditionAcceptTimeStamp;
     private String paymentAppInstanceId;
 
     public DigitizationParam(String serviceId,
-                             String termAndConditionAssetId,
+                             String termAndConditionAcceptId,
                              String termAndConditionAcceptTimeStamp,
                              String paymentAppInstanceId) {
         super(serviceId);
-        this.termAndConditionAssetId = termAndConditionAssetId;
+        this.termsAndConditionsAssetId = termAndConditionAcceptId;
         this.termAndConditionAcceptTimeStamp = termAndConditionAcceptTimeStamp;
         this.paymentAppInstanceId = paymentAppInstanceId;
     }

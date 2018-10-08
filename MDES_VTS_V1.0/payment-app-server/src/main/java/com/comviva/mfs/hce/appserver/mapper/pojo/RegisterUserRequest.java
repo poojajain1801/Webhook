@@ -21,16 +21,18 @@ public class RegisterUserRequest {
     private String imei;
     private String os_name;
     private String device_model;
+    private String languageCode;
 
 
-    public RegisterUserRequest(String userId, String clientDeviceID, String imei, String os_name, String device_model) {
-
-        this.userId=userId;
-        this.clientDeviceID=clientDeviceID;
-        this.imei=imei;
-        this.os_name=os_name;
-        this.device_model=device_model;
+    public RegisterUserRequest(String userId, String clientDeviceID, String imei, String os_name, String device_model, String languageCode) {
+        this.userId = userId;
+        this.clientDeviceID = clientDeviceID;
+        this.imei = imei;
+        this.os_name = os_name;
+        this.device_model = device_model;
+        this.languageCode = languageCode;
     }
+
     public RegisterUserRequest() {
     }
 }

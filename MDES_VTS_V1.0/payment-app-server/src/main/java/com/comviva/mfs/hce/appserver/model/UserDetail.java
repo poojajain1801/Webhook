@@ -30,6 +30,9 @@ public class UserDetail implements Serializable {
 
     private String status;
 
+    @Column(name="LANGUAGE_CODE")
+    private String languageCode;
+
     @Column(name="USER_ID")
     private String userId;
 
@@ -60,7 +63,7 @@ public class UserDetail implements Serializable {
     }
 
     public Timestamp getCreatedOn() {
-        return this.createdOn;
+        return (this.createdOn);
     }
 
     public void setCreatedOn(Timestamp createdOn) {
@@ -68,7 +71,7 @@ public class UserDetail implements Serializable {
     }
 
     public Timestamp getModifiedOn() {
-        return this.modifiedOn;
+        return (this.modifiedOn);
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
@@ -77,6 +80,14 @@ public class UserDetail implements Serializable {
 
     public String getStatus() {
         return this.status;
+    }
+
+    public String getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
     }
 
     public void setStatus(String status) {
@@ -92,7 +103,7 @@ public class UserDetail implements Serializable {
     }
 
     public List<DeviceInfo> getDeviceInfos() {
-        return this.deviceInfos;
+        return (this.deviceInfos);
     }
 
     public void setDeviceInfos(List<DeviceInfo> deviceInfos) {
@@ -113,3 +124,4 @@ public class UserDetail implements Serializable {
         return deviceInfo;
     }
 }
+

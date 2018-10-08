@@ -1,5 +1,5 @@
 {
-  "paymentAppInstanceId": "123456789",
+  "paymentAppInstanceId": "123456781",
   "tokenType": "CLOUD",
   "paymentAppId": "WalletApp1",
   "cardInfo": {
@@ -10,8 +10,6 @@
     "publicKeyFingerPrint": "44444444444444444444444444444444",
     "tokenUniqueReferenceForPanInfo": "555555555555555555555555"
   },
-  "cardId": "1.0",
-  "consumerLanguage": "HINDI",
-  "tokenAuthenticationValue":"sgdjxksjxc",
-  "decisioningData":"jschisjc"
+  "cardletId": "1.0",
+  "consumerLanguage": "HINDI"
 }

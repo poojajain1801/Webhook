@@ -10,13 +10,16 @@ import lombok.Setter;
 @Setter
 public class GetRegistrationCodeReq {
     private String tokenUniqueReference;
+    private String paymentAppInstanceId;
 
-    public GetRegistrationCodeReq(String tokenUniqueReference) {
+
+    public GetRegistrationCodeReq(String tokenUniqueReference, String paymentAppInstanceId) {
         this.tokenUniqueReference = tokenUniqueReference;
+        this.paymentAppInstanceId = paymentAppInstanceId;
     }
 
     public GetRegistrationCodeReq()
     {
-        
+
     }
 }

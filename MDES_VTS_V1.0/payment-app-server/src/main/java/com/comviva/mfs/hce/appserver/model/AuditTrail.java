@@ -1,9 +1,11 @@
 package com.comviva.mfs.hce.appserver.model;
 
 import org.hibernate.annotations.GenericGenerator;
+import sun.rmi.runtime.Log;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import java.sql.Date;
 import java.sql.Timestamp;
 
 
@@ -66,7 +68,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public Timestamp getCreatedOn() {
-		return this.createdOn;
+		return (this.createdOn);
 	}
 
 	public void setCreatedOn(Timestamp createdOn) {
@@ -74,7 +76,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public byte[] getRequest() {
-		return this.request;
+		return (this.request);
 	}
 
 	public void setRequest(byte[] request) {
@@ -82,7 +84,7 @@ public class AuditTrail implements Serializable {
 	}
 
 	public byte[] getResponse() {
-		return this.response;
+		return (this.response);
 	}
 
 	public void setResponse(byte[] response) {

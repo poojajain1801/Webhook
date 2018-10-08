@@ -38,7 +38,18 @@ public class TransactionRegDetails implements Serializable {
     @Column(name="TOKEN_UNIQUE_REFERENCE")
     private String tokenUniqueReference;
 
+    @Column(name="STATUS")
+    private String status;
+
     public TransactionRegDetails() {
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getId() {
@@ -98,3 +109,4 @@ public class TransactionRegDetails implements Serializable {
     }
 
 }
+

@@ -7,21 +7,25 @@ import lombok.Getter;
  */
 
 public class AddCardParm extends PayAppServerReq{
+
     private String tokenType;
     private String paymentAppInstanceId;
     private String paymentAppId;
     private CardInfo cardInfo;
+    private DeviceInfoRequest deviceInfo;
     private String cardletId;
     private String consumerLanguage;
     private String tokenAuthenticationValue;
     private String decisioningData;
 
-    public AddCardParm(String serviceId, String tokenType, String paymentAppInstanceId, String paymentAppId, CardInfo cardInfo, String cardletId, String consumerLanguage, String tokenAuthenticationValue, String decisioningData) {
+
+    public AddCardParm(String serviceId, String tokenType, String paymentAppInstanceId, String paymentAppId, CardInfo cardInfo,DeviceInfoRequest deviceInfo, String cardletId, String consumerLanguage, String tokenAuthenticationValue, String decisioningData) {
         super(serviceId);
         this.tokenType = tokenType;
         this.paymentAppInstanceId = paymentAppInstanceId;
         this.paymentAppId = paymentAppId;
         this.cardInfo = cardInfo;
+        this.deviceInfo = deviceInfo;
         this.cardletId = cardletId;
         this.consumerLanguage = consumerLanguage;
         this.tokenAuthenticationValue = tokenAuthenticationValue;
@@ -94,5 +98,13 @@ public class AddCardParm extends PayAppServerReq{
 
     public void setDecisioningData(String decisioningData) {
         this.decisioningData = decisioningData;
+    }
+
+    public DeviceInfoRequest getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(DeviceInfoRequest deviceInfo) {
+        this.deviceInfo = deviceInfo;
     }
 }

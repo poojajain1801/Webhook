@@ -10,5 +10,17 @@ import lombok.Setter;
 @Setter
 public class NotifyTokenUpdatedReq {
     private EncryptedPayload encryptedPayload;
+    private  String responseHost;
+    private String requestId;
 
+    public NotifyTokenUpdatedReq(EncryptedPayload encryptedPayload, String responseHost, String requestId) {
+        this.encryptedPayload = encryptedPayload;
+        this.responseHost = responseHost;
+        this.requestId = requestId;
+    }
+
+    public NotifyTokenUpdatedReq(){
+
+    }
 }
+

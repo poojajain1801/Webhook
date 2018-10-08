@@ -3,11 +3,15 @@ package com.comviva.mfs.hce.appserver.mapper.MDES;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import javax.net.ssl.SSLContext;
 
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.mdes.RequestResponseLoggingInterceptor;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -48,15 +52,9 @@ public class HitMasterCardService
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id)
     {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
-        String result = "";
-        JSONObject jsonObject = null;
-        JSONObject jsonResponse = null;
         ResponseEntity<String> response = null;
-        String strResponse = null;
         HttpEntity<String> entity = null;
-        String secretkey = "changeit";
-        String fileName = "truststore.jks";
-
+        long startTime = 0;
 
         this.headers = new HttpHeaders();
         this.headers.add("Accept", "application/json");
@@ -65,6 +63,7 @@ public class HitMasterCardService
         this.headers.add("Content-Type", "application/pkix-cert");
         this.headers.add("Accept-Encoding", "deflate");
         this.headers.add("Connection", "Keep-Alive");
+        this.headers.add("Host","mtf.services.mastercard.com");
         this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
         try
         {
@@ -75,35 +74,58 @@ public class HitMasterCardService
             }
             LOGGER.debug("Configuring SSL...");
             RestTemplate restTemplate = restTemplate();
-
-            url =url+"/{id}";
             Map idMap = new HashMap();
-            // idMap.put("id","checkEligibility");
+            /*if (!(id.equalsIgnoreCase("")|| id.isEmpty()))
+            {
+                +"/{assetId}";
+                //idMap.put("id","checkEligibility");
+
+                idMap.put("assetId","95d4cd38-36fc-4b26-8795-06a3b00acf3b");
+
+            }*/
+            url =url+"/{id}";
             idMap.put("id",id);
+
+
+
+
+         /*   if(env.getProperty("is.proxy.required").equals("Y")) {
+                Properties props = System.getProperties();
+                props.put("http.proxyHost", "10.0.161.70");
+                props.put("http.proxyPort", "80");
+            }*/
+
+
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
             LOGGER.debug("Request = " + (String)entity.getBody());
             LOGGER.debug("URL---- = " + url);
             LOGGER.info("info---- = " + url);
+            startTime = System.currentTimeMillis();
             if ("POST".equals(type))
-
-
             {
+                LOGGER.debug("Request medthod  ########################################################## = " + type);
+                LOGGER.info("Request medthod  ###########################################################= " + type);
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
 
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.debug("Response Body******************************** = " + (String)response.getBody());
+               // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
             else if ("PUT".equals(type))
             {
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
+                LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
+               // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
             else if ("GET".equalsIgnoreCase(type))
             {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
+                LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
+               // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
         }
         catch (HttpClientErrorException httpClintException)
@@ -124,13 +146,33 @@ public class HitMasterCardService
             } else {
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
-            return response;
+            //return response;
         }
         catch (Exception e)
         {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
 
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
+        }
+        finally {
+            final long endTime = System.currentTimeMillis();
+            final long totalTime = endTime - startTime;
+            int statusCode = 0;
+            if(response!=null){
+                statusCode = response.getStatusCode().value();
+
+            }
+            if(null !=response) {
+                String requestId = "";
+                if (!(null==requestBody||(requestBody.isEmpty()))) {
+                    JSONObject requestJson = new JSONObject(requestBody);
+
+                    if (requestJson.has("requestId")) {
+                        requestId = requestJson.getString("requestId");
+                    }
+                }
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), requestId, requestBody, String.valueOf(response.getBody()));
+            }
         }
         return response;
     }
@@ -141,11 +183,14 @@ public class HitMasterCardService
     {
         String allNews = "changeit";
         String keystorepa = "changeit";
+        String trustorename = "classpath:"+env.getProperty("truststoreName");
         SSLContext sslContext = SSLContextBuilder.create()
-                .loadKeyMaterial(ResourceUtils.getFile("classpath:truststore.jks"), keystorepa.toCharArray(), keystorepa.toCharArray())
-                .loadTrustMaterial(ResourceUtils.getFile("classpath:truststore.jks"), allNews.toCharArray())
+                .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
+                .loadTrustMaterial(ResourceUtils.getFile(trustorename), allNews.toCharArray())
                 .build();
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
+        /*HttpHost proxy = new HttpHost("proxtserver", "");
+        client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);*/
         ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
       /*  SSLContext sslContext = SSLContextBuilder.create().loadKeyMaterial(ResourceUtils.getFile("classpath:truststore.jks"), secretkey.toCharArray(), secretkey.toCharArray()).loadTrustMaterial(ResourceUtils.getFile("classpath:keystore.jks"), secretkey.toCharArray()).build();
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
@@ -153,6 +198,7 @@ public class HitMasterCardService
        // HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(client);
 
         ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));*/
+
         return new RestTemplate(factory);
     }
 }

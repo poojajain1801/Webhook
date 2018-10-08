@@ -54,6 +54,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     }
 
 
+
     public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType)
     {
         //Verify vProvisionID
@@ -83,6 +84,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             switch (eventType) {
                 case HCEConstants.TOKEN_CREATED:
+                    LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
+                    return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+
                 case HCEConstants.TOKEN_STATUS_UPDATED:
                     //Send remote notification to call getTokenStatus
                     LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
@@ -99,6 +103,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
             }
+
             rnsGenericRequest.setRnsData(lcmNotificationData);
 
             Gson gson = new Gson();
@@ -126,6 +131,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyLCMEvent",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
+
+
+
     }
     public Map notifyPanMetadataUpdate (NotificationServiceReq notificationServiceReq,String apiKey)
     {
@@ -140,6 +148,8 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         String vPanEnrollmentId = notificationServiceReq.getvPanEnrollmentID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
+
+
             final List<CardDetails> cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
             String rnsRegID = null;
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
@@ -150,13 +160,17 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                     rnsRegID = deviceInfo.getRnsRegistrationId();
                     RnsGenericRequest rnsGenericRequest=  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
                     sendNotification(rnsGenericRequest);
+
                 }
+
             }
             else{
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
+
             }
-            return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
+
+           return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
 
         }catch (Exception e){
@@ -166,6 +180,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         }
 
     }
+
 
 
     public RnsGenericRequest preparetNotificationRequest(String panUniqueReference,String rnsId){
@@ -208,12 +223,11 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
-           /* if(env.getProperty("is.txnnotification.requires").equals("N"))
+            if(env.getProperty("is.txnnotification.requires").equals("N"))
             {
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate->Not supported" );
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-
-            }*/
+            }
             RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
             rnsGenericRequest.setIdType(UniqueIdType.VTS);
             rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));
@@ -226,8 +240,13 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
-
-            Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+            Map rnsResp = null;
+            if(env.getProperty("is.txnnotification.requires").equals("Y"))
+            {
+                LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate-> supported" );
+                rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+            }
+            //Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
 
             LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
 

@@ -33,35 +33,65 @@ public class TransactionManagementController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getTransactionHistory",method = RequestMethod.POST)
-    public Map<String,Object>getTransactionHistory(@RequestBody GetTransactionHistoryRequest getTransactionHistoryRequest){
-        LOGGER.debug("Enter TransactionManagementController->getTransactionHistory");
-      Map<String,Object> getTransctionHistoryResp =  transactionManagementService.getTransactionHistory(getTransactionHistoryRequest);
-        LOGGER.debug("Extit TransactionManagementController->getTransactionHistory");
-        return getTransctionHistoryResp;
+    @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map getTransactionsMasterCard(@RequestBody String getTransactionsRequest) {
+        Map <String, Object> getTransactionsResp=null ;
+        GetTransactionsRequest getTransactionsPojo=null ;
+        try{
+            getTransactionsPojo = (GetTransactionsRequest)hCEControllerSupport.requestFormation(getTransactionsRequest,GetTransactionsRequest.class);
+            getTransactionsResp = transactionManagementService.getTransactionsMasterCard(getTransactionsPojo);
+        }catch (HCEActionException getTransactionsHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->getTransactions",getTransactionsHceActionException);
+            throw getTransactionsHceActionException;
+        }catch (Exception getTransactionsExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->getTransactions", getTransactionsExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getTransactionsResp;
     }
 
     @ResponseBody
-    @RequestMapping(value = "/pushTransactionDetails",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map<String,Object>pushTransctionDetails(@RequestBody String pushTxnDetailsReq ) {
-        LOGGER.debug("Enter TransactionManagementController->pushTransctionDetails");
-        Map<String, Object> pushTransctionDetailsResponse = null;
-        PushTransctionDetailsReq pushTransctionDetailsReq = null;
+    @RequestMapping(value = "/getTransactionHistory",method = RequestMethod.POST)
+    public Map<String,Object>getTransactionHistoryVisa(@RequestBody String getTransactionHistoryRequest){
+        Map<String, Object> getTransctionHistoryResp = null;
+        GetTransactionHistoryRequest getTransactionHistoryRequestPojo = null;
         try {
-            pushTransctionDetailsReq = (PushTransctionDetailsReq) hCEControllerSupport.requestFormation(pushTxnDetailsReq, PushTransctionDetailsReq.class);
-            pushTransctionDetailsResponse = transactionManagementService.pushTransctionDetails(pushTransctionDetailsReq);
-        } catch (HCEValidationException enrollPanRequestValidation) {
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan", enrollPanRequestValidation);
-            throw enrollPanRequestValidation;
-        } catch (HCEActionException enrollPanHceActionException) {
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan", enrollPanHceActionException);
-            throw enrollPanHceActionException;
-        } catch (Exception enrollPanExcetption) {
-            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
+             getTransactionHistoryRequestPojo = (GetTransactionHistoryRequest) hCEControllerSupport.requestFormation(getTransactionHistoryRequest, GetTransactionHistoryRequest.class);
+            LOGGER.debug("Enter TransactionManagementController->getTransactionHistory");
+            getTransctionHistoryResp = transactionManagementService.getTransactionHistoryVisa(getTransactionHistoryRequestPojo);
+            LOGGER.debug("Extit TransactionManagementController->getTransactionHistory");
+        }catch (HCEActionException addCardHceActionException){
+            LOGGER.error("Exception Occured in TransactionManagementController->getTransactionHistory",addCardHceActionException);
+            throw addCardHceActionException;
+        }catch (Exception addCardExcetption) {
+            LOGGER.error(" Exception Occured in TransactionManagementController->getTransactionHistory", addCardExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return pushTransctionDetailsResponse;
+        return getTransctionHistoryResp;
     }
+
+
+
+    @ResponseBody
+    @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map registerWithTDS(@RequestBody String getRegistrationCodeReq) {
+        Map <String, Object> getTransactionsResp=null ;
+        GetRegistrationCodeReq getRegistrationCodeReqPojo=null ;
+        try{
+            getRegistrationCodeReqPojo = (GetRegistrationCodeReq) hCEControllerSupport.requestFormation(getRegistrationCodeReq,GetRegistrationCodeReq.class);
+            getTransactionsResp = transactionManagementService.getRegistrationCode(getRegistrationCodeReqPojo);
+        }catch (HCEActionException getTransactionsHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->getTransactions",getTransactionsHceActionException);
+            throw getTransactionsHceActionException;
+        }catch (Exception getTransactionsExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->getTransactions", getTransactionsExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getTransactionsResp;
+    }
+
 
 }

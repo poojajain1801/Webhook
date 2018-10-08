@@ -1,28 +1,26 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Created by tanmay.patel on 1/31/2017.
  */
 @Getter
-@Setter
 public class CardInfo {
     private String panUniqueReference;
     private String tokenUniqueReferenceForPanInfo;
-    private String publicKeyFingerPrint;
+    private String publicKeyFingerprint;
     private String encryptedKey;
-    private String hashingAlgorithm;
+    private String  OeapHashingAlgorithim;
     private String iv;
     private String encryptedData;
 
-    public CardInfo(String panUniqueReference, String tokenUniqueReferenceForPanInfo, String publicKeyFingerPrint, String encryptedKey, String hashingAlgorithm, String iv, String encryptedData) {
+    public CardInfo(String panUniqueReference, String tokenUniqueReferenceForPanInfo, String publicKeyFingerprint, String encryptedKey, String oeapHashingAlgorithim, String iv, String encryptedData) {
         this.panUniqueReference = panUniqueReference;
         this.tokenUniqueReferenceForPanInfo = tokenUniqueReferenceForPanInfo;
-        this.publicKeyFingerPrint = publicKeyFingerPrint;
+        this.publicKeyFingerprint = publicKeyFingerprint;
         this.encryptedKey = encryptedKey;
-        this.hashingAlgorithm = hashingAlgorithm;
+        OeapHashingAlgorithim = oeapHashingAlgorithim;
         this.iv = iv;
         this.encryptedData = encryptedData;
     }

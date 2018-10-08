@@ -19,7 +19,6 @@ import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
-import org.hibernate.cfg.Environment;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +43,6 @@ public class PerformUserLifecycle {
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
 
-    @Autowired
-    private org.springframework.core.env.Environment env;
 
     @Autowired
     private HitMasterCardService hitMasterCardService;
@@ -61,21 +57,36 @@ public class PerformUserLifecycle {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailRepository = userDetailRepository;
     }
-
     @Async
-    @Transactional
-    public void performLCM(UserLifecycleManagementReq userLifecycleManagementReq, UserDetail userDetails) {
+    public void performUserLCM(List<String> userIdList,String operation)
+    {
+        UserDetail userDetails;
+        try {
+            for (int i = 0;i<userIdList.size();i++)
+            {
+                userDetails = userDetailRepository.findByUserId(userIdList.get(i));
+                if ((userDetails!=null)&&(!userDetails.getStatus().equalsIgnoreCase(HCEConstants.INACTIVE))) {
+                    performLCM(userIdList.get(i), operation, userDetails);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception Occered in performUserLCM",e);
+        }
+    }
+
+
+    public void performLCM(String userId ,String operation, UserDetail userDetails) {
         LOGGER.debug("Inside PerformLCM");
         List<DeviceInfo> deviceInfoList = null;
         DeviceInfo deviceInfo = null;
         List<String> rnsIdList = null;
         String userSatus = null;
         String updatedUserStatus = null;
-        String operation = null;
-        try {
-            operation = userLifecycleManagementReq.getOperation();
+        UnRegisterReq unRegisterReq = null;
 
-            switch (userLifecycleManagementReq.getOperation()) {
+        try {
+
+            switch (operation) {
                 case HCEConstants.SUSUPEND_USER:
                     userSatus = HCEConstants.ACTIVE;
                     updatedUserStatus = HCEConstants.SUSUPEND;
@@ -94,15 +105,15 @@ public class PerformUserLifecycle {
 
             //Get the list of device info associated with the userID
             deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), userSatus);
-            if (deviceInfoList.isEmpty()) {
+            if (deviceInfoList.isEmpty() || deviceInfoList == null) {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 
-            if(userLifecycleManagementReq.getOperation().equalsIgnoreCase(HCEConstants.DELETE_USER))
+            if(operation.equalsIgnoreCase(HCEConstants.DELETE_USER))
             {
                 for (int i = 0; i < deviceInfoList.size(); i++) {
                     deviceInfo = deviceInfoList.get(i);
-                    performDeleteUser(userLifecycleManagementReq,deviceInfo.getPaymentAppInstanceId(),deviceInfo);
+                    performDeleteUser(userId,deviceInfo.getPaymentAppInstanceId(),deviceInfo);
                 }
 
             }
@@ -111,10 +122,14 @@ public class PerformUserLifecycle {
             for (int i = 0; i < deviceInfoList.size(); i++) {
                 deviceInfo = deviceInfoList.get(i);
                 rnsIdList.add(deviceInfo.getRnsRegistrationId());
+
+                //Update card Status
+                suspendOrResumeCard(deviceInfo.getClientDeviceId(),updatedUserStatus);
+
+                //Update Device Status
                 deviceInfo.setStatus(updatedUserStatus);
                 deviceDetailRepository.save(deviceInfo);
 
-                //Suspend or resume All the cards for this device
 
             }
 
@@ -132,7 +147,16 @@ public class PerformUserLifecycle {
         }
         LOGGER.debug("Exit userLifecycleManagement");
     }
+    private void suspendOrResumeCard(String clientDeviceId,String operation)
+    {
+        try {
+            cardDetailRepository.updateCardDetails(clientDeviceId,operation);
 
+        }catch (Exception e){
+            LOGGER.error("Exception Occored in suspendOrResumeCard",e);
+        }
+
+    }
     private void sendRnsMessage(List<String> rnsIdList, String operation) {
         LOGGER.debug("Inside sendRnsMessage");
         HashMap<String, String> notificationData = new HashMap<>();
@@ -169,13 +193,13 @@ public class PerformUserLifecycle {
         }
     }
 
-    private void performDeleteUser(UserLifecycleManagementReq userLifecycleManagementReq,String paymentAppInstanceId, DeviceInfo deviceInfo) {
+    private void performDeleteUser(String userId,String paymentAppInstanceId, DeviceInfo deviceInfo) {
         //Get all the active and suspended card
         List<CardDetails> cardDetails = null;
         CardDetails cardDetailobj = null;
         List<CardDetails> masterCardList = null;
         List<CardDetails> visaCardList = null;
-        cardDetails = cardDetailRepository.getCardList(userLifecycleManagementReq.getUserId(), HCEConstants.ACTIVE, HCEConstants.ACTIVE, HCEConstants.SUSUPEND);
+        cardDetails = cardDetailRepository.getCardList(userId, HCEConstants.ACTIVE, HCEConstants.ACTIVE, HCEConstants.SUSUPEND);
         masterCardList = new ArrayList<>();
         visaCardList = new ArrayList<>();
         for (int i = 0; i < cardDetails.size(); i++) {
@@ -189,7 +213,7 @@ public class PerformUserLifecycle {
         }
         performVisaLifecycle(visaCardList,"DELETE");
         unregisterMdes(paymentAppInstanceId);
-        if(deviceInfo!=null)
+        /*if(deviceInfo!=null)
         {
             cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
             deviceInfo.setStatus(HCEConstants.INACTIVE);
@@ -199,7 +223,7 @@ public class PerformUserLifecycle {
         {
             throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
 
-        }
+        }*/
     }
 
     private void performVisaLifecycle(List<CardDetails> visaCardList, String operation) {
@@ -222,15 +246,14 @@ public class PerformUserLifecycle {
         JSONObject requestJson;
         String url;
         ResponseEntity responseEntitye;
-        String id = null;
+
         try {
             requestJson = new JSONObject();
             requestJson.put("responseHost","Wallet.mahindracomviva.com");
             requestJson.put("requestId","12344");
             requestJson.put("paymentAppInstanceId",paymentAppInstanceID);
-            url = env.getProperty("mdesip") + ":" + env.getProperty("mdesport")+"mdes"+"mpamanagement"+"1/0";
-            id = "unregister";
-            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
+            url = "https:"+ ServerConfig.MDES_IP+ServerConfig.MDES_PORT+"mdes"+"mpamanagement"+"1/0"+"/unregister";
+            responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",null);
             if ((responseEntitye==null) || (responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7))
             {
                LOGGER.error("Mstercard Unregister failed...");

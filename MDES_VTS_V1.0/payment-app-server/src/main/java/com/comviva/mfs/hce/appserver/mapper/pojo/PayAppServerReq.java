@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * Created by Tanmay.Patel on 2/2/2017.
  */
-@Getter
+
 public class PayAppServerReq {
     private String serviceId;
 
@@ -14,5 +14,13 @@ public class PayAppServerReq {
     }
 
     public PayAppServerReq() {
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 }

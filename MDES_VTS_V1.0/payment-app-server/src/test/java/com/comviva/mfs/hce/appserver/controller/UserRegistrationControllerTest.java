@@ -29,12 +29,8 @@ import static org.junit.Assert.*;
 public class UserRegistrationControllerTest {
     @Resource
     private WebApplicationContext webApplicationContext;
-
+    private String userID = "";
     private String activationCode="";
-    private String paymentAppInstanceId = "";
-    private String userID = DefaultTemplateUtils.randomString(8);
-    private String clientDeviceID = DefaultTemplateUtils.randomString(24);
-
 
     @Before
     public void Setup(){
@@ -59,50 +55,55 @@ public class UserRegistrationControllerTest {
         userID="";
         request.put("userId",userID);
         Map registerUseResponse=ServiceUtils.servicePOSTResponse("userRegistration",request);
-        assertResponse(registerUseResponse,"500");
+        assertResponse(registerUseResponse,"300");
     }
-
     @Test
-    public void registerUser() throws Exception {
-        Map UserRegistrationRequest = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        UserRegistrationRequest.put("userId",userID);
-        UserRegistrationRequest.put("clientDeviceID",clientDeviceID);
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",UserRegistrationRequest);
-        assertResponse(registerUserResp, "200");
-    }
-
-    @Test
-    public void registerUserWithoutClientDeviceId() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        userID = DefaultTemplateUtils.randomString(8);
+    public void activateUserSuccess() throws Exception {
+        registerUserSuccess();
+        Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
         request.put("userId",userID);
-        request.put("clientDeviceID",null);
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
-        assertResponse(registerUserResp, "500");
-    }
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "200");
 
+    }
     @Test
-    public void registerUserWithoutUserId() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.put("random","");
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
-        assertResponse(registerUserResp, "706");
+    public void activateUserFailedForMissingField() throws Exception{
+        registerUserSuccess();
+         Map request=DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+         userID="";
+         request.put("userId",userID);
+         request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "300");
     }
-
     @Test
-    public void registerUserWithInvalidRequest() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.remove("userId");
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
-        assertResponse(registerUserResp, "500");
+    public void activateUserFailedForWrongUserId() throws Exception{
+        registerUserSuccess();
+        Map request=DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        userID="wrong_userID";
+        request.put("userId",userID);
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse,"203");
     }
-
     @Test
-    public void registerUserWithNullRequest() throws Exception {
-        Map request = null;
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
-        assertResponse(registerUserResp, "500");
+    public void activateUserFailedForWrongActivationCode() throws Exception{
+        registerUserSuccess();
+        Map request =DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        request.put("userId",userID);
+        request.put("activationCode","wrong_activationCode");
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse,"202");
     }
-
-
+    @Test
+    public void activateUserFailedForUserAlreadyActivated() throws Exception{
+        registerUserSuccess();
+        activateUserSuccess();
+        Map request = DefaultTemplateUtils.buildRequest("/ActivateUserReq.json");
+        request.put("userId",userID);
+        request.put("activationCode",activationCode);
+        Map activateUserResponse = ServiceUtils.servicePOSTResponse("activateUser",request);
+        assertResponse(activateUserResponse, "204");
+    }
 }

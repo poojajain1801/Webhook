@@ -1,10 +1,16 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -26,7 +32,6 @@ public class CertificateUtil {
         BufferedReader br = new BufferedReader(reader);
         String line;
         boolean isPrivateKeyStart = false;
-        StringBuffer buf = new StringBuffer();
         while ((line = br.readLine()) != null) {
             if (line.contains("BEGIN") && line.contains("PRIVATE KEY")) {
                 isPrivateKeyStart = true;
@@ -36,10 +41,9 @@ public class CertificateUtil {
                 break;
             }
             if (isPrivateKeyStart) {
-                buf.append(line);
+                strKeyPEM += line + "\n";
             }
         }
-        strKeyPEM = buf.toString();
         br.close();
         return strKeyPEM;
     }
@@ -82,5 +86,6 @@ public class CertificateUtil {
        //InputStream is = new FileInputStream(filename);
         return  (X509Certificate) fact.generateCertificate(filename);
     }
+
 
 }

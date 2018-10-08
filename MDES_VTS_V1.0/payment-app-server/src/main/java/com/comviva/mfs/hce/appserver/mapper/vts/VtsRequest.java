@@ -111,7 +111,6 @@ public class VtsRequest {
         try {
             byte[] bHmacSha256 = MessageDigestUtil.hMacSha256(hashInput.getBytes("UTF-8"),sharedSecret);
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
-            System.out.println("bHmacSha256 in byte :   " + bHmacSha256);
         } catch (Exception e) {
             LOGGER.error("Exception Occured" + e);
 

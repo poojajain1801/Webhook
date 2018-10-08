@@ -15,6 +15,9 @@ public class HCEConstants {
     public static final String SERVICE_FAILED = "SERVICE_FAILED";
     /** The Constant RESPONSE_CODE. */
     public static final String RESPONSE_CODE = "responseCode";
+    public static final String ERROR_RESPONSE = "errorResponse";
+
+    public static final String SUCCESS = "SUCCESS";
     /** The Constant MESSAGE. */
     public static final String MESSAGE = "message";
     /** The Constant USER_DETAILS. */
@@ -160,11 +163,18 @@ public class HCEConstants {
     /** The Constant VISA. */
     public static final String VISA = "VISA";
 
+    /** The Constant MASTERCARD. */
+    public static final String MASTERCARD = "MASTERCARD";
+
     /** The Constant REQUEST_ID_PREFIX. */
     public static final String REQUEST_ID_PREFIX = "RI";
 
     /** The Constant REQUEST_ID_. */
     public static final String REQUEST_ID = "requestId";
+
+    /** The Constant REQUEST_ID_. */
+    public static final String GENERIC_ERROR = " We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801";
+
 
     /** The Constant MASKING_PROPERTIES. */
     private static String MASKING_PROPERTIES ;
@@ -208,6 +218,10 @@ public class HCEConstants {
 
     //By Rishikesh
     public static final String REASON_CODE = "reasonCode";
+    public static final String REASON = "reason";
+
+    public static final String ERROR_CODE= "errorCode";
+
     public static final String REASON_DESCRIPTION = "reasonDescription";
     public static final int REASON_CODE1 = 220;
     public static final String REASON_DESCRIPTION1 = "Invalid Payment App Instance Id";
@@ -218,8 +232,10 @@ public class HCEConstants {
     public static final int REASON_CODE5 = 230;
     public static final int REASON_CODE6 = 231;
     public static final int REASON_CODE7 = 200;
+    public static final int REASON_CODE_234 = 234;
+
     public static final int REASON_CODE8 = 201;
-    public static final int RESPONSE_CODE_200 = 200;
+
 
 
 

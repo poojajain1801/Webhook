@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,7 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
 
     }
     @Modifying(clearAutomatically = true)
+    @Transactional
     @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId")
     void updateCardDetails(@Param("clientDeviceId") String clientDeviceId ,@Param("status") String status);
 

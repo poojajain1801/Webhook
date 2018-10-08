@@ -10,18 +10,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ActivationCodeReq {
+
     private String paymentAppInstanceId;
     private String tokenUniqueReference;
-    private AuthenticationMethod authenticationMethod;
+    private String authenticationCodeId;
 
     public ActivationCodeReq() {
     }
 
-    public ActivationCodeReq(String paymentAppInstanceId, String tokenUniqueReference, AuthenticationMethod authenticationMethod) {
+    public ActivationCodeReq(String paymentAppInstanceId, String tokenUniqueReference, String authenticationCodeId) {
         this.paymentAppInstanceId = paymentAppInstanceId;
         this.tokenUniqueReference = tokenUniqueReference;
-        this.authenticationMethod = authenticationMethod;
+        this.authenticationCodeId = authenticationCodeId;
     }
-
-
 }

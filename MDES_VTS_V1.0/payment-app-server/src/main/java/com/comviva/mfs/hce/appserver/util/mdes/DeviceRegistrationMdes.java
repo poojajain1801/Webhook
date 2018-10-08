@@ -111,7 +111,7 @@ public class DeviceRegistrationMdes
             jsonRegDevice = new JSONObject();
             mdesDeviceRequest = enrollDeviceRequest.getMdes();
             //TODO:Generate a random number for the request ID
-            requestId = ArrayUtil.getRequestId();
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             jsonRegDevice.put("requestId", requestId);
             jsonRegDevice.put("paymentAppId", mdesDeviceRequest.getPaymentAppId());
             jsonRegDevice.put("paymentAppInstanceId", mdesDeviceRequest.getPaymentAppInstanceId());
@@ -121,11 +121,11 @@ public class DeviceRegistrationMdes
             jsonRegDevice.put("newMobilePin", mdesDeviceRequest.getMobilePin());
 
             rnsInfo = new JSONObject();
-            rnsInfo.put("rnsRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
+            rnsInfo.put("gcmRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
             jsonRegDevice.put("rnsInfo", rnsInfo);
 
 
-            url = this.env.getProperty("mdesip") + this.env.getProperty("mpamanagementpath");
+            url = this.env.getProperty("mdesip") + this.env.getProperty("mpamanagementPath");
             id = "register";
 
             responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRegDevice.toString(), "POST", id);
@@ -136,12 +136,12 @@ public class DeviceRegistrationMdes
                 responseJson.put("mdes",mdes);
                 if (mdes.has("errors"))
                 {
-                    responseJson.put("statusCode", HCEMessageCodes.getFailedAtThiredParty());
+                    responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     responseJson.put("message",mdes.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));
                 }
                 else
                 {
-                    responseJson.put("statusCode",HCEMessageCodes.getSUCCESS());
+                    responseJson.put("responseCode",HCEMessageCodes.getSUCCESS());
                     responseJson.put("message","Success");
                 }
 
@@ -158,14 +158,8 @@ public class DeviceRegistrationMdes
     {
         HttpRestHandeler httpRestHandeler = new HttpRestHandelerImpl();
         JSONObject jsonRequest = new JSONObject();
-        JSONObject deviceinfo = new JSONObject(enrollDeviceRequest.getMdes().getDeviceInfo());
-        jsonRequest.put("requestId", "50192640427");
-        jsonRequest.put("paymentAppInstanceId", enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
-        jsonRequest.put("tokenType", "CLOUD");
-        jsonRequest.put("paymentAppId", enrollDeviceRequest.getMdes().getPaymentAppId());
-        jsonRequest.put("deviceInfo", deviceinfo);
-        jsonRequest.put("consumerLanguage","en");
-        jsonRequest.put("cardletId", "1.0");
+        JSONObject deviceinfo = null;
+        String requestId = null;
         String response = "";
         String url = "";
         String id = "";
@@ -174,7 +168,17 @@ public class DeviceRegistrationMdes
         LOGGER.debug("Enter in DeviceRegistrationMdes:->checkDeviceEligibility");
         try
         {
-            // "https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/{id}"
+            deviceinfo = new JSONObject(enrollDeviceRequest.getMdes().getDeviceInfo());
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            jsonRequest.put("requestId",requestId);
+            jsonRequest.put("paymentAppInstanceId", enrollDeviceRequest.getMdes().getPaymentAppInstanceId());
+            jsonRequest.put("tokenType", "CLOUD");
+            jsonRequest.put("paymentAppId", enrollDeviceRequest.getMdes().getPaymentAppId());
+            jsonRequest.put("deviceInfo", deviceinfo);
+            jsonRequest.put("consumerLanguage","en");
+            jsonRequest.put("cardletId",this.env.getProperty("cardletId"));
+
+           // "https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/{id}"
             //url ="https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/checkEligibility";
             url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             id = "checkEligibility";

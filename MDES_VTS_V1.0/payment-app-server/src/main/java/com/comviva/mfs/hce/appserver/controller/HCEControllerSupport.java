@@ -1,13 +1,9 @@
 package com.comviva.mfs.hce.appserver.controller;
-import com.comviva.mfs.hce.appserver.model.UserDetail;
-import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.comviva.mfs.hce.appserver.model.*;
+import com.comviva.mfs.hce.appserver.repository.*;
 import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.model.AuditTrail;
-import com.comviva.mfs.hce.appserver.model.SysMessage;
-import com.comviva.mfs.hce.appserver.repository.AuditTrailRepository;
-import com.comviva.mfs.hce.appserver.repository.CommonRepository;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
@@ -36,6 +32,8 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+
 /**
  * Created by shadab.ali on 23-08-2017.
  */
@@ -46,10 +44,14 @@ public class HCEControllerSupport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
     @Autowired
-    private CommonRepository commonRepository;
+    private SysMessageRepository sysMessageRepository;
 
     @Autowired
     private UserDetailRepository userDetailRepository;
+    @Autowired
+    DeviceDetailRepository deviceDetailRepository ;
+    @Autowired
+    private CardDetailRepository cardDetailRepository ;
     @Autowired
     private AuditTrailRepository auditTrailRepository;
 
@@ -57,10 +59,14 @@ public class HCEControllerSupport {
     private Environment env;
     private static PrivateKey privateKey;
 
+    private String userId;
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public  Map<String,Object> formResponse(String messageCode){
-
         Map<String,Object> responseMap = new HashMap<>();
-
         responseMap.put(HCEConstants.RESPONSE_CODE, messageCode);
         responseMap.put(HCEConstants.MESSAGE,(String)prepareMessage(messageCode));
         return responseMap;
@@ -83,13 +89,12 @@ public class HCEControllerSupport {
      * @param messageCode
      * @return
      */
-    public String prepareMessage(String messageCode){
+    public String prepareMessage(String messageCode ){
 
         String txnMessage = null;
         List<SysMessage> sysMessageList = null;
         try{
-
-            sysMessageList = commonRepository.find(messageCode,getLocale());
+            sysMessageList = sysMessageRepository.find(messageCode,getLocale());
             if(sysMessageList!=null && !sysMessageList.isEmpty()){
                 txnMessage = sysMessageList.get(0).getMessage();
             }
@@ -98,11 +103,9 @@ public class HCEControllerSupport {
             txnMessage = HCEConstants.INTERNAL_SERVER_ERROR;
         }
         return txnMessage;
-
     }
 
     public  Object requestFormation(String requestObj ,Class<?>... groups) throws  Exception{
-
         Object obj = null;
         Class requestClass = null;
         StringBuffer errorMessage = null;
@@ -153,9 +156,14 @@ public class HCEControllerSupport {
      * Locale need to be implemented
      * @return
      */
-    public static String getLocale(){
-
-        return HCEConstants.DEFAULT_LANGAUAGE_CODE;
+    private String getLocale(){
+        UserDetail userDetail = null;
+        String languageCode = "1";
+        userDetail = userDetailRepository.findByUserId(userId);
+        if (userDetail !=null ){
+            languageCode = userDetail.getLanguageCode();
+        }
+        return languageCode;
     }
 
     public void prepareRequest(String request, Map<String,Object> response, HttpServletRequest servletRequest){
@@ -166,7 +174,7 @@ public class HCEControllerSupport {
 
 
     public  void maintainAudiTrail(String userId,String clientDeviceID, String url, String responseCode,String request,
-                                               String response,String totalTime){
+                                   String response,String totalTime){
         AuditTrail auditTrail = null;
         try{
             LOGGER.debug("Enter HCEControllerSupport->maintainAudiTrail");
@@ -296,7 +304,7 @@ public class HCEControllerSupport {
 
 
 
-    public String findUserId(String clientWalletAccountId){
+    private String findUserIdByClientWalletAccountId(String clientWalletAccountId){
 
         final List<UserDetail> userDetails = userDetailRepository.findByClientWalletAccountId(clientWalletAccountId);
         if(userDetails!=null && !userDetails.isEmpty()){
@@ -306,4 +314,107 @@ public class HCEControllerSupport {
             return  clientWalletAccountId;
         }
     }
+
+    private String findUserIdByPaymentAppInstanceId(String paymentAppInstanceId){
+        String userId = null;
+        final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
+            final DeviceInfo deviceInfo = deviceDetailsList.get();
+            userId =  deviceInfo.getUserDetail().getUserId();
+        }
+        return userId;
+    }
+
+    private String findUserIdByVProvisionedTokenID(String vprovisionedTokenID){
+        String userId = null;
+        List<CardDetails> cardDetails = cardDetailRepository.findByVisaProvisionTokenId(vprovisionedTokenID);
+        if (cardDetails!=null && !cardDetails.isEmpty()){
+            final DeviceInfo deviceInfo = cardDetails.get(0).getDeviceInfo();
+            userId = deviceInfo.getUserDetail().getUserId();
+        }
+        return userId;
+    }
+
+    private String findUserIdByTokenUniqueReference(String tokenUniqueReference){
+        String userId = null;
+        String paymentAppInstanceId = null;
+        Optional<CardDetails> cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueReference);
+        if (cardDetails.isPresent()){
+            final DeviceInfo deviceInfo = cardDetails.get().getDeviceInfo();
+            if(deviceInfo!=null){
+                userId = deviceInfo.getUserDetail().getUserId();
+            }else {
+                paymentAppInstanceId = cardDetails.get().getMasterPaymentAppInstanceId();
+                userId = findUserIdByPaymentAppInstanceId(paymentAppInstanceId);
+            }
+
+        }
+        return userId;
+    }
+
+    private String findUserIdByClientDeviceID(String clientDeviceID){
+        String userId = null;
+        Optional<DeviceInfo> deviceInfo = deviceDetailRepository.findByClientDeviceId(clientDeviceID);
+        if (deviceInfo.isPresent()) {
+            userId = deviceInfo.get().getUserDetail().getUserId();
+        }
+        return userId;
+    }
+
+    public String findUserId(String requestData){
+        String userId = null;
+        String clientWalletAccountId = null;
+        String paymentAppInstanceId = null;
+        String vprovisionedTokenID = null;
+        String tokenUniqueReference = null;
+        String clientDeviceID = null;
+        JSONObject jsonObject = new JSONObject(requestData);
+        if(isUserIdEmpty(jsonObject)){
+            if(!jsonObject.isNull("clientWalletAccountId")){
+                clientWalletAccountId = (String)jsonObject.get("clientWalletAccountId");
+                userId = findUserIdByClientWalletAccountId(clientWalletAccountId);
+            }else if(!jsonObject.isNull("paymentAppInstanceId")){
+                paymentAppInstanceId = (String)jsonObject.get("paymentAppInstanceId");
+                userId = findUserIdByPaymentAppInstanceId(paymentAppInstanceId);
+            }else if(!jsonObject.isNull("vprovisionedTokenID")){
+                vprovisionedTokenID = (String)jsonObject.get("vprovisionedTokenID");
+                userId = findUserIdByVProvisionedTokenID(vprovisionedTokenID);
+            }else if(!jsonObject.isNull("tokenUniqueReference")){
+                tokenUniqueReference = (String)jsonObject.get("tokenUniqueReference");
+                userId = findUserIdByTokenUniqueReference(tokenUniqueReference);
+            }else if(!jsonObject.isNull("clientDeviceID")){
+                clientDeviceID = (String)jsonObject.get("clientDeviceID");
+                userId = findUserIdByClientDeviceID(clientDeviceID);
+            }
+        }else{
+            userId = (String)jsonObject.get("userId");
+        }
+        return userId;
+    }
+
+    public String findClientDeviceID(String requestData) {
+        String clientDeviceId = null;
+        JSONObject jsonObject = new JSONObject(requestData);
+        if (!jsonObject.isNull("clientDeviceID")){
+            clientDeviceId = jsonObject.getString("clientDeviceID");
+        }
+        else{
+            if(!jsonObject.isNull("vprovisionedTokenID"))
+            {
+                clientDeviceId = jsonObject.getString("vprovisionedTokenID");
+            }
+        }
+        return clientDeviceId;
+    }
+
+    private boolean isUserIdEmpty(JSONObject jsonObject){
+        boolean isEmpty = false;
+        boolean isPresent = jsonObject.has("userId");
+        boolean isNull = jsonObject.isNull("userId");
+        if (isPresent){
+            isEmpty = jsonObject.getString("userId").isEmpty();
+        }
+        return (isEmpty||isNull);
+    }
 }
+
