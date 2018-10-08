@@ -1,0 +1,10 @@
+# DexGuard license file
+licensee              = Mahindra Comviva
+contact               = Gopal Gupta
+contactEmail          = rajasekhara.p@mahindracomviva.com
+product               = DexGuard
+version               = 7.*,8.*
+package               = com.mastercard.mcbp_android
+expiryDate            = 2019-04-29
+maintenanceExpiryDate = 2019-04-29
+key                   = 3ae77710fc9c97e68066ebc7a4b1b9a69c9422761ef72aad46a85c31aed566441ad5f970717ba49cac04d3387113dc1895471eec805cedaa20ae4c9d1cc69ce9
