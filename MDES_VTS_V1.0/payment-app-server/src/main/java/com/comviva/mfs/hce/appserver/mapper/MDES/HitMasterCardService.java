@@ -181,12 +181,12 @@ public class HitMasterCardService
 
     private RestTemplate restTemplate() throws Exception
     {
-        String allNews = "changeit";
-        String keystorepa = "changeit";
+
+        String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
         SSLContext sslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
-                .loadTrustMaterial(ResourceUtils.getFile(trustorename), allNews.toCharArray())
+                .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
                 .build();
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
         /*HttpHost proxy = new HttpHost("proxtserver", "");

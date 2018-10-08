@@ -35,6 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -42,8 +45,11 @@ import org.springframework.util.MultiValueMap;
 
 import javax.crypto.Cipher;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -1431,7 +1437,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String rgk = "";
         try {
             //Decrypt notification Data
-            rgk = CryptoUtils.privateKeydecryption(CryptoUtils.getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
+            rgk = CryptoUtils.privateKeydecryption(getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);
@@ -1484,6 +1490,42 @@ public class CardDetailServiceImpl implements CardDetailService {
             rnsRegID = deviceInfo.getRnsRegistrationId();
         }
         return rnsRegID;
+    }
+
+    public  PrivateKey getPrivateKeyFromKeyStore() throws Exception{
+        ResourceLoader resourceLoader = null;
+        Resource resource = null;
+        InputStream inputStream = null;
+        String fileName = null;
+        String password = "";
+        String alias = "";
+        try{
+            //InputStream ins = DecryptPayload.class.getResourceAsStream("/keystore.
+            //
+            // jks");
+
+            //fileName = env.getProperty("end.to.end.keystore.filename");
+            fileName = env.getProperty("outboundtruststore");
+            password = env.getProperty("outboundtruststorepass");
+            alias = env.getProperty("outboundtruststorealias");
+            resourceLoader = new FileSystemResourceLoader() ;
+            resource = resourceLoader.getResource("classpath:"+fileName);
+            inputStream  = resource.getInputStream();
+
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(inputStream, password.toCharArray());   //Keystore password
+            KeyStore.PasswordProtection keyPassword =       //Key password
+                    new KeyStore.PasswordProtection(password.toCharArray());
+
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, keyPassword);
+
+            PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+            return privateKey;
+        }catch (Exception ex) {
+            //LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
+        }
+
     }
 
 
