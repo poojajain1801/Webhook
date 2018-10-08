@@ -978,7 +978,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
                 }*/
                 return true;
             case R.id.unregister_device:
-                deleteCache(HomeActivity.this);
+               // deleteCache(HomeActivity.this);
                 final Registration registration = Registration.getInstance();
                 SharedPreferences sharedPrefsUserDetails = getSharedPreferences("user_details", getApplicationContext().MODE_PRIVATE);
                 String userID = sharedPrefsUserDetails.getString("user_id", "");

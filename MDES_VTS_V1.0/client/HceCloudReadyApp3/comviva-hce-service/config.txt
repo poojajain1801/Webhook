@@ -46,7 +46,7 @@
 -classobfuscationdictionary jar:file:/C:/Users/amit.randhawa/.gradle/caches/jars-3/ae9c25783e8adfd52eb9621053e605b3/dexguard.jar!/lib/classdictionary-library.txt
 -dontusemixedcaseclassnames
 -keeppackagenames org.apache.cordova
--keepattributes *Annotation*,Exceptions,Deprecated,EnclosingMethod,RuntimeVisible*Annotation*,AnnotationDefault,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable,Exceptions,Signature,Annotation,Signature,*Annotation*,Exceptions,*Annotation*
+-keepattributes *Annotation*,Exceptions,Deprecated,EnclosingMethod,RuntimeVisible*Annotation*,AnnotationDefault,Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable,Exceptions,Signature,Annotation,Signature,*Annotation*,*Annotation*
 -renamesourcefileattribute ''
 
 # @EncryptClass specifies to encrypt the annotated class.
@@ -1470,164 +1470,241 @@
     <methods>;
 }
 
--keep class com.mastercard.mpsdk.remotemanagement.** {
+-keep class com.mastercard.mpsdk.** {
     public private protected <fields>;
     public private protected <methods>;
 }
 
--keep class com.mastercard.mpsdk.mcbp.utils.utils.Date {
+-keep public class com.mastercard.upgrade.** {
+    public private protected <fields>;
+    public private protected <methods>;
+}
+
+-keep public class com.mastercard.mcbp.mpsdk.** {
+    public private protected <fields>;
+    public private protected <methods>;
+}
+
+-keep public class com.mastercard.mchipengine.** {
+    public private protected <fields>;
+    public private protected <methods>;
+}
+
+-keep public class com.mastercard.mpsdk.mcbp.androidcrypto** {
+    public private protected <fields>;
+    public private protected <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <methods>;
 }
 
-# For SDK card profiles
--keep class com.mastercard.mpsdk.card.core.profile.** {
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
     <fields>;
+    @com.google.android.gms.common.annotation.KeepName
     <methods>;
 }
 
-# # For Database Upgrade ##
--keep class com.mastercard.mpsdk.upgrade.utils.bytes.ByteArray {
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <methods>;
 }
 
-# For MP SDK version 1.0.x
--keep class com.mastercard.mpsdk.upgrade.profile.** {
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
     <fields>;
+    @com.google.android.gms.common.annotation.KeepName
     <methods>;
 }
 
-# For libraries module, including component interface
--keep class com.mastercard.mpsdk.mcbp.componentinterface.** {
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <methods>;
 }
 
--keep class com.mastercard.mpsdk.mcbp.utils.bytes.ByteArray {
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
     <fields>;
+    @com.google.android.gms.common.annotation.KeepName
     <methods>;
 }
 
-# For Mchip Engine
--keep class com.mastercard.mpsdk.mcbp.mchipengine.assessment.MchipAdviceAndReasons {
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
     <methods>;
 }
 
--keep class com.mastercard.mpsdk.mcbp.mchipengine.MChipEngine {
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
     <fields>;
+    @com.google.android.gms.common.annotation.KeepName
     <methods>;
 }
 
--keep class com.mastercard.mpsdk.mcbp.mchipengine.walletinterface.** {
-    <fields>;
-    <methods>;
-}
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
 
--keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.Iso7816 {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.commands.ReadRecordCommandApdu {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.apduprocessing.commands.SelectCommandApdu {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipByteArray {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipDate {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.MChipLogger {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.mpsdk.mcbp.mchipengine.utils.Wipeable {
-    <fields>;
-    <methods>;
-}
-
--keepclassmembers class * {
-    public static *** getBuilder();
-}
-
-# For SDK business logic
--keep class com.mastercard.api.implementation.TransactionCredentialsManager {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.AdviceManager {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MpSdkApduProcessor {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.TransactionLogJson {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.SingleUseKeyJson {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.interfaces.** {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.exceptions.** {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MastercardMobilePaymentLibraryInitializer {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MastercardMobilePaymentLibrary {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MPSdkCardManagerEventListener {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.TransactionLogImpl {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MPSdkApduListener {
-    <fields>;
-    <methods>;
-}
-
--keep class com.mastercard.api.implementation.MPSdkTransactionEventListener {
-    <fields>;
-    <methods>;
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
 }
 
 # Copyright (C) 2016 The Android Open Source Project
@@ -1647,218 +1724,6 @@
 -keepclassmembers class android.support.graphics.drawable.VectorDrawableCompat$* {
     void set*(***);
     *** get*();
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
 }
 
 # Proguard flags for consumers of the Google Play services SDK

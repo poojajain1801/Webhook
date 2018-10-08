@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.DebugUtils;
 import android.util.Log;
 
 import com.comviva.hceservice.LukInfo;
@@ -29,9 +30,11 @@ import com.mastercard.mchipengine.walletinterface.walletdatatypes.AdviceAndReaso
 import com.mastercard.mchipengine.walletinterface.walletdatatypes.TerminalInformation;
 import com.mastercard.mchipengine.walletinterface.walletdatatypes.TransactionInformation;
 import com.mastercard.mpsdk.componentinterface.Card;
+import com.mastercard.mpsdk.componentinterface.McbpLogger;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletDataCrypto;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletIdentificationDataProvider;
 import com.mastercard.mpsdk.componentinterface.crypto.keys.WalletDekEncryptedData;
+import com.mastercard.mpsdk.componentinterface.database.state.CardState;
 import com.mastercard.mpsdk.componentinterface.http.HttpManager;
 import com.mastercard.mpsdk.httpmanager.MpSdkHttpManager;
 import com.mastercard.mpsdk.implementation.MasterCardMobilePaymentLibrary;
@@ -209,8 +212,7 @@ public class ComvivaSdk {
                 return false;
             }
         };
-         MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
-
+        MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
         Mcbp mcbp = mcbpInitializer
                 .usingOptionalAdviceManager(walletAdviceManager)
                 .withWalletConsentManager(walletConsentManager)
@@ -295,7 +297,6 @@ public class ComvivaSdk {
         sdkData.setTransactionCompletionListener(transactionCompletionListener);
         sdkData.setCardSelectionManagerForTransaction(cardSelectionManagerForTransaction);
     }
-
 
 
     LukInfo getLukInfo(PaymentCard card) {
@@ -533,7 +534,6 @@ public class ComvivaSdk {
             sdkData.getContext().startService(intent);
         }
     }
-
 
 
     /**
