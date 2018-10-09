@@ -9,7 +9,6 @@ public class TlvUtil {
         int currentTag;
         while (cursor < pdolValue.length) {
             currentTag = getCurrentTag(pdolValue, cursor);
-
             if(currentTag == 0x9F02) {
                 break;
             }

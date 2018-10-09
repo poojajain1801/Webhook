@@ -376,13 +376,17 @@ public class HCEUtil {
         int maskingLengthInt = 0;
 
         if("?".equals(maskingLength)){
-            p_digit = p_value.length();
+            if (null!=p_value){
+                p_digit = p_value.length();
+            }
         }else if(HCEConstants.MASK_TYPE_POST.equals(p_maskType) || HCEConstants.MASK_TYPE_PRE.equals(p_maskType)){
             maskingLengthInt = Integer.parseInt(maskingLength);
             p_digit = maskingLengthInt;
         } else{
             maskingLengthInt = Integer.parseInt(maskingLength);
-            p_digit = p_value.length()-maskingLengthInt;
+            if (null!=p_value) {
+                p_digit = p_value.length() - maskingLengthInt;
+            }
 
         }
       //  if(HCEConstants.UNMASK_TYPE_PRE.equals())
@@ -390,7 +394,7 @@ public class HCEUtil {
         for(int i=0;i<p_digit;i++)
             masked.append("X");
 
-        if(!p_value.isEmpty() ){
+        if(p_value!=null && !p_value.isEmpty() ){
             if(len == p_digit){
                 maskedValue=masked.toString();
             }else{

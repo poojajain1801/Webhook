@@ -21,7 +21,6 @@ public class CdCvmActivity extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-
         ComvivaHceService.setIsPinpageRequired(false);
         sdkData = SDKData.getInstance();
         super.onCreate(savedInstanceState);
@@ -37,7 +36,6 @@ public class CdCvmActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQ_CODE_SCREEN_LOCK:
