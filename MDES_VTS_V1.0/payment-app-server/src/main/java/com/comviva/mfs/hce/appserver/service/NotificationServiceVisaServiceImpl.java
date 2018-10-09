@@ -211,8 +211,8 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         }
     }
 
-    public Map notifyTxnDetailsUpdate (NotificationServiceReq notificationServiceReq,String apiKey)
-    {
+    public Map notifyTxnDetailsUpdate (NotificationServiceReq notificationServiceReq,String apiKey) {
+        Map rnsResp = new HashMap();
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate");
         if (apiKey.equalsIgnoreCase(env.getProperty("apiKey")))
         {
@@ -240,7 +240,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
-            Map rnsResp = null;
             if(env.getProperty("is.txnnotification.requires").equals("Y"))
             {
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate-> supported" );

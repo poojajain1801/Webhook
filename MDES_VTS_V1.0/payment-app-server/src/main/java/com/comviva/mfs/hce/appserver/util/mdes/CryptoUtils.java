@@ -19,6 +19,7 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.logging.Logger;
 
 /**
  * Created by tanmay.patel on 9/24/2018.
@@ -44,6 +45,7 @@ public class CryptoUtils {
             e.printStackTrace();
         }
         try {
+            if (null !=cipher)
             cipher.init(Cipher.DECRYPT_MODE, key);
         } catch (InvalidKeyException e1) {
             // TODO Auto-generated catch block
@@ -51,10 +53,15 @@ public class CryptoUtils {
         }
         byte[] dataToEncrypt = hexStringToByteArray(data);
         try {
-            cipherData = cipher.doFinal(dataToEncrypt);
+            if (cipher!=null){
+                cipherData = cipher.doFinal(dataToEncrypt);
+            }
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+        if (cipherData == null){
+            return "";
         }
         return ByteArrayToHexString(cipherData);
     }

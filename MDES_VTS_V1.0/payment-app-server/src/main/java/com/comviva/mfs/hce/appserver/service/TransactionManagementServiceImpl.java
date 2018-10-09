@@ -340,7 +340,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         Optional<TransactionRegDetails> txnDetails = null;
         String response = null;
         ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         Map responseMap = null;
         String url = null ;
         String id = null;

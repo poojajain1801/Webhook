@@ -105,7 +105,7 @@ public class PerformUserLifecycle {
 
             //Get the list of device info associated with the userID
             deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), userSatus);
-            if (deviceInfoList.isEmpty() || deviceInfoList == null) {
+            if (deviceInfoList.isEmpty()) {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 

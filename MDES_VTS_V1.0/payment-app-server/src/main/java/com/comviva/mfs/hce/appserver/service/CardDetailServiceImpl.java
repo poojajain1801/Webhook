@@ -125,7 +125,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject eligibilityResponse = null;
         Map eligibilityMap = null;
         Map applicableCardInfoMap = null;
-        String response = null;
+        String response = "";
         String id = null;
         String requestId;
         try {
@@ -183,8 +183,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     jsonResponse.put("message",jsonResponse.getString("errorDescription"));
                 }
-                else
-                {
+                else {
                     ServiceData serviceData = serviceDataRepository.save(new ServiceData(null,  requestId, checkDeviceEligibilityRequest.toString().getBytes(), response.getBytes()));
                     jsonResponse.put("statusCode",HCEMessageCodes.getSUCCESS());
                     jsonResponse.put("message","Success");
@@ -381,9 +380,8 @@ public class CardDetailServiceImpl implements CardDetailService {
      * @return Asset data
      */
     public Map<String,Object> getAsset(GetAssetPojo assetID) {
-
         ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         String response = null;
         Map responseMap = null;
         String url = null;
@@ -874,9 +872,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         String registrationHash = null;
         Optional<TransactionRegDetails> transactionDetails = null;
         TransactionRegDetails transactionRegDetails = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         String response = null;
-        JSONObject requestJson = null;
+        JSONObject requestJson = new JSONObject();
         ResponseEntity responseMdes = null;
         Map responseMap = new HashMap();
         String url = null;
@@ -1124,14 +1122,13 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         return JsonUtil.jsonToMap(jsRespMdes);
     }
-    public Map searchTokens(SearchTokensReq searchTokensReq)
-    {
+    public Map searchTokens(SearchTokensReq searchTokensReq) {
         JSONObject searchTokenReq = null;
         String url = "";
         String id = "";
         String trId = "";
         String response;
-        JSONObject jsRespMdes = null;
+        JSONObject jsRespMdes = new JSONObject();
         String requestId = "";
         //Check if the paymentAppInstanceId is valid or not
         if(!deviceDetailRepository.findByPaymentAppInstanceId(searchTokensReq.getPaymentAppInstanceId()).isPresent())
@@ -1188,7 +1185,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String id = "";
         String trId = "";
         String response;
-        JSONObject jsRespMdes = null;
+        JSONObject jsRespMdes = new JSONObject();
         String requestId = "";
         //Check if the token unique reference is valid or not
         if(!cardDetailRepository.findByMasterTokenUniqueReference(getTokensRequest.getTokenUniqueReference()).isPresent())
@@ -1250,7 +1247,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         int size = 0;
         ResponseEntity responseMdes = null;
         String response = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         Map responseMap = null;
         String url = null;
         String id = null;

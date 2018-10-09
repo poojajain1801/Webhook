@@ -645,12 +645,12 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String vProvisionedTokenID = getStepUpOptionsRequest.getvProvisionedTokenID();
         HitVisaServices hitVisaServices = new HitVisaServices(env);
         ResponseEntity responseVts = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         String response;
         String resourcePath = null;
         String request = "";
         String url;
-        Map responseMap = new LinkedHashMap();;
+        Map responseMap = new LinkedHashMap();
         try {
             resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions";
             url = env.getProperty("visaBaseUrlSandbox") + "/" + resourcePath + "?apiKey=" + env.getProperty("apiKey");

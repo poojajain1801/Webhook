@@ -367,7 +367,9 @@ public class HCEUtil {
         String maskedValue=null;
 
         int len=0;
-        len=p_value.length();
+        if (null!=p_value) {
+            len = p_value.length();
+        }
         StringBuffer masked=null;
         masked=new StringBuffer();
         int p_digit = 0;
@@ -388,8 +390,7 @@ public class HCEUtil {
         for(int i=0;i<p_digit;i++)
             masked.append("X");
 
-        if(p_value!=null && !p_value.isEmpty() ){
-
+        if(!p_value.isEmpty() ){
             if(len == p_digit){
                 maskedValue=masked.toString();
             }else{
