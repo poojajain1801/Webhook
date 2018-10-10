@@ -191,6 +191,7 @@ public class CardManagementController {
         }
         return enrollPanResponse;
     }
+
     @ResponseBody
     @RequestMapping(value = "/getCardMetadata",method = RequestMethod.POST)
     public Map<String,Object> getCardMetadata(@RequestBody GetCardMetadataRequest getCardMetadataRequest){

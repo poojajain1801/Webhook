@@ -111,6 +111,7 @@ public class ProvisionManagementController {
         LOGGER.debug("exit ProvisionManagementController-> activeAccountManagementReplenish ");
         return replineshResp;
     }
+
     @ResponseBody
     @RequestMapping(value = "/activeAccountManagementConfirmReplenishment",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -135,10 +136,28 @@ public class ProvisionManagementController {
         LOGGER.debug("Exit ProvisionManagementController-> activeAccountManagementConfirmReplenishment ");
         return ConfirmReplenishmentResp;
     }
+
+
     @ResponseBody
-    @RequestMapping(value = "/replenishODAData",method = RequestMethod.POST)
-    public Map<String ,Object>replenishODAData(@RequestBody  ReplenishODADataRequest replenishODADataRequest){
-        return provisionManagementService.ReplenishODAData(replenishODADataRequest);
+    @RequestMapping(value = "/replenishODAData", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map replenishODAData(@RequestBody String replenishODADataRequest) {
+        Map<String,Object> replenishODADataResp = null;
+        ReplenishODADataRequest replenishODADataRequestPojo = null;
+        try {
+            replenishODADataRequestPojo = (ReplenishODADataRequest) hCEControllerSupport.requestFormation(replenishODADataRequest,ReplenishODADataRequest.class);
+            replenishODADataResp =  provisionManagementService.ReplenishODAData(replenishODADataRequestPojo);
+        }catch (HCEValidationException replenishODADataRequestValidation){
+            LOGGER.error("Exception Occured in ->replenishODADataResp",replenishODADataRequestValidation);
+            throw replenishODADataRequestValidation;
+        }catch (HCEActionException replenishODADataHceActionException){
+            LOGGER.error("Exception Occured in -> replenishODADataResp",replenishODADataHceActionException);
+            throw replenishODADataHceActionException;
+        }catch (Exception enrollPanExcetption) {
+            LOGGER.error(" Exception Occured in ->replenishODADataResp", enrollPanExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return replenishODADataResp;
     }
 
     @ResponseBody

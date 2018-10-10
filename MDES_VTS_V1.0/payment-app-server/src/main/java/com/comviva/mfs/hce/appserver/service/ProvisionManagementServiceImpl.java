@@ -458,7 +458,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         Map responseMap = new LinkedHashMap();
 
         try{
-
             vProvisionedTokenID = replenishODADataRequest.getVprovisionedTokenID();
             //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/replenishODA" + "?apiKey=" + env.getProperty("apiKey");
@@ -466,8 +465,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "POST");
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
                 responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());

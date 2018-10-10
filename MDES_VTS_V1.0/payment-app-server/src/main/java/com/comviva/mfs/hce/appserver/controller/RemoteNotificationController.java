@@ -49,8 +49,23 @@ public class RemoteNotificationController {
 
     @ResponseBody
     @RequestMapping(value = "/sendGenericRemoteNotificationMessage", method = RequestMethod.POST)
-    public Map sendGenericRns(@RequestBody RnsGenericRequest rnsGenericRequest) {
-        return remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+    @ServiceFlowStep("paymentApp")
+    public Map sendGenericRns(@RequestBody String rnsGenericRequest) {
+        LOGGER.debug("Inside RemoteNotificationController----------->sendGenericRemoteNotificationMessage");
+        Map <String,Object> sendGenericRemoteNotificationMessageResp= null;
+        RnsGenericRequest rnsGenericRequestPojo = null;
+        try{
+            rnsGenericRequestPojo =(RnsGenericRequest) hCEControllerSupport.requestFormation(rnsGenericRequest ,RnsGenericRequest.class);
+            sendGenericRemoteNotificationMessageResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequestPojo);
+        }catch (HCEActionException sendGenericRemoteNotificationMessageHceActionException){
+            LOGGER.error("Exception Occured in RemoteNotificationController->sendGenericRemoteNotificationMessage",sendGenericRemoteNotificationMessageHceActionException);
+            throw sendGenericRemoteNotificationMessageHceActionException;
+        }catch (Exception sendGenericRemoteNotificationMessageExcetption) {
+            LOGGER.error(" Exception Occured in RemoteNotificationController->sendGenericRemoteNotificationMessage", sendGenericRemoteNotificationMessageExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return sendGenericRemoteNotificationMessageResp;
     }
+
 }
 
