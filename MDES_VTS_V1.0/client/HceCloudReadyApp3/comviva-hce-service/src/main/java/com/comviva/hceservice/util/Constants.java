@@ -42,7 +42,7 @@ public class Constants {
     public static final String PROVISION_CERTIFICATE_NAME = "entrust";
     public static final String[] FORCE_TLS_PROTOCOL = {"TLSv1.2"};
 
-    public static final String CONTEXT_ROOT = "/payment-app2/";
+    public static final String CONTEXT_ROOT = "/payment-app/";
     public static final String MESSAGE_TAG = "notificationData";
     public static final String KEY_NOTIFICATION_TYPE = "notificationType";
     public static final String OPERATION = "OPERATION";
