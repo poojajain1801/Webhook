@@ -280,7 +280,7 @@ public class ComvivaSdk {
             try {
                 CommonUtil.setSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Utils.fromByteArrayToHexString(CommonUtil.getDeviceFingerprint(CommonUtil.getDeviceInfoInJson().toString().getBytes())), Tags.USER_DETAILS.getTag());
             } catch (SdkException e) {
-                e.printStackTrace();
+                Log.e(Tags.ERROR_LOG.getTag(),e.getMessage());
             }
         }
         SharedPreferences userDetailsSharedPreferences = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_USER_DETAILS, Context.MODE_PRIVATE);
