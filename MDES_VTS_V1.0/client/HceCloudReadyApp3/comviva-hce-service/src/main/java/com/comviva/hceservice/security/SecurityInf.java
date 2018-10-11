@@ -23,7 +23,7 @@ public interface SecurityInf {
      * @return <code>true </code>If apk is tampered <br>
      *     <code>false </code>apk is not tampered
      */
-    boolean isApkHooked();
+    boolean isApkTampered();
 
     /**
      * Returns device that if there is any security voilation at present.

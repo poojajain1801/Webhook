@@ -63,7 +63,6 @@ public class ComvivaSdk {
     private CommonDb commonDb;
     private SecurityInf securityInf;
     private static SDKData sdkData;
-    private HttpManager mHttpManager;
 
 
     private ComvivaSdk(Application application) {
@@ -89,17 +88,14 @@ public class ComvivaSdk {
 
     private HttpManager getHttpManager() {
 
-        if (mHttpManager == null) {
-            List<String> hostNames = new ArrayList<>();
-            hostNames.add("ws.mastercard.com");
-            hostNames.add("www.mastercard.com");
-            hostNames.add("services.mastercard.com");
-            hostNames.add("stl.services.mastercard.com");
-            hostNames.add("ksc.services.mastercard.com");
-            return new MpSdkHttpManager(hostNames, CommonUtil.getBytesFromInputStream(Constants.PROVISION_CERTIFICATE_NAME),
-                    Constants.FORCE_TLS_PROTOCOL);
-        }
-        return mHttpManager;
+        List<String> hostNames = new ArrayList<>();
+        hostNames.add("ws.mastercard.com");
+        hostNames.add("www.mastercard.com");
+        hostNames.add("services.mastercard.com");
+        hostNames.add("stl.services.mastercard.com");
+        hostNames.add("ksc.services.mastercard.com");
+        return new MpSdkHttpManager(hostNames, CommonUtil.getBytesFromInputStream(Constants.PROVISION_CERTIFICATE_NAME),
+                Constants.FORCE_TLS_PROTOCOL);
     }
 
 
@@ -242,12 +238,11 @@ public class ComvivaSdk {
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
         SecurityInf securityInf = comvivaSdk.getSecurityInf();
-        if (DeviceStatus.NOT_SAFE.equals(securityInf.getDeviceStatus())) {
+        if (securityInf.isDebuggable()) {
             // Close the application
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
         }
-
         // Check that device is Rooted
         if (securityInf.isDeviceRooted()) {
             // Delete all data from SDK and inform to server
@@ -285,7 +280,7 @@ public class ComvivaSdk {
             try {
                 CommonUtil.setSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Utils.fromByteArrayToHexString(CommonUtil.getDeviceFingerprint(CommonUtil.getDeviceInfoInJson().toString().getBytes())), Tags.USER_DETAILS.getTag());
             } catch (SdkException e) {
-                Log.e(Tags.ERROR_LOG.getTag(), String.valueOf(e));
+                e.printStackTrace();
             }
         }
         SharedPreferences userDetailsSharedPreferences = sdkData.getContext().getSharedPreferences(Constants.SHARED_PREF_USER_DETAILS, Context.MODE_PRIVATE);

@@ -9,15 +9,20 @@ public class TlvUtil {
         int currentTag;
         while (cursor < pdolValue.length) {
             currentTag = getCurrentTag(pdolValue, cursor);
+
             if(currentTag == 0x9F02) {
                 break;
             }
             tagLen = getTagLength(pdolValue[cursor]);
             firstLenByte = pdolValue[cursor+tagLen];
-            if(firstLenByte <= (0xFF & 0x7F)) {
+            byte b = (byte)firstLenByte;
+            firstLenByte = b & 0xFF;
+            if((firstLenByte <= (0xFF & 0x7F))) {
                 pdolIndex += pdolValue[cursor+tagLen];
                 cursor += tagLen + 1;
             } else {
+                byte p = (byte) pdolIndex;
+                pdolIndex = p & 0xFF;
                 switch (firstLenByte) {
                     case 0x81:
                         pdolIndex += (pdolValue[cursor+tagLen+1] & 0xFF);

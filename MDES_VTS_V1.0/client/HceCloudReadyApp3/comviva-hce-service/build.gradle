@@ -117,6 +117,7 @@ dependencies {
     compile files('libs/sample-android-crypto-2.3.0-debug.jar')
     compile files('libs/mchipengine-2.3.0-release.jar')
     compile files('libs/mpsdk-2.3.0-release.jar')
+    compile files('libs/dexguard-runtime.jar')
 }
 
 

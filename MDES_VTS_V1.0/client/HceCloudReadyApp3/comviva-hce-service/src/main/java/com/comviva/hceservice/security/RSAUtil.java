@@ -39,9 +39,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class RSAUtil {
 
     private PublicKey pub = null;
-    private Context context;
     private static String algorithm = "AES";
-    private static InputStream fixer = null;
     private static byte[] key;
     private static SecretKey yourKey = null;
 
@@ -70,7 +68,6 @@ public class RSAUtil {
     public RSAUtil(InputStream name) {
 
         pub = getPublicKeyFromCertFile(name);
-        fixer = name;
     }
 
 
