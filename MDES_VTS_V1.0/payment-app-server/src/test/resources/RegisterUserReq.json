@@ -1,3 +1,7 @@
 {
-  "userId":"1234567891"
+  "userId":"Rishikesh",
+  "clientDeviceID":"123456789012345678905432",
+  "imei":"12345678912345678",
+  "os_name":"ANDROID",
+  "device_model":"Nexus6"
 }
