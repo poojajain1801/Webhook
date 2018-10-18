@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/HceCloudReadyApp3.iml" filepath="$PROJECT_DIR$/HceCloudReadyApp3.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" filepath="$PROJECT_DIR$/comviva-hce-service/comviva-hce-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/workingCopy.iml" filepath="$PROJECT_DIR$/workingCopy.iml" />
     </modules>
   </component>
 </project>

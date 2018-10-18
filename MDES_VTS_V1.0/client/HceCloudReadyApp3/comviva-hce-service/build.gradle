@@ -3,11 +3,10 @@ buildscript {
         mavenCentral()
         jcenter()
         flatDir { dirs './lib' }
-        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath ':dexguard:'
     }
 }
@@ -18,7 +17,6 @@ apply plugin: 'dexguard'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
-    flavorDimensions "default"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -104,13 +102,22 @@ dependencies {
     compile('net.sf.flexjson:flexjson:3.2') {
         transitive = true
     }
+    testCompile 'junit:junit:4.12'
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'commons-codec:commons-codec:1.10'
     compile files('libs/VTS-SDK-5.1.1.jar')
     compile 'com.mcxiaoke.volley:library:1.0.19'
-
+    compile files('libs/dexguard-runtime .jar')
+    compile files('libs/sample-native-crypto-2.3.0-release.jar')
+    compile files('libs/sample-android-crypto-2.3.0-release.jar')
+    compile files('libs/mchipengine-2.3.0-debug.jar')
+    compile files('libs/mpsdk-2.3.0-debug.jar')
+    compile files('libs/sample-android-crypto-2.3.0-debug.jar')
+    compile files('libs/mchipengine-2.3.0-release.jar')
+    compile files('libs/mpsdk-2.3.0-release.jar')
+    compile files('libs/dexguard-runtime.jar')
 }
 
 

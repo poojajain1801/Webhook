@@ -391,10 +391,7 @@ class DigitizationVts implements ServerResponseListener {
                             digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
                         }
                     } catch (SdkException e) {
-                        if (digitizationListener != null) {
-                            digitizationListener.onError(SdkErrorStandardImpl.SERVER_JSON_EXCEPTION);
-                        }
-                        Log.e(Tags.ERROR_LOG.getTag(),e.getMessage());
+                        Log.e(Tags.ERROR_LOG.getTag(), e.getMessage());
                     }
                 } else {
                     if (digitizationListener != null) {
@@ -662,7 +659,7 @@ class DigitizationVts implements ServerResponseListener {
                     try {
                         ComvivaSdk.checkSecurity();
                     } catch (SdkException e) {
-                        Log.e(Tags.ERROR_LOG.getTag(),e.getMessage());
+                        Log.e(Tags.ERROR_LOG.getTag(), e.getMessage());
                         listener.onError(SdkErrorStandardImpl.getError(e.getErrorCode()));
                         return;
                     }
