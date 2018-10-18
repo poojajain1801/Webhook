@@ -31,6 +31,7 @@ import com.mastercard.mchipengine.walletinterface.walletdatatypes.TerminalInform
 import com.mastercard.mchipengine.walletinterface.walletdatatypes.TransactionInformation;
 import com.mastercard.mpsdk.componentinterface.Card;
 import com.mastercard.mpsdk.componentinterface.McbpLogger;
+import com.mastercard.mpsdk.componentinterface.crypto.McbpCryptoServices;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletDataCrypto;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletIdentificationDataProvider;
 import com.mastercard.mpsdk.componentinterface.crypto.keys.WalletDekEncryptedData;
@@ -209,13 +210,14 @@ public class ComvivaSdk {
             }
         };
         MdesCardManagerEventListener mdesCardManagerEventListener = new MdesCardManagerEventListener();
+        McbpCryptoServices mcbpCryptoServices = new McbpCryptoEngineFactory().getCryptoEngine(application);
         Mcbp mcbp = mcbpInitializer
                 .usingOptionalAdviceManager(walletAdviceManager)
                 .withWalletConsentManager(walletConsentManager)
                 .withCdCvmStatusProvider(cdCvmStatusProvider)
                 .withActiveCardProvider(sdkData.getCardSelectionManagerForTransaction())
                 .withCardManagerEventListener(mdesCardManagerEventListener)
-                .withCryptoEngine(new McbpCryptoEngineFactory().getCryptoEngine(application))
+                .withCryptoEngine(mcbpCryptoServices)
                 .withWalletIdentificationDataProvider(walletIdentificationDataProvider)
                 .withHttpManager(getHttpManager())
                 .withKeyRolloverEventListener(keyRolloverEventListener)
@@ -231,7 +233,6 @@ public class ComvivaSdk {
     public static void reportFraud() {
 
         comvivaSdk.resetDevice();
-        comvivaSdk = null;
     }
 
 
@@ -565,6 +566,7 @@ public class ComvivaSdk {
         SharedPreferences pref = sdkData.getContext().getSharedPreferences(Tags.USER_DETAILS.getTag(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
+        editor.apply();
         // Clear Vts related data
         VisaPaymentSDK visaPaymentSDK = VisaPaymentSDKImpl.getInstance();
         visaPaymentSDK.deleteAllTokensLocally();

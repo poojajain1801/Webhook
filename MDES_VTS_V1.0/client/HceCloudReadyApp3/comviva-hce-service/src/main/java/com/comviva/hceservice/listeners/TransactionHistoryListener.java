@@ -10,5 +10,5 @@ import java.util.List;
  * Created by amit.randhawa on 30-Aug-17.
  */
 public interface TransactionHistoryListener extends CommonListener {
-    void onSuccess(List<TransactionDetails> transactionHistoryDetailsLists);
+    void onSuccess(Object transactionHistoryDetailsLists);
 }

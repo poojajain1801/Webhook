@@ -3,6 +3,7 @@ package com.comviva.hceservice.transactionHistory;
 import android.util.Log;
 
 import com.comviva.hceservice.apiCalls.NetworkApi;
+import com.comviva.hceservice.common.CardState;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.CommonUtil;
 import com.comviva.hceservice.common.PaymentCard;
@@ -61,7 +62,11 @@ public class TransactionHistory implements ServerResponseListener {
                 TransactionHistoryData transactionHistoryData = (TransactionHistoryData) result;
                 TransactionHistoryListener transactionHistoryListener = (TransactionHistoryListener) listener;
                 if (Constants.HTTP_RESPONSE_CODE_200.equals(transactionHistoryData.getResponseCode())) {
-                    transactionHistoryListener.onSuccess(transactionHistoryData.getTransactionDetails());
+                    if (CardType.MDES.equals(paymentCard.getCardType())) {
+                        transactionHistoryListener.onSuccess(transactionHistoryData.getTransactionDetails());
+                    } else {
+                        transactionHistoryListener.onSuccess(transactionHistoryData.getTxnHistoryVisaData());
+                    }
                 } else {
                     transactionHistoryListener.onError(SdkErrorImpl.getInstance(Integer.parseInt(transactionHistoryData.getResponseCode()), transactionHistoryData.getResponseMessage()));
                 }
