@@ -221,7 +221,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = null;
         CardDetails cardDetails = null;
         String decision = "";
-
         try {
            // deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(digitizationParam.getPaymentAppInstanceId());
             /*if (!deviceInfoOptional.isPresent()) {
@@ -234,11 +233,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                 throw new HCEActionException(HCEMessageCodes.getCardNotEligible());
             }*/
 
-
             eligibilityRequest = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getRequest());
             eligibilityResponse = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getResponse());
-
-
             jsonRequest = new JSONObject(eligibilityRequest);
             jsonResponse = new JSONObject(eligibilityResponse);
 

@@ -5,10 +5,8 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
+import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
@@ -16,6 +14,7 @@ import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
+import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.*;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
@@ -52,6 +51,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
     @Autowired
     private HitMasterCardService hitMasterCardService;
+    @Autowired
+    TokenLifeCycleManagementService tokenLifeCycleManagementService;
+
+    @Autowired
+    private PerformUserLifecycle performLCMobj;
 
     @Autowired
     public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,CardDetailRepository cardDetailRepository ) {
@@ -125,7 +129,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
                     response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                     response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
-
                 } else {
                     response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
                     response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getSUCCESS());
@@ -210,6 +213,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Override
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
+        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         DeviceInfo deviceInfo = null;
         String paymentAppInstanceId = null;
         JSONObject requestJson = null;
@@ -223,21 +227,24 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         String imei = null;
         HttpStatus statusCode = null;
         try {
-            paymentAppInstanceId = unRegisterReq.getPaymentAppInstanceId();
             imei = unRegisterReq.getImei();
             userID = unRegisterReq.getUserId();
-
             if((imei.isEmpty()||(userID.isEmpty()))) {
                 LOGGER.error("Either imei or userid is missing");
                 hceControllerSupport.formResponse(HCEMessageCodes.getInsufficientData());
             }
-
             LOGGER.debug("MasterCard unregister is called for userID :"+userID);
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
             if (deviceInfo == null){
                 LOGGER.error(" No Device is registered with UserID :"+userID);
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
+
+            //Send Delete card request to VISA
+            List<CardDetails> cardDetails = deviceInfo.getCardDetails();
+            deleteVISACards(cardDetails);
+
+            paymentAppInstanceId = deviceInfo.getPaymentAppInstanceId();
             requestJson = new JSONObject();
             requestJson.put("responseHost",env.getProperty("responsehost"));
             requestJson.put("requestId",env.getProperty("reqestid")+ ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
@@ -253,21 +260,22 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 statusCode = responseMdes.getStatusCode();
             }
             if(statusCode!=null && statusCode.value() == HCEConstants.REASON_CODE7) {
-                cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
-                deviceInfo.setStatus(HCEConstants.INACTIVE);
-                deviceDetailRepository.save(deviceInfo);
                 LOGGER.debug("MasterCard UnRegister successful for userID: "+userID);
-                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+
             }
             else{
-                LOGGER.error("MasterCard Unregister failed at masterCard for UserID : "+userID);
-                if (responseMdes!=null) {
+                LOGGER.error("Unregister failed at masterCard for UserID : "+userID);
+                /*if (responseMdes!=null) {
                     responseMap = JsonUtil.jsonToMap(jsonResponse);
                     responseMap.put("responseCode", responseMdes.getStatusCode().value());
                 }
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-            }
+*/            }
+            cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
+            deviceInfo.setStatus(HCEConstants.INACTIVE);
+            deviceDetailRepository.save(deviceInfo);
+            responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+            responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 
         }catch(HCEActionException unRegisterDeviceHCEactionException){
             LOGGER.error("Exception occured in CardDetailServiceImpl->unRegisterDevice",unRegisterDeviceHCEactionException);
@@ -280,6 +288,20 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         return responseMap;
     }
 
+    public void deleteVISACards(List<CardDetails> visaCardList) {
+        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = null;
+        Map responseMap1 = null;
+        lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+        lifeCycleManagementVisaRequest.setOperation("DELETE");
+        lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
+        for (int i=0 ; i<visaCardList.size() ; i++) {
+            if (!(visaCardList.get(i).getVisaProvisionTokenId()==null||visaCardList.get(i).getVisaProvisionTokenId().isEmpty())){
+                lifeCycleManagementVisaRequest.setVprovisionedTokenID(visaCardList.get(i).getVisaProvisionTokenId());
+                responseMap1 = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
+                LOGGER.debug("Visa response after unregister ****************   " + responseMap1);
+            }
+        }
+    }
 
 
 }

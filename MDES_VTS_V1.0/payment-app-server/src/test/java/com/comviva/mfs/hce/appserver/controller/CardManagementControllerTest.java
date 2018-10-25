@@ -62,17 +62,17 @@ public class CardManagementControllerTest {
     @Test
     public void registerUserWithoutUserId() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.put("random","");
+        request.remove("userId");
         Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(registerUserResp, "706");
+        assertResponse(registerUserResp, "700");
     }
 
     @Test
     public void registerUserWithInvalidRequest() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.remove("userId");
+        request.put("random","");
         Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(registerUserResp, "700");
+        assertResponse(registerUserResp, "706");
     }
 
     @Test
@@ -200,7 +200,7 @@ public class CardManagementControllerTest {
         request.put("paymentAppInstanceId",paymentAppInstanceId);
         request.put("cardInfo",null);
         Map addCardResponse = ServiceUtils.servicePOSTResponse("card/checkCardEligibility",request);
-        assertResponse(addCardResponse, "200");
+        assertResponse(addCardResponse, "500");
     }
 
     @Test

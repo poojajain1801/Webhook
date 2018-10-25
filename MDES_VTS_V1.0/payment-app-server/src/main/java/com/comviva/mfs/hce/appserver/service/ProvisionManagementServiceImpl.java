@@ -219,9 +219,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
 
-            cardDetails.setStatus(HCEConstants.ACTIVE);
+            /*cardDetails.setStatus(HCEConstants.ACTIVE);
             cardDetailRepository.save(cardDetails);
-
+*/
             if (responseEntity.hasBody())
             {
                 response = String.valueOf(responseEntity.getBody());

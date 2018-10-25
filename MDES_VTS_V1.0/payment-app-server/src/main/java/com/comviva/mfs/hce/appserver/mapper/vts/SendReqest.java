@@ -69,7 +69,7 @@ public class SendReqest {
             String requestId = (String) header.get("xRequestId");
 
             LOGGER.debug("url =:"+url);
-            LOGGER.debug("xpaytoken = "+xpaytoken);
+            //LOGGER.debug("xpaytoken = "+xpaytoken);
             LOGGER.debug("requestId = "+requestId);
 
             httpsURLConnection.setDoOutput(true);
@@ -91,7 +91,6 @@ public class SendReqest {
             out.close();
             responseCode = httpsURLConnection.getResponseCode();
             //success
-
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
                 response = new JSONObject(responseBody);
@@ -109,7 +108,6 @@ public class SendReqest {
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
-
                 response = new JSONObject(responseBody);
                 responseJson.put("response",response);
                 responseJson.put(HCEConstants.STATUS_CODE,responseCode);
@@ -164,15 +162,15 @@ public class SendReqest {
         //String resource_path="vts/clients/vClientID/devices/clientDeviceID";
         //String hashInput = (utcTimestamp+resource_path+query_string+object.toString());
         String hashInput = (utcTimestamp+(String)prepareHeaderRequest.get("resourcePath")+prepareHeaderRequest.get("queryString")+prepareHeaderRequest.get("requestBody"));
-        System.out.println("hashInput:"+hashInput);
+        //System.out.println("hashInput:"+hashInput);
         try {
             byte[] bHmacSha256 = MessageDigestUtil.hMacSha256(hashInput.getBytes("UTF-8"),bsharedSecret);
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
         } catch (Exception e) {
             LOGGER.error("Exception Occured" + e);
         }
-        System.out.println("hmacSha256:    "+hmacSha256);
-        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);
+        /*System.out.println("hmacSha256:    "+hmacSha256);
+        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);*/
         return xPayToken + hmacSha256;
     }
 

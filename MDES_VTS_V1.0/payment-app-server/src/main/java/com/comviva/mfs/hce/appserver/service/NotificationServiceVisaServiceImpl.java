@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokenStatusRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotificationServiceReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -12,6 +13,7 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.NotificationServiceVisaService;
 import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
+import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
@@ -46,6 +48,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     private Environment env;
 
     @Autowired
+    TokenLifeCycleManagementService tokenLifeCycleManagementService ;
+
+    @Autowired
     public NotificationServiceVisaServiceImpl(HCEControllerSupport hceControllerSupport, CardDetailRepository cardDetailRepository, UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
         this.cardDetailRepository = cardDetailRepository;
@@ -58,6 +63,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType)
     {
         //Verify vProvisionID
+        GetTokenStatusRequest getTokenStatusRequest = null;
+        LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent");
+        CardDetails cardDetails = null;
         String vprovisionedTokenId = notificationServiceReq.getvProvisionedTokenID();
         final List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vprovisionedTokenId);
         if(cardDetailsList==null || cardDetailsList.isEmpty()){
@@ -66,7 +74,14 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             return hceControllerSupport.formResponse(HCEMessageCodes.getCardDetailsNotExist());
         }
 
-        LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent");
+        if (eventType.equalsIgnoreCase("TOKEN_STATUS_UPDATED"))
+        {
+            //Call getTokenStatusAPI
+            getTokenStatusRequest = new GetTokenStatusRequest();
+            getTokenStatusRequest.setVprovisionedTokenID(vprovisionedTokenId);
+            tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequest);
+        }
+
         //Verify API key
         if (apiKey.equalsIgnoreCase(env.getProperty("apiKey")))
         {

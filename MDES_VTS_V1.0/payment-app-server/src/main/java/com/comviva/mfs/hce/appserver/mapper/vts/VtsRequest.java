@@ -101,13 +101,13 @@ public class VtsRequest {
         Date date = Date.from(utc.toInstant());
         long utcTimestamp = utc.toEpochSecond();*/
 
-       long utcTimestamp = System.currentTimeMillis() / 1000L;
+        long utcTimestamp = System.currentTimeMillis() / 1000L;
         String xPayToken = "xv2:" + utcTimestamp + ":";
         //String query_string = "apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc";
         //String resource_path="vts/clients/vClientID/devices/clientDeviceID";
         //String hashInput = (utcTimestamp+resource_path+query_string+object.toString());
         String hashInput = (utcTimestamp+(String)prepareHeaderRequest.get("resourcePath")+prepareHeaderRequest.get("queryString")+prepareHeaderRequest.get("requestBody"));
-        System.out.println("hashInput:"+hashInput);
+        // System.out.println("hashInput:"+hashInput);
         try {
             byte[] bHmacSha256 = MessageDigestUtil.hMacSha256(hashInput.getBytes("UTF-8"),sharedSecret);
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
@@ -115,8 +115,8 @@ public class VtsRequest {
             LOGGER.error("Exception Occured" + e);
 
         }
-        System.out.println("hmacSha256:    "+hmacSha256);
-        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);
+        /*System.out.println("hmacSha256:    "+hmacSha256);
+        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);*/
         return xPayToken + hmacSha256;
     }
 }

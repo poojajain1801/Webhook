@@ -86,23 +86,17 @@ public class HitMasterCardService
             url =url+"/{id}";
             idMap.put("id",id);
 
-
-
-
-         /*   if(env.getProperty("is.proxy.required").equals("Y")) {
+            /*   if(env.getProperty("is.proxy.required").equals("Y")) {
                 Properties props = System.getProperties();
                 props.put("http.proxyHost", "10.0.161.70");
                 props.put("http.proxyPort", "80");
             }*/
-
-
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
             LOGGER.debug("Request = " + (String)entity.getBody());
             LOGGER.debug("URL---- = " + url);
             LOGGER.info("info---- = " + url);
             startTime = System.currentTimeMillis();
-            if ("POST".equals(type))
-            {
+            if ("POST".equals(type)) {
                 LOGGER.debug("Request medthod  ########################################################## = " + type);
                 LOGGER.info("Request medthod  ###########################################################= " + type);
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
@@ -148,10 +142,8 @@ public class HitMasterCardService
             }
             //return response;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
-
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
         }
         finally {
@@ -177,11 +169,7 @@ public class HitMasterCardService
         return response;
     }
 
-
-
-    private RestTemplate restTemplate() throws Exception
-    {
-
+    private RestTemplate restTemplate() throws Exception {
         String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
         SSLContext sslContext = SSLContextBuilder.create()
@@ -195,10 +183,8 @@ public class HitMasterCardService
       /*  SSLContext sslContext = SSLContextBuilder.create().loadKeyMaterial(ResourceUtils.getFile("classpath:truststore.jks"), secretkey.toCharArray(), secretkey.toCharArray()).loadTrustMaterial(ResourceUtils.getFile("classpath:keystore.jks"), secretkey.toCharArray()).build();
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
 
-       // HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(client);
-
+        //HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(client);
         ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));*/
-
         return new RestTemplate(factory);
     }
 }
