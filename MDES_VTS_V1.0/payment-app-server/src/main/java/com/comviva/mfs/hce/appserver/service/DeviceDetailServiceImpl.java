@@ -274,6 +274,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
             deviceInfo.setStatus(HCEConstants.INACTIVE);
             deviceDetailRepository.save(deviceInfo);
+            responseMap = new HashMap();
             responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
             responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 
