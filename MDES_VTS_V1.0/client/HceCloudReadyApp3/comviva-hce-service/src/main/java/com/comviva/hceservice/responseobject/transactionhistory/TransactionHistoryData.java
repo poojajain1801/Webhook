@@ -13,9 +13,18 @@ public class TransactionHistoryData {
     @SerializedName("message")
     @Expose
     private String responseMessage;
-    @SerializedName(value = "transactions", alternate = {"txnHistory"})
+    @SerializedName("transactions")
     @Expose
     private List<TransactionDetails> transactionDetails;
+    @SerializedName("transactionDetails")
+    @Expose
+    private List<TxnHistoryVisaData> txnHistoryVisaData;
+
+
+    public List<TxnHistoryVisaData> getTxnHistoryVisaData() {
+
+        return txnHistoryVisaData;
+    }
 
 
     public List<TransactionDetails> getTransactionDetails() {

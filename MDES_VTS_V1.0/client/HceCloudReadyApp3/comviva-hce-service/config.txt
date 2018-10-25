@@ -1,6 +1,6 @@
--injars 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\bundles\mdesRelease'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
--injars 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\annotations\mdes\release'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
--outjars 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\aar\comviva-hce-service-mdes-release.aar'
+-injars 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\bundles\mdesRelease'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
+-injars 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\intermediates\annotations\mdes\release'(!**/R.class,!**/R$*.class,!**/Manifest.class,!**/Manifest$*.class,jni/**.so,!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
+-outjars 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\aar\comviva-hce-service-mdes-release.aar'
 
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\66a857be8020af07d1ab3a809d6f08a32cbc1eba\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
 -libraryjars 'C:\Users\amit.randhawa\.android\build-cache\216f0cc02defcc39394163cfbbd405b03f381db9\output\jars\classes.jar'(!org/w3c/dom/*,!org/w3c/dom/ls/*,!org/xml/sax/**,!org/xmlpull/v1/**,!org/json/JSON*,!org/apache/commons/logging/Log.class,org/apache/http/Consts.class,org/apache/http/HttpHeaders.class,org/apache/http/entity/ContentType.class,org/apache/http/util/Args.class,org/apache/http/util/Asserts.class,org/apache/http/util/CharsetUtils.class,org/apache/http/util/NetUtils.class,org/apache/http/util/TextUtils.class,!org/apache/http/*,!org/apache/http/auth/*,!org/apache/http/auth/params/*,!org/apache/http/client/*,!org/apache/http/client/entity/*,!org/apache/http/client/methods/*,!org/apache/http/client/params/*,!org/apache/http/client/protocol/*,!org/apache/http/client/utils/*Utils.class,!org/apache/http/conn/*,!org/apache/http/conn/params/*,!org/apache/http/conn/routing/*,!org/apache/http/conn/scheme/*,!org/apache/http/conn/ssl/*,!org/apache/http/conn/util/*,!org/apache/http/cookie/*,!org/apache/http/cookie/params/*,!org/apache/http/entity/*,!org/apache/http/impl/*,!org/apache/http/impl/auth/*,!org/apache/http/impl/client/*,!org/apache/http/impl/conn/*,!org/apache/http/impl/conn/tsccm/*,!org/apache/http/impl/cookie/*,!org/apache/http/impl/entity/*,!org/apache/http/impl/io/*,!org/apache/http/io/*,!org/apache/http/message/*,!org/apache/http/params/*,!org/apache/http/protocol/*,!org/apache/http/util/*,com/guardsquare/dexguard/runtime/**,com/guardsquare/dexguard/annotation/**,!com/guardsquare/**,!**/dexguard*.pro,!lib/*dictionary*.txt,!com/saikoa/**.properties,!proguard/**.properties,META-INF/services/**,META-INF/*.kotlin_module,!META-INF/**,!.hg**,!**/.hg**,!.git**,!**/.git**,!.svn**,!**/.svn**,!CVS,!CVS/**,!**/CVS,!**/CVS/**,!.cvsignore,!**/.cvsignore,!SCCS,!SCCS/**,!**/SCCS,!**/SCCS/**,!**.orig,!**~,**.class,lib/*/*.so,res/raw/*.so,assets/**.so,!**.so,!.readme,!**.keep,!**.DS_Store,!**.aidl,!**.rs,!**.rsh,!**.d,!**.java,!**.scala,!**.scc,!**.swp,!**.bak,!**thumbs.db,!**picasa.ini,!**package.html,!**overview.html,!**.AIDL,!**.RS,!**.RSH,!**.D,!**.JAVA,!**.SCALA,!**.SCC,!**.SWP,!**.BAK,!**THUMBS.DB,!**PICASA.INI,!**PACKAGE.HTML,!**OVERVIEW.HTML,!kotlin/**/_*.kotlin_metadata)
@@ -32,16 +32,16 @@
 -zipalign 4
 -forceprocessing
 -dontshrink
--printusage 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\usage.txt'
+-printusage 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\usage.txt'
 -dontoptimize
 -optimizationpasses 5
--printmapping 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\mapping.txt'
--printresourcefilenamemapping 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourcefilenamemapping.txt'
--printclassencryption 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\classencryption.txt'
--printstringencryption 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\stringencryption.txt'
--printassetencryption 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\assetencryption.txt'
--printresourceencryption 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourceencryption.txt'
--printnativelibraryencryption 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\nativelibraryencryption.txt'
+-printmapping 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\mapping.txt'
+-printresourcefilenamemapping 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourcefilenamemapping.txt'
+-printclassencryption 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\classencryption.txt'
+-printstringencryption 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\stringencryption.txt'
+-printassetencryption 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\assetencryption.txt'
+-printresourceencryption 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\resourceencryption.txt'
+-printnativelibraryencryption 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\nativelibraryencryption.txt'
 -obfuscationdictionary jar:file:/C:/Users/amit.randhawa/.gradle/caches/jars-3/ae9c25783e8adfd52eb9621053e605b3/dexguard.jar!/lib/dictionary.txt
 -classobfuscationdictionary jar:file:/C:/Users/amit.randhawa/.gradle/caches/jars-3/ae9c25783e8adfd52eb9621053e605b3/dexguard.jar!/lib/classdictionary-library.txt
 -dontusemixedcaseclassnames
@@ -76,8 +76,8 @@
 -dontnote android.app.backup.BackupAgent,android.view.ActionProvider,android.webkit.JavascriptInterface,android.support.**,android.arch.lifecycle.AndroidViewModel,kotlin.jvm.internal.Intrinsics,com.google.android.gms.**,com.google.firebase.**,io.fabric.sdk.android.services.common.AdvertisingInfoReflectionStrategy,com.mopub.common.GpsHelper,com.localytics.android.DatapointHelper,com.android.vending.licensing.ILicensingService,com.google.ads.mediation.admob.AdMobAdapter,com.google.ads.mediation.AdUrlAdapter,com.google.ads.mediation.MediationServerParameters$Parameter,com.google.ads.mediation.MediationAdapter,com.google.ads.mediation.customevent.CustomEvent,com.amazon.device.ads.AdActivity,sun.misc.Unsafe,com.google.common.primitives.UnsignedBytes$LexicographicalComparatorHolder$UnsafeComparator,com.google.inject.Provider,com.google.inject.Inject,roboguice.event.Observes,roboguice.activity.event.OnCreateEvent,roboguice.inject.SharedPreferencesProvider$PreferencesNameHolder,com.google.inject.internal.util.$Finalizer,com.google.inject.internal.util.$FinalizableReference,com.google.inject.Module,dagger.Lazy,retrofit.http.RestMethod,retrofit2.Platform,retrofit2.Platform$IOS$MainThreadExecutor,rx.internal.util.atomic.LinkedQueueNode,com.actionbarsherlock.internal.nineoldandroids.animation.*,com.actionbarsherlock.ActionBarSherlock,com.actionbarsherlock.view.ActionProvider,com.sun.jna.Library,com.sun.jna.Callback,com.sun.jna.**,com.facebook.proguard.annotations.DoNotStrip,com.facebook.proguard.annotations.KeepGettersAndSetters,com.facebook.android.crypto.keychain.SecureRandomFix,com.facebook.crypto.proguard.annotations.DoNotStrip,com.facebook.crypto.proguard.annotations.KeepGettersAndSetters,com.facebook.jni.HybridData,com.facebook.common.internal.DoNotStrip,io.card.**,org.greenrobot.eventbus.Subscribe,org.greenrobot.eventbus.ThreadMode,org.greenrobot.eventbus.util.ThrowableFailureEvent,com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper,com.j256.ormlite.field.DatabaseFieldConfig,com.j256.ormlite.dao.Dao,com.j256.ormlite.android.AndroidLog,com.j256.ormlite.table.DatabaseTable,com.j256.ormlite.field.DatabaseField,com.j256.ormlite.field.ForeignCollectionField,org.joda.time.DateTime,com.couchbase.**,org.ektorp.support.CouchDbDocument,com.google.api.client.util.Key,com.google.api.client.util.Value,com.google.api.client.util.NullValue,com.google.api.client.util.Types,com.google.gdata.model.*,com.google.gson.annotations.Expose,com.google.gson.annotations.SerializedName,org.codehaus.jackson.**,org.codehaus.jackson.annotate.JsonAutoDetect,io.realm.RealmObject,io.realm.ValidationList,io.realm.annotations.RealmModule,io.realm.exceptions.*,io.realm.internal.*,ch.qos.logback.**,io.fabric.sdk.android.Kit,com.facebook.model.GraphObject,com.facebook.soloader.SysUtil$LollipopSysdeps,com.tapjoy.**,org.json.JSONObject,net.sqlcipher.**,info.guardianproject.libcore.**,info.guardianproject.iocipher.**,javax.mail.*,org.apache.cordova.NativeToJsMessageQueue$PrivateApiBridgeMode,com.squareup.okhttp.internal.Platform,org.apache.cordova.App,org.apache.cordova.api.CordovaPlugin,org.apache.cordova.CordovaPlugin,com.phonegap.api.Plugin,org.apache.cordova.CordovaWebViewEngine,org.xwalk.core.JavascriptInterface,com.badlogic.gdx.graphics.**,com.badlogic.gdx.Application,com.badlogic.gdx.backends.android.AndroidApplicationConfiguration,com.badlogic.gdx.physics.box2d.World,com.badlogic.gdx.scenes.scene2d.ui.ImageButton,com.badlogic.gdx.backends.android.AndroidGL20,com.badlogic.gdx.physics.box2d.Fixture,com.bumptech.glide.module.GlideModule,com.bumptech.glide.module.AppGlideModule,com.bumptech.glide.GeneratedAppGlideModuleImpl,com.bumptech.glide.Glide,com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$**,com.nuance.android.vocalizer.**,com.googlecode.tesseract.android.TessBaseAPI,com.googlecode.eyesfree.textdetect.HydrogenTextDetector$Parameters,veg.mediaplayer.sdk.*,net.sourceforge.zbar.*,pl.droidsonroids.gif.GifImageView,pl.droidsonroids.gif.GifIOException,pl.droidsonroids.gif.GifInfoHandle,android.net.http.HttpResponseCache,android.net.http.Ssl*,org.apache.http.conn.ConnectTimeoutException,org.apache.http.conn.scheme.HostNameResolver,org.apache.http.conn.scheme.LayeredSocketFactory,org.apache.http.conn.scheme.SocketFactory,org.apache.http.params.CoreConnectionPNames,org.apache.http.params.HttpConnectionParams,org.apache.http.params.HttpParams,java8.util.ArraysArrayListSpliterator,java8.util.HMSpliterators*,java8.util.LBDSpliterator,java8.util.LBQSpliterator,java8.util.concurrent.ForkJoinPool,okhttp3.internal.AndroidPlatform,okhttp3.internal.Platform,com.facebook.react.bridge.JavaScriptModule,com.facebook.react.bridge.NativeModule,com.facebook.react.uimanager.UIProp,com.facebook.react.uimanager.annotations.ReactProp,com.facebook.react.uimanager.annotations.ReactPropGroup,proguard.annotation.*,com.guardsquare.dexguard.annotation.*,flexjson.**
 -dontwarn sun.**,javax.**,java.awt.**,java.nio.file.**,org.apache.**,com.google.errorprone.annotations.**,android.os.SystemProperties,android.renderscript.RenderScript,com.guardsquare.dexguard.runtime.net.SSLPinningWebViewClient,android.support.**.R,android.support.**.R$*,android.support.annotation.Keep,android.support.**Compat*,android.support.**Honeycomb*,android.support.**IceCreamSandwich*,android.support.**JellyBean*,android.support.**Jellybean*,android.support.**JB*,android.support.**KitKat*,android.support.**Kitkat*,android.support.**Lollipop*,android.support.**19,android.support.**20,android.support.**21,android.support.**22,android.support.**23,android.support.**24,android.support.**25,android.support.**Api*,android.support.transition.SceneWrapper,android.support.v*.internal.**,android.support.v*.view.WindowCallbackWrapper,android.support.v*.widget.RoundRectDrawable,android.support.v*.widget.Toolbar,android.app.Notification$Builder,android.annotation.TargetApi,android.support.annotation.RequiresApi,com.google.android.gms.**,roboguice.activity.RoboMapActivity,roboguice.test.**,dagger.internal.codegen.*,butterknife.internal.ButterKnifeProcessor,retrofit.RxSupport*,retrofit.appengine.UrlFetchClient,retrofit2.Platform$Java8,com.sun.jna.CallbackReference,org.codehaus.jackson.map.ext.**,org.crosswalk.**,org.xwalk.**,com.badlogic.gdx.backends.android.AndroidFragmentApplication,com.badlogic.gdx.utils.GdxBuild,com.badlogic.gdx.physics.box2d.utils.Box2DBuild,com.badlogic.gdx.jnigen.**,java.lang.invoke.MethodType,java.lang.invoke.LambdaMetafactory,java.lang.invoke.MethodHandle*,java8.util.DelegatingSpliterator*,java8.util.Spliterators,org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement,proguard.annotation.*,com.guardsquare.dexguard.annotation.*,com.mastercard.**,org.apache.cordova.*,com.guardsquare.dexguard.runtime.encryption.*,com.visa.cbp.**,sun.misc.**,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context,android.security.NetworkSecurityPolicy,android.app.Notification,android.content.Context
 -ignorewarnings
--printconfiguration 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\config.txt'
--printseeds 'E:\workingCopy\MDES\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\seeds.txt'
+-printconfiguration 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\config.txt'
+-printseeds 'C:\Users\amit.randhawa\Desktop\GIT Copy\MDES-4cd5eef66b5b8c2f3c750b131e4e6d5cadc92119\MDES_VTS_V1.0\client\HceCloudReadyApp3\comviva-hce-service\build\outputs\mapping\mdes\release\seeds.txt'
 
 
 -keepresourcefiles **,res/raw/*_micro_apk.apk,res/raw/wearable_*.apk,lib/**/librealm-jni.so,assets/crashlytics-build.properties,res/xml/config.xml,res/icon/android/**,res/screen/android/**,lib/**/libgdx*.so,lib/*/libMSO*.so,lib/*/libNativeMorphoSmartSDK_*.so,assets/wlclient.properties,jni/**/*.so
@@ -1495,6 +1495,271 @@
     public private protected <methods>;
 }
 
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
+# Proguard flags for consumers of the Google Play services SDK
+# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
+# Keep SafeParcelable value, needed for reflection. This is required to support backwards
+# compatibility of some classes.
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
+# found via reflection.
+-keep class com.google.android.gms.common.internal.ReflectedParcelable
+
+-keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
+
+-keepclassmembers class * extends android.os.Parcelable {
+    public static final *** CREATOR;
+}
+
+# Keep the classes/members we need for client functionality.
+-keep @interface  android.support.annotation.Keep
+
+-keep @android.support.annotation.Keep class *
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <fields>;
+}
+
+-keepclasseswithmembers class * {
+    @android.support.annotation.Keep
+    <methods>;
+}
+
+# Keep the names of classes/members we need for client functionality.
+-keep @interface  com.google.android.gms.common.annotation.KeepName
+
+-keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
+
+-keepclassmembers,allowshrinking,allowmultidexing class * {
+    @com.google.android.gms.common.annotation.KeepName
+    <fields>;
+    @com.google.android.gms.common.annotation.KeepName
+    <methods>;
+}
+
+# Keep Dynamite API entry points
+-keep @interface  com.google.android.gms.common.util.DynamiteApi
+
+-keep @com.google.android.gms.common.util.DynamiteApi public class * {
+    public <fields>;
+    public <methods>;
+}
+
 # Copyright (C) 2016 The Android Open Source Project
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -1512,271 +1777,6 @@
 -keepclassmembers class android.support.graphics.drawable.VectorDrawableCompat$* {
     void set*(***);
     *** get*();
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
-}
-
-# Proguard flags for consumers of the Google Play services SDK
-# https://developers.google.com/android/guides/setup#add_google_play_services_to_your_project
-# Keep SafeParcelable value, needed for reflection. This is required to support backwards
-# compatibility of some classes.
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
-# Needed for Parcelable/SafeParcelable classes & their creators to not get renamed, as they are
-# found via reflection.
--keep class com.google.android.gms.common.internal.ReflectedParcelable
-
--keep,allowshrinking,allowmultidexing class * extends com.google.android.gms.common.internal.ReflectedParcelable
-
--keepclassmembers class * extends android.os.Parcelable {
-    public static final *** CREATOR;
-}
-
-# Keep the classes/members we need for client functionality.
--keep @interface  android.support.annotation.Keep
-
--keep @android.support.annotation.Keep class *
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <fields>;
-}
-
--keepclasseswithmembers class * {
-    @android.support.annotation.Keep
-    <methods>;
-}
-
-# Keep the names of classes/members we need for client functionality.
--keep @interface  com.google.android.gms.common.annotation.KeepName
-
--keep,allowshrinking,allowmultidexing @com.google.android.gms.common.annotation.KeepName class *
-
--keepclassmembers,allowshrinking,allowmultidexing class * {
-    @com.google.android.gms.common.annotation.KeepName
-    <fields>;
-    @com.google.android.gms.common.annotation.KeepName
-    <methods>;
-}
-
-# Keep Dynamite API entry points
--keep @interface  com.google.android.gms.common.util.DynamiteApi
-
--keep @com.google.android.gms.common.util.DynamiteApi public class * {
-    public <fields>;
-    public <methods>;
 }
 
 # Proguard flags for consumers of the Google Play services SDK

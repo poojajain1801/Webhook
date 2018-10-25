@@ -45,12 +45,12 @@ import javax.crypto.Cipher;
 
 public class RequestParamsManager {
 
-    private static SDKData sdkData = SDKData.getInstance();
+    private static SDKData sdkData;
     private static VisaPaymentSDK visaPaymentSDK;
 
 
     public static JSONObject getRegisterUserParams(String userID, String clientDeviceID) throws SdkException {
-
+        sdkData = SDKData.getInstance();
         try {
             JSONObject registerUserObject = new JSONObject();
             registerUserObject.put(Tags.USER_ID.getTag(), userID);
@@ -70,7 +70,7 @@ public class RequestParamsManager {
 
 
     public static JSONObject getRegisterDeviceParams(String clientDeviceId, RegisterRequestParam registerRequestParam) throws SdkException {
-        // String deviceFingerprint;
+        sdkData = SDKData.getInstance();
         String fcmRegistrationToken;
         String paymentAppInstanceId;
         JSONObject registerDeviceParams = new JSONObject();
@@ -537,7 +537,7 @@ public class RequestParamsManager {
                 transactionHistoryObject.put(Tags.TOKEN_UNIQUE_REFERENCE.getTag(), paymentCard.getInstrumentId());
                 transactionHistoryObject.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), CommonUtil.getSharedPreference(Tags.MDES_PAY_INSTANCE_ID.getTag(), Tags.USER_DETAILS.getTag()));
             } else if (CardType.VTS.equals(paymentCard.getCardType())) {
-                transactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId());
+                transactionHistoryObject.put(Tags.V_PROVISIONED_TOKEN_ID.getTag(), paymentCard.getCardUniqueId()); //"18627188dde3c9de78c317835c352901"
                 transactionHistoryObject.put(Tags.COUNT.getTag(), count);
             } else {
             }

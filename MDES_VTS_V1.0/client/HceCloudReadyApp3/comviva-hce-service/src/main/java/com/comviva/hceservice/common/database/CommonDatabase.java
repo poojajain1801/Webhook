@@ -5,11 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.comviva.hceservice.LukInfo;
 import com.comviva.hceservice.common.CardType;
 import com.comviva.hceservice.common.PaymentCard;
 import com.comviva.hceservice.common.SDKData;
+import com.comviva.hceservice.common.Tags;
 import com.comviva.hceservice.fcm.RnsInfo;
 import com.mastercard.mpsdk.componentinterface.RolloverInProgressException;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
@@ -323,7 +325,7 @@ public class CommonDatabase implements CommonDb {
                 }
             }
         } catch (RolloverInProgressException e) {
-            e.printStackTrace();
+            Log.e(Tags.ERROR_LOG.getTag(), e.getMessage());
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
