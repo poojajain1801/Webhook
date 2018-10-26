@@ -61,5 +61,6 @@ public class Constants {
     public static final String PAYMENT_APP_PROVIDER_ID= "479";
     public static final String CLIENT_APP_ID= "NBKewallet";
     public static final String CARDLET_ID= "MCBP_479";
+    public static final String KEYSTORE_NAME= "sdkKeystore.bks";
 
 }

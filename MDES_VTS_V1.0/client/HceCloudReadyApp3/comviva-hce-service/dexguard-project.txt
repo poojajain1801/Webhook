@@ -93,6 +93,9 @@ public protected *;
 -keep public class com.comviva.hceservice.common.ComvivaSdk {
     public public *;
 }
+-keep public class com.comviva.hceservice.app_properties.**{
+  public private protected *;
+}
 -keep public class com.comviva.hceservice.common.PaymentCard {
     public public *;
 }

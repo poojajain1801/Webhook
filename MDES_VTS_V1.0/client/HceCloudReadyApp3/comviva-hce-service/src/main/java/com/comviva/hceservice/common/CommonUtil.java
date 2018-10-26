@@ -265,7 +265,7 @@ public class CommonUtil {
         PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         // Provide location of Java Keystore and password for access
-        InputStream inputStream = getApplicationContext().getAssets().open(propertyReader.getProperty(PropertyConst.KEY_SDK_KEYSTORE_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
+        InputStream inputStream = getApplicationContext().getAssets().open(Constants.KEYSTORE_NAME);
         keyStore.load(inputStream, propertyReader.getProperty(PropertyConst.KEY_SDK_KEYSTORE_PASS,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE).toCharArray());
         Certificate certificate = keyStore.getCertificate(aliasName);
         return certificate;

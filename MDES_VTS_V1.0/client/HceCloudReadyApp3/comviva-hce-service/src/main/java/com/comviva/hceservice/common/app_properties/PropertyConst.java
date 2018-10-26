@@ -61,12 +61,6 @@ public class PropertyConst {
      */
     public static final String KEY_PROVISION_CERTIFICATE_NAME= "PROVISION_CERTIFICATE_NAME";
 
-
-    /**
-     * SDK Keystore Name
-     * (All Public certificates are stored in this keystore).
-     */
-    public static final String KEY_SDK_KEYSTORE_NAME= "SDK_KEYSTORE_NAME";
     /**
      * CMS-d Server's IP.
      */

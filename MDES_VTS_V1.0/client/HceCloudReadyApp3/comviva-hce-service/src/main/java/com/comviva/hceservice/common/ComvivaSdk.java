@@ -67,7 +67,6 @@ public class ComvivaSdk {
 
 
     private ComvivaSdk(Application application) {
-
         sdkData.setContext((application.getApplicationContext()));
         securityInf = DexGuardSecurity.getInstance(sdkData.getContext());
         commonDb = new CommonDatabase(sdkData.getContext());
@@ -236,11 +235,10 @@ public class ComvivaSdk {
         comvivaSdk.resetDevice();
     }
 
-
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
         SecurityInf securityInf = comvivaSdk.getSecurityInf();
-        if (securityInf.isDebuggable()) {
+        if (securityInf.isDebuggable()){
             // Close the application
             comvivaSdk = null;
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
@@ -260,6 +258,7 @@ public class ComvivaSdk {
         PropertyReader propertyReader = PropertyReader.getInstance(ctx);
         SharedPreferences sharedPrefConf = ctx.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         if (!sharedPrefConf.contains(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP))) {
+
             String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER,PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
             String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER ,PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
             SharedPreferences.Editor editor = sharedPrefConf.edit();
@@ -647,7 +646,7 @@ public class ComvivaSdk {
         } else {
             editor.putBoolean(CommonUtil.encrypt(Constants.KEY_HTTPS_ENABLED), false);
         }
-        editor.commit();
+        editor.apply();
         loadConfiguration();
     }
 
