@@ -301,7 +301,6 @@ public class NetworkApi {
 
 
     public void digitizeMdes(CheckCardEligibilityResponse checkCardEligibilityResponse, final DigitizationListener digitizationListener) throws SdkException {
-
         String url = UrlUtil.getContinueDigitizationUrl();
         Log.d(Tags.URL_LOG.getTag(), url);
         JSONObject reqString = RequestParamsManager.getDigitizationMdes(checkCardEligibilityResponse);

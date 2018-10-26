@@ -240,5 +240,7 @@ public protected *;
   public private protected *;
 }
 -dontnote flexjson.**
+-encryptassetfiles assets/credentials.properties
+
 
 

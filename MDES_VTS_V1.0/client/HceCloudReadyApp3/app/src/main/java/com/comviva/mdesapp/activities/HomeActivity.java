@@ -71,6 +71,7 @@ import com.comviva.mdesapp.R;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity implements ApduLogListener, SwipeRefreshLayout.OnRefreshListener {
 
@@ -332,7 +333,7 @@ public class HomeActivity extends AppCompatActivity implements ApduLogListener, 
             TransactionHistory transactionHistory = new TransactionHistory();
             transactionHistory.getTransactionHistory(currentCard, 10, new TransactionHistoryListener() {
                 @Override
-                public void onSuccess(List<TransactionDetails> arrayList) {
+                public void onSuccess(Object arrayList) {
 
                 }
 

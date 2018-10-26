@@ -83,8 +83,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         }
 
         //Verify API key
-        if (apiKey.equalsIgnoreCase(env.getProperty("apiKey")))
-        {
+        if (apiKey.equalsIgnoreCase(env.getProperty("apiKey"))){
             //Return Invalid apiKey
         }
 
@@ -95,7 +94,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
             rnsGenericRequest.setIdType(UniqueIdType.VTS);
             rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));
             lcmNotificationData.put("vprovisionedTokenId", vprovisionedTokenId);
-
 
             switch (eventType) {
                 case HCEConstants.TOKEN_CREATED:
@@ -115,8 +113,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                     break;
                 default:
                     //return invalid event Type
-
-
             }
 
             rnsGenericRequest.setRnsData(lcmNotificationData);
@@ -126,9 +122,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = "+json);
             LOGGER.debug("NotificationServiceVisaServiceImpl -> Remote notification Data Send to FCM Server = ");
-
             Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
-
             LOGGER.debug("NotificationServiceVisaServiceImpl->Remote notification response receved = "+rnsResp.toString());
 
             if (rnsResp.containsKey("errorCode")) {
@@ -163,30 +157,21 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         String vPanEnrollmentId = notificationServiceReq.getvPanEnrollmentID();
         HashMap<String, String> lcmNotificationData = new HashMap<>();
         try{
-
-
             final List<CardDetails> cardDetailsList = cardDetailRepository.findByPanUniqueReference(vPanEnrollmentId);
             String rnsRegID = null;
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
-
                 for(int i =0;i<cardDetailsList.size();i++){
-
                     final DeviceInfo deviceInfo = cardDetailsList.get(i).getDeviceInfo();
                     rnsRegID = deviceInfo.getRnsRegistrationId();
                     RnsGenericRequest rnsGenericRequest=  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
                     sendNotification(rnsGenericRequest);
-
                 }
-
             }
             else{
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
-
             }
-
-           return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-
+            return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
         }catch (Exception e){
             LOGGER.error("Exception occured",e);

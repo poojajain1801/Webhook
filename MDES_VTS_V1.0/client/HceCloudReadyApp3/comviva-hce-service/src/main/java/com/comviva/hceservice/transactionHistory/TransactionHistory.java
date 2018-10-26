@@ -56,7 +56,6 @@ public class TransactionHistory implements ServerResponseListener {
 
     @Override
     public void onRequestCompleted(Object result, Object listener) {
-
         try {
             if (result instanceof TransactionHistoryData) {
                 TransactionHistoryData transactionHistoryData = (TransactionHistoryData) result;

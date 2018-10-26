@@ -12,6 +12,8 @@ import com.comviva.hceservice.common.SchemeType;
 import com.comviva.hceservice.common.SdkErrorStandardImpl;
 import com.comviva.hceservice.common.SdkException;
 import com.comviva.hceservice.common.Tags;
+import com.comviva.hceservice.common.app_properties.PropertyConst;
+import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.pojo.checkcardeligibility.CheckCardEligibilityResponse;
 import com.comviva.hceservice.pojo.enrollpanVts.EnrollPanResponse;
 import com.comviva.hceservice.requestobjects.CardEligibilityRequestParam;
@@ -71,6 +73,7 @@ public class RequestParamsManager {
 
     public static JSONObject getRegisterDeviceParams(String clientDeviceId, RegisterRequestParam registerRequestParam) throws SdkException {
         sdkData = SDKData.getInstance();
+        PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         String fcmRegistrationToken;
         String paymentAppInstanceId;
         JSONObject registerDeviceParams = new JSONObject();
@@ -104,8 +107,8 @@ public class RequestParamsManager {
                 mdesRegDevJson.put(Tags.DEVICE_INFO.getTag(), jsDeviceInfo);
                 mdesRegDevJson.put(Tags.PAYMENT_APP_ID.getTag(), Constants.PAYMENT_APP_INSTANCE_ID);
                 mdesRegDevJson.put(Tags.PAYMENT_APP_INSTANCE_ID.getTag(), paymentAppInstanceId);
-                PublicKey publicKey = CommonUtil.getPublicKeyFromCert(Constants.CMS_D_CERTIFICATE_NAME);
-                byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(Constants.CMS_D_CERTIFICATE_NAME);
+                PublicKey publicKey = CommonUtil.getPublicKeyFromCert(propertyReader.getProperty(PropertyConst.KEY_CMS_D_CERTIFICATE_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
+                byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(propertyReader.getProperty(PropertyConst.KEY_CMS_D_CERTIFICATE_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
                 byte[] publicKeyFingerPrint = CommonUtil.sha256(bytesFromInputStream);
                 RegistrationRequestParameters registrationRequestParameters = sdkData.getMcbp().getMpaManagementHelper().getRegistrationRequestData(publicKey.getEncoded(), null);
                 mdesRegDevJson.put(Tags.RGK.getTag(), new String(Hex.encodeHex(registrationRequestParameters.getRandomGeneratedKey().getEncryptedData())));
@@ -503,7 +506,8 @@ public class RequestParamsManager {
 
 
     private static Map<String, Object> getMasterKeyEncryptedDataIVAndPublicFingerprint(JSONObject cardInfoData) throws GeneralSecurityException {
-
+        sdkData = SDKData.getInstance();
+        PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         byte[] oneTimeAesKey;
         byte[] oneTimeIv;
         byte[] encryptedKey;
@@ -514,11 +518,12 @@ public class RequestParamsManager {
         oneTimeAesKey = ArrayUtil.getRandomNumber(16);
         oneTimeIv = ArrayUtil.getRandomNumber(16);
         baEncryptedData = AESUtil.cipherCBC(cardInfoData.toString().getBytes(), oneTimeAesKey, oneTimeIv, AESUtil.Padding.PKCS5PADDING, true);
-        masterPubKey = CommonUtil.getPublicKeyFromCert(Constants.CERT_NAME);
+        //masterPubKey = CommonUtil.getPublicKeyFromCert(Constants.CERT_NAME);
+        masterPubKey = CommonUtil.getPublicKeyFromCert(propertyReader.getProperty(PropertyConst.KEY_CERT_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, masterPubKey);
         encryptedKey = cipher.doFinal(oneTimeAesKey);
-        byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(Constants.CERT_NAME);
+        byte[] bytesFromInputStream = CommonUtil.getBytesFromInputStream(propertyReader.getProperty(PropertyConst.KEY_CERT_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
         byte[] publicKeyFingerPrint = CommonUtil.sha256(bytesFromInputStream);
         map.put(Tags.PUBLIC_KEY_FINGER_PRINT.getTag(), publicKeyFingerPrint);
         map.put(Tags.ENCRYPTED_KEY.getTag(), encryptedKey);

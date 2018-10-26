@@ -88,14 +88,15 @@ public class ComvivaSdk {
 
 
     private HttpManager getHttpManager() {
-
+        sdkData = SDKData.getInstance();
+        PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         List<String> hostNames = new ArrayList<>();
         hostNames.add("ws.mastercard.com");
         hostNames.add("www.mastercard.com");
         hostNames.add("services.mastercard.com");
         hostNames.add("stl.services.mastercard.com");
         hostNames.add("ksc.services.mastercard.com");
-        return new MpSdkHttpManager(hostNames, CommonUtil.getBytesFromInputStream(Constants.PROVISION_CERTIFICATE_NAME),
+        return new MpSdkHttpManager(hostNames, CommonUtil.getBytesFromInputStream(propertyReader.getProperty(PropertyConst.KEY_PROVISION_CERTIFICATE_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE)),
                 Constants.FORCE_TLS_PROTOCOL);
     }
 
@@ -238,7 +239,7 @@ public class ComvivaSdk {
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+       /* SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
             comvivaSdk = null;
@@ -249,7 +250,7 @@ public class ComvivaSdk {
             // Delete all data from SDK and inform to server
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }
+        }*/
     }
 
 
@@ -259,8 +260,8 @@ public class ComvivaSdk {
         PropertyReader propertyReader = PropertyReader.getInstance(ctx);
         SharedPreferences sharedPrefConf = ctx.getApplicationContext().getSharedPreferences(Constants.SHARED_PREF_CONF, Context.MODE_PRIVATE);
         if (!sharedPrefConf.contains(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP))) {
-            String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER);
-            String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER);
+            String paymentAppServerIp = propertyReader.getProperty(PropertyConst.KEY_IP_PAY_APP_SERVER,PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
+            String paymentAppServerPort = propertyReader.getProperty(PropertyConst.KEY_PORT_PAY_APP_SERVER ,PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
             SharedPreferences.Editor editor = sharedPrefConf.edit();
             editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_IP), CommonUtil.encrypt(paymentAppServerIp));
             editor.putString(CommonUtil.encrypt(Constants.KEY_PAYMENT_APP_SERVER_PORT), CommonUtil.encrypt(paymentAppServerPort));

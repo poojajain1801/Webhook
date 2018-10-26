@@ -14,6 +14,11 @@ public class PropertyConst {
      * Name of the property file containing application properties like IP and ports of server
      */
     public static final String COMVIVA_HCE_PROPERTY_FILE = "ComvivaSdk.properties";
+
+    /**
+     * Name of the property file containing certificate names and passwords(keystore)
+     */
+    public static final String COMVIVA_HCE_CREDENTIALS_FILE = "credentials.properties";
     /**
      * Payment App Server's IP.
      */
@@ -22,6 +27,46 @@ public class PropertyConst {
      * Port number for Payment Appp Server.
      */
     public static final String KEY_PORT_PAY_APP_SERVER = "PORT_PAY_APP_SERVER";
+
+    /**
+     * Certificate name .
+     */
+    public static final String KEY_CERT_NAME= "CERT_NAME";
+
+
+    /**
+     * SDK Keystore Password
+     * (All Public certificates are stored in this keystore).
+     */
+    public static final String KEY_SDK_KEYSTORE_PASS= "SDK_KEYSTORE_PASS";
+
+
+    /**
+     * END_TO_END Encryption Certificate name
+     * (All Public certificates are stored in this keystore).
+     */
+    public static final String KEY_END_TO_END_ENCYPTION= "END_TO_END_ENCYPTION";
+
+
+
+    /**
+     * Master Card Connection with CMS -D certificate name
+     */
+    public static final String KEY_CMS_D_CERTIFICATE_NAME= "CMS_D_CERTIFICATE_NAME";
+
+
+
+    /**
+     * Master Card Provision Certificate name
+     */
+    public static final String KEY_PROVISION_CERTIFICATE_NAME= "PROVISION_CERTIFICATE_NAME";
+
+
+    /**
+     * SDK Keystore Name
+     * (All Public certificates are stored in this keystore).
+     */
+    public static final String KEY_SDK_KEYSTORE_NAME= "SDK_KEYSTORE_NAME";
     /**
      * CMS-d Server's IP.
      */

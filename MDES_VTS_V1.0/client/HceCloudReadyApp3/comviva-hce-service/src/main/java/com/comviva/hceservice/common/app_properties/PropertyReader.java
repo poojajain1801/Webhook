@@ -36,10 +36,10 @@ public class PropertyReader {
      * @param key   Key to fetch value.
      * @return Value of given key
      */
-    public String getProperty(String key) {
+    public String getProperty(String key , String fileName) {
         Properties properties = new Properties();
         try {
-            InputStream inputStream = assetManager.open(PropertyConst.COMVIVA_HCE_PROPERTY_FILE);
+            InputStream inputStream = assetManager.open(fileName);
             properties.load(inputStream);
             return properties.getProperty(key);
         } catch (IOException e) {

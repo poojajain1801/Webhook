@@ -38,26 +38,14 @@ public class Constants {
     public static final String TOKEN_STATUS_UPDATED = "TOKEN_STATUS_UPDATED";
     public static final String TOKEN_ADD_SUCCESS = "ADD_CARD_SUCCESS";
     public static final String UPDATE_TXN_HISTORY = "UPDATE_TXN_HISTORY";
-    public static final String CMS_D_CERTIFICATE_NAME = "cms_d";
-    public static final String PROVISION_CERTIFICATE_NAME = "entrust";
     public static final String[] FORCE_TLS_PROTOCOL = {"TLSv1.2"};
 
     public static final String CONTEXT_ROOT = "/payment-app/";
     public static final String MESSAGE_TAG = "notificationData";
-    public static final String KEY_NOTIFICATION_TYPE = "notificationType";
     public static final String OPERATION = "OPERATION";
-    public static final String SUCCESS = "ADD";
     public static final String KEY_STATUS_UPDATED = "KEY_STATUS_UPDATED";
     public static final String UPDATE_CARD_META_DATA = "UPDATE_CARD_METADATA";
-    public static final String TYPE_TDS_REGISTRATION_NOTIFICATION = "notificationTdsRegistration";
-    public static final String TYPE_TDS_NOTIFICATION = "notificationTds";
-    public static final String PAYMENT_APP_ID = "com.mahindracomvivahce.mdesvts";
-    public static final String SHARED_PREF_USER = "SHARED_PREF_USER_DETAIL";
-    public static final String KEY_USER_ID = "KEY_USER_ID";
-    public static final String REPLENISH_COMPLETED = "REPLENISH_COMPLETED";
-    public static final String REPLENISH_FAILED = "REPLENISH_FAILED";
-    public static final String DELETE_COMPLETED = "DELETE_COMPLETED";
-    public static final String DELETE_FAILED = "DELETE_FAILED";
+
     public static final String ACTIVE = "ACTIVE";
     public static final String SUSPENDED = "SUSPENDED";
     public static final String MARKED_FOR_DELETION = "MARKED_FOR_DELETION";
@@ -66,16 +54,11 @@ public class Constants {
 
     //Certificate names
 
-    public static final String CARD_ENCYPTION_CERTIFICATE_NAME = "nbk";
     public static final String PAYMENT_APP_CERTIFICATE = "paymentappserver";
-    public static final String END_TO_END_ENCYPTION = "mycert";
     public static final String PAYMENT_CARD_NULL = "Payment Card is Null";
     public static final String PUBLIC_KEY_FINGERPRINT= "d2faf6b54aad68f8c9ade54637098047d0fe6ebe";
-    public static final String CERT_NAME= "nbk";
     public static final String PAYMENT_APP_INSTANCE_ID= "NBKEWALLET";
     public static final String PAYMENT_APP_PROVIDER_ID= "479";
-    public static final String SDK_KEYSTORE_PASS= "sdkKeystore";
-    public static final String SDK_KEYSTORE_NAME= "sdkKeystore.bks";
     public static final String CLIENT_APP_ID= "NBKewallet";
     public static final String CARDLET_ID= "MCBP_479";
 

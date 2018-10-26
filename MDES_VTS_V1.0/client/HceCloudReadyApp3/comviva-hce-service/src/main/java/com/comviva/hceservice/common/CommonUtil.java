@@ -10,6 +10,8 @@ import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 
+import com.comviva.hceservice.common.app_properties.PropertyConst;
+import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.listeners.CheckCardEligibilityListener;
 import com.comviva.hceservice.listeners.DigitizationListener;
 import com.comviva.hceservice.listeners.GetAssetListener;
@@ -41,7 +43,7 @@ import static com.visa.cbp.sdk.facade.util.ContextHelper.getApplicationContext;
 
 public class CommonUtil {
 
-    private static SDKData sdkData = SDKData.getInstance();
+    private static SDKData sdkData ;
 
 
     public static byte[] sha256(final byte[] data) {
@@ -146,7 +148,7 @@ public class CommonUtil {
      * @return Device information in JSON
      */
     public static JSONObject getDeviceInfoInJson() throws SdkException {
-
+        sdkData = SDKData.getInstance();
         JSONObject jsDeviceInfo = new JSONObject();
         try {
             TelephonyManager mTelephonyMgr = (TelephonyManager) sdkData.getContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -167,7 +169,7 @@ public class CommonUtil {
 
 
     public static boolean isNfcEnabled() {
-
+        sdkData = SDKData.getInstance();
         PackageManager pm = sdkData.getContext().getPackageManager();
         NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(sdkData.getContext());
         return pm.hasSystemFeature(PackageManager.FEATURE_NFC) || (null != nfcAdapter);
@@ -259,11 +261,12 @@ public class CommonUtil {
 
 
     public static Certificate getCertificateFromKeystore(String aliasName) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-
+        sdkData = SDKData.getInstance();
+        PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         // Provide location of Java Keystore and password for access
-        InputStream inputStream = getApplicationContext().getAssets().open(Constants.SDK_KEYSTORE_NAME);
-        keyStore.load(inputStream, Constants.SDK_KEYSTORE_PASS.toCharArray());
+        InputStream inputStream = getApplicationContext().getAssets().open(propertyReader.getProperty(PropertyConst.KEY_SDK_KEYSTORE_NAME,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
+        keyStore.load(inputStream, propertyReader.getProperty(PropertyConst.KEY_SDK_KEYSTORE_PASS,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE).toCharArray());
         Certificate certificate = keyStore.getCertificate(aliasName);
         return certificate;
     }
@@ -289,7 +292,7 @@ public class CommonUtil {
 
 
     public static void setSharedPreference(String tag, String data, String sharedPrefName) {
-
+        sdkData = SDKData.getInstance();
         SharedPreferences sharedPreferences = sdkData.getContext().getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(tag, data);
@@ -298,7 +301,7 @@ public class CommonUtil {
 
 
     public static String getSharedPreference(String tag, String sharedPrefName) {
-
+        sdkData = SDKData.getInstance();
         SharedPreferences sharedPreferences = sdkData.getContext().getSharedPreferences(sharedPrefName, Context.MODE_PRIVATE);
         return sharedPreferences.getString(tag, null);
     }

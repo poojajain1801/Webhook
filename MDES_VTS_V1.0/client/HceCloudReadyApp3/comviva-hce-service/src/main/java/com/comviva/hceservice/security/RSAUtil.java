@@ -4,7 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.comviva.hceservice.common.CommonUtil;
+import com.comviva.hceservice.common.SDKData;
 import com.comviva.hceservice.common.Tags;
+import com.comviva.hceservice.common.app_properties.PropertyConst;
+import com.comviva.hceservice.common.app_properties.PropertyReader;
 import com.comviva.hceservice.util.Constants;
 
 import org.apache.commons.codec.binary.Base64;
@@ -72,10 +75,12 @@ public class RSAUtil {
 
 
     public PublicKey getPublicKeyFromCert() {
-
+        SDKData sdkData = SDKData.getInstance();
+        PropertyReader propertyReader = PropertyReader.getInstance(sdkData.getContext());
         Certificate certificate = null;
         try {
-            certificate = CommonUtil.getCertificateFromKeystore(Constants.END_TO_END_ENCYPTION);
+            //certificate = CommonUtil.getCertificateFromKeystore(Constants.END_TO_END_ENCYPTION);
+            certificate = CommonUtil.getCertificateFromKeystore(propertyReader.getProperty(PropertyConst.KEY_END_TO_END_ENCYPTION,PropertyConst.COMVIVA_HCE_CREDENTIALS_FILE));
         } catch (KeyStoreException e) {
             Log.d(Tags.DEBUG_LOG.getTag(), String.valueOf(e));
         } catch (IOException e) {
@@ -129,13 +134,12 @@ public class RSAUtil {
 
 
     private byte[] aesEncryption(String text, HashMap requestJson) {
-
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(128);
+            keyGen.init(256);
             SecretKey secretKey = keyGen.generateKey();
-            final int AES_KEYLENGTH = 128;
-            byte[] iv = new byte[AES_KEYLENGTH / 8];
+            final int AES_KEYLENGTH = 256;
+            byte[] iv = new byte[AES_KEYLENGTH / 16];
             SecureRandom prng = new SecureRandom();
             prng.nextBytes(iv);
             Cipher aesCipherForEncryption = Cipher.getInstance("AES/CBC/PKCS5PADDING");
