@@ -239,7 +239,7 @@ public class ComvivaSdk {
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-       /* SecurityInf securityInf = comvivaSdk.getSecurityInf();
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
         if (securityInf.isDebuggable()) {
             // Close the application
             comvivaSdk = null;
@@ -250,7 +250,7 @@ public class ComvivaSdk {
             // Delete all data from SDK and inform to server
             reportFraud();
             throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }*/
+        }
     }
 
 
