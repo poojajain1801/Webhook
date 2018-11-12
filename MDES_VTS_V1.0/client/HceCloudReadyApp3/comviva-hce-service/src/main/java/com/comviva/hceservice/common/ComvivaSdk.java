@@ -34,18 +34,19 @@ import com.mastercard.mpsdk.componentinterface.McbpLogger;
 import com.mastercard.mpsdk.componentinterface.crypto.McbpCryptoServices;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletDataCrypto;
 import com.mastercard.mpsdk.componentinterface.crypto.WalletIdentificationDataProvider;
+import com.mastercard.mpsdk.componentinterface.crypto.keys.CustomEncryptedData;
 import com.mastercard.mpsdk.componentinterface.crypto.keys.WalletDekEncryptedData;
 import com.mastercard.mpsdk.componentinterface.database.state.CardState;
 import com.mastercard.mpsdk.componentinterface.http.HttpManager;
 import com.mastercard.mpsdk.httpmanager.MpSdkHttpManager;
-import com.mastercard.mpsdk.implementation.MasterCardMobilePaymentLibrary;
 import com.mastercard.mpsdk.implementation.MasterCardMobilePaymentLibraryInitializer;
 import com.mastercard.mpsdk.interfaces.CdCvmStatusProvider;
 import com.mastercard.mpsdk.interfaces.KeyRolloverEventListener;
+import com.mastercard.mpsdk.interfaces.MasterCardMobilePaymentLibrary;
 import com.mastercard.mpsdk.interfaces.Mcbp;
 import com.mastercard.mpsdk.interfaces.McbpInitializer;
-import com.mastercard.mpsdk.mcbp.androidcrypto.McbpCryptoEngineFactory;
 import com.mastercard.mpsdk.utils.Utils;
+import com.mastercard.mpsdksample.androidcryptoengine.McbpCryptoEngineFactory;
 import com.visa.cbp.sdk.facade.VisaPaymentSDK;
 import com.visa.cbp.sdk.facade.VisaPaymentSDKImpl;
 import com.visa.cbp.sdk.facade.data.TokenData;
@@ -144,11 +145,13 @@ public class ComvivaSdk {
             @Override
             public WalletDekEncryptedData getEncryptedDeviceFingerPrint() {
 
+                CustomEncryptedData customEncryptedData = new CustomEncryptedData(Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Tags.USER_DETAILS.getTag())));
+
                 WalletDataCrypto walletDataCrypto = sdkData
                         .getMcbp()
                         .getWalletSecurityServices()
                         .getWalletCryptoApi();
-                return walletDataCrypto.encryptWalletData(Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Tags.USER_DETAILS.getTag())));
+                return walletDataCrypto.encryptWalletData(customEncryptedData);
             }
 
 
@@ -237,18 +240,18 @@ public class ComvivaSdk {
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-        SecurityInf securityInf = comvivaSdk.getSecurityInf();
-        if (securityInf.isDebuggable()){
-            // Close the application
-            comvivaSdk = null;
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
-        }
-        // Check that device is Rooted
-        if (securityInf.isDeviceRooted()) {
-            // Delete all data from SDK and inform to server
-            reportFraud();
-            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-        }
+//        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+//        if (securityInf.isDebuggable()){
+//            // Close the application
+//            comvivaSdk = null;
+//            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+//        }
+//        // Check that device is Rooted
+//        if (securityInf.isDeviceRooted()) {
+//            // Delete all data from SDK and inform to server
+//            reportFraud();
+//            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+//        }
     }
 
 

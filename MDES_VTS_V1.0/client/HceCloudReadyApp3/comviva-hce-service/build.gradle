@@ -109,15 +109,10 @@ dependencies {
     compile 'commons-codec:commons-codec:1.10'
     compile files('libs/VTS-SDK-5.1.1.jar')
     compile 'com.mcxiaoke.volley:library:1.0.19'
-    compile files('libs/dexguard-runtime .jar')
-    compile files('libs/sample-native-crypto-2.3.0-release.jar')
-    compile files('libs/sample-android-crypto-2.3.0-release.jar')
-    compile files('libs/mchipengine-2.3.0-debug.jar')
-    compile files('libs/mpsdk-2.3.0-debug.jar')
-    compile files('libs/sample-android-crypto-2.3.0-debug.jar')
-    compile files('libs/mchipengine-2.3.0-release.jar')
-    compile files('libs/mpsdk-2.3.0-release.jar')
     compile files('libs/dexguard-runtime.jar')
+    compile files('libs/mchipengine-3.0.3-debug.jar')
+    compile files('libs/mpsdk-3.0.3-debug.jar')
+    compile files('libs/sample-android-crypto-3.0.3-debug.jar')
 }
 
 
