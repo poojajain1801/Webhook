@@ -111,8 +111,7 @@ dependencies {
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile files('libs/dexguard-runtime.jar')
     compile files('libs/mchipengine-3.0.3-debug.jar')
-    compile files('libs/mpsdk-3.0.3-debug.jar')
-    compile files('libs/sample-android-crypto-3.0.3-debug.jar')
+
 }
 
 

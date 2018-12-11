@@ -144,14 +144,12 @@ public class ComvivaSdk {
 
             @Override
             public WalletDekEncryptedData getEncryptedDeviceFingerPrint() {
-
-                CustomEncryptedData customEncryptedData = new CustomEncryptedData(Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(), Tags.USER_DETAILS.getTag())));
-
+                CustomEncryptedData customencrypteddata=new CustomEncryptedData(Utils.fromHexStringToByteArray(CommonUtil.getSharedPreference(Tags.DEVICE_FINGER_PRINT.getTag(),Tags.USER_DETAILS.getTag())));
                 WalletDataCrypto walletDataCrypto = sdkData
                         .getMcbp()
                         .getWalletSecurityServices()
                         .getWalletCryptoApi();
-                return walletDataCrypto.encryptWalletData(customEncryptedData);
+                return walletDataCrypto.encryptWalletData(customencrypteddata);
             }
 
 
@@ -205,10 +203,8 @@ public class ComvivaSdk {
                 //  return 0;
             }
 
-
             @Override
             public boolean isCdCvmBlocked() {
-
                 return false;
             }
         };
@@ -240,18 +236,18 @@ public class ComvivaSdk {
 
     public static void checkSecurity() throws SdkException {
         // Check for Debug Mode
-//        SecurityInf securityInf = comvivaSdk.getSecurityInf();
-//        if (securityInf.isDebuggable()){
-//            // Close the application
-//            comvivaSdk = null;
-//            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
-//        }
-//        // Check that device is Rooted
-//        if (securityInf.isDeviceRooted()) {
-//            // Delete all data from SDK and inform to server
-//            reportFraud();
-//            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
-//        }
+        SecurityInf securityInf = comvivaSdk.getSecurityInf();
+        if (securityInf.isDebuggable()){
+            // Close the application
+            comvivaSdk = null;
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEBUG_MODE);
+        }
+        // Check that device is Rooted
+        if (securityInf.isDeviceRooted()) {
+            // Delete all data from SDK and inform to server
+            reportFraud();
+            throw new SdkException(SdkErrorStandardImpl.COMMON_DEVICE_ROOTED);
+        }
     }
 
 
