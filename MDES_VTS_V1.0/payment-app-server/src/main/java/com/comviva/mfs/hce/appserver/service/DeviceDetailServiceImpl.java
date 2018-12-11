@@ -249,10 +249,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             requestJson.put("responseHost",env.getProperty("responsehost"));
             requestJson.put("requestId",env.getProperty("reqestid")+ ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
             requestJson.put("paymentAppInstanceId",paymentAppInstanceId);
-
             url = env.getProperty("mdesip") + env.getProperty("mpamanagementPath");
             id = "unregister";
-            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
+            /*responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
             if (responseMdes!= null && responseMdes.hasBody()) {
                 response = String.valueOf(responseMdes.getBody());
                 jsonResponse = new JSONObject(response);
@@ -265,12 +264,12 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }
             else{
                 LOGGER.error("Unregister failed at masterCard for UserID : "+userID);
-                /*if (responseMdes!=null) {
+                *//*if (responseMdes!=null) {
                     responseMap = JsonUtil.jsonToMap(jsonResponse);
                     responseMap.put("responseCode", responseMdes.getStatusCode().value());
                 }
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-*/            }
+*//*            }*/
             cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
             deviceInfo.setStatus(HCEConstants.INACTIVE);
             deviceDetailRepository.save(deviceInfo);

@@ -22,7 +22,6 @@ public class NotificationServiceControllerVisa {
 
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceRegistrationController.class);
 
     @ResponseBody
@@ -35,10 +34,6 @@ public class NotificationServiceControllerVisa {
         try {
             notificationServiceReqPojo = (NotificationServiceReq) hCEControllerSupport.requestFormation(notificationServiceReq, NotificationServiceReq.class);
             notifyResponse = notificationServiceVisaService.notifyLCMEvent(notificationServiceReqPojo, apiKey, eventType);
-
-        }catch (HCEValidationException notificationServiceValidationException){
-            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",notificationServiceValidationException);
-            throw notificationServiceValidationException;
         }catch (HCEActionException notificationServiceHCEActionException){
             LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
             throw notificationServiceHCEActionException;
@@ -59,10 +54,6 @@ public class NotificationServiceControllerVisa {
         try {
             notificationServiceReqpojo = (NotificationServiceReq) hCEControllerSupport.requestFormation(notificationServiceReq, NotificationServiceReq.class);
             notifyResponse = notificationServiceVisaService.notifyPanMetadataUpdate(notificationServiceReqpojo, apiKey);
-
-        }catch (HCEValidationException notificationServiceValidationException){
-            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",notificationServiceValidationException);
-            throw notificationServiceValidationException;
         }catch (HCEActionException notificationServiceHCEActionException){
             LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
             throw notificationServiceHCEActionException;
@@ -84,10 +75,6 @@ public class NotificationServiceControllerVisa {
         try {
             notificationServiceReqpojo = (NotificationServiceReq) hCEControllerSupport.requestFormation(notificationServiceReq, NotificationServiceReq.class);
             notifyResponse = notificationServiceVisaService.notifyTxnDetailsUpdate(notificationServiceReqpojo, apiKey);
-
-        }catch (HCEValidationException notificationServiceValidationException){
-            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",notificationServiceValidationException);
-            throw notificationServiceValidationException;
         }catch (HCEActionException notificationServiceHCEActionException){
             LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
             throw notificationServiceHCEActionException;
@@ -98,6 +85,4 @@ public class NotificationServiceControllerVisa {
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notifyCardMetadataUpdateEvent");
         return notifyResponse;
     }
-
-
 }

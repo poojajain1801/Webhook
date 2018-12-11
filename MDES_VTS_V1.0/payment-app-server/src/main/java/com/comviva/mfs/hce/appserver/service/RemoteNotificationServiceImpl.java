@@ -103,7 +103,6 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
     }
 
 
-
     public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
         // Create Remote Notification Data
         LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");

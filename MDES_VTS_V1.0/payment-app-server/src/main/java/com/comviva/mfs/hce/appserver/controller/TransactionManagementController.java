@@ -73,7 +73,6 @@ public class TransactionManagementController {
     }
 
 
-
     @ResponseBody
     @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -92,6 +91,5 @@ public class TransactionManagementController {
         }
         return getTransactionsResp;
     }
-
 
 }

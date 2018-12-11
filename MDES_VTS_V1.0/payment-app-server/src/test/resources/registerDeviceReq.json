@@ -1,39 +1,36 @@
 {
-  "userId":"rishikesh",
-  "gcmRegistrationId": "2342",
-  "clientDeviceID":"123456789012345678901342",
-
-  "mdes" : {
+  "userId": "Rishi",
+  "gcmRegistrationId": "e_e8XW97LTs:APA91bH_WZerq0M6_ovGlvu0SwOTrjDY7I7T6S_MaEqiFS7ZEM5PXOb5Kyq1H9AQmQotSPS0OV5H41js4WA4BzU7I_hgNBc3_JEUj6TY6eEymhjJakd1UBap0_iTnD7Bjak18GTpYZGw",
+  "clientDeviceID": "1AAB28F81537778655939FEE",
+  "vts": {
     "deviceInfo": {
-      "deviceName": "Nexus6",
+      "osType": "ANDROID",
+      "deviceType": "PHONE_TABLET",
+      "deviceName": "PersonalDevice",
+      "osVersion": "8.0.0",
+      "osBuildID": "OPR1.170623.032",
+      "deviceIDType": "Derived",
+      "deviceManufacturer": "OnePlus",
+      "deviceBrand": "OnePlus",
+      "deviceModel": "ONEPLUS A3003"
+    }
+  },
+  "mdes": {
+    "deviceInfo": {
+      "deviceName": "ONEPLUS A3003",
       "formFactor": "PHONE",
-      "id": "2F6D63",
-      "imei": "990000862471854",
-      "msisdn": "09953228469",
+      "imei": "864791034772268",
+      "msisdn": "405856000158051",
       "nfcCapable": "true",
       "osName": "ANDROID",
-      "osVersion": "4.4",
-      "serialNumber": "7856012738121",
+      "osVersion": "8.0.0",
+      "serialNumber": "00BC132751799424CEBE267E7E6A805A68141E8A47FAAFBE855C4942037CB9E9",
       "storageTechnology": "DEVICE_MEMORY"
     },
-    "mobilePin": "537EC83CDACD387C427FE806703D1FAD",
-    "paymentAppId": "SBICANDROID",
-    "paymentAppInstanceId": "123456789",
-    "publicKeyFingerprint": "1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E",
-    "rgk": "42D6B9AB2D41CB45D6ED0F25A4F9EF400418D0810BCF9D890CB5507355F0EF851DB90DFD65AD54D3BD3AC97A32DB7794DA24BDC75E3AB0E564A4B555831872BDC4DEDCE5F9DD57212C872BC70CCF09F27F3CBCBACC168ED2C59B7B66053108106DAA34DC9EF35365AA2E5FF3B0C41FCC3BC34DAE4ED25975872EFFECAF471F45"
-  },
-
-  "vts" : {
-    "deviceInfo": {
-      "osType":"ANDROID",
-      "deviceType":"PHONE_TABLET",
-      "deviceName":"d1",
-      "osVersion":"7.0",
-      "osBuildID":"NRD90M",
-      "deviceIDType":"Derived",
-      "deviceManufacturer":"samsung",
-      "deviceBrand":"samsung",
-      "deviceModel":"SM-G920I"
-    }
+    "paymentAppId": "NBKEWALLET",
+    "paymentAppInstanceId": "4AAEE781F7C2E91D47EB63E5813E00000001537772614115",
+    "rgk": "7b0c4a2428e37c6bd64a8efc1d408db7a5f58d1cbce694e41164963ca1327c3ee84ade92af20e2845708d4e58a429787acac6f350e928345a3cb10d744a2f3a0d0653b61715fd20b9081148805713d8e9cd86b60638dc6439465dada39e02b7b07805982547a1d5c21d34cd2c6c8fa6507dd302b095bc7bc982f2cfafa4f9f8ad67bc5780ce81ca2d024724a00793aed1cc3e8b56405ead3220f35ab3e490fd260e0a76f7f458d47833d3ca0c916add0cd2189f01cc380b0ea7d60e7f11fdae592f9cc9645b1e98ef95e21fb0b14c93022ebb434160ff1df2658265a4e1bbbc6f79f40a92f1fa3061f0d230d7ac7780c17e5a458ab44eba9b3acd8d515febe3a",
+    "deviceFingerprint": "2809B1C9A73DC16282E9D0827696A74DFB8922DE16AC82D17A96E0516E7A3042",
+    "publicKeyFingerprint": "093513da98ede972201893a5ab4a8b243a3a3402e49c5144295cdf54ca9552ac"
   }
 }

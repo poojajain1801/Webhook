@@ -2,10 +2,15 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +32,12 @@ public class UserDetailServiceImplTest {
 
     @Resource
     private WebApplicationContext webApplicationContext;
+    @Autowired
+    CardDetailRepository cardDetailRepository;
+    @Autowired
+    DeviceDetailRepository deviceDetailRepository;
+    @Autowired
+    UserDetailRepository userDetailRepository;
 
     private String activationCode="";
     private String paymentAppInstanceId = "";
@@ -100,6 +111,22 @@ public class UserDetailServiceImplTest {
         Map request = null;
         Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
         assertResponse(registerUserResp, "500");
+    }
+
+    @Test
+    public void userLifecycleManagement() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/userLifeCycleManagementReq.json");
+        Map response = ServiceUtils.servicePOSTResponse("/userLifecycleManagement",request);
+        assertResponse(response, "200");
+    }
+
+    @Test
+    public void userLifecycleManagementWithoutUserId() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/userLifeCycleManagementReq.json");
+        request.remove("userIdList");
+        Map response = ServiceUtils.servicePOSTResponse("/userLifecycleManagement",request);
+        assertResponse(response, "500");
     }
 
 }

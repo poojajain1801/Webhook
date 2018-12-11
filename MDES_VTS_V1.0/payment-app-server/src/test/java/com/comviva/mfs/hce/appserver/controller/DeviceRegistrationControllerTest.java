@@ -24,10 +24,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class DeviceRegistrationControllerTest {
-
     @Resource
     private WebApplicationContext webApplicationContext;
-
     private String userID = DefaultTemplateUtils.randomString(8);
     private String clientDeviceID = DefaultTemplateUtils.randomString(24);
     private String paymentAppInstanceId = "";
@@ -39,7 +37,6 @@ public class DeviceRegistrationControllerTest {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
         ServiceUtils.serviceInit("/api/");
-
     }
 
     @Test
@@ -138,30 +135,57 @@ public class DeviceRegistrationControllerTest {
         assertResponse(regDeviceReaponse, "706");
     }
 
+
     @Test
-    public void getDeviceInfo() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/getDeviceInfoReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map regDeviceResponse = ServiceUtils.servicePOSTResponse("device/getDeviceInfo",request);
-        assertResponse(regDeviceResponse, "200");
+    public void unRegister() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
+        Map unregisterReq = DefaultTemplateUtils.buildRequest("/unregisterRequest.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        request.put("userId",userID);
+        unregisterReq.put("userId",userID);
+        Map mdes = (Map) request.get("mdes");
+        Map deviceInfo = (Map) mdes.get("deviceInfo");
+        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
+        mdes.put("deviceInfo",deviceInfo);
+        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
+        unregisterReq.put("paymentAppInstanceId",paymentAppInstanceId);
+        request.put("clientDeviceID",clientDeviceID);
+        unregisterReq.put("imei",deviceInfo.get("imei"));
+        request.put("mdes",mdes);
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
+        assertResponse(unregisterReaponse, "704");
     }
 
     @Test
-    public void getDeviceInfoWithInvalidReq() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/getDeviceInfoReq.json");
-        request.put("qdqedfqd",1234);
-        Map regDeviceResponse = ServiceUtils.servicePOSTResponse("device/getDeviceInfo",request);
-        assertResponse(regDeviceResponse, "706");
+    public void unRegisterWithoutRegistering() throws Exception {
+        Map unregisterReq = DefaultTemplateUtils.buildRequest("/unregisterRequest.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        unregisterReq.put("userId",userID);
+        unregisterReq.put("paymentAppInstanceId",paymentAppInstanceId);
+        unregisterReq.put("imei",DefaultTemplateUtils.randomString(20));
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
+        assertResponse(unregisterReaponse, "704");
     }
 
     @Test
-    public void getDeviceInfoWithNullRequest() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/getDeviceInfoReq.json");
-        Map regDeviceResponse = ServiceUtils.servicePOSTResponse("device/getDeviceInfo",null);
-        assertResponse(regDeviceResponse, "500");
+    public void unRegisterWihoutUserId() throws Exception {
+        Map unregisterReq = DefaultTemplateUtils.buildRequest("/unregisterRequest.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        unregisterReq.remove("userId");
+        unregisterReq.put("paymentAppInstanceId",paymentAppInstanceId);
+        unregisterReq.put("imei",DefaultTemplateUtils.randomString(20));
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
+        assertResponse(unregisterReaponse, "500");
     }
 
+    @Test
+    public void unRegisterWithInvalidReq() throws Exception {
+        Map unregisterReq = DefaultTemplateUtils.buildRequest("/unregisterRequest.json");
+        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
+        unregisterReq.put("Random","");
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
+        assertResponse(unregisterReaponse, "706");
+    }
 }

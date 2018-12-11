@@ -1,13 +1,3 @@
 {
-  "paymentAppInstanceId":"123456789",
-  "cardInfo" : {
-    "panUniqueReference" : "ABCD1234K",
-    "tokenUniqueReferenceForPanInfo":"MNBVGHK987I",
-    "publicKeyFingerPrint":"e738e1e712e9829e72e717e7e76e",
-    "encryptedKey":"wuicghwduichwiochwiochwciohwce7e7",
-    "hashingAlgorithm":"SHA256",
-    "iv":"7urhhjfklkjhvbnmlkj",
-    "encryptedData":"sdnsdknsdkjofjkdokkmskjefoklj"
-  },
-  "tokenRequestorId":"567890uygfcvbnm"
+  "paymentAppInstanceId":"19E437A4F9A4063CCDAF6C95699100000001537868527782"
 }

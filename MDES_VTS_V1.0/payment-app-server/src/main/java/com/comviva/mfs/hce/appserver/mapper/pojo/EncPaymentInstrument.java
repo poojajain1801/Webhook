@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EncPaymentInstrument {
-
     private String accountNumber;
     private String cvv2;
     private String  name;

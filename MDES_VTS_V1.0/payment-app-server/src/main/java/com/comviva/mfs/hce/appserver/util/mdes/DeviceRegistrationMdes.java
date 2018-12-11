@@ -24,8 +24,7 @@ public class DeviceRegistrationMdes
 {
     @Autowired
     public Environment env;
-    @Autowired
-    HttpClint httpClint;
+
     @Autowired
     HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
@@ -35,10 +34,6 @@ public class DeviceRegistrationMdes
         this.env = env;
     }
 
-    public void setHttpClint(HttpClint httpClint)
-    {
-        this.httpClint = httpClint;
-    }
 
     public void setHitMasterCardService(HitMasterCardService hitMasterCardService)
     {
@@ -156,7 +151,6 @@ public class DeviceRegistrationMdes
 
     public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest)
     {
-        HttpRestHandeler httpRestHandeler = new HttpRestHandelerImpl();
         JSONObject jsonRequest = new JSONObject();
         JSONObject deviceinfo = null;
         String requestId = null;

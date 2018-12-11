@@ -15,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
@@ -35,7 +36,6 @@ public class UserRegistrationControllerTest {
     private String userID = DefaultTemplateUtils.randomString(8);
     private String clientDeviceID = DefaultTemplateUtils.randomString(24);
 
-
     @Before
     public void Setup(){
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -51,15 +51,6 @@ public class UserRegistrationControllerTest {
         Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
         activationCode= (String) registerUserResponse.get("activationCode");
         assertResponse(registerUserResponse, "200");
-    }
-
-    @Test
-    public void registerUserFailedForMissingField() throws Exception{
-        Map request=DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        userID="";
-        request.put("userId",userID);
-        Map registerUseResponse=ServiceUtils.servicePOSTResponse("userRegistration",request);
-        assertResponse(registerUseResponse,"500");
     }
 
     @Test
@@ -90,19 +81,88 @@ public class UserRegistrationControllerTest {
     }
 
     @Test
-    public void registerUserWithInvalidRequest() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.remove("userId");
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
-        assertResponse(registerUserResp, "500");
-    }
-
-    @Test
     public void registerUserWithNullRequest() throws Exception {
         Map request = null;
         Map registerUserResp = ServiceUtils.servicePOSTResponse("/userRegistration",request);
         assertResponse(registerUserResp, "500");
     }
 
+    @Test
+    public void getLanguage() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
+        userID = DefaultTemplateUtils.randomString(8);
+        request.put("userId",userID);
+        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
+        Map request1 =DefaultTemplateUtils.buildRequest("/getLanguageReq.json");
+        request1.put("userId",userID);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/getLanguage",request1);
+        assertResponse(getLanguageResp,"200");
+    }
+
+    @Test
+    public void getLanguageInvalidUserId() throws Exception {
+        Map request1 =DefaultTemplateUtils.buildRequest("/getLanguageReq.json");
+        request1.put("userId",userID);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/getLanguage",request1);
+        assertResponse(getLanguageResp,"205");
+    }
+
+    @Test
+    public void getLanguageWithoutUserId() throws Exception {
+        Map request1 =DefaultTemplateUtils.buildRequest("/getLanguageReq.json");
+        request1.put("userId",null);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/getLanguage",request1);
+        assertResponse(getLanguageResp,"500");
+    }
+
+    @Test
+    public void setLanguage() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
+        userID = DefaultTemplateUtils.randomString(8);
+        request.put("userId",userID);
+        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
+        Map request1 =DefaultTemplateUtils.buildRequest("/setLanguage.json");
+        request1.put("userId",userID);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/setLanguage",request1);
+        assertResponse(getLanguageResp,"200");
+    }
+
+    @Test
+    public void setLanguageInvalidUser() throws Exception {
+        Map request1 =DefaultTemplateUtils.buildRequest("/setLanguage.json");
+        request1.put("userId",userID);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/setLanguage",request1);
+        assertResponse(getLanguageResp,"205");
+    }
+
+    @Test
+    public void setLanguageNoLanguageCode() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
+        userID = DefaultTemplateUtils.randomString(8);
+        request.put("userId",userID);
+        Map registerUserResponse = ServiceUtils.servicePOSTResponse("userRegistration",request);
+        Map request1 =DefaultTemplateUtils.buildRequest("/setLanguage.json");
+        request1.put("userId",userID);
+        request1.put("languageCode",null);
+        Map getLanguageResp = ServiceUtils.servicePOSTResponse("/setLanguage",request1);
+        assertResponse(getLanguageResp,"200");
+    }
+
+    @Test
+    public void userLifecycleManagement() throws Exception {
+        registerUser();
+        Map request = DefaultTemplateUtils.buildRequest("/userLifeCycleManagementReq.json");
+        Map response = ServiceUtils.servicePOSTResponse("/userLifecycleManagement",request);
+        assertResponse(response, "200");
+    }
+
+    @Test
+    public void userLifecycleManagementWithoutUserId() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/userLifeCycleManagementReq.json");
+        request.remove("userIdList");
+        Map response = ServiceUtils.servicePOSTResponse("/userLifecycleManagement",request);
+        assertResponse(response, "500");
+    }
 
 }
+

@@ -172,7 +172,6 @@ public class UserDetailServiceImpl implements UserDetailService {
             for (int i = 0; i < userIdlist.size(); i++) {
                 userMap = new LinkedHashMap();
                 userDetails = userDetailRepository.findByUserId(userIdlist.get(i));
-
                 if (userDetails == null || userDetails.getUserId().isEmpty()) {
                     message = "User ID does not exist";
                     messageCode = HCEMessageCodes.getInvalidUser();
@@ -198,7 +197,6 @@ public class UserDetailServiceImpl implements UserDetailService {
                     performLCMobj.performLCM(userIdlist.get(i), userLifecycleManagementReq.getOperation(), userDetails);
                 }
 */
-
             }
             performLCMobj.performUserLCM(userIdlist,userLifecycleManagementReq.getOperation());
 

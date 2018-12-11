@@ -86,20 +86,16 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         if (apiKey.equalsIgnoreCase(env.getProperty("apiKey"))){
             //Return Invalid apiKey
         }
-
         HashMap<String, String> lcmNotificationData = new HashMap<>();
-
         try {
             RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
             rnsGenericRequest.setIdType(UniqueIdType.VTS);
             rnsGenericRequest.setRegistrationId(getRnsRegId(vprovisionedTokenId));
             lcmNotificationData.put("vprovisionedTokenId", vprovisionedTokenId);
-
             switch (eventType) {
                 case HCEConstants.TOKEN_CREATED:
                     LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
                     return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-
                 case HCEConstants.TOKEN_STATUS_UPDATED:
                     //Send remote notification to call getTokenStatus
                     LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent - > TOKEN_STATUS_UPDATED");
