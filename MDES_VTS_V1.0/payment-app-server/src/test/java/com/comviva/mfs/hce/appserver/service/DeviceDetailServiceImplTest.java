@@ -2,10 +2,21 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
+import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
+import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
+import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,6 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
@@ -23,6 +35,9 @@ import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class DeviceDetailServiceImplTest {
+
+    @Autowired
+    DeviceDetailRepository deviceDetailRepository;
 
     @Resource
     private WebApplicationContext webApplicationContext;
@@ -180,6 +195,12 @@ public class DeviceDetailServiceImplTest {
         assertResponse(unregisterReaponse, "500");
     }
 
+    /*@Test
+    public void deleteVISACards() throws Exception {
+        List<CardDetails> cardDetails = deviceDetailRepository.findAll().get(0).getCardDetails();
+        deviceDetailService.deleteVISACards(cardDetails);
+    }*/
+
     @Test
     public void unRegisterWithInvalidReq() throws Exception {
         Map unregisterReq = DefaultTemplateUtils.buildRequest("/unregisterRequest.json");
@@ -188,5 +209,6 @@ public class DeviceDetailServiceImplTest {
         Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
         assertResponse(unregisterReaponse, "706");
     }
+
 
 }

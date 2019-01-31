@@ -44,7 +44,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
     private final UserDetailRepository userDetailRepository;
     private final CardDetailRepository cardDetailRepository;
 
-
     @Autowired
     public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport,UserDetailRepository userDetailRepository,CardDetailRepository cardDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
@@ -52,7 +51,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         this.userDetailRepository = userDetailRepository;
         this.cardDetailRepository = cardDetailRepository;
     }
-
 
     public Map<String, Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest) {
         HitVisaServices hitVisaServices = new HitVisaServices(env);
@@ -145,20 +143,16 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
     }
 
-
-
     public Map<String,Object>lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest) {
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
         String vProvisionedTokenID = lifeCycleManagementVisaRequest.getVprovisionedTokenID();
-
         //Construct LifecycleMnagement operation request
         JSONObject requestJson = new JSONObject();
         JSONObject updateReason = new JSONObject();
         updateReason.put("reasonCode", lifeCycleManagementVisaRequest.getReasonCode());
         updateReason.put("reasonDesc", lifeCycleManagementVisaRequest.getReasonDesc());
         requestJson.put("updateReason", updateReason);
-
         HitVisaServices hitVisaServices = new HitVisaServices(env);
         Map response = new LinkedHashMap();
         ResponseEntity responseEntity = null;
@@ -262,27 +256,20 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         int page =0;
         int size = 0;
         int totalCount = 0;
-
         try {
 
             userId = getTokenListRequest.getUserId();
-
             index = getTokenListRequest.getIndex();
             maxRecord = getTokenListRequest.getMaxRecord();
-
             if(index!=null && !index.isEmpty()){
-
                 int i = Integer.parseInt(index);
                 page = i/10;
-
             }
             if(maxRecord!=null && !maxRecord.isEmpty()){
                 size = Integer.parseInt(maxRecord);
             }
-
             userDetailList = userDetailRepository.findByUserIdAndStatus(userId, HCEConstants.ACTIVE);
             if (userDetailList != null && !userDetailList.isEmpty()) {
-
                 cardDetailsList = cardDetailRepository.getNCardList(userId,HCEConstants.ACTIVE,HCEConstants.ACTIVE,HCEConstants.SUSUPEND,page,size);
                 if(cardDetailsList!=null &&  !cardDetailsList.isEmpty()){
                     responseMap = new HashMap<String ,Object>();

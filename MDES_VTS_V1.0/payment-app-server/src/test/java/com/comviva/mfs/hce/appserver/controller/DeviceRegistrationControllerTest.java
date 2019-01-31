@@ -48,7 +48,6 @@ public class DeviceRegistrationControllerTest {
         assertResponse(registerUserResp, "200");
     }
 
-
     @Test
     public void registerDevice() throws Exception {
         registerUser();

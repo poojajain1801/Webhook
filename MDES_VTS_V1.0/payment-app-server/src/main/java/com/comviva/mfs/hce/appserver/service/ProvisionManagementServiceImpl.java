@@ -2,16 +2,12 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
-import com.comviva.mfs.hce.appserver.model.UserDetail;
-import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
@@ -19,8 +15,6 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -30,10 +24,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import java.io.IOException;
-import java.lang.reflect.Array;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -94,7 +85,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
             /**********Construct ProvisionTokenGivenPanEnrollmentId Request************************/
 
-            reqest.put("clientAppID", provisionTokenGivenPanEnrollmentIdRequest.getClientAppId());
+            reqest.put("clientAppID", env.getProperty("clientAppID"));
             reqest.put("clientWalletAccountID", provisionTokenGivenPanEnrollmentIdRequest.getClientWalletAccountId());
             reqest.put("clientWalletAccountEmailAddressHash", emailAdress);
             reqest.put("clientDeviceID", provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
@@ -178,17 +169,12 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         }
     }
 
-
-
-
-
     @Transactional
     public Map<String, Object> ConfirmProvisioning (ConfirmProvisioningRequest confirmProvisioningRequest) {
-
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning");
         String provisonStatus = confirmProvisioningRequest.getProvisioningStatus();
         String failureReason = confirmProvisioningRequest.getFailureReason();
-        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenID();
+        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenId();
         JSONObject requestMap = new JSONObject();
         HitVisaServices hitVisaServices =null;
         JSONObject jsonResponse= null;
@@ -212,7 +198,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             //Update the card status to active
 
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning->Update card status to Active");
-            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenID());
+            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenId());
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
             }else{
@@ -254,13 +240,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ConfirmProvisioning");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
     }
-
 
     public Map<String, Object> ActiveAccountManagementReplenish (ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest) {
         //TODO:Check vProvisonID is valid or not
-
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
         String vProvisionedTokenID = "";
         HitVisaServices hitVisaServices =null;
@@ -275,9 +258,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONArray tvl = new JSONArray();
         Map responseMap = new LinkedHashMap();
         List tvlData = activeAccountManagementReplenishRequest.getTvl();
-
         try{
-
             signature.put("mac",activeAccountManagementReplenishRequest.getMac());
             requestMap.put("signature" ,signature);
             dynParams.put("api",activeAccountManagementReplenishRequest.getApi());
@@ -331,11 +312,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
     }
 
     public Map<String, Object> ActiveAccountManagementConfirmReplenishment(ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequest) {
-
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
         String vProvisionedTokenID = "";
@@ -349,7 +328,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject dynParams = new JSONObject();
         JSONArray tvl = new JSONArray();
         Map responseMap = new LinkedHashMap();
-
         try{
             dynParams.put("api",activeAccountManagementConfirmReplenishmentRequest.getApi());
             dynParams.put("sc",activeAccountManagementConfirmReplenishmentRequest.getSc());
@@ -410,7 +388,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         Map responseMap = new LinkedHashMap();
         HitVisaServices hitVisaServices =null;
         Date date ;
-
         try {
             //check if the provision id is correct or not
             long unixTimestamp = Instant.now().getEpochSecond();
@@ -453,7 +430,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
     }
 
-
     public Map<String, Object> validateOTP(ValidateOTPRequest validateOTPRequest) {
         String vProvisionedTokenID = validateOTPRequest.getvProvisionedTokenID();
         String otpValue = validateOTPRequest.getOtpValue();
@@ -477,7 +453,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 response = String.valueOf(responseVts.getBody());
                 jsonResponse = new JSONObject(response);
             }
-            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7){
                 responseMap = JsonUtil.jsonToMap(jsonResponse);
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
@@ -541,14 +517,5 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
         return responseMap;
 
-    }
-
-    public boolean validatevProvisionedID(String vProvisionedTokenID)
-    {
-        List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
-        if (cardDetailsList!=null && !cardDetailsList.isEmpty())
-            return true;
-        else
-            return false;
     }
 }

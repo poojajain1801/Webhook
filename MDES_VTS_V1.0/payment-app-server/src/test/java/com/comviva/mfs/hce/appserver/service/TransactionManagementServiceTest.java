@@ -2,7 +2,9 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,5 +129,13 @@ public class TransactionManagementServiceTest {
         Map request = DefaultTemplateUtils.buildRequest("/getTransactionsHistoryReq.json");
         Map getTransactionsHistoryResp = ServiceUtils.servicePOSTResponse("/getTransactionHistory",request);
         assertResponse(getTransactionsHistoryResp, "500");
+    }
+
+    @Test
+    public void utcToLocalTime() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        TransactionManagementServiceImpl transactionManagementService = new TransactionManagementServiceImpl(hceControllerSupport);
+        String getTransactionsHistoryResp = transactionManagementService.utcToLocalTime("2011-01-01 15:00:00");
+        Assert.assertNotNull(getTransactionsHistoryResp);
     }
 }

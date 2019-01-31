@@ -79,7 +79,7 @@ public class ProvisionManagementServiceTest {
     @Test
     public void confirmProvisioningNovprovisionedTokenID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/confirmProvisioningReq.json");
-        request.put("vprovisionedTokenID",null);
+        request.put("vprovisionedTokenId",null);
         Map provisionTokenResp = ServiceUtils.servicePOSTResponse("/confirmProvisioning",request);
         assertResponse(provisionTokenResp, "500");
     }

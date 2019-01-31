@@ -2,10 +2,13 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +29,9 @@ public class NotificationServiceVisaServiceImplTest {
 
     @Resource
     private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    NotificationServiceVisaServiceImpl notificationServiceVisaService;
 
     @Before
     public void Setup(){
@@ -69,5 +75,12 @@ public class NotificationServiceVisaServiceImplTest {
         request.remove("vProvisionedTokenID");
         Map response = ServiceUtils.servicePOSTResponse("paymentTxns?eventType=TOKEN_STATUS_UPDATED&apiKey=R7Q53W6KREF7DHCDXUAQ13RQPTXkdUwfMvteVPXPJhOz5xWBc",request);
         assertResponse(response, "500");
+    }
+
+    @Test
+    public void preparetNotificationRequest() throws Exception {
+        RnsGenericRequest response = notificationServiceVisaService.preparetNotificationRequest("fghjkjhhjklkjhgfdrtyuikjhgffghg", "dBYLos9yoEA:APA91bH-QfBdwWgpRelqpTsLTV_3mHl7XMQQi08W7Rlefko9yrQVee1SPYIXtJ6u8lxrIZed6jxOSatK3bLMKyXwx81U0RkZnjTPxcp0L6TPofcFmapBXcqueEj9Ihr-O4Z9VB-JXrPC");
+        notificationServiceVisaService.sendNotification(response);
+        Assert.assertNotNull(response);
     }
 }

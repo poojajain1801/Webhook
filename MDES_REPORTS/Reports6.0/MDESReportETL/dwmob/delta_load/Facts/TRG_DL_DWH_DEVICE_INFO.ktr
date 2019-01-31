@@ -6,7 +6,7 @@
     <trans_version />
     <trans_type>Normal</trans_type>
     <trans_status>0</trans_status>
-    <directory>/home/admin/MDESReportETL/dwmob/delta_load/Facts</directory>
+    <directory>/</directory>
     <parameters>
     </parameters>
     <log>
@@ -796,7 +796,7 @@
     <created_user>admin</created_user>
     <created_date>2017/05/10 13:03:55.916</created_date>
     <modified_user>admin</modified_user>
-    <modified_date>2018/06/28 15:56:13.196</modified_date>
+    <modified_date>2019/01/09 14:54:10.232</modified_date>
     <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>

@@ -168,8 +168,7 @@ public class ProvisionManagementController {
             LOGGER.debug("Enter ProvisionManagementController-> getStepUpOptions ");
             GetStepUpOptionsRequest getStepUpOptionsRequestPojo = (GetStepUpOptionsRequest)hCEControllerSupport.requestFormation(getStepUpOptionsRequest,GetStepUpOptionsRequest.class);
             getStepUpOptions = provisionManagementService.getStepUpOptions(getStepUpOptionsRequestPojo);
-        }
-        catch (HCEActionException getSteopupOptionuestHceActionException){
+        }catch(HCEActionException getSteopupOptionuestHceActionException){
             LOGGER.error("Exception Occured in ProvisionManagementController->getStepUpOptions",getSteopupOptionuestHceActionException);
             throw getSteopupOptionuestHceActionException;
         }catch (Exception getSteopupOptionuestExcetption) {

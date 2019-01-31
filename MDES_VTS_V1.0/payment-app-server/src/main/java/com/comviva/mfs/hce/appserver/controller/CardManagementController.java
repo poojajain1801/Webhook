@@ -186,11 +186,7 @@ public class CardManagementController {
         LOGGER.debug("Enter CardManagementController->getCardMetadata");
       return getContentResp;
     }
-    @ResponseBody
-    @RequestMapping(value = "/getPANData",method = RequestMethod.POST)
-    public Map<String,Object>getPANData(@RequestBody GetPANDataRequest getPANDataRequest){
-        return cardDetailService.getPANData(getPANDataRequest);
-    }
+
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -271,15 +267,15 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/getSystemHealth", method = RequestMethod.GET)
     public Map getSystemHealth() {
-        Map <String, Object> getSystemHealthResp=null ;
+        Map <String, Object> getSystemHealthResp=null;
         try{
             //Check master card is accessable or not.
             getSystemHealthResp = cardDetailService.getSystemHealth();
         }catch (HCEActionException getSystemHealthHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->unregisterTds",getSystemHealthHceActionException);
+            LOGGER.error("Exception Occured in CardManagementController->getSystemHealth",getSystemHealthHceActionException);
             throw getSystemHealthHceActionException;
         }catch (Exception getSystemHealthExcetption) {
-            LOGGER.error(" Exception Occured in CardManagementController->unregisterTds", getSystemHealthExcetption);
+            LOGGER.error(" Exception Occured in CardManagementController->getSystemHealth", getSystemHealthExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return getSystemHealthResp;

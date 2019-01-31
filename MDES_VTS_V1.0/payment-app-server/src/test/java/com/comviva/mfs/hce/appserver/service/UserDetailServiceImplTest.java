@@ -52,6 +52,7 @@ public class UserDetailServiceImplTest {
         ServiceUtils.serviceInit("/api/user/");
 
     }
+
     @Test
     public void registerUserSuccess() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");

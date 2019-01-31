@@ -2,6 +2,12 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -9,30 +15,41 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
+import java.security.PrivateKey;
+import java.util.HashMap;
 import java.util.Map;
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
-/**
- * Created by Tanmay.Patel on 5/25/2017.
- */
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class CardManagementControllerTest {
+
+    @MockBean
+    private CardDetailService cardDetailService;
     @Resource
     private WebApplicationContext webApplicationContext;
     private String paymentAppInstanceId = "";
     private String userID = DefaultTemplateUtils.randomString(8);
     private String clientDeviceID = DefaultTemplateUtils.randomString(24);
-
 
     @Before
     public void Setup(){
@@ -42,292 +59,460 @@ public class CardManagementControllerTest {
     }
 
     @Test
-    public void registerUser() throws Exception {
-        Map UserRegistrationRequest = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        UserRegistrationRequest.put("userId",userID);
-        UserRegistrationRequest.put("clientDeviceID",clientDeviceID);
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",UserRegistrationRequest);
-        assertResponse(registerUserResp, "200");
-    }
-
-    @Test
-    public void registerUserWithoutClientDeviceId() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        userID = DefaultTemplateUtils.randomString(8);
-        request.put("userId",userID);
-        request.put("clientDeviceID",null);
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(registerUserResp, "500");
-    }
-
-    @Test
-    public void registerUserWithInvalidRequest() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        request.put("random","");
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(registerUserResp, "706");
-    }
-
-    @Test
-    public void registerUserWithNullRequest() throws Exception {
-        Map request = null;
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",request);
-        assertResponse(registerUserResp, "500");
-    }
-
-    @Test
-    public void registerDevice() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.put("userId",userID);
-        Map mdes = (Map) request.get("mdes");
-        Map deviceInfo = (Map) mdes.get("deviceInfo");
-        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
-        mdes.put("deviceInfo",deviceInfo);
-        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("clientDeviceID",clientDeviceID);
-        request.put("mdes",mdes);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "200");
-    }
-
-    @Test
-    public void registerDeviceWithInvalidUser() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.remove("userId");
-        Map mdes = (Map) request.get("mdes");
-        Map deviceInfo = (Map) mdes.get("deviceInfo");
-        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
-        mdes.put("deviceInfo",deviceInfo);
-        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("mdes",mdes);
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "205");
-    }
-
-    @Test
-    public void registerDeviceWithInvalidDeviceId() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        Map mdes = (Map) request.get("mdes");
-        Map deviceInfo = (Map) mdes.get("deviceInfo");
-        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
-        mdes.put("deviceInfo",deviceInfo);
-        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("mdes",mdes);
-        request.put("userId",userID);
-        request.remove("clientDeviceID");
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "703");
-    }
-
-    @Test
-    public void registerDeviceWithoutVtsRequest() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        Map mdes = (Map) request.get("mdes");
-        Map deviceInfo = (Map) mdes.get("deviceInfo");
-        deviceInfo.put("imei",DefaultTemplateUtils.randomString(20));
-        mdes.put("deviceInfo",deviceInfo);
-        mdes.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("mdes",mdes);
-        request.put("userId",userID);
-        request.put("clientDeviceID",clientDeviceID);
-        request.remove("vts");
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "500");
-    }
-
-    @Test
-    public void registerDeviceWithInvalidRequest() throws Exception {
-        registerUser();
-        Map request = DefaultTemplateUtils.buildRequest("/registerDeviceReq.json");
-        request.put("random","");
-        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/deviceRegistration",request);
-        assertResponse(regDeviceReaponse, "706");
-    }
-
-    @Test
-    @Ignore
-    public void enrollPan() throws Exception {
-        Map UserRegistrationRequest = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
-        UserRegistrationRequest.put("userId",userID);
-        UserRegistrationRequest.put("clientDeviceID",clientDeviceID);
-        Map registerUserResp = ServiceUtils.servicePOSTResponse("user/userRegistration",UserRegistrationRequest);
-        registerDevice();
-        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
-        request.put("clientDeviceID",clientDeviceID);
-        request.put("clientWalletAccountId",registerUserResp.get("clientWalletAccountId"));
-        Map enrollPanResp = ServiceUtils.servicePOSTResponse("card/enrollPan",request);
-        assertResponse(enrollPanResp, "200");
-    }
-
-    @Test
-    public void enrollPanWithInvalidRequest() throws Exception {
-        registerDevice();
-        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
-        request.put("clientDeviceID",clientDeviceID);
-        request.put("Random","");
-        Map enrollPanResp = ServiceUtils.servicePOSTResponse("card/enrollPan",request);
-        assertResponse(enrollPanResp, "706");
-    }
-
-    @Test
     public void addCard() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/checkCardEligibilityReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        Map addCardResponse = ServiceUtils.servicePOSTResponse("card/checkCardEligibility",request);
-        assertResponse(addCardResponse, "200");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/checkCardEligibility";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.checkDeviceEligibility(Mockito.any(AddCardParm.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void addCardWithoutCardInfo() throws Exception {
+    public void addCardWhenCardNotEligible() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/checkCardEligibilityReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("cardInfo",null);
-        Map addCardResponse = ServiceUtils.servicePOSTResponse("card/checkCardEligibility",request);
-        assertResponse(addCardResponse, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/checkCardEligibility";
+        String inputInJson = this.mapToJson(request);
+
+        HCEActionException hceActionException = new HCEActionException("718");
+
+        Mockito.when(cardDetailService.checkDeviceEligibility(Mockito.any(AddCardParm.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("718" , responseCode);
     }
 
     @Test
-    public void addCardWithInvalidRequest() throws Exception {
+    public void addCardWhenExceptionOccurs() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/checkCardEligibilityReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("Random","");
-        Map addCardResponse = ServiceUtils.servicePOSTResponse("card/checkCardEligibility",request);
-        assertResponse(addCardResponse, "706");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/checkCardEligibility";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.checkDeviceEligibility(Mockito.any(AddCardParm.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
+    }
+
+
+    @Test
+    public void enrollPan() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/enrollPan";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.enrollPan(Mockito.any(EnrollPanRequest.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void addCardWithNullRequest() throws Exception {
-        Map request = null;
-        Map addCardResponse = ServiceUtils.servicePOSTResponse("card/checkCardEligibility",request);
-        assertResponse(addCardResponse, "500");
+    public void enrollPanWithActionException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/enrollPan";
+        String inputInJson = this.mapToJson(request);
+
+        HCEActionException hceActionException = new HCEActionException("207");
+
+        Mockito.when(cardDetailService.enrollPan(Mockito.any(EnrollPanRequest.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("207" , responseCode);
+    }
+
+    @Test
+    public void enrollPanWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/enrollPan";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.enrollPan(Mockito.any(EnrollPanRequest.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
+    }
+
+    @Test
+    public void enrollPanWithValidationException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/enrollPan";
+        String inputInJson = this.mapToJson(request);
+
+        HCEValidationException hceValidationException = new HCEValidationException("207","Validation exception");
+
+        Mockito.when(cardDetailService.enrollPan(Mockito.any(EnrollPanRequest.class))).thenThrow(hceValidationException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("207" , responseCode);
     }
 
     @Test
     public void continueDigitization() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/ContinueDigitization.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        //request.put("paymentAppInstanceId",paymentAppInstanceId);
-        Map continueDegitizationResp = ServiceUtils.servicePOSTResponse("card/continueDigitization",request);
-        assertResponse(continueDegitizationResp, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/continueDigitization";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.addCard(Mockito.any(DigitizationParam.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
-
     @Test
-    public void continueDigitizationWithInvalidRequest() throws Exception {
+    public void continueDigitizationWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/ContinueDigitization.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("Random req","");
-        Map continueDegitizationResp = ServiceUtils.servicePOSTResponse("card/continueDigitization",request);
-        assertResponse(continueDegitizationResp, "706");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/continueDigitization";
+        String inputInJson = this.mapToJson(request);
+
+        HCEActionException hceActionException = new HCEActionException("207");
+
+        Mockito.when(cardDetailService.addCard(Mockito.any(DigitizationParam.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("207" , responseCode);
     }
 
     @Test
-    public void continueDigitizationWithNullReq() throws Exception {
-        Map request = null;
-        Map continueDegitizationResp = ServiceUtils.servicePOSTResponse("card/continueDigitization",request);
-        assertResponse(continueDegitizationResp, "500");
+    public void continueDigitizationWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/ContinueDigitization.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/continueDigitization";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.addCard(Mockito.any(DigitizationParam.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
     public void tokenize() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/tokenize.json");
-        Map tokenizeResp = ServiceUtils.servicePOSTResponse("card/tokenize",request);
-        assertResponse(tokenizeResp,"500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/tokenize";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.tokenize(Mockito.any(TokenizeRequest.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
+    }
+
+    @Test
+    public void tokenizeWithActionException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/tokenize.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/tokenize";
+        String inputInJson = this.mapToJson(request);
+
+        HCEActionException hceActionException = new HCEActionException("201");
+
+        Mockito.when(cardDetailService.tokenize(Mockito.any(TokenizeRequest.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("201" , responseCode);
+    }
+
+    @Test
+    public void tokenizeWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/tokenize.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/tokenize";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.tokenize(Mockito.any(TokenizeRequest.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
     public void getAsset() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getAssetReq.json");
-        Map getAssetResp = ServiceUtils.servicePOSTResponse("card/mdes/asset",request);
-        assertResponse(getAssetResp, "200");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/mdes/asset";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.getAsset(Mockito.any(GetAssetPojo.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
+    @Test
+    @Ignore
+    public void getAssetWithActionException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/getAssetReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/mdes/asset";
+        String inputInJson = this.mapToJson(request);
+
+        HCEActionException hceActionException = new HCEActionException("707");
+
+        Mockito.when(cardDetailService.getAsset(Mockito.any(GetAssetPojo.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("707" , responseCode);
+    }
 
     @Test
     public void activate() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/activateReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map activateResp = ServiceUtils.servicePOSTResponse("card/activate",request);
-        assertResponse(activateResp, "750");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/activate";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.activate(Mockito.any(ActivateReq.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void activateWithoutTkenUniqueReference() throws Exception {
+    public void activateWithInvalidCode() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/activateReq.json");
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("tokenUniqueReference",null);
-        Map activateResp = ServiceUtils.servicePOSTResponse("card/activate",request);
-        assertResponse(activateResp, "737");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/activate";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("202");
+
+        Mockito.when(cardDetailService.activate(Mockito.any(ActivateReq.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("202" , responseCode);
     }
 
     @Test
-    public void activateWithNullRequest() throws Exception {
+    public void activateWithException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/activateReq.json");
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request = null;
-        Map activateResp = ServiceUtils.servicePOSTResponse("card/activate",request);
-        assertResponse(activateResp, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/activate";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.activate(Mockito.any(ActivateReq.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
-    public void activateWithInvalidReq() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/activateReq.json");
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("Random Req","");
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map activateResp = ServiceUtils.servicePOSTResponse("card/activate",request);
-        assertResponse(activateResp, "706");
-    }
-
-
-    @Test
-    public void getCardMetadataWithInvalidPanEnrollmentId() throws Exception {
+    public void getCardMetadata() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getCardMetaDataReq.json");
-        String vpanEnrollmentID = DefaultTemplateUtils.randomString(24);
-        request.put("vpanEnrollmentID",vpanEnrollmentID);
-        Map activateResp = ServiceUtils.servicePOSTResponse("card/getCardMetadata",request);
-        assertEquals(activateResp.get("responseCode"), 400);
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/getCardMetadata";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.getCardMetadata(Mockito.any(GetCardMetadataRequest.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
     public void getContent() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getContentReq.json");
-        Map getContentResp = ServiceUtils.servicePOSTResponse("card/getContent",request);
-        assertResponse(getContentResp, "200");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/getContent";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.getContent(Mockito.any(GetContentRequest.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
-    @Test
-    public void getContentWithInvalidRequest() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/getContentReq.json");
-        request.put("Random","");
-        request.put("guid",null);
-        Map getContentResp = ServiceUtils.servicePOSTResponse("card/getContent",request);
-        assertResponse(getContentResp, "500");
-    }
-
-    @Test
-    public void getContentWithInvalidGUId() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/getContentReq.json");
-        String guid = DefaultTemplateUtils.randomString(16);
-        request.put("guid",guid);
-        Map getContentResp = ServiceUtils.servicePOSTResponse("card/getContent",request);
-        assertResponse(getContentResp, "500");
-    }
 
     @Test
     public void provisionWithPanEnrollmentID() throws Exception {
@@ -336,125 +521,474 @@ public class CardManagementControllerTest {
         assertResponse(getContentResp, "707");
     }
 
-
-    @Test
-    public void getPANData() throws Exception {
-
-    }
-
     @Test
     public void lifeCycleManagement() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/LifeCycleManagementReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        Map lifeCycleManagementResp = ServiceUtils.servicePOSTResponse("card/lifeCycleManagement",request);
-        assertResponse(lifeCycleManagementResp, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/lifeCycleManagement";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.performCardLifeCycleManagement(Mockito.any(LifeCycleManagementReq.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void lifeCycleManagementWithInvalidReq() throws Exception {
+    public void lifeCycleManagementWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/LifeCycleManagementReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        request.put("Random","");
-        Map lifeCycleManagementResp = ServiceUtils.servicePOSTResponse("card/lifeCycleManagement",request);
-        assertResponse(lifeCycleManagementResp, "706");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/lifeCycleManagement";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("707");
+
+        Mockito.when(cardDetailService.performCardLifeCycleManagement(Mockito.any(LifeCycleManagementReq.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("707" , responseCode);
     }
 
     @Test
-    public void lifeCycleManagementWithNullReq() throws Exception {
-        Map request = null;
-        Map lifeCycleManagementResp = ServiceUtils.servicePOSTResponse("card/lifeCycleManagement",request);
-        assertResponse(lifeCycleManagementResp, "500");
-    }
+    public void lifeCycleManagementWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/LifeCycleManagementReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/lifeCycleManagement";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.performCardLifeCycleManagement(Mockito.any(LifeCycleManagementReq.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
 
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
+    }
 
 
     @Test
     public void getTokens() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getTokenReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        Map getTokenResp = ServiceUtils.servicePOSTResponse("card/getToken",request);
-        assertResponse(getTokenResp, "707");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/getToken";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.getTokens(Mockito.any(GetTokensRequest.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void getTokensWithIncorrectParameters() throws Exception {
+    public void getTokensWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getTokenReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map getTokenResp = ServiceUtils.servicePOSTResponse("card/getToken",request);
-        assertResponse(getTokenResp, "707");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/getToken";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("707");
+
+        Mockito.when(cardDetailService.getTokens(Mockito.any(GetTokensRequest.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("707" , responseCode);
     }
 
     @Test
-    public void getTokensWithInvalidReq() throws Exception {
+    public void getTokensWithException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/getTokenReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("Random","");
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map getTokenResp = ServiceUtils.servicePOSTResponse("card/getToken",request);
-        assertResponse(getTokenResp, "706");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/getToken";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.getTokens(Mockito.any(GetTokensRequest.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
     public void searchTokens() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/searchTokensReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        Map searchTokensResp = ServiceUtils.servicePOSTResponse("card/searchTokens",request);
-        assertResponse(searchTokensResp, "704");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/searchTokens";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.searchTokens(Mockito.any(SearchTokensReq.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void searchTokensWithInvalidReq() throws Exception {
+    public void searchTokensWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/searchTokensReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        request.put("paymentAppInstanceId",null);
-        Map searchTokensResp = ServiceUtils.servicePOSTResponse("card/searchTokens",request);
-        assertResponse(searchTokensResp, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/searchTokens";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("707");
+
+        Mockito.when(cardDetailService.searchTokens(Mockito.any(SearchTokensReq.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("707" , responseCode);
+    }
+
+    @Test
+    public void searchTokensWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/searchTokensReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/searchTokens";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.searchTokens(Mockito.any(SearchTokensReq.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
     public void requestActivationCode() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/requestActivationCodeReq.json");
-        Map requestActivationCodeResp = ServiceUtils.servicePOSTResponse("card/requestActivationCode",request);
-        assertResponse(requestActivationCodeResp, "757");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/requestActivationCode";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.requestActivationCode(Mockito.any(ActivationCodeReq.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void requestActivationCodeWithInvalidReq() throws Exception {
+    public void requestActivationCodeWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/requestActivationCodeReq.json");
-        paymentAppInstanceId = DefaultTemplateUtils.randomString(48);
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(64);
-        request.put("paymentAppInstanceId",paymentAppInstanceId);
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map requestActivationCodeResp = ServiceUtils.servicePOSTResponse("card/requestActivationCode",request);
-        assertResponse(requestActivationCodeResp, "750");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/requestActivationCode";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("707");
+
+        Mockito.when(cardDetailService.requestActivationCode(Mockito.any(ActivationCodeReq.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("707" , responseCode);
+    }
+
+    @Test
+    public void requestActivationCodeWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/requestActivationCodeReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/requestActivationCode";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.requestActivationCode(Mockito.any(ActivationCodeReq.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
     }
 
     @Test
     public void unregisterFromTds() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/unregisterTdsReq.json");
-        Map unregisterTdsResp = ServiceUtils.servicePOSTResponse("card/unregisterTds",request);
-        assertResponse(unregisterTdsResp, "500");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/unregisterTds";
+        String inputInJson = this.mapToJson(request);
+
+        Mockito.when(cardDetailService.unregisterTds(Mockito.any(UnregisterTdsReq.class))).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
 
     @Test
-    public void unregisterFromTdsWithInvalidToken() throws Exception {
+    public void unregisterFromTdsWithActionException() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/unregisterTdsReq.json");
-        String tokenUniqueReference = DefaultTemplateUtils.randomString(48);
-        request.put("tokenUniqueReference",tokenUniqueReference);
-        Map unregisterTdsResp = ServiceUtils.servicePOSTResponse("card/unregisterTds",request);
-        assertResponse(unregisterTdsResp, "707");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/unregisterTds";
+        String inputInJson = this.mapToJson(request);
+        HCEActionException hceActionException = new HCEActionException("704");
+
+        Mockito.when(cardDetailService.unregisterTds(Mockito.any(UnregisterTdsReq.class))).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("704" , responseCode);
+    }
+
+    @Test
+    public void unregisterFromTdsWithException() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/unregisterTdsReq.json");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/unregisterTds";
+        String inputInJson = this.mapToJson(request);
+        Mockito.when(cardDetailService.unregisterTds(Mockito.any(UnregisterTdsReq.class))).thenThrow(Exception.class);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders
+                .post(URI)
+                .accept(MediaType.APPLICATION_JSON).content(inputInJson)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("500" , responseCode);
+    }
+
+    @Test
+    public void getPrivateKeyFromKeyStore() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        PrivateKey response = null;
+        String res = null;
+        try {
+            response = hceControllerSupport.getPrivateKeyFromKeyStore();
+        }catch (Exception e){
+            res = e.getMessage();
+        }
+        Assert.assertNotNull(res);
+    }
+
+    @Test
+    public void aesDecrypt() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        String response = null;
+        byte[] bKey = new byte[]{1,2,3,4};
+        try {
+            response = hceControllerSupport.aesDecrypt("rtyulkjhgfdfghjkjhg", bKey, "45670987645");
+        }catch (Exception e){
+            response = e.getMessage();
+        }
+        Assert.assertNotNull(response);
     }
 
     @Test
     public void getSystemHealth() throws Exception {
-        Map systemHealthResponse = ServiceUtils.serviceGETResponse("card/getSystemHealth",null,null);
-        assertResponse(systemHealthResponse,"200");
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/getSystemHealth";
+
+        Mockito.when(cardDetailService.getSystemHealth()).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                URI).accept(
+                MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
     }
+
+    @Test
+    @Ignore
+    public void getSystemHealthWithActionException() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        String URI = "/api/card/getSystemHealth";
+        HCEActionException hceActionException = new HCEActionException("262");
+        Mockito.when(cardDetailService.getSystemHealth()).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                URI).accept(
+                MediaType.APPLICATION_JSON);
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("262" , responseCode);
+    }
+
+    @Test
+    public void getPublicKeyCertificate() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        Map<String,Object> successScenario = new HashMap<>();
+        successScenario.put("Message","Transaction Success");
+        successScenario.put("reasonCode","200");
+        String URI = "/api/card/pkCertificate";
+
+        Mockito.when(cardDetailService.getPublicKeyCertificate()).thenReturn(successScenario);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                URI).accept(
+                MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("reasonCode");
+        assertEquals("200" , responseCode);
+    }
+
+    @Test
+    @Ignore
+    public void getPublicKeyCertificateWithActionException() throws Exception {
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        HCEActionException hceActionException = new HCEActionException("704");
+        String URI = "/api/card/pkCertificate";
+
+        Mockito.when(cardDetailService.getPublicKeyCertificate()).thenThrow(hceActionException);
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                URI).accept(
+                MediaType.APPLICATION_JSON);
+
+        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+        MockHttpServletResponse response = result.getResponse();
+        String outputInJson = response.getContentAsString();
+        JSONObject jsonObject = new JSONObject(outputInJson);
+        String responseCode = jsonObject.getString("responseCode");
+        assertEquals("704" , responseCode);
+    }
+
+    @Test
+    public void decryptRequest() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        String response = null;
+        Map request = DefaultTemplateUtils.buildRequest("/decryptRequest.json");
+        String decryptRequest = request.toString();
+        try {
+            response = hceControllerSupport.decryptRequest(decryptRequest);
+        }catch (HCEActionException e){
+            response = e.getMessageCode();
+        }
+        Assert.assertEquals(response , "706");
+    }
+
+    @Test
+    public void formResponse() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        Map<String, Object> response = hceControllerSupport.formResponse("200", "Transaction Success");
+        Assert.assertNotNull(response);
+    }
+
+    @Test
+    public void formResponseWithNullMessage() throws Exception {
+        HCEControllerSupport hceControllerSupport = new HCEControllerSupport();
+        Map<String, Object> response = hceControllerSupport.formResponse("200", null);
+        Assert.assertNotNull(response);
+    }
+
+    private String mapToJson(Object object) throws JsonProcessingException {
+        com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        return objectMapper.writeValueAsString(object);
+    }
+
 }

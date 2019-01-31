@@ -60,8 +60,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
 
-    public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType)
-    {
+    public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType) {
         //Verify vProvisionID
         GetTokenStatusRequest getTokenStatusRequest = null;
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyLCMEvent");
@@ -159,7 +158,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                 for(int i =0;i<cardDetailsList.size();i++){
                     final DeviceInfo deviceInfo = cardDetailsList.get(i).getDeviceInfo();
                     rnsRegID = deviceInfo.getRnsRegistrationId();
-                    RnsGenericRequest rnsGenericRequest=  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
+                    RnsGenericRequest rnsGenericRequest =  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
                     sendNotification(rnsGenericRequest);
                 }
             }
@@ -177,8 +176,6 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
     }
 
-
-
     public RnsGenericRequest preparetNotificationRequest(String panUniqueReference,String rnsId){
         LOGGER.debug("Inside preparetNotificationRequest");
         HashMap<String, String> lcmNotificationData = new HashMap<>();
@@ -190,11 +187,9 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
         rnsGenericRequest.setRnsData(lcmNotificationData);
         LOGGER.debug("Exit preparetNotificationRequest");
         return rnsGenericRequest;
-
     }
 
     public void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception{
-
         Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
         if (rnsResp.containsKey("errorCode")) {
             LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification-> notifyPanMetadataUpdate - > remoteNotification Sending Failed");

@@ -284,7 +284,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             LOGGER.error("Exception occured in CardDetailServiceImpl->unRegisterDevice", unRegisterDeviceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
     }
 

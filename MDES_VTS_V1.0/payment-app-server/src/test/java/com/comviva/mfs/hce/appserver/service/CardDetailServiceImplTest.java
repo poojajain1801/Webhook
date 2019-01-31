@@ -2,9 +2,12 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
+import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
+import java.security.PrivateKey;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
@@ -29,6 +33,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class CardDetailServiceImplTest {
+    @Autowired
+    private CardDetailService cardDetailService;
     @Resource
     private WebApplicationContext webApplicationContext;
     private String paymentAppInstanceId = "";
@@ -156,7 +162,6 @@ public class CardDetailServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void enrollPan() throws Exception {
         Map UserRegistrationRequest = DefaultTemplateUtils.buildRequest("/RegisterUserReq.json");
         UserRegistrationRequest.put("userId",userID);
@@ -170,11 +175,31 @@ public class CardDetailServiceImplTest {
         assertResponse(enrollPanResp, "200");
     }
 
+    /*@Test
+    public void enrollPan() throws Exception {
+        String enrollPanRespCode = null;
+        EnrollPanRequest enrollPanRequest = new EnrollPanRequest();
+        EncPaymentInstrument encPaymentInstrument = new EncPaymentInstrument();
+        encPaymentInstrument.setAccountNumber("4260838210001459");
+        enrollPanRequest.setClientAppId("NBKewallet");
+        enrollPanRequest.setClientDeviceID("B4D7F2161537854926231FFF");
+        enrollPanRequest.setClientWalletAccountId("PT1809251125ELBH1KHRN7WD");
+        enrollPanRequest.setLocale("en-US");
+        enrollPanRequest.setPanSource("MANUALLYENTERED");
+        enrollPanRequest.setEncPaymentInstrument(encPaymentInstrument);
+        try {
+            Map enrollPanResp = cardDetailService.enrollPan(enrollPanRequest);
+        }catch(HCEActionException enrollPanHCEactionException){
+            enrollPanRespCode =  enrollPanHCEactionException.getMessageCode();
+        }
+        Assert.assertEquals(enrollPanRespCode ,"704");
+    }*/
+
     @Test
     public void enrollPanWithInvalidRequest() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/enrollPanReq.json");
         Map enrollPanResp = ServiceUtils.servicePOSTResponse("card/enrollPan",request);
-        assertResponse(enrollPanResp, "706");
+        assertResponse(enrollPanResp, "704");
     }
 
     @Test
@@ -217,18 +242,10 @@ public class CardDetailServiceImplTest {
     public void continueDigitization() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/ContinueDigitization.json");
         paymentAppInstanceId = DefaultTemplateUtils.randomString(20);
-        //request.put("paymentAppInstanceId",paymentAppInstanceId);
         Map continueDegitizationResp = ServiceUtils.servicePOSTResponse("card/continueDigitization",request);
         assertResponse(continueDegitizationResp, "500");
     }
 
-    @Test
-    @Ignore
-    public void continueDigitizationWithoutPaymentAppId() throws Exception {
-        Map request = DefaultTemplateUtils.buildRequest("/ContinueDigitization.json");
-        Map continueDegitizationResp = ServiceUtils.servicePOSTResponse("card/continueDigitization",request);
-        assertResponse(continueDegitizationResp, "200");
-    }
 
     @Test
     public void continueDigitizationWithInvalidRequest() throws Exception {
@@ -465,5 +482,9 @@ public class CardDetailServiceImplTest {
         assertResponse(systemHealthResponse,"200");
     }
 
-
+    @Test
+    public void getPublicKeyCertificate() throws Exception {
+        Object response = cardDetailService.getPublicKeyCertificate();
+        Assert.assertNotNull(response);
+    }
 }
