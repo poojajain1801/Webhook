@@ -55,7 +55,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     @Autowired
     private DeviceDetailRepository deviceDetailRepository;
     @Autowired
-    HitMasterCardService hitMasterCardService;
+    private HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementServiceImpl.class);
 

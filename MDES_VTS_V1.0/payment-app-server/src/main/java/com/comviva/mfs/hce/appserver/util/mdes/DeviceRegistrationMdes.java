@@ -26,7 +26,7 @@ public class DeviceRegistrationMdes
     public Environment env;
 
     @Autowired
-    HitMasterCardService hitMasterCardService;
+    private HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
 
     public void setEnv(Environment env)
