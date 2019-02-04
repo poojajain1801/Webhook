@@ -22,8 +22,8 @@ public class UserDeviceCardReportReq {
     private String deviceStatus;
 
     public UserDeviceCardReportReq(Date fromDate, Date toDate, String userId, String deviceId, String userStatus, String deviceStatus) {
-        this.fromDate = fromDate;
-        this.toDate = toDate;
+        this.fromDate = (fromDate);
+        this.toDate = (toDate);
         this.userId = userId;
         this.deviceId = deviceId;
         this.userStatus = userStatus;

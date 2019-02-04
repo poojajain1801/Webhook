@@ -48,7 +48,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     private Environment env;
 
     @Autowired
-    TokenLifeCycleManagementService tokenLifeCycleManagementService ;
+    private TokenLifeCycleManagementService tokenLifeCycleManagementService ;
 
     @Autowired
     public NotificationServiceVisaServiceImpl(HCEControllerSupport hceControllerSupport, CardDetailRepository cardDetailRepository, UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository) {

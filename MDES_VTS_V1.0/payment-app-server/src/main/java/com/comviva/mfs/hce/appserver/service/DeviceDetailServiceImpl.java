@@ -52,7 +52,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Autowired
     private HitMasterCardService hitMasterCardService;
     @Autowired
-    TokenLifeCycleManagementService tokenLifeCycleManagementService;
+    private TokenLifeCycleManagementService tokenLifeCycleManagementService;
 
     @Autowired
     private PerformUserLifecycle performLCMobj;

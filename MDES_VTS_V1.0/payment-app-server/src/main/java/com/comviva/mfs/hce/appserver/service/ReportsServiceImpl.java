@@ -28,13 +28,13 @@ public class ReportsServiceImpl implements ReportsService {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ReportsServiceImpl.class);
     @Autowired
-    UserDetailRepository userDetailRepository;
+    private UserDetailRepository userDetailRepository;
     @Autowired
-    DeviceDetailRepository deviceDetailRepository;
+    private DeviceDetailRepository deviceDetailRepository;
     @Autowired
-    CardDetailRepository cardDetailRepository;
+    private CardDetailRepository cardDetailRepository;
     @Autowired
-    HCEControllerSupport hceControllerSupport;
+    private HCEControllerSupport hceControllerSupport;
 
     @Override
     public Map<String, Object> consumerReport(ConsumerReportReq consumerReportReq) {

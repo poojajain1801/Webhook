@@ -50,7 +50,7 @@ public class HCEControllerSupport {
     @Autowired
     private UserDetailRepository userDetailRepository;
     @Autowired
-    DeviceDetailRepository deviceDetailRepository ;
+    private DeviceDetailRepository deviceDetailRepository ;
     @Autowired
     private CardDetailRepository cardDetailRepository ;
     @Autowired
@@ -302,7 +302,7 @@ public class HCEControllerSupport {
     private String findUserIdByPaymentAppInstanceId(String paymentAppInstanceId){
         String userId = null;
         final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
+        if(deviceDetailsList.isPresent() ){
             final DeviceInfo deviceInfo = deviceDetailsList.get();
             userId =  deviceInfo.getUserDetail().getUserId();
         }

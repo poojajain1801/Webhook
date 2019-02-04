@@ -213,7 +213,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         DeviceInfo deviceInfo = null;
         String paymentAppInstanceId = null;
         Optional<CardDetails> cardDetailsList = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueReference);
-        if(cardDetailsList!=null && cardDetailsList.isPresent() ){
+        if(cardDetailsList.isPresent() ){
             deviceInfo = cardDetailsList.get().getDeviceInfo();
             if (deviceInfo != null) {
                 rnsRegID = deviceInfo.getRnsRegistrationId();
@@ -357,7 +357,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                     responseMap.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
 
                 }else {
-                    if (txnDetails!=null && txnDetails.isPresent()){
+                    if (txnDetails.isPresent()){
                         txnDetails.get().setRegCode1(jsonResponse.getString("registrationCode1"));
                         txnDetails.get().setPaymentAppInstanceId(paymentAppInstanceId);
                         transactionRegDetailsRepository.save(txnDetails.get());

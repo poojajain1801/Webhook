@@ -22,8 +22,8 @@ public class ConsumerReportReq {
     private String status;
 
     public ConsumerReportReq(Date fromDate, Date toDate, String userId, String status) {
-        this.fromDate = fromDate;
-        this.toDate = toDate;
+        this.fromDate = (fromDate);
+        this.toDate = (toDate);
         this.userId = userId;
         this.status = status;
     }

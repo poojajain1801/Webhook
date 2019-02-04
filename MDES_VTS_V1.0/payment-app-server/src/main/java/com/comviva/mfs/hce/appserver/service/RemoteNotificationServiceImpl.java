@@ -144,7 +144,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
     {
         String rnsRegID = null;
         final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
+        if(deviceDetailsList.isPresent() ){
             final DeviceInfo deviceInfo = deviceDetailsList.get();
             rnsRegID = deviceInfo.getRnsRegistrationId();
         }
