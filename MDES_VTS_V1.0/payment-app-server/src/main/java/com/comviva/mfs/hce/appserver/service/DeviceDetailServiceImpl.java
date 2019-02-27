@@ -87,12 +87,13 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         DeviceInfo deviceInfo;
         try {
             List<UserDetail> userDetails = userDetailRepository.findByUserIdAndStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
-
             if(userDetails!=null && !userDetails.isEmpty()){
                 userDetail = userDetails.get(0);
-                List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdAndStatus(enrollDeviceRequest.getClientDeviceID(),HCEConstants.INITIATE);
-                if(deviceInfos!=null && !deviceInfos.isEmpty()){
-                    deviceInfo = deviceInfos.get(0);
+                Optional<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
+                String isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
+                String isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
+                    deviceInfo = deviceInfos.get();
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
                         throw new HCEActionException(HCEMessageCodes.getInvalidUserAndDevice());
                     }
@@ -113,7 +114,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 schemeType = "ALL";
             }
 
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MDES")))
+            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MASTERCARD")))
                 isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
 
 
@@ -153,7 +154,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             }
             // *******************VTS : Register with VTS Start**********************
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("VTS"))) {
+            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("VISA"))) {
                 String vtsResp = enrollDeviceVts.register(vClientID, enrollDeviceRequest);
                 JSONObject vtsRespJson = null;
                 JSONObject vtsJsonObject = new JSONObject(vtsResp);

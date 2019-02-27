@@ -174,7 +174,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning");
         String provisonStatus = confirmProvisioningRequest.getProvisioningStatus();
         String failureReason = confirmProvisioningRequest.getFailureReason();
-        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenId();
+        String vProvisionedTokenID = confirmProvisioningRequest.getVprovisionedTokenID();
         JSONObject requestMap = new JSONObject();
         HitVisaServices hitVisaServices =null;
         JSONObject jsonResponse= null;
@@ -190,7 +190,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 requestMap.put("failureReason", confirmProvisioningRequest.getFailureReason());
 
             hitVisaServices = new HitVisaServices(env);
-
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning" + "?apiKey=" + env.getProperty("apiKey");
             String resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/confirmProvisioning";
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
@@ -198,7 +197,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             //Update the card status to active
 
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ConfirmProvisioning->Update card status to Active");
-            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenId());
+            cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(confirmProvisioningRequest.getVprovisionedTokenID());
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
             }else{
