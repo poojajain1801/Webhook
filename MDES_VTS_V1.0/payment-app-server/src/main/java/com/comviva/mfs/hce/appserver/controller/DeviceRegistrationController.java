@@ -39,11 +39,15 @@ public class DeviceRegistrationController {
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map<String,Object> registerDevice(@RequestBody String enrollDeviceRequest) {
+
         Map<String,Object> registerDeviceResponse = null;
         EnrollDeviceRequest enrollDeviceRequestPojo = null;
         try{
             enrollDeviceRequestPojo =(EnrollDeviceRequest) hCEControllerSupport.requestFormation(enrollDeviceRequest,EnrollDeviceRequest.class);
             registerDeviceResponse = deviceDetailService.registerDevice(enrollDeviceRequestPojo);
+        }catch (HCEValidationException registerDeviceValidationException){
+            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",registerDeviceValidationException);
+            throw registerDeviceValidationException;
         }catch (HCEActionException regDeviceHCEActionException){
             LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",regDeviceHCEActionException);
             throw regDeviceHCEActionException;
@@ -64,6 +68,9 @@ public class DeviceRegistrationController {
         try{
             unRegisterReqPojo =(UnRegisterReq) hCEControllerSupport.requestFormation(unRegisterReq,UnRegisterReq.class);
             unRegisterResponse = deviceDetailService.unRegisterDevice(unRegisterReqPojo);
+        }catch (HCEValidationException deRegValidationException){
+            LOGGER.error("Exception Occured in  DeviceRegistrationController->registerDevice",deRegValidationException);
+           throw deRegValidationException;
         }catch (HCEActionException deRegHCEActionException){
             LOGGER.error("Exception Occured in Enter DeviceRegistrationController->registerDevice",deRegHCEActionException);
             throw deRegHCEActionException;

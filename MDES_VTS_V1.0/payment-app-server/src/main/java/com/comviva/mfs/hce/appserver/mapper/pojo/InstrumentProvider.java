@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InstrumentProvider {
+
     private String intent;
     private String clientWalletProvider;
     private String clientWalletAccountID;

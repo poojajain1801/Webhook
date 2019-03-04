@@ -93,8 +93,6 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The PAN has already been provisioned to the device or the same request is currently being processed','765','1','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'AID RID value was not correct.','766','1','INVALID_AID_RID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Token Activated Successfully','767','1','200');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect OTP','768','1','INCORRECT_CODE');
-
 
 
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'نجاح المعاملات','200','2');
@@ -189,8 +187,6 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تم تزويد PAN مسبقًا بالجهاز أو أن الطلب نفسه قيد المعالجة حاليًا','765','2','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'قيمة RID AID غير صحيحة','766','2','INVALID_AID_RID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تم تنشيط الرمز المميز بنجاح','767','2','200');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'غير صحيح OTP','768','2','INCORRECT_CODE');
-
 
 
 

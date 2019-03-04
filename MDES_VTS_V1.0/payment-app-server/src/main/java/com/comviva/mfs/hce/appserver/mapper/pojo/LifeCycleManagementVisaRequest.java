@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LifeCycleManagementVisaRequest {
+
+
     private String vprovisionedTokenID;
     private String reasonCode;
     private String reasonDesc;

@@ -27,7 +27,7 @@ public class CertificateUtil {
      */
     private static String readRsaPrivateKey(InputStream filename) throws IOException {
         // Read key from file
-        StringBuilder buff = new StringBuilder();
+        String strKeyPEM = "";
         Reader reader = new InputStreamReader(filename);
         BufferedReader br = new BufferedReader(reader);
         String line;
@@ -41,11 +41,9 @@ public class CertificateUtil {
                 break;
             }
             if (isPrivateKeyStart) {
-                buff.append(line);
+                strKeyPEM += line + "\n";
             }
-
         }
-        String strKeyPEM = buff.toString();
         br.close();
         return strKeyPEM;
     }

@@ -98,11 +98,11 @@ public class JsonUtil {
     }
 
     public static Map<String, Object> jsonToMap(JSONObject object) throws JSONException {
-        Map<String, Object> map = new HashMap<String, Object>();
+
         if (null == object){
             LOGGER.error("Null object passed");
-            return null;
         }
+        Map<String, Object> map = new HashMap<String, Object>();
         Iterator<String> keysItr = object.keys();
         while(keysItr.hasNext()) {
             String key = keysItr.next();

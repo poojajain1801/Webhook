@@ -70,7 +70,7 @@ public class LoggingInterceptor {
             if(HCEConstants.ACTIVE.equals(env.getProperty("audit.trail.required"))){
                 hceControllerSupport.maintainAudiTrail(requestId,clientDeviceId,methodName.toUpperCase(),responseCode,requestData, HCEUtil.getJsonStringFromMap(responseData),String.valueOf(totalTime));
             }
-            HCEUtil.writeHCELog(totalTime,responseCode,requestId,requestData, HCEUtil.getJsonStringFromMap(responseData));
+            HCEUtil.writeHCELog(totalTime,responseCode,requestId,requestData, HCEUtil.getJsonStringFromMap(responseData),methodName.toUpperCase());
         }
         return responseData;
     }

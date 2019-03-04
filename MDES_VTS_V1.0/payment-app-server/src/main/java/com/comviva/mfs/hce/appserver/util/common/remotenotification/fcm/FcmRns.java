@@ -93,6 +93,7 @@ public class FcmRns implements RemoteNotification {
             } else {
                 responseBody = convertStreamToString(httpURLConnection.getErrorStream());
             }
+
             response.setErrorCode(Integer.toString(responseCode));
             response.setResponse(responseBody);
         } catch (Exception ioe) {

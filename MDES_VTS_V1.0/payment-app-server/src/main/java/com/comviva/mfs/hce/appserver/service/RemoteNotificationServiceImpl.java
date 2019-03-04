@@ -41,6 +41,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
         HashMap rnsNotificationData = new HashMap();
         LOGGER.debug("Inside RemoteNotificationServiceImpl---------->sendRemoteNotificationMessage");
         RnsGenericRequest rnsGenericRequest ;
+
         try {
 
         /*    //Temp
@@ -53,6 +54,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             notificationJson.put("responseHost",responseHost);
             notificationData = Base64.getEncoder().encodeToString(notificationJson.toString().getBytes());
             //endTemp*/
+
             rnsGenericRequest = new RnsGenericRequest();
             rnsNotificationData.put("paymentAppProviderId",paymentAppProviderId);
             rnsNotificationData.put("notificationData",notificationData);
@@ -60,15 +62,19 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(paymentAppInstanceId));
             rnsGenericRequest.setRnsData(rnsNotificationData);
+
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
+
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
             payloadObject.put("time_to_live",2160000);
+
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+
             Gson gson = new Gson();
             String json = gson.toJson(response);
             LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Raw response from FCM server"+json);
@@ -93,7 +99,10 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotificationMessage", sendRemoteNotificationMessageException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+
     }
+
+
 
     public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
         // Create Remote Notification Data
@@ -101,17 +110,22 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
         try {
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
+
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
             payloadObject.put("time_to_live",2160000);
+
             LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Request payload send to FCM : ",payloadObject.toString());
+
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+
             Gson gson = new Gson();
             String json = gson.toJson(response);
             LOGGER.debug("RemoteNotificationServiceImpl -> sendRemoteNotification->Raw response from FCM server"+json);
+
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVERFCM_MESSAGE");
@@ -127,13 +141,16 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
         }
     }
 
-    private String getRnsRegId(String paymentAppInstanceId) {
+    private String getRnsRegId(String paymentAppInstanceId)
+    {
         String rnsRegID = null;
         final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if(deviceDetailsList.isPresent() ){
+        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
             final DeviceInfo deviceInfo = deviceDetailsList.get();
             rnsRegID = deviceInfo.getRnsRegistrationId();
         }
         return rnsRegID;
     }
+
+
 }

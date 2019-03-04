@@ -34,6 +34,9 @@
 
         <addUniqueConstraint columnNames="USER_ID" constraintName="unique_constraints"
                              tableName="user_details" deferrable="false"/>
+        <createIndex tableName="USER_DETAILS" indexName="user_details_id">
+            <column name="USER_ID"/>
+        </createIndex>
 
         <!-- Table for device management-->
         <createTable tableName="DEVICE_INFO">
@@ -283,6 +286,10 @@
             </column>
         </createTable>
         <addPrimaryKey columnNames="MESSAGE_CODE, LANGUAGE_CODE" constraintName="PK_MESSAGE" tableName="SYS_MESSAGES" />
+        <createIndex tableName="SYS_MESSAGES" indexName="SYS_MESSAGE_ID" unique="true">
+            <column name="LANGUAGE_CODE"/>
+        </createIndex>
+
     </changeSet>
 
     <changeSet author="tanmay.p" id="201701091234">
@@ -292,6 +299,7 @@
             </column>
         </addColumn>
     </changeSet>
+
 
 
     <changeSet author="tanmay.p" id="201701091533">
