@@ -69,7 +69,6 @@ public class HitVisaServices extends VtsRequest {
             prepareHeaderRequest.put("resourcePath",resourcePath);
             if(!(requestBody.equalsIgnoreCase("null"))||(requestBody.isEmpty()))
                 prepareHeaderRequest.put("requestBody",requestBody);
-
             prepareHeader(prepareHeaderRequest);
             if (type.equalsIgnoreCase("GET")||(requestBody.equalsIgnoreCase(null))||(requestBody.isEmpty()))
                 entity = new HttpEntity<>(headers);
@@ -83,14 +82,13 @@ public class HitVisaServices extends VtsRequest {
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
                 requestFactory.setProxy(proxy);
-
             }
            // Gson msdf = new Gson(headers);
          //   Enumeration headerNames = headers.getHeaderNames();
 
             Map sdsd = entity.getHeaders();
             LOGGER.debug("-------------------Begin Headers-------------------------");
-            for (Object name : sdsd.keySet())
+            for (Object name : sdsd.entrySet())
             {
                 // search  for value
                 Object value =  sdsd.get(name);
@@ -156,7 +154,7 @@ public class HitVisaServices extends VtsRequest {
 
             }
             if(null !=response) {
-                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()),objUrl.getPath());
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()));
             }
         }
         return response;

@@ -24,30 +24,22 @@ public class DeviceRegistrationMdes
 {
     @Autowired
     public Environment env;
+
     @Autowired
-    HttpClint httpClint;
-    @Autowired
-    HitMasterCardService hitMasterCardService;
+    private HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
 
-    public void setEnv(Environment env)
-    {
+    public void setEnv(Environment env) {
         this.env = env;
     }
 
-    public void setHttpClint(HttpClint httpClint)
-    {
-        this.httpClint = httpClint;
-    }
 
-    public void setHitMasterCardService(HitMasterCardService hitMasterCardService)
-    {
+    public void setHitMasterCardService(HitMasterCardService hitMasterCardService) {
         this.hitMasterCardService = hitMasterCardService;
     }
 
     @Autowired
-    public DeviceRegistrationMdes(HCEControllerSupport hceControllerSupport)
-    {
+    public DeviceRegistrationMdes(HCEControllerSupport hceControllerSupport) {
         this.hceControllerSupport = hceControllerSupport;
     }
 
@@ -154,9 +146,7 @@ public class DeviceRegistrationMdes
         return responseJson;
     }
 
-    public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest)
-    {
-        HttpRestHandeler httpRestHandeler = new HttpRestHandelerImpl();
+    public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest) {
         JSONObject jsonRequest = new JSONObject();
         JSONObject deviceinfo = null;
         String requestId = null;
@@ -164,10 +154,8 @@ public class DeviceRegistrationMdes
         String url = "";
         String id = "";
         ResponseEntity responseEntity = null;
-
         LOGGER.debug("Enter in DeviceRegistrationMdes:->checkDeviceEligibility");
-        try
-        {
+        try {
             deviceinfo = new JSONObject(enrollDeviceRequest.getMdes().getDeviceInfo());
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             jsonRequest.put("requestId",requestId);
@@ -177,10 +165,9 @@ public class DeviceRegistrationMdes
             jsonRequest.put("deviceInfo", deviceinfo);
             jsonRequest.put("consumerLanguage","en");
             jsonRequest.put("cardletId",this.env.getProperty("cardletId"));
-
            // "https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/{id}"
             //url ="https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/checkEligibility";
-            url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
+            url = this.env.getProperty("mdesip") +this.env.getProperty("digitizationpath");
             id = "checkEligibility";
             LOGGER.debug("URL in checkDeviceEligibility"+url);
             LOGGER.info("URL in checkDeviceEligibility"+url);

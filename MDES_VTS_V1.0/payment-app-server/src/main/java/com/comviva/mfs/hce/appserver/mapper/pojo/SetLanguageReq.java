@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 public class SetLanguageReq {
 
-    String userId ;
-    String languageCode ;
+    private String userId ;
+    private String languageCode ;
 
     public SetLanguageReq(String userId, String languageCode) {
         this.userId = userId;

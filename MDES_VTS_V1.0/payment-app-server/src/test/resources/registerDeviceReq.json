@@ -1,38 +1,36 @@
 {
-  "userId":"1234567891",
-  "gcmRegistrationId":"fh7Mfm-fR0o:APA91bE-5kGMV6ghb2xhL7dchtUNSEuVlQ-mcKAGRJ_3oqJ_v0DqnsXl3OO9gqAKME_f3a8ahGOpACscBfEKrV3jiSB219w9xYmadueBVthcC6I5mt7SwQLtVH52d15SmWotP3Dct62-",
-  "clientDeviceID":"clientDeviceID",
-  "mdes":{
-    "deviceInfo":{
-      "deviceName":"SM-G920I",
-      "formFactor":"PHONE",
-      "id":"7198e58f2d486b4f",
-      "imei":"7198e58f2d486b4f",
-      "msisdn":"zeroflte",
-      "nfcCapable":"true",
-      "osName":"ANDROID",
-      "osVersion":"7.0",
-      "serialNumber":"samsung\/zerofltedv\/zeroflte:7.0\/NRD90M\/G920IDVU3FQD1:user\/release-keys",
-      "storageTechnology":"DEVICE_MEMORY"
-    },
-    "paymentAppId":"ComvivaWallet",
-    "paymentAppInstanceId":"123456781",
-    "publicKeyFingerprint":"1BBEFAA95B26B9E82E3FDD37B20050FC782B2F229A8F8BCBBCB6AA6ABE4C851E",
-    "mobilePin":"152CCE3F3A4111E58C6FB84D1A6174D2",
-    "rgk":"5917D51B6019C4D5E6A3E4D0C14BFB60D16A66FC2C49187EBF9E1C6164CDA34304B5F3F35C0AB6E55B48F030431FEE7665B81783B474ECFEA76A04D9000632F1D52C903582509D572DCD898E7075335F782512F4C7DCD0DEB7CF54C1E175753903C97BAD4D9C468767972E5F3231776A9ACA5B72495FE2CF2E34FBA5E6F2797B"
-  },
-
-  "vts":{
-    "deviceInfo":{
-      "osType":"ANDROID",
-      "deviceType":"PHONE_TABLET",
-      "deviceName":"d1",
-      "osVersion":"7.0",
-      "osBuildID":"NRD90M",
-      "deviceIDType":"Derived",
-      "deviceManufacturer":"samsung",
-      "deviceBrand":"samsung",
-      "deviceModel":"SM-G920I"
+  "userId": "Rishi",
+  "gcmRegistrationId": "e_e8XW97LTs:APA91bH_WZerq0M6_ovGlvu0SwOTrjDY7I7T6S_MaEqiFS7ZEM5PXOb5Kyq1H9AQmQotSPS0OV5H41js4WA4BzU7I_hgNBc3_JEUj6TY6eEymhjJakd1UBap0_iTnD7Bjak18GTpYZGw",
+  "clientDeviceID": "1AAB28F81537778655939FEE",
+  "vts": {
+    "deviceInfo": {
+      "osType": "ANDROID",
+      "deviceType": "PHONE_TABLET",
+      "deviceName": "PersonalDevice",
+      "osVersion": "8.0.0",
+      "osBuildID": "OPR1.170623.032",
+      "deviceIDType": "Derived",
+      "deviceManufacturer": "OnePlus",
+      "deviceBrand": "OnePlus",
+      "deviceModel": "ONEPLUS A3003"
     }
+  },
+  "mdes": {
+    "deviceInfo": {
+      "deviceName": "ONEPLUS A3003",
+      "formFactor": "PHONE",
+      "imei": "864791034772268",
+      "msisdn": "405856000158051",
+      "nfcCapable": "true",
+      "osName": "ANDROID",
+      "osVersion": "8.0.0",
+      "serialNumber": "00BC132751799424CEBE267E7E6A805A68141E8A47FAAFBE855C4942037CB9E9",
+      "storageTechnology": "DEVICE_MEMORY"
+    },
+    "paymentAppId": "NBKEWALLET",
+    "paymentAppInstanceId": "4AAEE781F7C2E91D47EB63E5813E00000001537772614115",
+    "rgk": "7b0c4a2428e37c6bd64a8efc1d408db7a5f58d1cbce694e41164963ca1327c3ee84ade92af20e2845708d4e58a429787acac6f350e928345a3cb10d744a2f3a0d0653b61715fd20b9081148805713d8e9cd86b60638dc6439465dada39e02b7b07805982547a1d5c21d34cd2c6c8fa6507dd302b095bc7bc982f2cfafa4f9f8ad67bc5780ce81ca2d024724a00793aed1cc3e8b56405ead3220f35ab3e490fd260e0a76f7f458d47833d3ca0c916add0cd2189f01cc380b0ea7d60e7f11fdae592f9cc9645b1e98ef95e21fb0b14c93022ebb434160ff1df2658265a4e1bbbc6f79f40a92f1fa3061f0d230d7ac7780c17e5a458ab44eba9b3acd8d515febe3a",
+    "deviceFingerprint": "2809B1C9A73DC16282E9D0827696A74DFB8922DE16AC82D17A96E0516E7A3042",
+    "publicKeyFingerprint": "093513da98ede972201893a5ab4a8b243a3a3402e49c5144295cdf54ca9552ac"
   }
 }

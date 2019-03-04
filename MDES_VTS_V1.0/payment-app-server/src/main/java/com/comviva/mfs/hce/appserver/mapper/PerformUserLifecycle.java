@@ -40,6 +40,7 @@ public class PerformUserLifecycle {
     private final CardDetailRepository cardDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
     private final UserDetailRepository userDetailRepository;
+
     @Autowired
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
 
@@ -105,7 +106,7 @@ public class PerformUserLifecycle {
 
             //Get the list of device info associated with the userID
             deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), userSatus);
-            if (deviceInfoList.isEmpty() || deviceInfoList == null) {
+            if (deviceInfoList.isEmpty()) {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 
@@ -240,6 +241,21 @@ public class PerformUserLifecycle {
             LOGGER.debug("Suspend Response = ", response);
         }
 
+    }
+
+    @Async
+    public void deleteVISACards(List<CardDetails> visaCardList) {
+        Map responseMap1 = null;
+        lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+        lifeCycleManagementVisaRequest.setOperation("DELETE");
+        lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
+        for (int i=0 ; i<visaCardList.size() ; i++) {
+            if (!(visaCardList.get(i).getVisaProvisionTokenId()==null||visaCardList.get(i).getVisaProvisionTokenId().isEmpty())){
+                lifeCycleManagementVisaRequest.setVprovisionedTokenID(visaCardList.get(i).getVisaProvisionTokenId());
+                responseMap1 = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
+                LOGGER.debug("Visa response after unregister ****************   " + responseMap1);
+            }
+        }
     }
     private void unregisterMdes(String paymentAppInstanceID)
     {

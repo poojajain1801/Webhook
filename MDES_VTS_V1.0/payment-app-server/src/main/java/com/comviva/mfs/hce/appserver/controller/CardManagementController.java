@@ -41,14 +41,11 @@ public class CardManagementController {
         try{
             addCardParmpojo =(AddCardParm) hCEControllerSupport.requestFormation(addCardParm,AddCardParm.class);
             checkEligibilityResponse  = cardDetailService.checkDeviceEligibility(addCardParmpojo);
-        }catch (HCEValidationException addCardRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardRequestValidation);
-            throw addCardRequestValidation;
         }catch (HCEActionException addCardHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",addCardHceActionException);
+            LOGGER.error("Exception Occured in CardManagementController->addCard",addCardHceActionException);
             throw addCardHceActionException;
         }catch (Exception addCardExcetption) {
-            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", addCardExcetption);
+            LOGGER.error(" Exception Occured in CardManagementController->addCard", addCardExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return checkEligibilityResponse;
@@ -63,9 +60,6 @@ public class CardManagementController {
         try{
             digitizationParamPojo = (DigitizationParam) hCEControllerSupport.requestFormation(digitizationParam,DigitizationParam.class);
             continueDigitizationResponse = cardDetailService.addCard(digitizationParamPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -73,7 +67,6 @@ public class CardManagementController {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return continueDigitizationResponse;
     }
 
@@ -86,9 +79,6 @@ public class CardManagementController {
         try{
             tokenizeRequestPojo = (TokenizeRequest) hCEControllerSupport.requestFormation(tokenizeRequest,TokenizeRequest.class);
             tokenizeResponse = cardDetailService.tokenize(tokenizeRequestPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -96,7 +86,6 @@ public class CardManagementController {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", continueDigitizationExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return tokenizeResponse;
     }
 
@@ -108,9 +97,6 @@ public class CardManagementController {
         try{
             getAssetPojo = (GetAssetPojo) hCEControllerSupport.requestFormation(assetId,GetAssetPojo.class);
             getAssetResponse = cardDetailService.getAsset(getAssetPojo);
-        }catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->getAsset",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->getAsset",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -118,9 +104,7 @@ public class CardManagementController {
             LOGGER.error(" Exception Occured in CardManagementController->getAsset", continueDigitizationExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return getAssetResponse;
-
     }
 
     @ResponseBody
@@ -132,10 +116,6 @@ public class CardManagementController {
         try{
             activateReqPojo = (ActivateReq) hCEControllerSupport.requestFormation(activateReq,ActivateReq.class);
             activateResponse =cardDetailService.activate(activateReqPojo);
-        }
-        catch (HCEValidationException continueDigitizationRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->activate",continueDigitizationRequestValidation);
-            throw continueDigitizationRequestValidation;
         }catch (HCEActionException continueDigitizationHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->activate",continueDigitizationHceActionException);
             throw continueDigitizationHceActionException;
@@ -155,10 +135,6 @@ public class CardManagementController {
         try {
             activationCodeReqPojo = (ActivationCodeReq)hCEControllerSupport.requestFormation(activationCodeReq,ActivationCodeReq.class);
             requestActivationCodeResponse =  cardDetailService.requestActivationCode(activationCodeReqPojo);
-        }
-        catch (HCEValidationException requestActivationCodeValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",requestActivationCodeValidation);
-            throw requestActivationCodeValidation;
         }catch (HCEActionException requestActivationCodeHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",requestActivationCodeHceActionException);
             throw requestActivationCodeHceActionException;
@@ -191,6 +167,7 @@ public class CardManagementController {
         }
         return enrollPanResponse;
     }
+
     @ResponseBody
     @RequestMapping(value = "/getCardMetadata",method = RequestMethod.POST)
     public Map<String,Object> getCardMetadata(@RequestBody GetCardMetadataRequest getCardMetadataRequest){
@@ -209,11 +186,7 @@ public class CardManagementController {
         LOGGER.debug("Enter CardManagementController->getCardMetadata");
       return getContentResp;
     }
-    @ResponseBody
-    @RequestMapping(value = "/getPANData",method = RequestMethod.POST)
-    public Map<String,Object>getPANData(@RequestBody GetPANDataRequest getPANDataRequest){
-        return cardDetailService.getPANData(getPANDataRequest);
-    }
+
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -223,10 +196,6 @@ public class CardManagementController {
         try {
             lifeCycleManagementReqPojo = (LifeCycleManagementReq)hCEControllerSupport.requestFormation(lifeCycleManagementReq,LifeCycleManagementReq.class);
             lifeCycleManagementResp =  cardDetailService.performCardLifeCycleManagement(lifeCycleManagementReqPojo);
-        }
-        catch (HCEValidationException enrollPanRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanRequestValidation);
-            throw enrollPanRequestValidation;
         }catch (HCEActionException enrollPanHceActionException){
             LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
             throw enrollPanHceActionException;
@@ -265,12 +234,9 @@ public class CardManagementController {
         try {
             searchTokensReqPojo = (SearchTokensReq)hCEControllerSupport.requestFormation(getTokensRequest,SearchTokensReq.class);
             searchTokensResp =  cardDetailService.searchTokens(searchTokensReqPojo);
-        }catch (HCEValidationException enrollPanRequestValidation){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanRequestValidation);
-            throw enrollPanRequestValidation;
-        }catch (HCEActionException enrollPanHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
-            throw enrollPanHceActionException;
+        }catch (HCEActionException searchTokensHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->searchTokens",searchTokensHceActionException);
+            throw searchTokensHceActionException;
         }catch (Exception enrollPanExcetption) {
             LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
@@ -281,22 +247,35 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
-    public Map unregisterFromTds(@RequestBody Map unregisterTdsReq) {
-        return cardDetailService.unregisterTds(unregisterTdsReq);
+    @ServiceFlowStep("paymentApp")
+    public Map unregisterFromTds(@RequestBody String unregisterTdsReq) {
+        Map <String, Object> unregisterTdsResp=null ;
+        UnregisterTdsReq unregisterTdsReqPojo = null ;
+        try{
+            unregisterTdsReqPojo =(UnregisterTdsReq) hCEControllerSupport.requestFormation(unregisterTdsReq ,UnregisterTdsReq.class);
+            unregisterTdsResp = cardDetailService.unregisterTds(unregisterTdsReqPojo);
+        }catch (HCEActionException unregisterTdsHceActionException){
+            LOGGER.error("Exception Occured in CardManagementController->unregisterTds",unregisterTdsHceActionException);
+            throw unregisterTdsHceActionException;
+        }catch (Exception unregisterTdsExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->unregisterTds", unregisterTdsExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return unregisterTdsResp;
     }
 
     @ResponseBody
     @RequestMapping(value = "/getSystemHealth", method = RequestMethod.GET)
     public Map getSystemHealth() {
-        Map <String, Object> getSystemHealthResp=null ;
+        Map <String, Object> getSystemHealthResp=null;
         try{
             //Check master card is accessable or not.
             getSystemHealthResp = cardDetailService.getSystemHealth();
         }catch (HCEActionException getSystemHealthHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->unregisterTds",getSystemHealthHceActionException);
+            LOGGER.error("Exception Occured in CardManagementController->getSystemHealth",getSystemHealthHceActionException);
             throw getSystemHealthHceActionException;
         }catch (Exception getSystemHealthExcetption) {
-            LOGGER.error(" Exception Occured in CardManagementController->unregisterTds", getSystemHealthExcetption);
+            LOGGER.error(" Exception Occured in CardManagementController->getSystemHealth", getSystemHealthExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return getSystemHealthResp;
@@ -305,7 +284,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/pkCertificate", method = RequestMethod.GET)
     public Object getPublicKeyCertificate() {
-        Object getPublicKeyCertificateResp = null ;
+        Object getPublicKeyCertificateResp = null;
         try{
             getPublicKeyCertificateResp = cardDetailService.getPublicKeyCertificate();
         }catch (HCEActionException getPublicKeyCertificateException){

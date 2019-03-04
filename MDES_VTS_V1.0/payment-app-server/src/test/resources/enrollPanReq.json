@@ -1,0 +1,16 @@
+{
+  "clientAppId":"NBKewallet",
+  "clientWalletAccountId":"PT1809251125ELBH1KHRN7WD",
+  "clientDeviceID":"B4D7F2161537854926231FFF",
+  "consumerEntryMode":"KEYENTERED",
+  "encPaymentInstrument":{
+    "accountNumber":"4260838210001459",
+    "expirationDate":{
+      "month":"06",
+      "year":"2021"
+    },
+    "name":"Amit Randhawa"
+  },
+  "locale":"en-US",
+  "panSource":"MANUALLYENTERED"
+}

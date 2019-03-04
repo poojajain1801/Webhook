@@ -88,6 +88,9 @@ public class NotificationController {
         } catch (HCEValidationException pushTransactionDetailsRequestValidation) {
             LOGGER.error("Exception Occured in TransactionManagementController->pushTransactionDetails", pushTransactionDetailsRequestValidation);
             throw pushTransactionDetailsRequestValidation;
+        }catch (HCEActionException pushTransctionDetailsActionException){
+            LOGGER.error("Exception Occured in TransactionManagementController->pushTransactionDetails",pushTransctionDetailsActionException);
+            throw pushTransctionDetailsActionException;
         } catch (Exception pushTransactionDetailsExcetption) {
             LOGGER.error(" Exception Occured in TransactionManagementController->pushTransactionDetails", pushTransactionDetailsExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
