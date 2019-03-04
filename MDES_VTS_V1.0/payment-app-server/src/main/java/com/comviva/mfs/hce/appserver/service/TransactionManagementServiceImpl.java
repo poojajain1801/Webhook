@@ -55,7 +55,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     @Autowired
     private DeviceDetailRepository deviceDetailRepository;
     @Autowired
-    private HitMasterCardService hitMasterCardService;
+    HitMasterCardService hitMasterCardService;
     private final HCEControllerSupport hceControllerSupport;
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagementServiceImpl.class);
 
@@ -133,8 +133,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
-
-    public String utcToLocalTime(String inputTime) {
+    private String utcToLocalTime(String inputTime) {
         DateFormat utcFormat = null;
         Date date = null;
         DateFormat kwdTime = null;
@@ -143,13 +142,17 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         try {
             utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
             date = utcFormat.parse(inputTime);
+
             kwdTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             timeZone = env.getProperty("timezone");
             kwdTime.setTimeZone(TimeZone.getTimeZone(timeZone));
             localtime = (String)kwdTime.format(date);
             System.out.println(kwdTime.format(date));
             LOGGER.debug("Local time is *************************** ",kwdTime.format(date));
+
+
         }catch (Exception e )
         {
             LOGGER.error("Exception occored in date convertion");
@@ -213,7 +216,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         DeviceInfo deviceInfo = null;
         String paymentAppInstanceId = null;
         Optional<CardDetails> cardDetailsList = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueReference);
-        if(cardDetailsList.isPresent() ){
+        if(cardDetailsList!=null && cardDetailsList.isPresent() ){
             deviceInfo = cardDetailsList.get().getDeviceInfo();
             if (deviceInfo != null) {
                 rnsRegID = deviceInfo.getRnsRegistrationId();
@@ -291,8 +294,8 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             JSONArray masterCardResponseJsonArray = masterCardResponseJson.getJSONArray("transactions");
             JSONObject tempJson = masterCardResponseJsonArray.getJSONObject(0);
             tempJson.put("tokenUniqueReference",getTransactionsReq.getTokenUniqueReference());
-            JSONArray temJsonArray = new JSONArray();
-            temJsonArray.put(tempJson);
+           JSONArray temJsonArray = new JSONArray();
+           temJsonArray.put(tempJson);
             masterCardResponseJson.put("transactions",temJsonArray);
             responseMap = JsonUtil.jsonStringToHashMap(masterCardResponseJson.toString());
 
@@ -337,7 +340,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         Optional<TransactionRegDetails> txnDetails = null;
         String response = null;
         ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = new JSONObject();
+        JSONObject jsonResponse = null;
         Map responseMap = null;
         String url = null ;
         String id = null;
@@ -357,7 +360,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                     responseMap.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
 
                 }else {
-                    if (txnDetails.isPresent()){
+                    if (txnDetails!=null && txnDetails.isPresent()){
                         txnDetails.get().setRegCode1(jsonResponse.getString("registrationCode1"));
                         txnDetails.get().setPaymentAppInstanceId(paymentAppInstanceId);
                         transactionRegDetailsRepository.save(txnDetails.get());

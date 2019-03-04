@@ -172,6 +172,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             for (int i = 0; i < userIdlist.size(); i++) {
                 userMap = new LinkedHashMap();
                 userDetails = userDetailRepository.findByUserId(userIdlist.get(i));
+
                 if (userDetails == null || userDetails.getUserId().isEmpty()) {
                     message = "User ID does not exist";
                     messageCode = HCEMessageCodes.getInvalidUser();
@@ -197,6 +198,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     performLCMobj.performLCM(userIdlist.get(i), userLifecycleManagementReq.getOperation(), userDetails);
                 }
 */
+
             }
             performLCMobj.performUserLCM(userIdlist,userLifecycleManagementReq.getOperation());
 
@@ -254,22 +256,23 @@ public class UserDetailServiceImpl implements UserDetailService {
     public Map<String, Object> setLanguage(SetLanguageReq setLanguageReq) {
         String userId = null;
         String languageCode = null;
-        UserDetail userDetail ;
+        UserDetail userDetail;
         Map languageResponse = new HashMap();
         try {
             userId = setLanguageReq.getUserId();
             languageCode = setLanguageReq.getLanguageCode();
             userDetail = userDetailRepository.findByUserId(userId);
-            if(userDetail == null){
-                LOGGER.info("no user is registered with userId : "+userId);
+            if (userDetail == null) {
+                LOGGER.info("no user is registered with userId : " + userId);
                 throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }
             userDetail.setLanguageCode(languageCode);
             userDetailRepository.save(userDetail);
-            languageResponse.put("responseCode",HCEMessageCodes.getSUCCESS());
+            languageResponse.put("responseCode", HCEMessageCodes.getSUCCESS());
 
-        }catch (HCEActionException setLanguageException) {
+        } catch (HCEActionException setLanguageException) {
             LOGGER.error("Exception occured in UserDetailServiceImpl->setLanguage", setLanguageException);
+
             throw setLanguageException;
 
         } catch (Exception setLanguageException) {

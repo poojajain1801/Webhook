@@ -31,6 +31,11 @@ public class TokenLifeCycleManagementController {
         this.tokenLifeCycleManagementService=tokenLifeCycleManagementService;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/getPaymentDataGivenTokenID",method = RequestMethod.POST)
+    public Map<String,Object> getPaymentDataGivenTokenID(@RequestBody GetPaymentDataGivenTokenIDRequest getPaymentDataGivenTokenIDRequest){
+        return tokenLifeCycleManagementService.getPaymentDataGivenTokenID(getPaymentDataGivenTokenIDRequest);
+    }
 
     @ResponseBody
     @RequestMapping(value = "/getTokenStatus",method = RequestMethod.POST)
@@ -40,8 +45,11 @@ public class TokenLifeCycleManagementController {
         GetTokenStatusRequest getTokenStatusRequestpojo = null;
         Map<String, Object> getTokenStatus = null;
         try {
-            getTokenStatusRequestpojo = (GetTokenStatusRequest) hceControllerSupport.requestFormation(getTokenStatusRequest, GetTokenStatusRequest.class);
-            getTokenStatus = tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequestpojo);
+            getTokenStatusRequestpojo = (GetTokenStatusRequest)hceControllerSupport.requestFormation(getTokenStatusRequest,GetTokenStatusRequest.class);
+             getTokenStatus = tokenLifeCycleManagementService.getTokenStatus(getTokenStatusRequestpojo);
+        }catch (HCEValidationException  getTokenStatusRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning", getTokenStatusRequestValidation);
+            throw  getTokenStatusRequestValidation;
         }
         catch (HCEActionException enrollPanHceActionException){
             LOGGER.error("Exception Occured in TokenLifeCycleManagementController->getTokenStatus",enrollPanHceActionException);
@@ -61,9 +69,12 @@ public class TokenLifeCycleManagementController {
         LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
         LifeCycleManagementVisaRequest lifeCycleManagementVisaRequestpojo = null;
         Map <String,Object> deleteTokenResp = null;
-        try {
-            lifeCycleManagementVisaRequestpojo = (LifeCycleManagementVisaRequest) hceControllerSupport.requestFormation(lifeCycleManagementVisaRequest, LifeCycleManagementVisaRequest.class);
-            deleteTokenResp = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequestpojo);
+        try{
+            lifeCycleManagementVisaRequestpojo = (LifeCycleManagementVisaRequest)hceControllerSupport.requestFormation(lifeCycleManagementVisaRequest,LifeCycleManagementVisaRequest.class);
+            deleteTokenResp=tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequestpojo);
+        }catch (HCEValidationException  lifeCycleManagementRequestValidation){
+            LOGGER.error("Exception Occured in ProvisionManagementController->confirmProvisioning", lifeCycleManagementRequestValidation);
+            throw  lifeCycleManagementRequestValidation;
         }
         catch (HCEActionException lifeCycleManagementHceActionException){
             LOGGER.error("Exception Occured in TokenLifeCycleManagementController->lifeCycleManagementVisa",lifeCycleManagementHceActionException);
@@ -77,10 +88,13 @@ public class TokenLifeCycleManagementController {
     }
 
 
+
+
     @ResponseBody
     @RequestMapping(value = "/getTokenList",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map<String,Object>getTokenList(@RequestBody String  tokenListRequest){
+
         Map<String,Object> tokenListResponse = null;
         GetTokenListRequest tokenListRequestPojo = null;
         try{
@@ -88,6 +102,9 @@ public class TokenLifeCycleManagementController {
             tokenListRequestPojo =(GetTokenListRequest) hceControllerSupport.requestFormation(tokenListRequest,GetTokenListRequest.class);
             tokenListResponse = tokenLifeCycleManagementService.getTokenList(tokenListRequestPojo);
             LOGGER.debug("Exit TokenLifeCycleManagementController->getTokenList");
+        }catch (HCEValidationException registerDeviceValidationException){
+            LOGGER.error("Exception Occured in  TokenLifeCycleManagementController->getTokenList",registerDeviceValidationException);
+            throw registerDeviceValidationException;
         }catch (HCEActionException regDeviceHCEActionException){
             LOGGER.error("Exception Occured in TokenLifeCycleManagementController->getTokenList",regDeviceHCEActionException);
             throw regDeviceHCEActionException;

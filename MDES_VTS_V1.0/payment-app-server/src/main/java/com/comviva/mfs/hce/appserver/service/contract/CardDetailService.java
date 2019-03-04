@@ -16,13 +16,14 @@ public interface CardDetailService {
     Map<String, Object> enrollPan(EnrollPanRequest enrollPanRequest);
     Map<String,Object> getCardMetadata(GetCardMetadataRequest getCardMetadataRequest);
     Map<String,Object>getContent(GetContentRequest getContentRequest);
+    Map<String,Object>getPANData(GetPANDataRequest getPANDataRequest);
     Map notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq);
     Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq);
     Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq);
     Map getTokens(GetTokensRequest getTokensRequest);
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
     Map searchTokens(SearchTokensReq searchTokensReq);
-    Map unregisterTds(UnregisterTdsReq unregisterTdsReq);
+    Map unregisterTds(Map<String, String> unregisterTdsReq);
     Map<String,Object> getSystemHealth();
     Object getPublicKeyCertificate();
     Map<String,Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo);

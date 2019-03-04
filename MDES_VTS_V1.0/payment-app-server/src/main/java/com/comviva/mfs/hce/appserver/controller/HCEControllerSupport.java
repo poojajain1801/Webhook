@@ -10,7 +10,6 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class HCEControllerSupport {
     @Autowired
     private UserDetailRepository userDetailRepository;
     @Autowired
-    private DeviceDetailRepository deviceDetailRepository ;
+    DeviceDetailRepository deviceDetailRepository ;
     @Autowired
     private CardDetailRepository cardDetailRepository ;
     @Autowired
@@ -113,12 +112,15 @@ public class HCEControllerSupport {
         String errMsg = null;
 
         try{
+
             LOGGER.debug("Enter in HCEControllerSupport->requestFormation");
             ObjectMapper mapper = new ObjectMapper();
             obj =mapper.readValue(requestObj,groups[0]);
+
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             Validator validator = factory.getValidator();
             Set<ConstraintViolation<Object>> constraintViolations = validator.validate(obj);
+
             if (!constraintViolations.isEmpty()) {
                 errorMessage = new StringBuffer();
                 Iterator iter =null;
@@ -131,10 +133,12 @@ public class HCEControllerSupport {
                     errorMessage.append("\n");
                 }
             }
+
             if (errorMessage != null && errorMessage.length() !=0) {
                 errMsg = errorMessage.toString();
                 throw new HCEValidationException(HCEMessageCodes.getInvalidProperty(),errMsg);
             }
+
             LOGGER.debug("Exit in HCEControllerSupport->requestFormation");
         }catch (HCEValidationException reqValidationException){
             LOGGER.error("Exception occured in HCEControllerSupport->requestFormation", reqValidationException);
@@ -143,7 +147,9 @@ public class HCEControllerSupport {
             LOGGER.error("Exception occured in HCEControllerSupport->requestFormation", reqValidationException);
             throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
+
         return obj;
+
     }
 
     /**
@@ -204,7 +210,8 @@ public class HCEControllerSupport {
         }
     }
 
-    public PrivateKey getPrivateKeyFromKeyStore() throws Exception{
+
+    private  PrivateKey getPrivateKeyFromKeyStore() throws Exception{
         ResourceLoader resourceLoader = null;
         Resource resource = null;
         InputStream inputStream = null;
@@ -213,10 +220,12 @@ public class HCEControllerSupport {
             //InputStream ins = DecryptPayload.class.getResourceAsStream("/keystore.
             //
             // jks");
+
             fileName = env.getProperty("end.to.end.keystore.filename");
             resourceLoader = new FileSystemResourceLoader() ;
             resource = resourceLoader.getResource("classpath:"+fileName);
             inputStream  = resource.getInputStream();
+
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
             keyStore.load(inputStream, env.getProperty("end.to.end.keystore.secret.key").toCharArray());   //Keystore password
             KeyStore.PasswordProtection keyPassword =       //Key password
@@ -233,7 +242,8 @@ public class HCEControllerSupport {
     }
 
 
-    public String aesDecrypt(String encryptedText, byte[] bKey,String iv)throws Exception {
+
+    private String aesDecrypt(String encryptedText, byte[] bKey,String iv)throws Exception {
         try {
             SecretKey key2 = new SecretKeySpec(bKey, 0, bKey.length, "AES");
             // Instantiate the cipher
@@ -252,14 +262,19 @@ public class HCEControllerSupport {
 
     }
 
+
     public String decryptRequest(String request) throws HCEActionException{
         String decryptedData = null;
+
         try{
+
             if(HCEConstants.ACTIVE.equals(env.getProperty("enable.end.to.end.encryption"))) {
+
                 JSONObject jsonObject = new JSONObject(request);
                 String requestEncKey = (String) jsonObject.get("requestKey");
                 String requestIV = (String) jsonObject.get("requestIV");
                 String requestEncData = (String) jsonObject.get("requestEncData");
+
                 if (null == requestEncKey || null == requestIV || null == requestEncData || requestEncKey.isEmpty() || requestIV.isEmpty() || requestEncData.isEmpty()) {
                     throw new HCEActionException(HCEMessageCodes.getInsufficientData());
                 }
@@ -290,6 +305,7 @@ public class HCEControllerSupport {
 
 
     private String findUserIdByClientWalletAccountId(String clientWalletAccountId){
+
         final List<UserDetail> userDetails = userDetailRepository.findByClientWalletAccountId(clientWalletAccountId);
         if(userDetails!=null && !userDetails.isEmpty()){
             final  UserDetail userDetail1 = userDetails.get(0);
@@ -302,7 +318,7 @@ public class HCEControllerSupport {
     private String findUserIdByPaymentAppInstanceId(String paymentAppInstanceId){
         String userId = null;
         final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if(deviceDetailsList.isPresent() ){
+        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
             final DeviceInfo deviceInfo = deviceDetailsList.get();
             userId =  deviceInfo.getUserDetail().getUserId();
         }
@@ -360,8 +376,8 @@ public class HCEControllerSupport {
             }else if(!jsonObject.isNull("paymentAppInstanceId")){
                 paymentAppInstanceId = (String)jsonObject.get("paymentAppInstanceId");
                 userId = findUserIdByPaymentAppInstanceId(paymentAppInstanceId);
-            }else if(!jsonObject.isNull("vprovisionedTokenId")){
-                vprovisionedTokenID = (String)jsonObject.get("vprovisionedTokenId");
+            }else if(!jsonObject.isNull("vprovisionedTokenID")){
+                vprovisionedTokenID = (String)jsonObject.get("vprovisionedTokenID");
                 userId = findUserIdByVProvisionedTokenID(vprovisionedTokenID);
             }else if(!jsonObject.isNull("tokenUniqueReference")){
                 tokenUniqueReference = (String)jsonObject.get("tokenUniqueReference");
@@ -383,9 +399,9 @@ public class HCEControllerSupport {
             clientDeviceId = jsonObject.getString("clientDeviceID");
         }
         else{
-            if(!jsonObject.isNull("vprovisionedTokenId"))
+            if(!jsonObject.isNull("vprovisionedTokenID"))
             {
-                clientDeviceId = jsonObject.getString("vprovisionedTokenId");
+                clientDeviceId = jsonObject.getString("vprovisionedTokenID");
             }
         }
         return clientDeviceId;
@@ -400,7 +416,5 @@ public class HCEControllerSupport {
         }
         return (isEmpty||isNull);
     }
-
-
 }
 

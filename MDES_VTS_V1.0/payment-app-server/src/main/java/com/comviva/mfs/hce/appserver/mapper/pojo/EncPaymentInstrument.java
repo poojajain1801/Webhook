@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EncPaymentInstrument {
+
     private String accountNumber;
     private String cvv2;
     private String  name;
@@ -17,10 +18,10 @@ public class EncPaymentInstrument {
     private BillingAddress billingAddress;
     private InstrumentProvider provider;
 
-    public EncPaymentInstrument(String accountNumber, String cvv2, String name, ExpirationDate expirationDate, BillingAddress billingAddress, InstrumentProvider provider) {
-        this.accountNumber = accountNumber;
-        this.cvv2 = cvv2;
-        this.name = name;
+    public EncPaymentInstrument(String accountNumber, String cvv2, String name, ExpirationDate expirationDate, BillingAddress billingAddress, String locale, String panSource) {
+        this.accountNumber=accountNumber;
+        this.cvv2=cvv2;
+        this.name=name;
         this.expirationDate = expirationDate;
         this.billingAddress = billingAddress;
         this.provider = provider;

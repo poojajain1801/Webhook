@@ -9,6 +9,8 @@ import lombok.Setter;
  */
 
 public class SubmitIDandVStepupMethodRequest {
+
+
     private String vProvisionedTokenID;
     private String stepUpRequestID;
 

@@ -12,12 +12,12 @@ import lombok.Setter;
 public class ActiveAccountManagementConfirmReplenishmentRequest {
     private String api;
     private String sc;
-    private String vprovisionedTokenID;
+    private String vProvisionedTokenID;
 
-    public ActiveAccountManagementConfirmReplenishmentRequest(String api, String sc, String vprovisionedTokenID) {
+    public ActiveAccountManagementConfirmReplenishmentRequest(String api, String sc, String vProvisionedTokenID) {
         this.api = api;
         this.sc = sc;
-        this.vprovisionedTokenID = vprovisionedTokenID;
+        this.vProvisionedTokenID = vProvisionedTokenID;
     }
 
     public ActiveAccountManagementConfirmReplenishmentRequest() {

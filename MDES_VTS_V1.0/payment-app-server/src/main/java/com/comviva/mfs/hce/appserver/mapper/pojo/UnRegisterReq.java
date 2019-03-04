@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 @Getter
 @Setter
 public class UnRegisterReq {
+
     private String imei;
     private String userId;
     private String paymentAppInstanceId ;

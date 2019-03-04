@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -19,14 +19,11 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
     @Query("Select distinct mp from DeviceInfo mp where mp.clientDeviceId =:clientDeviceId")
         //Map<String,Object> find(@Param("userName") String userName);
     List<DeviceInfo> find(@Param("clientDeviceId") String clientDeviceId);
-    List<DeviceInfo> findByImei(String imei);
+    Optional<DeviceInfo> findByImei(String imei);
     Optional<DeviceInfo> findByPaymentAppInstanceId(String payment_app_instance_id);
     Optional<DeviceInfo> findByClientDeviceId(String clientDeviceId);
     List<DeviceInfo> findByImeiAndStatus(String imei, String status);
     List<DeviceInfo> findByClientDeviceIdAndStatus(String clientDeviceId, String status);
-
-    @Query("Select d from DeviceInfo d where d.userDetail.clientWalletAccountId=:clientWalletAccountId")
-    List<DeviceInfo> findByClientWalletAccountId(@Param("clientWalletAccountId") String clientWalletAccountId);
 
     @Query("Select d from DeviceInfo d where d.userDetail.clientWalletAccountId=:clientWalletAccountId and d.status=:status")
     List<DeviceInfo> findByClientWalletAccountIdAndStatus(@Param("clientWalletAccountId") String clientWalletAccountId,@Param("status") String status);
@@ -37,11 +34,5 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
     @Query("Select d from DeviceInfo d where d.imei =:imei and d.userDetail.userId=:userId and d.status=:status")
     DeviceInfo findDeviceDetailsWithIMEI(@Param("imei") String imei, @Param("userId") String userId,@Param("status") String status);
 
-    @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn FROM DeviceInfo d JOIN d.userDetail u " +
-            "where u.createdOn between :fromDate and :toDate and " +
-            "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
-            "(CASE when (:imei <> '-') then d.imei else '-' end = :imei ) and " +
-            "(CASE when (:userStatus <> '-') then u.status else '-' end = :userStatus ) and " +
-            "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
-    List<Object[]> findDeviceReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
+
 }

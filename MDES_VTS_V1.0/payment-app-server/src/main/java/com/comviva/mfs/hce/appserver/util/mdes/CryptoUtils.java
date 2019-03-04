@@ -1,11 +1,9 @@
 package com.comviva.mfs.hce.appserver.util.mdes;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.service.CardDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -21,14 +19,11 @@ import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.logging.Logger;
 
 /**
  * Created by tanmay.patel on 9/24/2018.
  */
 public class CryptoUtils {
-
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(CryptoUtils.class);
 
     public static String privateKeydecryption(PrivateKey key, String data) {
         Cipher cipher = null;
@@ -41,31 +36,25 @@ public class CryptoUtils {
             cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding","BC");
         } catch (NoSuchAlgorithmException e2) {
             // TODO Auto-generated catch block
-            LOGGER.error("NoSuchAlgorithmException  -> CryptoUtils"+e2);
+            e2.printStackTrace();
         } catch (NoSuchPaddingException e2) {
             // TODO Auto-generated catch block
-            LOGGER.error("NoSuchPaddingException -> CryptoUtils :" +e2);
+            e2.printStackTrace();
         } catch (NoSuchProviderException e) {
-            LOGGER.error("NoSuchProviderException -> CryptoUtils :" +e);
+            e.printStackTrace();
         }
         try {
-            if (null !=cipher)
             cipher.init(Cipher.DECRYPT_MODE, key);
         } catch (InvalidKeyException e1) {
             // TODO Auto-generated catch block
-            LOGGER.error("InvalidKeyException -> CryptoUtils :"+e1);
+            e1.printStackTrace();
         }
         byte[] dataToEncrypt = hexStringToByteArray(data);
         try {
-            if (cipher!=null){
-                cipherData = cipher.doFinal(dataToEncrypt);
-            }
+            cipherData = cipher.doFinal(dataToEncrypt);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
             // TODO Auto-generated catch block
-            LOGGER.error("IllegalBlockSizeException -> CryptoUtils :" +e);
-        }
-        if (cipherData == null){
-            return "";
+            e.printStackTrace();
         }
         return ByteArrayToHexString(cipherData);
     }
