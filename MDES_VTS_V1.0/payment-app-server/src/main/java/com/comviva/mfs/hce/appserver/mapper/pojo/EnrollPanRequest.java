@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EnrollPanRequest {
-
     private String clientAppId;
     private String clientWalletAccountId;
     private String clientDeviceID;

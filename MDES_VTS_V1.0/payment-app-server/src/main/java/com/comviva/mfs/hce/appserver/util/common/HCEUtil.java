@@ -75,7 +75,7 @@ public class HCEUtil {
 
 
     public static void writeHCELog(long totalTime, String responseCode, String requestId,String request,
-                                      String response,String methodname) {
+                                      String response) {
 
         final Logger LOGGER = LoggerFactory.getLogger("requestLogs");
 
@@ -94,10 +94,6 @@ public class HCEUtil {
         logMessage.append("|");
         if (requestId != null && !"".equals(requestId)) {
             logMessage.append(requestId);
-        }
-        logMessage.append("|");
-        if (methodname != null && !"".equals(methodname)) {
-            logMessage.append(methodname);
         }
         logMessage.append("|");
         if (request != null && !"".equals(request)) {
@@ -119,7 +115,7 @@ public class HCEUtil {
 
 
     public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
-                                   String response,String methodName) {
+                                   String response) {
 
         final Logger LOGGER = LoggerFactory.getLogger("tdrLogs");
 
@@ -135,10 +131,6 @@ public class HCEUtil {
         logMessage.append("|");
         if (requestId != null && !"".equals(requestId)) {
             logMessage.append(requestId);
-        }
-        logMessage.append("|");
-        if (methodName != null && !"".equals(methodName)) {
-            logMessage.append(methodName);
         }
         logMessage.append("|");
         if (request != null && !"".equals(maskJson(request))) {
@@ -375,20 +367,26 @@ public class HCEUtil {
         String maskedValue=null;
 
         int len=0;
-        len=p_value.length();
+        if (null!=p_value) {
+            len = p_value.length();
+        }
         StringBuffer masked=null;
         masked=new StringBuffer();
         int p_digit = 0;
         int maskingLengthInt = 0;
 
         if("?".equals(maskingLength)){
-            p_digit = p_value.length();
+            if (null!=p_value){
+                p_digit = p_value.length();
+            }
         }else if(HCEConstants.MASK_TYPE_POST.equals(p_maskType) || HCEConstants.MASK_TYPE_PRE.equals(p_maskType)){
             maskingLengthInt = Integer.parseInt(maskingLength);
             p_digit = maskingLengthInt;
         } else{
             maskingLengthInt = Integer.parseInt(maskingLength);
-            p_digit = p_value.length()-maskingLengthInt;
+            if (null!=p_value) {
+                p_digit = p_value.length() - maskingLengthInt;
+            }
 
         }
       //  if(HCEConstants.UNMASK_TYPE_PRE.equals())
@@ -397,7 +395,6 @@ public class HCEUtil {
             masked.append("X");
 
         if(p_value!=null && !p_value.isEmpty() ){
-
             if(len == p_digit){
                 maskedValue=masked.toString();
             }else{

@@ -21,6 +21,25 @@ public class HCEMessageCodes {
         return SERVICE_FAILED;
     }
 
+    private static String INVALID_TOKEN_UNIQUE_REFERENCE;
+    @Value("${INVALID_TOKEN_UNIQUE_REFERENCE}")
+    public void setInvalidTokenUniqueReference(String invalidTokenUniqueReference){
+        INVALID_TOKEN_UNIQUE_REFERENCE = invalidTokenUniqueReference ;
+    }
+    public static String getInvalidTokenUniqueReference() {
+        return INVALID_TOKEN_UNIQUE_REFERENCE;
+    }
+
+
+    private static String TOKEN_NOT_REGISTERED;
+    @Value("${TOKEN_NOT_REGISTERED}")
+    public void setTokenNotRegistered(String tokenNotRegistered){
+        TOKEN_NOT_REGISTERED = tokenNotRegistered;
+    }
+    public static String getTokenNotRegistered() {
+        return TOKEN_NOT_REGISTERED;
+    }
+
     private static String INCORRECT_OTP;
     @Value("${INCORRECT_OTP}")
     public void setIncorrectOtp(String incorrectOTP){

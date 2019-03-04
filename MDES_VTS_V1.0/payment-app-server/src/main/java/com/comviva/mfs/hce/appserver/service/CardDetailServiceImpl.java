@@ -1,6 +1,5 @@
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
@@ -18,8 +17,6 @@ import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerImplUtils;
-import com.comviva.mfs.hce.appserver.util.common.HttpRestHandlerUtils;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
@@ -35,15 +32,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import javax.crypto.Cipher;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -63,8 +64,6 @@ public class CardDetailServiceImpl implements CardDetailService {
     private final UserDetailRepository userDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
 
-
-
     @Autowired
     private Environment env;
 
@@ -74,7 +73,6 @@ public class CardDetailServiceImpl implements CardDetailService {
     @Autowired
     private HitMasterCardService hitMasterCardService;
 
-    private HttpRestHandlerUtils httpRestHandlerUtils = new HttpRestHandlerImplUtils();
     private static final Logger LOGGER = LoggerFactory.getLogger(CardDetailServiceImpl.class);
 
 
@@ -93,16 +91,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         this.hceControllerSupport = hceControllerSupport;
     }
 
-
-    private AddCardResponse prepareDigitizeResponse(int reasonCode, String reasonDescription) {
-        return new AddCardResponse(ImmutableMap.of(HCEConstants.REASON_CODE, Integer.toString(reasonCode), HCEConstants.REASON_DESCRIPTION, reasonDescription));
-    }
-
-    private AddCardResponse prepareDigitizeResponse(JSONObject digitizationRespMdes) {
-        Map<String, Object> mapRespMdes = JsonUtil.jsonStringToHashMap(digitizationRespMdes.toString());
-        return new AddCardResponse(mapRespMdes);
-    }
-
     /**
      * Check device/Card eligibility for digitiazation.
      *
@@ -119,7 +107,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject eligibilityResponse = null;
         Map eligibilityMap = null;
         Map applicableCardInfoMap = null;
-        String response = null;
+        String response = "";
         String id = null;
         String requestId;
         try {
@@ -146,7 +134,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             JSONObject deviceInfo = new JSONObject(addCardParam.getDeviceInfo());
             DeviceInfoRequest deviceInfoRequest = addCardParam.getDeviceInfo();
 
-
             checkDeviceEligibilityRequest = new JSONObject();
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             checkDeviceEligibilityRequest.put("requestId", requestId);
@@ -158,10 +145,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             checkDeviceEligibilityRequest.put("cardletId",this.env.getProperty("cardletId"));
             checkDeviceEligibilityRequest.put("consumerLanguage", "en");
             // Call checkEligibility Api of MDES to check if the card is eligible for digitization.
-            url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
+            url = this.env.getProperty("mdesip") +this.env.getProperty("digitizationpath");
             id = "checkEligibility";
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, checkDeviceEligibilityRequest.toString(), "POST",id);
-
 
             //Prepare Response
             if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
@@ -177,8 +163,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     jsonResponse.put("message",jsonResponse.getString("errorDescription"));
                 }
-                else
-                {
+                else {
                     ServiceData serviceData = serviceDataRepository.save(new ServiceData(null,  requestId, checkDeviceEligibilityRequest.toString().getBytes(), response.getBytes()));
                     jsonResponse.put("statusCode",HCEMessageCodes.getSUCCESS());
                     jsonResponse.put("message","Success");
@@ -216,7 +201,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = null;
         CardDetails cardDetails = null;
         String decision = "";
-
         try {
            // deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(digitizationParam.getPaymentAppInstanceId());
             /*if (!deviceInfoOptional.isPresent()) {
@@ -229,11 +213,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                 throw new HCEActionException(HCEMessageCodes.getCardNotEligible());
             }*/
 
-
             eligibilityRequest = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getRequest());
             eligibilityResponse = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getResponse());
-
-
             jsonRequest = new JSONObject(eligibilityRequest);
             jsonResponse = new JSONObject(eligibilityResponse);
 
@@ -295,7 +276,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                     if(!decision.equalsIgnoreCase("DECLINED")) {
                         cardDetails = new CardDetails();
                         //--madan cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
-
                         cardDetails.setMasterPaymentAppInstanceId(jsonRequest.getString(PAYMENT_APP_INSTANCE_ID));
                         cardDetails.setMasterTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
                         cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
@@ -306,7 +286,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetailRepository.save(cardDetails);
                     }
-
                 }
 
             } else {
@@ -323,8 +302,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonStringToHashMap(provisionRespMdes.toString());
     }
 
-    public Map<String,Object> tokenize (TokenizeRequest tokenizeRequest)
-    {
+    public Map<String,Object> tokenize (TokenizeRequest tokenizeRequest) {
         JSONObject requestJson = new JSONObject();
         String url = null;
         ResponseEntity responseEntity = null;
@@ -346,13 +324,11 @@ public class CardDetailServiceImpl implements CardDetailService {
                 responseJson = new JSONObject(response);
 
             }
-            if (responseEntity.getStatusCode().value()==HCEConstants.REASON_CODE7)
-            {
+            if (responseEntity.getStatusCode().value()==HCEConstants.REASON_CODE7) {
                 //TODO: Insert the data to the data base
                 return JsonUtil.jsonToMap(responseJson);
             }
-            else
-            {
+            else {
                 hceControllerSupport.formResponse(HCEMessageCodes.getFailedAtThiredParty());
             }
 
@@ -375,16 +351,14 @@ public class CardDetailServiceImpl implements CardDetailService {
      * @return Asset data
      */
     public Map<String,Object> getAsset(GetAssetPojo assetID) {
-
         ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         String response = null;
         Map responseMap = null;
         String url = null;
         String id = "";
         try {
-
-           // https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/asset?AssetId=95d4cd38-36fc-4b26-8795-06a3b00acf3b
+            //https://mtf.services.mastercard.com/mtf/mdes/digitization/1/0/asset?AssetId=95d4cd38-36fc-4b26-8795-06a3b00acf3b
             url =  env.getProperty("mdesip")+ "/mdes/assets/1/0/asset";
             id = assetID.getAssetId();
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url, null, "GET",id);
@@ -399,8 +373,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
 
-            }*/  if (jsonResponse.has("errors"))
-            {
+            }*/ if (jsonResponse.has("errors")) {
                 jsonResponse.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsonResponse.put("message",jsonResponse.getString("errorDescription"));
@@ -422,7 +395,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         return responseMap;
     }
 
-
     @Override
     public  Map<String,Object> activate(ActivateReq activateReq) {
         JSONObject reqMdes = null;
@@ -440,21 +412,18 @@ public class CardDetailServiceImpl implements CardDetailService {
             reqMdes.put("requestId", requestId);
             reqMdes.put(PAYMENT_APP_INSTANCE_ID, activateReq.getPaymentAppInstanceId());
             reqMdes.put("tokenUniqueReference", activateReq.getTokenUniqueReference());
-
             reqMdes.put("authenticationCode", activateReq.getAuthenticationCode());
             url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             id = "activate";
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST",id);
-           if (responseEntity.hasBody())
-           {
+           if (responseEntity.hasBody()) {
                response = String.valueOf(responseEntity.getBody());
                jsRespMdes = new JSONObject(response);
-
            }
            if(jsRespMdes.has("result")) {
                result = jsRespMdes.getString("result");
            }
-            /*if (jsRespMdes.has("errors")) {
+            if (jsRespMdes.has("errors")) {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
@@ -463,13 +432,11 @@ public class CardDetailServiceImpl implements CardDetailService {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",result);
-
             }
-            else
-            {
+            else {
                 jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
                 jsRespMdes.put("message",HCEConstants.SUCCESS);
-            }*/
+            }
 
         }catch (HCEActionException activateHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->activate", activateHCEactionException);
@@ -484,7 +451,6 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> enrollPan (EnrollPanRequest enrollPanRequest) {
-
         List<DeviceInfo> deviceInfoList ;
         ObjectMapper objectMapper ;
         Map<String, Object> map ;
@@ -492,11 +458,11 @@ public class CardDetailServiceImpl implements CardDetailService {
         String encPaymentInstrument ;
         JSONObject jsonResponse = null;
         ResponseEntity responseEntity ;
-        Map responseMap ;
+        Map responseMap;
         String response = "";
         String vPanEnrollmentId = null;
-      //  List<VisaCardDetails> visaCardDetailList = null;
-        String clientWalletAccountId ;
+        // List<VisaCardDetails> visaCardDetailList = null;
+        String clientWalletAccountId;
         String clientDeviceId ;
         HitVisaServices hitVisaServices ;
         String accountNubmer ;
@@ -516,7 +482,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             }
             deviceInfoList = deviceDetailRepository.findDeviceDetails(clientDeviceId,clientWalletAccountId,HCEConstants.ACTIVE);
             if(deviceInfoList!=null && !deviceInfoList.isEmpty()){
-
                 cardDetailsList = cardDetailRepository.findCardDetailsByIdentifier(cardIdentifier,clientWalletAccountId,clientDeviceId,HCEConstants.ACTIVE,HCEConstants.SUSUPEND);
                 if(cardDetailsList!= null && !cardDetailsList.isEmpty()){
                     throw new HCEActionException(HCEMessageCodes.getCardAlreadyRegistered());
@@ -531,7 +496,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                 encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), env.getProperty("apiKey"), env.getProperty("sharedSecret"));
                 map.put("encPaymentInstrument", encPaymentInstrument);
                 map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
-
                 hitVisaServices = new HitVisaServices(env);
                 responseMap = new LinkedHashMap();
                 responseEntity = hitVisaServices.restfulServiceConsumerVisa(env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments?apiKey=" + env.getProperty("apiKey"), objectMapper.writeValueAsString(map), "vts/panEnrollments", "POST");
@@ -682,38 +646,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
 
-    }
-
-
-    public Map<String, Object> getPANData(GetPANDataRequest getPANDataRequest) {
-       List<UserDetail>  userDetails = userDetailRepository.findByUserIdAndStatus(getPANDataRequest.getUserId(),HCEConstants.ACTIVE);
-        HashMap<String, Object> result = null;
-       if(userDetails!=null && !userDetails.isEmpty()){
-
-           ObjectMapper objectMapper = new ObjectMapper();
-           HitVisaServices hitVisaServices = new HitVisaServices(env);
-           String response = "{ \t\"vPanEnrollmentID\": \"c9b61bd49a52597a3d0a18f6535df201\", \t\"encryptionMetaData\": \" base 64 encoded\", \t\"paymentInstrument\": { \t\t\"last4\": \"3018\", \t\t\"accountStatus\": \"N\", \t\t\"isTokenizable\": \"Y\", \t\t\"expirationDate\": { \t\t\t\"month\": \"12\", \t\t\t\"year\": \"2015\" \t\t}, \t\t\"indicators\": [\"PRIVATE_LABEL\"], \t\t\"expDatePrintedInd\": \"Y\", \t\t\"cvv2PrintedInd\": \"Y\", \t\t\"paymentAccountReference\": \"V0010013816180398947326400396\" \t}, \t\"cardMetaData\": { \t\t\"backgroundColor\": \"0x009602\", \t\t\"foregroundColor\": \"0x1af0f0\", \t\t\"labelColor\": \"0x195501\", \t\t\"contactWebsite\": \"www.thebank.com\", \t\t\"contactEmail\": \"goldcustomer@thebank.com\", \t\t\"contactNumber\": \"18001234567\", \t\t\"contactName\": \"TheBank\", \t\t\"privacyPolicyURL\": \"www.thebank.com/privacy\", \t\t\"bankAppName\": \"TheBankApp\", \t\t\"bankAppAddress\": \"com.sampleIssuer.thebankapp\", \t\t\"termsAndConditionsURL\": \"www.thebank.com/termsAndConditionsURL\", \t\t\"termsAndConditionsID\": \"3456548509876567...\", \t\t\"shortDescription\": \"The Bank Card\", \t\t\"longDescription\": \"The Bank Card Platinum Rewards\", \t\t\"cardData\": [{ \t\t\t\"guid\": \"5591f1c00bba420484ad9aa5b48c66d3\", \t\t\t\"contentType\": \"cardSymbol\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"100\", \t\t\t\t\"height\": \"100\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"c20bd324315b4788ab1399f482537afb\", \t\t\t\"contentType\": \"digitalCardArt\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"image/png\", \t\t\t\t\"width\": \"1536\", \t\t\t\t\"height\": \"968\" \t\t\t}] \t\t}, { \t\t\t\"guid\": \"4a9469ba5fbe4e739281cbdc8de7a898\", \t\t\t\"contentType\": \"termsAndConditions\", \t\t\t\"content\": [{ \t\t\t\t\"mimeType\": \"text/plain\", \t\t\t\t\"width\": \"0\", \t\t\t\t\"height\": \"0\" \t\t\t}] \t\t}] \t}, \t\"aidInfo\": [{ \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}, { \t\t\"aid\": \"A0000000031010\", \t\t\"priority\": \"01\" \t}] }";
-           //  try {
-           // response = hitVisaServices.restfulServiceConsumerVisaGet("url","");
-           // } catch (JsonProcessingException e) {
-           //   e.printStackTrace();
-           //}
-
-           try {
-
-               result = new ObjectMapper().readValue(response, HashMap.class);
-           } catch (IOException e) {
-               LOGGER.error("Exception Occured" +e);
-           }
-
-       }else
-       {
-           Map<String, Object> response = ImmutableMap.of("message", "Invalid User", "responseCode", "205");
-           return response;
-       }
-        // *************** EnrollPan request to VTS ***************
-
-        return result;
     }
 
     @Override
@@ -868,9 +800,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         String registrationHash = null;
         Optional<TransactionRegDetails> transactionDetails = null;
         TransactionRegDetails transactionRegDetails = null;
-        JSONObject jsonResponse = null;
+        JSONObject jsonResponse = new JSONObject();
         String response = null;
-        JSONObject requestJson = null;
+        JSONObject requestJson = new JSONObject();
         ResponseEntity responseMdes = null;
         Map responseMap = new HashMap();
         String url = null;
@@ -1118,19 +1050,17 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         return JsonUtil.jsonToMap(jsRespMdes);
     }
-    public Map searchTokens(SearchTokensReq searchTokensReq)
-    {
+    public Map searchTokens(SearchTokensReq searchTokensReq) {
         JSONObject searchTokenReq = null;
         String url = "";
         String id = "";
         String trId = "";
         String response;
-        JSONObject jsRespMdes = null;
+        JSONObject jsRespMdes = new JSONObject();
         String requestId = "";
         //Check if the paymentAppInstanceId is valid or not
-        if(!deviceDetailRepository.findByPaymentAppInstanceId(searchTokensReq.getPaymentAppInstanceId()).isPresent())
-        {
-           throw new HCEActionException(HCEMessageCodes.getInvaildPaymentappInstanceId());
+        if(!deviceDetailRepository.findByPaymentAppInstanceId(searchTokensReq.getPaymentAppInstanceId()).isPresent()) {
+           throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
         }
         try {
             //call the master card searchTokens API
@@ -1158,8 +1088,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
             }
-            else
-            {
+            else {
                 jsRespMdes.put("reasonCode",String.valueOf(HCEConstants.REASON_CODE7));
                 jsRespMdes.put("reasonDescription",HCEConstants.SUCCESS);
             }
@@ -1182,7 +1111,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String id = "";
         String trId = "";
         String response;
-        JSONObject jsRespMdes = null;
+        JSONObject jsRespMdes = new JSONObject();
         String requestId = "";
         //Check if the token unique reference is valid or not
         if(!cardDetailRepository.findByMasterTokenUniqueReference(getTokensRequest.getTokenUniqueReference()).isPresent())
@@ -1230,41 +1159,90 @@ public class CardDetailServiceImpl implements CardDetailService {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return JsonUtil.jsonToMap(jsRespMdes);
-
-
     }
 
     @Override
-    public Map unregisterTds(Map<String, String> unregisterTdsReq) {
-        MultiValueMap<String, String> reqMap = new LinkedMultiValueMap();
-        if (unregisterTdsReq.containsKey("tokenUniqueReference")) {
-            String tokenUniqueReference = unregisterTdsReq.get("tokenUniqueReference");
-            if (!cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueReference).isPresent()) {
-                return ImmutableMap.of(HCEConstants.REASON_CODE, "261", "message", "Invalid tokenUniqueReference");
+    public Map unregisterTds(UnregisterTdsReq unregisterTdsReq) {
+        String tokenUniqueReference = unregisterTdsReq.getTokenUniqueReference();
+        String paymentAppInstanceId = unregisterTdsReq.getPaymentAppInstanceId();
+        String authenticationCode = null;
+        JSONObject requestJson = new JSONObject();
+        Optional<TransactionRegDetails> transactionDetails = null;
+        TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
+        List<TransactionRegDetails> transactionDetailsList = null;
+        int size = 0;
+        ResponseEntity responseMdes = null;
+        String response = null;
+        JSONObject jsonResponse = new JSONObject();
+        Map responseMap = null;
+        String url = null;
+        String id = null;
+        try{
+            transactionDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueReference);
+            if (!transactionDetails.isPresent()) {
+                LOGGER.error("invalid tokenUniqueReference ");
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
-            reqMap.add("tokenUniqueReference", tokenUniqueReference);
+            transactionRegDetails = transactionDetails.get();
+            if (!isActive(transactionRegDetails)){
+                LOGGER.error("This token has not been registered");
+                throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+            }
+            authenticationCode = transactionDetails.get().getAuthCode();
+            requestJson.put("authenticationCode",authenticationCode);
+            requestJson.put("tokenUniqueReference",tokenUniqueReference);
+                /*transactionDetailsList = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+                if (!transactionDetailsList.isEmpty()) {
+                    size = transactionDetailsList.size();
+                }*/
+            url = env.getProperty("mdesip") + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
+            id = "unregister";
+            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
+            if (responseMdes.hasBody()) {
+                response = String.valueOf(responseMdes.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if(responseMdes.getStatusCode().value()==HCEConstants.REASON_CODE7) {
+                if (jsonResponse.has("errorCode")){
+                    responseMap = JsonUtil.jsonToMap(jsonResponse);
+                    responseMap.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
+                }else {
+                    transactionRegDetails.setStatus(HCEConstants.INACTIVE);
+                    transactionRegDetailsRepository.save(transactionRegDetails);
+                /*if (tokenUniqueReference==null) {
+                    for (int i=0 ; i<size;i++) {
+                        transactionRegDetails = transactionDetailsList.get(i);
+                        transactionRegDetails.setStatus(HCEConstants.INACTIVE);
+                    }
+                }*/
+                    responseMap = JsonUtil.jsonToMap(jsonResponse);
+                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
+            }
+            else{
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+
+        }catch(HCEActionException unregisterTdsHCEactionException){
+            LOGGER.error("Exception occured in CardDetailServiceImpl->unregisterTds",unregisterTdsHCEactionException);
+            throw unregisterTdsHCEactionException;
+        }catch(Exception unregisterTdsException){
+            LOGGER.error("Exception occured in CardDetailServiceImpl->unregisterTds", unregisterTdsException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        String paymentAppInstanceId = unregisterTdsReq.get(PAYMENT_APP_INSTANCE_ID);
+        return responseMap;
+    }
 
-
-
-        Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if (!oTxnDetails.isPresent()) {
-            return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid PaymentAppInstanceId");
+    private boolean isActive(TransactionRegDetails transactionRegDetails){
+        boolean isActive = false;
+        String status = transactionRegDetails.getStatus();
+        if (status != null){
+            if (status.equals(HCEConstants.ACTIVE)){
+                isActive =  true;
+            }
         }
-
-        TransactionRegDetails txnDetails = oTxnDetails.get();
-        String authCode = txnDetails.getAuthCode();
-        reqMap.add("authenticationCode", authCode);
-
-        ResponseEntity response = httpRestHandlerUtils.httpPost(txnDetails.getTdsUrl() + "/" + paymentAppInstanceId + "/unregister", reqMap);
-        String strMdesResp = String.valueOf(response.getBody());
-        JSONObject jsMdesResp = new JSONObject(strMdesResp);
-        if (response.getStatusCode().value() == 200) {
-            // Delete TDS Registration Details
-            transactionRegDetailsRepository.delete(txnDetails);
-        }
-        return JsonUtil.jsonStringToHashMap(strMdesResp);
+        return isActive;
     }
 /*
     private Map<String,Object> validate(EnrollPanRequest enrollPanRequest,List<UserDetail> userDetails,List<DeviceInfo> deviceInfo) {
@@ -1295,30 +1273,19 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
     }*/
 
-
-
+    @Override
     public Map getSystemHealth() {
         ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
-        String response = null;
-        Map responseMap = null;
+        Map responseMap = new HashMap();
         String url = null;
         String id = "";
         try {
-            url =  env.getProperty("mdesip") + ":" + env.getProperty("mdesport") + env.getProperty("digitizationpath");
+            url =  env.getProperty("mdesip")  + env.getProperty("digitizationpath");
             id = "health";
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url, null, "GET",id);
-            if (responseMdes == null)
-                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-            if (responseMdes.hasBody()) {
-                response = String.valueOf(responseMdes.getBody());
-                jsonResponse = new JSONObject(response);
-            }
             if (responseMdes.getStatusCode().value() == HCEConstants.REASON_CODE7) {
-                responseMap = JsonUtil.jsonToMap(jsonResponse);
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-
             } else {
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
@@ -1330,30 +1297,21 @@ public class CardDetailServiceImpl implements CardDetailService {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getSystemHealth", getSystemHealthException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
     }
 
     public Object getPublicKeyCertificate() {
-
         ResponseEntity responseMdes = null;
         Object response = null;
-        Map responseMap = null;
-        JSONObject jsonResponse = null;
         String url = null;
-
         try {
-
             url = env.getProperty("mdesip") + env.getProperty("mpamanagementPath");
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url, null, "GET", "pkCertificate");
-
             if (responseMdes == null)
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-
             if (responseMdes.hasBody()) {
                 response = responseMdes.getBody();
             }
-
         } catch (HCEActionException getPublicKeyCertificateException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getPublicKeyCertificate", getPublicKeyCertificateException);
             throw getPublicKeyCertificateException;
@@ -1361,42 +1319,34 @@ public class CardDetailServiceImpl implements CardDetailService {
         } catch (Exception getPublicKeyCertificateException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getPublicKeyCertificate", getPublicKeyCertificateException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
-
         }
-
         return response;
-
     }
 
     @Override
     public Map<String, Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReq) {
         LOGGER.debug("Enter CarddetailServiceImpl ----------------------------------------------notifyTokenUpdated-------");
         EncryptedPayload encryptedPayload = new EncryptedPayload();
-
         HashMap notifyTokenUpdatedMap = null;
         String responseId = ArrayUtil.getHexString(ArrayUtil.getRandom(8));
-
         RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
         JSONObject requestJson = null;
         String strRequest = "";
         String rgk = "";
         try {
             //Decrypt notification Data
-            rgk = CryptoUtils.privateKeydecryption(CryptoUtils.getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
+            rgk = CryptoUtils.privateKeydecryption(getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);
-
 
             //Prepare FCM Request
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(requestJson.getString("paymentAppInstanceId")));
             rnsGenericRequest.setRnsData(notifyTokenUpdatedMap);
-
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             rnsData.put("SUBTYPE","MDES_LCM");
-
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
@@ -1426,15 +1376,49 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     }
 
-    private String getRnsRegId(String paymentAppInstanceId)
-    {
+    public String getRnsRegId(String paymentAppInstanceId) {
         String rnsRegID = null;
         final Optional<DeviceInfo> deviceDetailsList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-        if(deviceDetailsList!=null && deviceDetailsList.isPresent() ){
+        if(deviceDetailsList.isPresent() ){
             final DeviceInfo deviceInfo = deviceDetailsList.get();
             rnsRegID = deviceInfo.getRnsRegistrationId();
         }
         return rnsRegID;
+    }
+
+    public  PrivateKey getPrivateKeyFromKeyStore() throws Exception{
+        ResourceLoader resourceLoader = null;
+        Resource resource = null;
+        InputStream inputStream = null;
+        String fileName = null;
+        String password = null;
+        String alias = "";
+        try{
+            //InputStream ins = DecryptPayload.class.getResourceAsStream("/keystore.
+            //
+            // jks");
+            //fileName = env.getProperty("end.to.end.keystore.filename");
+            fileName = env.getProperty("outboundtruststore");
+            password = env.getProperty("outboundtruststorepass");
+            alias = env.getProperty("outboundtruststorealias");
+            resourceLoader = new FileSystemResourceLoader() ;
+            resource = resourceLoader.getResource("classpath:"+fileName);
+            inputStream  = resource.getInputStream();
+
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(inputStream, password.toCharArray());   //Keystore password
+            KeyStore.PasswordProtection keyPassword =       //Key password
+                    new KeyStore.PasswordProtection(password.toCharArray());
+
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, keyPassword);
+
+            PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+            return privateKey;
+        }catch (Exception ex) {
+            //LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
+            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
+        }
+
     }
 
 

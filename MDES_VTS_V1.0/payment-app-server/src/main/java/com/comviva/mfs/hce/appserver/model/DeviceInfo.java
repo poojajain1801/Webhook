@@ -77,7 +77,6 @@ public class DeviceInfo implements Serializable {
 
     //bi-directional many-to-one association to CardDetail
     @OneToMany(mappedBy="deviceInfo")
-
     private List<CardDetails> cardDetails;
 
 

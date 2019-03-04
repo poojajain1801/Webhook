@@ -12,13 +12,13 @@ import lombok.Setter;
 public class ConfirmProvisioningRequest {
     private String api;
     private String provisioningStatus;
-    private String vprovisionedTokenID ;
+    private String vprovisionedTokenID;
     private String failureReason;
 
-    public ConfirmProvisioningRequest(String api, String provisioningStatus, String vprovisionedTokenID, String failureReason) {
+    public ConfirmProvisioningRequest(String api, String provisioningStatus, String vprovisionedTokenId, String failureReason) {
         this.api = api;
         this.provisioningStatus = provisioningStatus;
-        this.vprovisionedTokenID = vprovisionedTokenID;
+        this.vprovisionedTokenID = vprovisionedTokenId;
         this.failureReason = failureReason;
     }
 

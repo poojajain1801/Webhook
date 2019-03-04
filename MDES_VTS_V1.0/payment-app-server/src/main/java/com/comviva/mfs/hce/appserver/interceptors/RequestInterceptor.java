@@ -59,7 +59,7 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
 
-        HCEUtil.writeHCELog(totalTime,responseCode,null,requestObject,responseObject,url);
+        HCEUtil.writeHCELog(totalTime,responseCode,null,requestObject,responseObject);
     }
 
 }

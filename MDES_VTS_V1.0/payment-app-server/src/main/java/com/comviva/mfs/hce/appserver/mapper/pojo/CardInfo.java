@@ -1,11 +1,13 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by tanmay.patel on 1/31/2017.
  */
 @Getter
+@Setter
 public class CardInfo {
     private String panUniqueReference;
     private String tokenUniqueReferenceForPanInfo;
