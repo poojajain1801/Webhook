@@ -4,9 +4,13 @@
     <property resource="application.properties"/>
     <property scope="context" name="node.name" value="%property{mfs.node.name}"/>
     <property name="defaultPattern"
-              value="%d ${HOSTNAME} ${mfs.component.id} ${node.name:-unknown_node} %X{mfs.flowId:-?} %thread %-5level %logger{25}.%M - %msg%n"/>
+              value="%d [%-5level] ${HOSTNAME} %thread  %logger{25}.%M - %m%n"/>
 
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-./logs}/startup.log}"/>
+
+    <property name="LOG_FILE_TDR" value="${logging.file.tdr}"/>
+    <property name="LOG_FILE_REQUEST" value="${logging.file.request}"/>
+
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -28,9 +32,60 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="TDR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_TDR}</file>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_TDR}-%d.%i.log.gz</fileNamePattern>
+            <maxHistory>${logging.file.maxHistory}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${logging.file.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+
+    <appender name="REQUEST_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE_REQUEST}</file>
+        <encoder>
+            <pattern>${defaultPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_REQUEST}-%d.%i.log.gz</fileNamePattern>
+            <maxHistory>${logging.file.maxHistory}</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${logging.file.maxFileSize}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+
+    <logger name="tdrLogs" level="DEBUG" additivity="false">
+        <appender-ref ref="TDR_LOG"/>
+        <if condition='property("java.class.path").contains("IntelliJ")
+        || property("java.class.path").contains("test-classes") || property("spring.profiles.active").contains("dev")'>
+            <then>
+                <appender-ref ref="CONSOLE"/>
+            </then>
+        </if>
+    </logger>
+
+
+    <logger name="requestLogs" level="DEBUG" additivity="false">
+        <appender-ref ref="REQUEST_LOG"/>
+        <if condition='property("java.class.path").contains("IntelliJ")
+        || property("java.class.path").contains("test-classes") || property("spring.profiles.active").contains("dev")'>
+            <then>
+                <appender-ref ref="CONSOLE"/>
+            </then>
+        </if>
+    </logger>
+
+
     <root level="${logging.level:-INFO}">
         <appender-ref ref="FILE_LOG"/>
-        <appender-ref ref="CONSOLE"/>
         <if condition='property("java.class.path").contains("IntelliJ")
         || property("java.class.path").contains("test-classes") || property("spring.profiles.active").contains("dev")'>
             <then>
