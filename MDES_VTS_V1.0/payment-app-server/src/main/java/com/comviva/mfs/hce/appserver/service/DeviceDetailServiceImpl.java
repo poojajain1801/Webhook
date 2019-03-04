@@ -77,6 +77,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         String vClientID = env.getProperty("vClientID");
         Map<String, Object> response = new HashMap();
+        String isMastercardRegistrationDone = null;
+        String isVisaDeviceRegistrationDone = null;
         Map mdesRespMap = new HashMap();
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
@@ -91,8 +93,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 userDetail = userDetails.get(0);
                 Optional<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
                 if (deviceInfos.isPresent()){
-                    String isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
-                    String isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                    isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
+                    isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
                 }
                 if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
                     deviceInfo = deviceInfos.get();
