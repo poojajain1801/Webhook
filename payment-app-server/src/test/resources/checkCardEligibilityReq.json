@@ -1,0 +1,15 @@
+{
+  "paymentAppInstanceId": "123456781",
+  "tokenType": "CLOUD",
+  "paymentAppId": "WalletApp1",
+  "cardInfo": {
+    "encryptedData": "11111111111111111111111111111111",
+    "encryptedKey": "22222222222222222222222222222222",
+    "iv": "3333333333333333333333",
+    "panUniqueReference": "panUniqueReference1",
+    "publicKeyFingerPrint": "44444444444444444444444444444444",
+    "tokenUniqueReferenceForPanInfo": "555555555555555555555555"
+  },
+  "cardletId": "1.0",
+  "consumerLanguage": "HINDI"
+}
