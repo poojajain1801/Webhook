@@ -77,6 +77,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         String vClientID = env.getProperty("vClientID");
         Map<String, Object> response = new HashMap();
+        String isMastercardRegistrationDone = null;
+        String isVisaDeviceRegistrationDone = null;
         Map mdesRespMap = new HashMap();
         Map vtsRespMap = new HashMap();
         boolean isMdesDevElib = false;
@@ -90,8 +92,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             if(userDetails!=null && !userDetails.isEmpty()){
                 userDetail = userDetails.get(0);
                 Optional<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
-                String isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
-                String isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                if (deviceInfos.isPresent()){
+                    isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
+                    isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                }
                 if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
                     deviceInfo = deviceInfos.get();
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
@@ -193,6 +197,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }
 
             response.put("hvtThreshold", env.getProperty("hvt.limit"));
+            if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
+                response.put("responseCode",HCEMessageCodes.getSUCCESS());
+            }else {
+                response.put("responseCode",HCEMessageCodes.getDeviceRegistrationFailed());
+            }
 
             //******************VTS :Register with END***********************************
             return response;

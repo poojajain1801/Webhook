@@ -423,20 +423,47 @@ public class CardDetailServiceImpl implements CardDetailService {
            if(jsRespMdes.has("result")) {
                result = jsRespMdes.getString("result");
            }
-            if (jsRespMdes.has("errors")) {
+           switch (result){
+               case "SUCCESS":
+                   jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
+                   jsRespMdes.put("message",HCEConstants.SUCCESS);
+                   break;
+
+               case "INCORRECT_CODE":
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
+                   jsRespMdes.put("message","You have entered Invalid OTP");
+                   break;
+
+               case  "INCORRECT_CODE_RETRIES_EXCEEDED":
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectCodeRetriesExceeded());
+                   jsRespMdes.put("message","You have exceeded maximum number of attempts");
+                   break;
+
+               case "EXPIRED_CODE":
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getExpiredCode());
+                   jsRespMdes.put("message","This OTP has been expired");
+                   break;
+
+               default:
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
+                   jsRespMdes.put("message","We can not process the transaction at this moment, If you see this too frequently please contact the issuer.");
+
+           }
+           /*
+           *//*if (jsRespMdes.has("errors")) {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
-            }
-            else if (!result.equalsIgnoreCase("SUCCESS")){
-                jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
+           }*//*
+           if (!result.equalsIgnoreCase("SUCCESS")){
+               jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
-                jsRespMdes.put("message",result);
-            }
-            else {
-                jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
-                jsRespMdes.put("message",HCEConstants.SUCCESS);
-            }
+               jsRespMdes.put("message","You have entered Invalid OTP");
+           }
+           else {
+               jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
+               jsRespMdes.put("message",HCEConstants.SUCCESS);
+           }*/
 
         }catch (HCEActionException activateHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->activate", activateHCEactionException);
@@ -571,12 +598,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         String resourcePath ="vts/panEnrollments/"+getCardMetadataRequest.getVpanEnrollmentID();
         //https://sandbox.digital.visa.com/vts/panEnrollments/{vPanEnrollmentID}?apiKey=key&platformType=platform_type
         url =  env.getProperty("visaBaseUrlSandbox")+"/vts/panEnrollments/"+getCardMetadataRequest.getVpanEnrollmentID()+"?apiKey="+env.getProperty("apiKey");
-
         try {
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "GET");
-
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 strResponse = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(strResponse);
             }
@@ -1104,8 +1128,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     }
 
-    public  Map getTokens(GetTokensRequest getTokensRequest)
-    {
+    public  Map getTokens(GetTokensRequest getTokensRequest) {
         JSONObject getTokenReq = null;
         String url = "";
         String id = "";

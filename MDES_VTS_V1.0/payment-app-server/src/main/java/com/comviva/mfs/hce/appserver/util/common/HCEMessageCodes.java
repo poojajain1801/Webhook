@@ -40,6 +40,24 @@ public class HCEMessageCodes {
         return TOKEN_NOT_REGISTERED;
     }
 
+    private static String INCORRECT_CODE_RETRIES_EXCEEDED;
+    @Value("${INCORRECT_CODE_RETRIES_EXCEEDED}")
+    public void setIncorrectCodeRetriesExceeded(String incorrectOTP){
+        INCORRECT_CODE_RETRIES_EXCEEDED = incorrectOTP ;
+    }
+    public static String getIncorrectCodeRetriesExceeded(){
+        return INCORRECT_CODE_RETRIES_EXCEEDED;
+    }
+
+    private static String EXPIRED_CODE;
+    @Value("${EXPIRED_CODE}")
+    public void setExpiredCode(String incorrectOTP){
+        EXPIRED_CODE = incorrectOTP;
+    }
+    public static String getExpiredCode(){
+        return EXPIRED_CODE;
+    }
+
     private static String INCORRECT_OTP;
     @Value("${INCORRECT_OTP}")
     public void setIncorrectOtp(String incorrectOTP){

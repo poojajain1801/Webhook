@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UnregisterTdsReq {
-
     private String tokenUniqueReference ;
     private String paymentAppInstanceId ;
 
