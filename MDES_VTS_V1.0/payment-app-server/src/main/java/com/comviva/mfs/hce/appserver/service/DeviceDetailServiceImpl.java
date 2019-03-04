@@ -90,8 +90,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             if(userDetails!=null && !userDetails.isEmpty()){
                 userDetail = userDetails.get(0);
                 Optional<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceId(enrollDeviceRequest.getClientDeviceID());
-                String isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
-                String isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                if (deviceInfos.isPresent()){
+                    String isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
+                    String isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
+                }
                 if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
                     deviceInfo = deviceInfos.get();
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
