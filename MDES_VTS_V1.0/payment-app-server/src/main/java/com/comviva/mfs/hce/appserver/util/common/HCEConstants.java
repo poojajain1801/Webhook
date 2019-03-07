@@ -171,8 +171,7 @@ public class HCEConstants {
     public static final String REQUEST_ID = "requestId";
 
     /** The Constant REQUEST_ID_. */
-    public static final String GENERIC_ERROR = " We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801";
-
+    public static final String GENERIC_ERROR = "We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801";
 
     /** The Constant MASKING_PROPERTIES. */
     private static String MASKING_PROPERTIES ;
@@ -212,14 +211,10 @@ public class HCEConstants {
     public static final String NULL = "null";
 
 
-
-
     //By Rishikesh
     public static final String REASON_CODE = "reasonCode";
     public static final String REASON = "reason";
-
     public static final String ERROR_CODE= "errorCode";
-
     public static final String REASON_DESCRIPTION = "reasonDescription";
     public static final int REASON_CODE1 = 220;
     public static final String REASON_DESCRIPTION1 = "Invalid Payment App Instance Id";
@@ -231,13 +226,6 @@ public class HCEConstants {
     public static final int REASON_CODE6 = 231;
     public static final int REASON_CODE7 = 200;
     public static final int REASON_CODE_234 = 234;
-
     public static final int REASON_CODE8 = 201;
-
-
-
-
-
-
 
 }

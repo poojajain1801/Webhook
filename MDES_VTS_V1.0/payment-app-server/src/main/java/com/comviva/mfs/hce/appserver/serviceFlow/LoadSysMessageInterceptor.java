@@ -59,6 +59,7 @@ public class LoadSysMessageInterceptor {
     @Around("@annotation(com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep)")
     public Object invoke(ProceedingJoinPoint originalMethod) throws Throwable {
         String  responseCode = null;
+        String responseMessage = null;
         String reasonCode = null;
         Map errorResponse = null;
         List<SysMessage> sysMessage = null;
@@ -70,12 +71,13 @@ public class LoadSysMessageInterceptor {
             String requestData = (String)originalMethod.getArgs()[0];
             userId = hceControllerSupport.findUserId(requestData);
             hceControllerSupport.setUserId(userId);
+
             LOGGER.debug("User ID is  ******* :"  +userId);
 
             responseData = (Map) originalMethod.proceed();
 
             LOGGER.debug("Response data **********************" +responseData);
-            LOGGER.debug("inside SysMessage interceptor after hitting third party  *****************");
+            //LOGGER.debug("inside SysMessage interceptor after hitting third party  *****************");
 
             responseCode = (String) responseData.get(HCEConstants.RESPONSE_CODE);
             errorResponse = ((Map) responseData.get(HCEConstants.ERROR_RESPONSE));
@@ -83,8 +85,6 @@ public class LoadSysMessageInterceptor {
                 reasonCode = (String) errorResponse.get(HCEConstants.REASON);
             }else if(responseData.get(HCEConstants.ERROR_CODE) !=null){
                 reasonCode = (String)responseData.get(HCEConstants.ERROR_CODE);
-            }else if(responseData.get(HCEConstants.STATUS_CODE) != null){
-                responseCode = (String)responseData.get(HCEConstants.STATUS_CODE);
             }
             else {
                 reasonCode = (String)responseData.get(HCEConstants.REASON_CODE);
@@ -99,13 +99,14 @@ public class LoadSysMessageInterceptor {
             } else if (responseCode !=null){
                 responseMessageMap.putAll(responseData);
                 responseMessageMap.putAll(hceControllerSupport.formResponse(responseCode));
+
             } else {
                 responseMessageMap.putAll(responseData);
             }
             LOGGER.debug("Response map*******************"+responseMessageMap);
 
             /*responseMessage = (String)responseData.get(HCEConstants.MESSAGE);
-            *//*if(responseMessage == null && responseCode!= null){
+            if(responseMessage == null && responseCode!= null){
                 responseMessageMap = hceControllerSupport.formResponse(responseCode);
                 responseMessageMap.putAll(responseData);
             }else if(responseCode == null ){

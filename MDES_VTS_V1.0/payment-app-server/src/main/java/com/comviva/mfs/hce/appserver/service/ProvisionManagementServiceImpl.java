@@ -76,7 +76,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         try {
 
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
-
             emailAdress = provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress();
             emailHash = MessageDigestUtil.getEmailHashAlgorithmValue(emailAdress);
             byte[] b64data = org.apache.commons.codec.binary.Base64.encodeBase64(emailHash.getBytes());
@@ -90,7 +89,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             reqest.put("clientWalletAccountEmailAddressHash", emailAdress);
             reqest.put("clientDeviceID", provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
             reqest.put("protectionType", provisionTokenGivenPanEnrollmentIdRequest.getProtectionType());
-
             presentationType.put(provisionTokenGivenPanEnrollmentIdRequest.getPresentationType());
             reqest.put("presentationType", presentationType);
             JSONObject termandCondition = new JSONObject();
@@ -109,12 +107,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }else{
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
-
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens" + "?apiKey=" + env.getProperty("apiKey");
             String resourcePath = "vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens";
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, reqest.toString(), resourcePath, "POST");
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 LOGGER.debug("Provison Response from VTS = "+response);
                 jsonResponse = new JSONObject(response);
@@ -130,7 +126,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                         cardDetails.setTokenSuffix(tokenInfo.getString("last4"));
                     }
                 }
-
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 //cardDetails.setStatus(HCEConstants.ACTIVE);
                 cardDetailRepository.save(cardDetails);
@@ -144,20 +139,15 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
 
                 return responseMap;
             }
-            else
-            {
+            else {
                 Map errorMap = new LinkedHashMap();
-                if (null != jsonResponse) {
-                   /* errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
-                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));*/
-                    errorMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getFailedAtThiredParty());
-                    errorMap.put(HCEConstants.MESSAGE, HCEConstants.GENERIC_ERROR);
-                }
+                /* errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
+                errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));*/
+                errorMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getFailedAtThiredParty());
+                errorMap.put(HCEConstants.MESSAGE, HCEConstants.GENERIC_ERROR);
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 return errorMap;
-
             }
-
 
         }catch(HCEActionException provisionHCEActionException){
             LOGGER.error("Exception occured in ProvisionManagementServiceImpl->provisionTokenGivenPanEnrollmentId", provisionHCEActionException);

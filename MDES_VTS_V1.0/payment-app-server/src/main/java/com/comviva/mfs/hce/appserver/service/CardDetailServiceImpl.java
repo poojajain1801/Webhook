@@ -261,8 +261,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
 
                 //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
-                if (provisionRespMdes.has("errors"))
-                {
+                if (provisionRespMdes.has("errors")) {
                     provisionRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     provisionRespMdes.put("message",provisionRespMdes.getString("errorDescription"));
@@ -285,6 +284,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails.setCardId(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetailRepository.save(cardDetails);
+                    }else {
+                        provisionRespMdes.put(HCEConstants.MESSAGE, HCEConstants.GENERIC_ERROR);
                     }
                 }
 
@@ -446,7 +447,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
                default:
                    jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
-                   jsRespMdes.put("message","We can not process the transaction at this moment, If you see this too frequently please contact the issuer.");
+                   jsRespMdes.put("message","We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801");
 
            }
            /*
@@ -859,7 +860,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                 response = String.valueOf(responseMdes.getBody());
                 jsonResponse = new JSONObject(response);
             }
-
             if (responseMdes.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 if (!jsonResponse.has("errorCode") && !jsonResponse.has("errors")){
                     transactionRegDetails.setAuthCode(jsonResponse.getString("authenticationCode"));
@@ -931,8 +931,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             lifecycleJsonRequest.put("causedBy", lifeCycleManagementReq.getCausedBy());
             lifecycleJsonRequest.put(HCEConstants.REASON_CODE, lifeCycleManagementReq.getReasonCode());
             lifecycleJsonRequest.put("reason", lifeCycleManagementReq.getReason());
-
-
             ResponseEntity responseEntity = null;
             url = this.env.getProperty("mdesip") + this.env.getProperty("digitizationpath");
             String id = "";
@@ -984,7 +982,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                         if (j.has("status")) {
                             tokenUniqueRef = j.getString("tokenUniqueReference");
                             statusFromMastercard = j.getString("status");
-
                             switch (statusFromMastercard) {
                                 case "DEACTIVATED":
                                     status = HCEConstants.INACTIVE;
@@ -1074,6 +1071,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         return JsonUtil.jsonToMap(jsRespMdes);
     }
+
     public Map searchTokens(SearchTokensReq searchTokensReq) {
         JSONObject searchTokenReq = null;
         String url = "";
@@ -1089,25 +1087,21 @@ public class CardDetailServiceImpl implements CardDetailService {
         try {
             //call the master card searchTokens API
             searchTokenReq = new JSONObject();
-
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             searchTokenReq.put("requestId", requestId);
             searchTokenReq.put(PAYMENT_APP_INSTANCE_ID, searchTokensReq.getPaymentAppInstanceId());
             /*trId = this.env.getProperty("tokenrequestorid");
             searchTokenReq.put("tokenRequestorId",trId);
 */
-
             url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             id = "searchTokens";
             ResponseEntity responseEntity =  hitMasterCardService.restfulServiceConsumerMasterCard(url,searchTokenReq.toString(),"POST",id);
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsRespMdes = new JSONObject(response);
             }
-            if (jsRespMdes.has("errors"))
-            {
+            if (jsRespMdes.has("errors")) {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
@@ -1125,7 +1119,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return JsonUtil.jsonToMap(jsRespMdes);
-
     }
 
     public  Map getTokens(GetTokensRequest getTokensRequest) {
@@ -1144,7 +1137,6 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         try {
             getTokenReq = new JSONObject();
-
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             getTokenReq.put("requestId", requestId);
             getTokenReq.put("tokenUniqueReference", getTokensRequest.getTokenUniqueReference());
@@ -1157,13 +1149,11 @@ public class CardDetailServiceImpl implements CardDetailService {
             id = "getToken";
             ResponseEntity responseEntity =  hitMasterCardService.restfulServiceConsumerMasterCard(url,getTokenReq.toString(),"POST",id);
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsRespMdes = new JSONObject(response);
             }
-            if (jsRespMdes.has("errors"))
-            {
+            if (jsRespMdes.has("errors")) {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
@@ -1362,7 +1352,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);
-
             //Prepare FCM Request
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(requestJson.getString("paymentAppInstanceId")));
@@ -1375,7 +1364,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority", "high");
             payloadObject.put("time_to_live", 2160000);
-
             //Send Remote Notification
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());

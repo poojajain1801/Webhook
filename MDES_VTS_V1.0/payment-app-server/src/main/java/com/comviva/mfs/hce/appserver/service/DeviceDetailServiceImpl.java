@@ -97,7 +97,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
                 }
                 if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
-                    deviceInfo = deviceInfos.get();
+					deviceInfo = deviceInfos.get();
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
                         throw new HCEActionException(HCEMessageCodes.getInvalidUserAndDevice());
                     }
