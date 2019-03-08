@@ -17,7 +17,7 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (nul
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card details already registered ','705','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Invalid request. Please cross verify the request ','706','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card details not exist ','707','1');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Request failed at third party ','708','1');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801','708','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Invalid Paymentapp Instance ID ','2000','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Card is not eligible for digitization ','2001','1');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,' Token is not Registered for transaction history ','2002','1');
@@ -93,9 +93,9 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The PAN has already been provisioned to the device or the same request is currently being processed','765','1','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'AID RID value was not correct.','766','1','INVALID_AID_RID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Token Activated Successfully','767','1','200');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect OTP','768','1','INCORRECT_CODE');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'You have exceeded maximum number of attempts','769','1','INCORRECT_CODE_RETRIES_EXCEEDED');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'This OTP has been expired','770','1','EXPIRED_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','768','1','INCORRECT_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','769','1','INCORRECT_CODE_RETRIES_EXCEEDED');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','770','1','EXPIRED_CODE');
 
 
 
@@ -117,7 +117,7 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (nul
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'تفاصيل البطاقة مسجلة بالفعل','705','2');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'طلب غير صالح. يرجى عبر التحقق من الطلب','706','2');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'تفاصيل البطاقة غير موجودة','707','2');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'فشل الطلب في جهة خارجية','708','2');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'نحن غير قادرين على معالجة معاملتك. لمزيد من المساعدة يرجى الاتصال 1801801','708','2');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'معرف غير صالح في Paymentapp','2000','2');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'البطاقة غير مؤهلة للحصول على رقمنة','2001','2');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,' الرمز غير مسجل في سجل المعاملات ','2002','2');

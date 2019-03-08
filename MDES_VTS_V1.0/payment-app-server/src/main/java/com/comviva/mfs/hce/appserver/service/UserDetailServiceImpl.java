@@ -34,7 +34,6 @@ import com.comviva.mfs.hce.appserver.exception.*;
  */
 @Service
 public class UserDetailServiceImpl implements UserDetailService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(UserDetailServiceImpl.class);
     private final UserDetailRepository userDetailRepository;
     private final DeviceDetailRepository deviceDetailRepository;
@@ -62,7 +61,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         Map <String, Object> response;
         List<UserDetail> userDetails;
         List<DeviceInfo> deviceInfos;
-        String languageCode =null;
+        String languageCode = "";
         UserDetail userDetail;
         DeviceInfo deviceInfo;
         String userId ;
@@ -72,8 +71,10 @@ public class UserDetailServiceImpl implements UserDetailService {
             userId = registerUserRequest.getUserId();
             imei = registerUserRequest.getImei();
             languageCode = registerUserRequest.getLanguageCode();
-            if(languageCode == null || languageCode.isEmpty()){
+            LOGGER.debug("LanguageCode ********  "+languageCode);
+            if(languageCode == null || languageCode.isEmpty() || languageCode == "" || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
                 registerUserRequest.setLanguageCode("1");
+                LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }
             if(isClientDeviceIdExist(registerUserRequest.getClientDeviceID())){
                 throw new HCEActionException(HCEMessageCodes.getClientDeviceidExist());
@@ -93,7 +94,6 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo);
                     // Register New Device
                     //update Old device with N and if owner of that user is having one device then make user status N too. and register device.
-
                 }else{
 
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
@@ -101,9 +101,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo);
                     //Register Device
                 }
-
             }else{
-
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
@@ -112,23 +110,18 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceDetailRepository.save(deviceInfo);
                     updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                     userDetail = saveUserDetails(registerUserRequest);
-                    userDetailRepository.save(userDetail);
+                    userDetailRepository.saveAndFlush(userDetail);
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
                     deviceInfo.setUserDetail(userDetail);
                     deviceDetailRepository.save(deviceInfo);
-
-
                     //update Old device with N and if owner of that user is having one device then make user status N too. and register device and user.
-
                 }else{
-
                     userDetail = saveUserDetails(registerUserRequest);
                     userDetailRepository.saveAndFlush(userDetail);
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
                     deviceInfo.setUserDetail(userDetail);
                     deviceDetailRepository.saveAndFlush(deviceInfo);
                     // RegisterUser and Register Device
-
                 }
             }
             response = prepareResponseMap(HCEMessageCodes.getSUCCESS(),userDetail,null);

@@ -91,7 +91,6 @@ public class HCEControllerSupport {
      * @return
      */
     public String prepareMessage(String messageCode ){
-
         String txnMessage = null;
         List<SysMessage> sysMessageList = null;
         try{
@@ -156,6 +155,9 @@ public class HCEControllerSupport {
         userDetail = userDetailRepository.findByUserId(userId);
         if (userDetail !=null ){
             languageCode = userDetail.getLanguageCode();
+            if(languageCode == null || languageCode.isEmpty() || languageCode == "" || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
+                languageCode = "1";
+            }
         }
         return languageCode;
     }
@@ -331,7 +333,6 @@ public class HCEControllerSupport {
                 paymentAppInstanceId = cardDetails.get().getMasterPaymentAppInstanceId();
                 userId = findUserIdByPaymentAppInstanceId(paymentAppInstanceId);
             }
-
         }
         return userId;
     }
@@ -360,8 +361,8 @@ public class HCEControllerSupport {
             }else if(!jsonObject.isNull("paymentAppInstanceId")){
                 paymentAppInstanceId = (String)jsonObject.get("paymentAppInstanceId");
                 userId = findUserIdByPaymentAppInstanceId(paymentAppInstanceId);
-            }else if(!jsonObject.isNull("vprovisionedTokenId")){
-                vprovisionedTokenID = (String)jsonObject.get("vprovisionedTokenId");
+            }else if(!jsonObject.isNull("vProvisionedTokenID")){
+                vprovisionedTokenID = (String)jsonObject.get("vProvisionedTokenID");
                 userId = findUserIdByVProvisionedTokenID(vprovisionedTokenID);
             }else if(!jsonObject.isNull("tokenUniqueReference")){
                 tokenUniqueReference = (String)jsonObject.get("tokenUniqueReference");

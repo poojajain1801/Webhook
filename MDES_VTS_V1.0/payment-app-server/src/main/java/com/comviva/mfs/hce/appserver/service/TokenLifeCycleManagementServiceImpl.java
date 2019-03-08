@@ -164,16 +164,12 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         List<CardDetails> cardDetailsList = null;
         CardDetails cardDetails = null;
         try {
-
             cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
-
                 cardDetails = cardDetailsList.get(0);
                 if(cardDetails.getStatus().equals(HCEConstants.INACTIVE)){
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
-
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }

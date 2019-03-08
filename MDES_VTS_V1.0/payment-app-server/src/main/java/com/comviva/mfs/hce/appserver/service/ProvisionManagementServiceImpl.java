@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -447,10 +448,20 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
             } else {
-                if (null != jsonResponse) {
+                String statusCode = Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status"));
+                switch (statusCode){
+                    case "400" :
+                    case "401" :
+                        responseMap.put("responseCode", HCEMessageCodes.getIncorrectOtp());
+                        break;
+
+                    default:
+                        responseMap.put("responseCode",HCEMessageCodes.getFailedAtThiredParty());
+                }
+                /*if (null != jsonResponse) {
                     responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
                     responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
-                }
+                }*/
             }
 
         } catch (HCEActionException searchTokensHCEactionException) {

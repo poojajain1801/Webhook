@@ -1,5 +1,4 @@
 package com.comviva.mfs.hce.appserver.service;
-
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
@@ -246,7 +245,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             cardInfo.put("oaepHashingAlgorithm", "SHA512");*/
             digitizeReq.put("cardInfo", cardInfo);
 
-
             // String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/addCard", digitizeReq);
             url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             String id = "digitize";
@@ -257,9 +255,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             }
 
             provisionRespMdes = new JSONObject(response);
-
             if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
-
                 //JSONObject mdesResp = provisionRespMdes.getJSONObject("response");
                 if (provisionRespMdes.has("errors")) {
                     provisionRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
@@ -285,6 +281,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetailRepository.save(cardDetails);
                     }else {
+                        provisionRespMdes.put(HCEConstants.RESPONSE_CODE , HCEMessageCodes.getFailedAtThiredParty());
                         provisionRespMdes.put(HCEConstants.MESSAGE, HCEConstants.GENERIC_ERROR);
                     }
                 }
@@ -431,23 +428,15 @@ public class CardDetailServiceImpl implements CardDetailService {
                    break;
 
                case "INCORRECT_CODE":
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
-                   jsRespMdes.put("message","You have entered Invalid OTP");
-                   break;
 
                case  "INCORRECT_CODE_RETRIES_EXCEEDED":
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectCodeRetriesExceeded());
-                   jsRespMdes.put("message","You have exceeded maximum number of attempts");
-                   break;
 
                case "EXPIRED_CODE":
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getExpiredCode());
-                   jsRespMdes.put("message","This OTP has been expired");
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
                    break;
 
                default:
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
-                   jsRespMdes.put("message","We Are Unable To Process Your Transaction. For Further Assistance Please Contact 1801801");
+                   jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
 
            }
            /*
@@ -884,7 +873,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             LOGGER.error("Exception occured in CardDetailServiceImpl->registerWithTDS",registerWithTDSException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
     }
 
@@ -1037,7 +1025,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             reqMdes.put("requestId", requestId);
             reqMdes.put(PAYMENT_APP_INSTANCE_ID, activationCodeReq.getPaymentAppInstanceId());
             reqMdes.put("tokenUniqueReference", activationCodeReq.getTokenUniqueReference());
-
             authenticationCode = new JSONObject();
             authenticationCode.put("id",activationCodeReq.getAuthenticationCodeId());
             reqMdes.put("authenticationMethod", authenticationCode);
@@ -1048,14 +1035,12 @@ public class CardDetailServiceImpl implements CardDetailService {
                 response = String.valueOf(responseEntity.getBody());
                 jsRespMdes = new JSONObject(response);
             }
-            if (jsRespMdes.has("errors"))
-            {
+            if (jsRespMdes.has("errors")) {
                 jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                 //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                 jsRespMdes.put("message",jsRespMdes.getString("errorDescription"));
             }
-            else
-            {
+            else {
                 jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
                 jsRespMdes.put("reasonDescription","Token Activated Successfully");
             }
@@ -1348,7 +1333,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String rgk = "";
         try {
             //Decrypt notification Data
-            rgk = CryptoUtils.privateKeydecryption(getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
+            rgk = CryptoUtils.privateKeydecryption(CryptoUtils.getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);

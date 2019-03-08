@@ -85,6 +85,8 @@ public class LoadSysMessageInterceptor {
                 reasonCode = (String) errorResponse.get(HCEConstants.REASON);
             }else if(responseData.get(HCEConstants.ERROR_CODE) !=null){
                 reasonCode = (String)responseData.get(HCEConstants.ERROR_CODE);
+            }else if (responseData.get(HCEConstants.STATUS_CODE) !=null){
+                responseCode = (String) responseData.get(HCEConstants.STATUS_CODE);
             }
             else {
                 reasonCode = (String)responseData.get(HCEConstants.REASON_CODE);
