@@ -72,7 +72,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             imei = registerUserRequest.getImei();
             languageCode = registerUserRequest.getLanguageCode();
             LOGGER.debug("LanguageCode ********  "+languageCode);
-            if(languageCode == null || languageCode.isEmpty() || languageCode == "" || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
+            if(languageCode == null || languageCode.isEmpty()){
                 registerUserRequest.setLanguageCode("1");
                 LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }

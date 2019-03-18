@@ -244,7 +244,6 @@ public class CardManagementController {
         return searchTokensResp;
     }
 
-
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
