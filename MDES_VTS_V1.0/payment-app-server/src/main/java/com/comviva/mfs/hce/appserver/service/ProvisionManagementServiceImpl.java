@@ -427,7 +427,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject reqJson = new JSONObject();
         ResponseEntity responseVts = null;
         JSONObject jsonResponse = null;
-        String statusCode = "";
         Map responseMap= new LinkedHashMap();
         String response;
         String resourcePath = null;
@@ -449,13 +448,13 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
             } else {
-                if (jsonResponse !=null)
-                    statusCode= Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status"));
+                String statusCode = Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status"));
                 switch (statusCode){
                     case "400" :
                     case "401" :
                         responseMap.put("responseCode", HCEMessageCodes.getIncorrectOtp());
                         break;
+
                     default:
                         responseMap.put("responseCode",HCEMessageCodes.getFailedAtThiredParty());
                 }

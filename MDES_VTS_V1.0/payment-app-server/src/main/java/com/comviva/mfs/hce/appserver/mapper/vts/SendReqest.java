@@ -39,6 +39,7 @@ public class SendReqest {
         JSONObject response = null;
         long startTime = 0;
         String xCorrelationID = null;
+        URL urlObj = null;
         try {
             if(env.getProperty("is.proxy.required").equals("Y")) {
                 String proxyip = env.getProperty("proxyip");
@@ -59,7 +60,7 @@ public class SendReqest {
 
             byte[] postData = (requestData);
 
-            URL urlObj = new URL(url);
+            urlObj = new URL(url);
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection)urlObj.openConnection();
 
             //set timeputs to 10 seconds
@@ -69,7 +70,7 @@ public class SendReqest {
             String requestId = (String) header.get("xRequestId");
 
             LOGGER.debug("url =:"+url);
-            //LOGGER.debug("xpaytoken = "+xpaytoken);
+            LOGGER.debug("xpaytoken = "+xpaytoken);
             LOGGER.debug("requestId = "+requestId);
 
             httpsURLConnection.setDoOutput(true);
@@ -91,6 +92,7 @@ public class SendReqest {
             out.close();
             responseCode = httpsURLConnection.getResponseCode();
             //success
+
             if (responseCode == HttpStatus.SC_OK) {
                 responseBody = convertStreamToString(httpsURLConnection.getInputStream());
                 response = new JSONObject(responseBody);
@@ -108,6 +110,7 @@ public class SendReqest {
                 Map<String, List<String>> responseheader = httpsURLConnection.getHeaderFields();
                 xCorrelationID = responseheader.get("X-CORRELATION-ID").get(0);
                 LOGGER.debug("Enroll device https response xCorrelationID = " + xCorrelationID);
+
                 response = new JSONObject(responseBody);
                 responseJson.put("response",response);
                 responseJson.put(HCEConstants.STATUS_CODE,responseCode);
@@ -132,7 +135,7 @@ public class SendReqest {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             if (null !=response) {
-                HCEUtil.writeTdrLog(totalTime, Integer.toString(responseCode), xCorrelationID, request, response.toString());
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(responseCode), xCorrelationID, request, response.toString(),urlObj.getPath());
 
             }
         }
@@ -162,15 +165,16 @@ public class SendReqest {
         //String resource_path="vts/clients/vClientID/devices/clientDeviceID";
         //String hashInput = (utcTimestamp+resource_path+query_string+object.toString());
         String hashInput = (utcTimestamp+(String)prepareHeaderRequest.get("resourcePath")+prepareHeaderRequest.get("queryString")+prepareHeaderRequest.get("requestBody"));
-        //System.out.println("hashInput:"+hashInput);
+        System.out.println("hashInput:"+hashInput);
         try {
             byte[] bHmacSha256 = MessageDigestUtil.hMacSha256(hashInput.getBytes("UTF-8"),bsharedSecret);
             hmacSha256 = ArrayUtil.getHexString(bHmacSha256).toLowerCase();
+            System.out.println("bHmacSha256 in byte :   "+bHmacSha256);
         } catch (Exception e) {
             LOGGER.error("Exception Occured" + e);
         }
-        /*System.out.println("hmacSha256:    "+hmacSha256);
-        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);*/
+        System.out.println("hmacSha256:    "+hmacSha256);
+        System.out.println("X-PAY-TOKEN IS :   "+xPayToken + hmacSha256);
         return xPayToken + hmacSha256;
     }
 

@@ -92,6 +92,7 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The operation requested is invalid for the token','764','1','INVALID_WORKFLOW');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The PAN has already been provisioned to the device or the same request is currently being processed','765','1','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'AID RID value was not correct.','766','1','INVALID_AID_RID');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Token Activated Successfully','767','1','200');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','768','1','INCORRECT_CODE');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','769','1','INCORRECT_CODE_RETRIES_EXCEEDED');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','770','1','EXPIRED_CODE');
@@ -189,7 +190,8 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'العملية المطلوبة غير صالحة للرمز','764','2','INVALID_WORKFLOW');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تم تزويد PAN مسبقًا بالجهاز أو أن الطلب نفسه قيد المعالجة حاليًا','765','2','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'قيمة RID AID غير صحيحة','766','2','INVALID_AID_RID');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'OTP غير صحيح أو منتهي الصلاحية','768','2','INCORRECT_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تم تنشيط الرمز المميز بنجاح','767','2','200');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'غير صحيح OTP','768','2','INCORRECT_CODE');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لقد تجاوزت الحد الأقصى لعدد المحاولات','769','2','INCORRECT_CODE_RETRIES_EXCEEDED');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لقد انتهى هذا OTP','770','2','EXPIRED_CODE');
 

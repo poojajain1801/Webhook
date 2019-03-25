@@ -75,7 +75,7 @@ public class HCEUtil {
 
 
     public static void writeHCELog(long totalTime, String responseCode, String requestId,String request,
-                                      String response) {
+                                   String response,String methodname) {
 
         final Logger LOGGER = LoggerFactory.getLogger("requestLogs");
 
@@ -94,6 +94,10 @@ public class HCEUtil {
         logMessage.append("|");
         if (requestId != null && !"".equals(requestId)) {
             logMessage.append(requestId);
+        }
+        logMessage.append("|");
+        if (methodname != null && !"".equals(methodname)) {
+            logMessage.append(methodname);
         }
         logMessage.append("|");
         if (request != null && !"".equals(request)) {
@@ -115,7 +119,7 @@ public class HCEUtil {
 
 
     public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
-                                   String response) {
+                                   String response,String methodName) {
 
         final Logger LOGGER = LoggerFactory.getLogger("tdrLogs");
 
@@ -133,6 +137,10 @@ public class HCEUtil {
             logMessage.append(requestId);
         }
         logMessage.append("|");
+        if (methodName != null && !"".equals(methodName)) {
+            logMessage.append(methodName);
+        }
+        logMessage.append("|");
         if (request != null && !"".equals(maskJson(request))) {
             logMessage.append(request);
         }
@@ -148,7 +156,6 @@ public class HCEUtil {
             LOGGER.info(logMessage.toString());
         }
     }
-
 
 
     /**

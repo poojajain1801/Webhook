@@ -150,8 +150,9 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             localtime = (String)kwdTime.format(date);
             System.out.println(kwdTime.format(date));
             LOGGER.debug("Local time is *************************** ",kwdTime.format(date));
-        }catch (Exception e ) {
-            LOGGER.error("Exception occored in date convertion", e);
+        }catch (Exception e )
+        {
+            LOGGER.error("Exception occored in date convertion");
         }
         return  localtime;
     }
@@ -171,19 +172,24 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(tokenUniqueReference));
             rnsGenericRequest.setRnsData(rnsNotificationData);
+
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             rnsData.put("SUBTYPE","TXN");
+
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
             payloadObject.put("time_to_live",2160000);
+
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+
             Gson gson = new Gson();
             String json = gson.toJson(response);
             LOGGER.debug("pushTransctionDetails -> pushTransctionDetails->Raw response from FCM server"+json);
+
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 responseMap.put(HCEConstants.ERROR_CODE,HCEConstants.REASON_CODE_234);
                 responseMap.put("errorDescription","RNS Unavailable");
@@ -200,6 +206,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         }
         return responseMap;
     }
+
 
     private String getRnsRegId(String tokenUniqueReference) {
         String rnsRegID = null;
@@ -232,10 +239,10 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = null;
         Map responseMap = null;
-        String url = null;
+        String url = null ;
         String id = null;
         try{
-            if (tokenUniqueRef != null) {
+            /*if (tokenUniqueRef != null) {
                 Optional<CardDetails> oCardDetails = cardDetailRepository.findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference(paymentAppInstanceId,tokenUniqueRef);
                 if (!oCardDetails.isPresent()) {
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
@@ -243,8 +250,9 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             }
             Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
             if (!oTxnDetails.isPresent()) {
-                throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
+                throw new HCEActionException(HCEMessageCodes.getInvaildPaymentappInstanceId());
             }
+
             TransactionRegDetails txnDetails = oTxnDetails.get();
             authenticationCode = txnDetails.getAuthCode();
             if (authenticationCode == null || authenticationCode.isEmpty()){
@@ -252,11 +260,12 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             }
             reqJson.put("tokenUniqueReference", tokenUniqueRef);
             reqJson.put("authenticationCode",authenticationCode);
-            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
-            id = "getTransactions";
+            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId ;
+            id = "getTransactions";*/
+
 
             //Temp
-            /*String masterCardResponse = "{\n" +
+            String masterCardResponse = "{\n" +
                     "    \"authenticationCode\": \"d6056c59-02af-4be0-a618-e94cbe001040\",\n" +
                     "    \"responseHost\": \"stl.services.mastercard.com/mtf/mdes\",\n" +
                     "    \"message\": \"Transaction Success\",\n" +
@@ -286,9 +295,10 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             temJsonArray.put(tempJson);
             masterCardResponseJson.put("transactions",temJsonArray);
             responseMap = JsonUtil.jsonStringToHashMap(masterCardResponseJson.toString());
-            */
+
             //EndTemp
-            responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
+
+            /*responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
             if (responseMdes.hasBody()) {
                 response = String.valueOf(responseMdes.getBody());
                 jsonResponse = new JSONObject(response);
@@ -306,15 +316,16 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             }
             else{
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-            }
+            }*/
         }
-        catch (HCEActionException getTransactionsHCEactionException) {
+            catch (HCEActionException getTransactionsHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getTransactions", getTransactionsHCEactionException);
             throw getTransactionsHCEactionException;
-        }catch (Exception getTransactionsException) {
+        } catch (Exception getTransactionsException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getTransactions", getTransactionsException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+
         return responseMap;
     }
 
@@ -333,7 +344,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         try{
             txnDetails= transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef);
             reqJson.put("tokenUniqueReference", tokenUniqueRef);
-            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
+            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId ;
             id = "getRegistrationCode";
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
             if (responseMdes.hasBody()) {

@@ -154,7 +154,7 @@ public class HitVisaServices extends VtsRequest {
 
             }
             if(null !=response) {
-                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()));
+                HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()),objUrl.getPath());
             }
         }
         return response;
