@@ -521,7 +521,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                     jsonResponse = new JSONObject(response);
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
-
                 if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
                     if(null != jsonResponse) {
                         vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
@@ -554,7 +553,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                     }
                 }
 
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
@@ -571,7 +569,6 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         return responseMap;
     }
-
 
     public Map<String, Object> getCardMetadata (GetCardMetadataRequest getCardMetadataRequest) {
         LOGGER.debug("Inside CardDetailsServiceImpl->getCardMetadata");
@@ -609,7 +606,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                 return errorMap;
             }
 
-
         }catch (Exception e) {
             LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception occurred in CardDetailsServiceImpl->getCardMetadata");
@@ -641,7 +637,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
-
             }
             else {
                 Map errorMap = new LinkedHashMap();
@@ -721,7 +716,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             rnsData.put("SUBTYPE","MDES_TXN");
-
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
@@ -805,7 +799,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
         return responseMap;
     }*/
-
 
 
     public Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {
@@ -896,20 +889,17 @@ public class CardDetailServiceImpl implements CardDetailService {
                 tokenUniqueRef = tokenUniqueRefList.get(i);
                 //get card detail repository
                 CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
-
                 //Check if the token unique reference are valid or not
                 if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
                     // return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid token UniqueReference");
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
-
                 //Check if the payment appInstance ID is valid or not
                 if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails.getMasterPaymentAppInstanceId()))) {
-                    throw new HCEActionException(HCEMessageCodes.getInvaildPaymentappInstanceId());
+                    throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
                 }
                 //Check the status of the card if it is deactivated than thwor error
             }
-
             //Prepare req for delete req
             lifecycleJsonRequest = new JSONObject();
             lifecycleJsonRequest.put("requestId", ArrayUtil.getHexString(ArrayUtil.getRandom(10)));

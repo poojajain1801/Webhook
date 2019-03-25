@@ -155,7 +155,7 @@ public class HCEControllerSupport {
         userDetail = userDetailRepository.findByUserId(userId);
         if (userDetail !=null ){
             languageCode = userDetail.getLanguageCode();
-            if(languageCode == null || languageCode.isEmpty()){
+            if(languageCode == null || languageCode.isEmpty() || !languageCode.equals("2")){
                 languageCode = "1";
             }
         }

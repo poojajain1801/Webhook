@@ -9,8 +9,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.apache.commons.collections4.MapUtils.getString;

@@ -58,7 +58,6 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
         long startTime = (Long)request.getAttribute(HCEConstants.START_TIME);
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
-
         HCEUtil.writeHCELog(totalTime,responseCode,null,requestObject,responseObject);
     }
 

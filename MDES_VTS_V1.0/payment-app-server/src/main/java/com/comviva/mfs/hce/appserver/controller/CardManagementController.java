@@ -22,7 +22,6 @@ import java.util.Map;
 public class CardManagementController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CardManagementController.class);
 
-
     @Autowired
     private CardDetailService cardDetailService;
     @Autowired
@@ -177,6 +176,7 @@ public class CardManagementController {
         LOGGER.debug("Exit CardManagementController->getCardMetadata");
         return  getCardMetadataResp;
     }
+
     @ResponseBody
     @RequestMapping(value = "/getContent",method = RequestMethod.POST)
     public Map<String,Object>getContent(@RequestBody GetContentRequest getContentRequest){
@@ -295,5 +295,4 @@ public class CardManagementController {
         }
         return getPublicKeyCertificateResp;
     }
-
 }

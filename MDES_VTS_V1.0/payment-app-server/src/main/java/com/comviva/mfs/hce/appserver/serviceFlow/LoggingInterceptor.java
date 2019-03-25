@@ -41,7 +41,6 @@ public class LoggingInterceptor {
         String requestId = null;
         String clientDeviceId  = null;
         String startTimeValue = null;
-
         try {
             startTimeValue = MDC.get(HCEConstants.START_TIME);
             if(startTimeValue!= null){
@@ -52,7 +51,7 @@ public class LoggingInterceptor {
             requestId = hceControllerSupport.findUserId(requestData);
             clientDeviceId = hceControllerSupport.findClientDeviceID(requestData);
             responseData = (Map) originalMethod.proceed();
-        } catch (HCEActionException hceActionExp){
+        }catch (HCEActionException hceActionExp){
             LOGGER.error("Exception Occured in LoggingInterceptor->invoke", hceActionExp);
             responseData = hceControllerSupport.formResponse(hceActionExp.getMessageCode());
         }catch (Exception e) {
@@ -60,10 +59,8 @@ public class LoggingInterceptor {
             responseData = hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }finally {
             MDC.remove(HCEConstants.START_TIME);
-
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
-
             if (null != responseData) {
                 responseCode = (String) responseData.get(HCEConstants.RESPONSE_CODE);
             }

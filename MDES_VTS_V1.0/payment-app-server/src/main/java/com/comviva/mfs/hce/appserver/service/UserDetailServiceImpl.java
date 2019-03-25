@@ -72,7 +72,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             imei = registerUserRequest.getImei();
             languageCode = registerUserRequest.getLanguageCode();
             LOGGER.debug("LanguageCode ********  "+languageCode);
-            if(languageCode == null || languageCode.isEmpty()){
+            if(languageCode == null || languageCode.isEmpty() || !languageCode.equals("2")){
                 registerUserRequest.setLanguageCode("1");
                 LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }
@@ -92,10 +92,13 @@ public class UserDetailServiceImpl implements UserDetailService {
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
                     deviceInfo.setUserDetail(userDetail);
                     deviceDetailRepository.save(deviceInfo);
+                    userDetail = saveUserDetails(registerUserRequest);
+                    userDetailRepository.saveAndFlush(userDetail);
                     // Register New Device
                     //update Old device with N and if owner of that user is having one device then make user status N too. and register device.
                 }else{
-
+                    userDetail = saveUserDetails(registerUserRequest);
+                    userDetailRepository.saveAndFlush(userDetail);
                     deviceInfo = saveDeviceInfo(registerUserRequest,userDetail);
                     deviceInfo.setUserDetail(userDetail);
                     deviceDetailRepository.save(deviceInfo);
@@ -221,7 +224,6 @@ public class UserDetailServiceImpl implements UserDetailService {
         Map languageResp = new HashMap();
         UserDetail userDetail = null;
         String languageCode = null;
-
         try {
             userId = getLanguageReq.getUserId();
             userDetail = userDetailRepository.findByUserId(userId);

@@ -212,7 +212,7 @@ public class HCEMessageCodes {
         return CARD_DETAILS_NOT_EXIST;
     }
 
-    /** The Constant CARD_DETAILS_NOT_EXIST. */
+
     private static String FAILED_AT_THIRED_PARTY;
     @Value("${FAILED_AT_THIRED_PARTY}")
     public void setFailedAtThiredParty(String failedAtThiredParty) {
@@ -223,14 +223,16 @@ public class HCEMessageCodes {
         return FAILED_AT_THIRED_PARTY;
     }
 
+
     /** The Constant INVAILD_PAYMENTAPP_INSTANCE_ID */
-    private static String INVAILD_PAYMENTAPP_INSTANCE_ID;
-    @Value("${INVAILD_PAYMENTAPP_INSTANCE_ID}")
-    public static void setInvaildPaymentappInstanceId(String invaildPaymentappInstanceId) {
-        INVAILD_PAYMENTAPP_INSTANCE_ID = invaildPaymentappInstanceId;
+    private static String INVALID_PAYMENT_APP_INSTANCE_ID;
+    @Value("${INVALID_PAYMENT_APP_INSTANCE_ID}")
+    public void setInvalidPaymentAppInstanceId(String invalidPaymentAppInstanceId) {
+        INVALID_PAYMENT_APP_INSTANCE_ID= invalidPaymentAppInstanceId;
     }
-    public static String getInvaildPaymentappInstanceId() {
-        return INVAILD_PAYMENTAPP_INSTANCE_ID;
+
+    public static String getInvalidPaymentAppInstanceId() {
+        return INVALID_PAYMENT_APP_INSTANCE_ID;
     }
 
 
