@@ -151,8 +151,9 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             System.out.println(kwdTime.format(date));
             LOGGER.debug("Local time is *************************** ",kwdTime.format(date));
         }catch (Exception e ) {
-            LOGGER.error("Exception occored in date convertion", e);
+            LOGGER.error("Exception occored in date convertion",e);
         }
+
         return  localtime;
     }
 
@@ -171,19 +172,24 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(tokenUniqueReference));
             rnsGenericRequest.setRnsData(rnsNotificationData);
+
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             rnsData.put("SUBTYPE","TXN");
+
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
             payloadObject.put("time_to_live",2160000);
+
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+
             Gson gson = new Gson();
             String json = gson.toJson(response);
             LOGGER.debug("pushTransctionDetails -> pushTransctionDetails->Raw response from FCM server"+json);
+
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 responseMap.put(HCEConstants.ERROR_CODE,HCEConstants.REASON_CODE_234);
                 responseMap.put("errorDescription","RNS Unavailable");
@@ -200,6 +206,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         }
         return responseMap;
     }
+
 
     private String getRnsRegId(String tokenUniqueReference) {
         String rnsRegID = null;
@@ -334,7 +341,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         try{
             txnDetails= transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef);
             reqJson.put("tokenUniqueReference", tokenUniqueRef);
-            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
+            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId ;
             id = "getRegistrationCode";
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
             if (responseMdes.hasBody()) {

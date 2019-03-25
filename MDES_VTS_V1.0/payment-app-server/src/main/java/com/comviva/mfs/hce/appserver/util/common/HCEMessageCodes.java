@@ -212,7 +212,7 @@ public class HCEMessageCodes {
         return CARD_DETAILS_NOT_EXIST;
     }
 
-
+    /** The Constant CARD_DETAILS_NOT_EXIST. */
     private static String FAILED_AT_THIRED_PARTY;
     @Value("${FAILED_AT_THIRED_PARTY}")
     public void setFailedAtThiredParty(String failedAtThiredParty) {

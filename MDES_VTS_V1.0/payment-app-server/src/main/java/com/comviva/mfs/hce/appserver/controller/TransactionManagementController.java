@@ -36,8 +36,8 @@ public class TransactionManagementController {
     @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map getTransactionsMasterCard(@RequestBody String getTransactionsRequest) {
-        Map <String, Object> getTransactionsResp = null ;
-        GetTransactionsRequest getTransactionsPojo = null ;
+        Map <String, Object> getTransactionsResp=null ;
+        GetTransactionsRequest getTransactionsPojo=null ;
         try{
             getTransactionsPojo = (GetTransactionsRequest)hCEControllerSupport.requestFormation(getTransactionsRequest,GetTransactionsRequest.class);
             getTransactionsResp = transactionManagementService.getTransactionsMasterCard(getTransactionsPojo);

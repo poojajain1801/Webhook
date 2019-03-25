@@ -224,6 +224,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         Map languageResp = new HashMap();
         UserDetail userDetail = null;
         String languageCode = null;
+
         try {
             userId = getLanguageReq.getUserId();
             userDetail = userDetailRepository.findByUserId(userId);
