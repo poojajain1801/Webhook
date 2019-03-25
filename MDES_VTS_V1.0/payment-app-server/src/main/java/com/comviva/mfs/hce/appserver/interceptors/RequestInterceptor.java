@@ -54,7 +54,6 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
             hceControllerSupport.maintainAudiTrail(null,null,url,responseCode,requestObject,responseObject,null);
         }
 
-
         long startTime = (Long)request.getAttribute(HCEConstants.START_TIME);
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;

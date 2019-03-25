@@ -289,6 +289,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             */
             //EndTemp
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
+            LOGGER.info("Response recieved from masterCard ");
             if (responseMdes.hasBody()) {
                 response = String.valueOf(responseMdes.getBody());
                 jsonResponse = new JSONObject(response);
