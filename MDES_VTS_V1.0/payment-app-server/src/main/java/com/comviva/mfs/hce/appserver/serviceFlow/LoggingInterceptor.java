@@ -41,7 +41,6 @@ public class LoggingInterceptor {
         String requestId = null;
         String clientDeviceId  = null;
         String startTimeValue = null;
-
         try {
             startTimeValue = MDC.get(HCEConstants.START_TIME);
             if(startTimeValue!= null){

@@ -353,17 +353,13 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
                 return errorMap;
-
             }
-
-
         }
         catch (Exception e) {
             LOGGER.error("Exception occured",e);
             LOGGER.debug("Exception Occurred in ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
     }
 
     public Map<String, Object> submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest) {
@@ -407,7 +403,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 return errorMap;
             }
 
-
         }catch(HCEActionException searchTokensHCEactionException){
             LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens",searchTokensHCEactionException);
             throw searchTokensHCEactionException;
@@ -415,9 +410,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
-
     }
 
     public Map<String, Object> validateOTP(ValidateOTPRequest validateOTPRequest) {
@@ -473,11 +466,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
 
     }
-
 
     public Map<String, Object> getStepUpOptions(GetStepUpOptionsRequest getStepUpOptionsRequest) {
         String vProvisionedTokenID = getStepUpOptionsRequest.getvProvisionedTokenID();
@@ -508,7 +499,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 }
             }
 
-
         } catch (HCEActionException searchTokensHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensHCEactionException);
             throw searchTokensHCEactionException;
@@ -516,8 +506,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             LOGGER.error("Exception occured in CardDetailServiceImpl->searchTokens", searchTokensException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         return responseMap;
-
     }
 }

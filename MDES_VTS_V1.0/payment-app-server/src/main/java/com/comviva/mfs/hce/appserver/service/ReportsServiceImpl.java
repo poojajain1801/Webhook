@@ -50,10 +50,10 @@ public class ReportsServiceImpl implements ReportsService {
                 LOGGER.info("Please Enter the fromDate and toDdate properly ");
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
-            if (userId == null){
+            if (userId == null || userId.isEmpty()){
                 userId = "-";
             }
-            if (userStatus == null){
+            if (userStatus == null || userStatus.isEmpty()){
                 userStatus = "-";
             }
             userDetailList = userDetailRepository.findConsumerReport(fromDate,toDate,userId,userStatus);
@@ -89,19 +89,19 @@ public class ReportsServiceImpl implements ReportsService {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
             userId = deviceReportReq.getUserId();
-            if (userId == null){
+            if (userId == null || userId.isEmpty()){
                 userId = "-";
             }
             userStatus = deviceReportReq.getUserStatus();
-            if (userStatus == null){
+            if (userStatus == null || userStatus.isEmpty()){
                 userStatus = "-";
             }
             deviceId = deviceReportReq.getDeviceId();
-            if (deviceId == null){
+            if (deviceId == null || deviceId.isEmpty()){
                 deviceId = "-";
             }
             deviceStatus = deviceReportReq.getDeviceStatus();
-            if (deviceStatus == null){
+            if (deviceStatus == null || deviceStatus.isEmpty()){
                 deviceStatus = "-";
             }
             deviceUserList = deviceDetailRepository.findDeviceReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
@@ -139,19 +139,19 @@ public class ReportsServiceImpl implements ReportsService {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
             userId = userDeviceCardReportReqReq.getUserId();
-            if (userId == null){
+            if (userId == null || userId.isEmpty()){
                 userId = "-";
             }
             userStatus = userDeviceCardReportReqReq.getUserStatus();
-            if (userStatus == null){
+            if (userStatus == null || userStatus.isEmpty()){
                 userStatus = "-";
             }
             deviceId = userDeviceCardReportReqReq.getDeviceId();
-            if (deviceId == null){
+            if (deviceId == null || deviceId.isEmpty()){
                 deviceId = "-";
             }
             deviceStatus = userDeviceCardReportReqReq.getDeviceStatus();
-            if (deviceStatus == null){
+            if (deviceStatus == null || deviceStatus.isEmpty()){
                 deviceStatus = "-";
             }
             cardList = cardDetailRepository.findUserDeviceCardReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
@@ -225,7 +225,7 @@ public class ReportsServiceImpl implements ReportsService {
             jsonObject.put("replenishOn",cardlList.get(i)[13]);
             jArray.put(jsonObject);
         }
-        responseJson.put("deviceReport", jArray);
+        responseJson.put("userDeviceCardMappingReport", jArray);
         return responseJson;
     }
 }

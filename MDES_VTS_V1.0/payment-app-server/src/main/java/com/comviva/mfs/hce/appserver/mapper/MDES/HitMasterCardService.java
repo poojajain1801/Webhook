@@ -198,10 +198,11 @@ public class HitMasterCardService
 
         HttpClient client;
         if(env.getProperty("is.proxy.required").equals("Y")) {
-            String proxyip = env.getProperty("proxyip");
+           /* String proxyip = env.getProperty("proxyip");
             String proxyport = env.getProperty("proxyport");
             HttpHost proxy = new HttpHost(proxyip, Integer.valueOf(proxyport));
-            client = HttpClients.custom().setSSLContext(sslContext).setProxy(proxy).build();
+           */
+           client = HttpClients.custom().setSSLContext(sslContext).build();
         }
         else
         {

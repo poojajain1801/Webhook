@@ -113,14 +113,12 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             // *********************MDES : Check device eligibility from MDES api.************************
             schemeType = enrollDeviceRequest.getSchemeType();
-            if(null == schemeType || "".equalsIgnoreCase(schemeType))
-            {
+            if(null == schemeType || "".equalsIgnoreCase(schemeType)) {
                 schemeType = "ALL";
             }
 
             if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MASTERCARD")))
                 isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
-
 
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d

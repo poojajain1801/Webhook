@@ -156,8 +156,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //response =  String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
                 eligibilityResponse = new JSONObject();
-                if (jsonResponse.has("errors"))
-                {
+                if (jsonResponse.has("errors")) {
                     jsonResponse.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     jsonResponse.put("message",jsonResponse.getString("errorDescription"));
@@ -186,7 +185,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> addCard(DigitizationParam digitizationParam) {
-        Optional<DeviceInfo> deviceInfoOptional = null;
+        Optional<DeviceInfo> deviceInfoList = null;
         String eligibilityRequest = null;
         String eligibilityResponse = null;
         JSONObject jsonRequest = null;
@@ -272,6 +271,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails = new CardDetails();
                         //--madan cardDetails.setUserName(deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString("paymentAppInstanceId")).get().getUserName());
                         cardDetails.setMasterPaymentAppInstanceId(jsonRequest.getString(PAYMENT_APP_INSTANCE_ID));
+                        deviceInfoList = deviceDetailRepository.findByPaymentAppInstanceId(jsonRequest.getString(PAYMENT_APP_INSTANCE_ID));
+                        if (deviceInfoList.isPresent()) {
+                            cardDetails.setDeviceInfo(deviceInfoList.get());
+                        }
                         cardDetails.setMasterTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
                         cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
                         cardDetails.setMasterTokenInfo(provisionRespMdes.getJSONObject("tokenInfo").toString());
@@ -279,6 +282,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails.setCardType(HCEConstants.MASTERCARD);
                         cardDetails.setCardId(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
+                        cardDetails.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
                         cardDetailRepository.save(cardDetails);
                     }else {
                         provisionRespMdes.put(HCEConstants.RESPONSE_CODE , HCEMessageCodes.getFailedAtThiredParty());
