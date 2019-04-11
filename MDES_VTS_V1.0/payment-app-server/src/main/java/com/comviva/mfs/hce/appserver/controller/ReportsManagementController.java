@@ -17,6 +17,8 @@ import java.util.Map;
 /**
  * Created by rishikesh.kumar on 09-01-2019.
  */
+
+@CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping("/api/reports")
 public class ReportsManagementController {

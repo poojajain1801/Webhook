@@ -324,7 +324,7 @@
 
     </dependencies>
     <build>
-        <finalName>paymentApp</finalName>
+        <finalName>payment-app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -465,10 +465,10 @@
                         <configuration>
                             <tasks>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.40.1.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.60.4.jar" />
                                 </copy>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="VisaMapUtil-SBX-4.6.1.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-5.1.0.jar" />
                                 </copy>
                             </tasks>
                         </configuration>

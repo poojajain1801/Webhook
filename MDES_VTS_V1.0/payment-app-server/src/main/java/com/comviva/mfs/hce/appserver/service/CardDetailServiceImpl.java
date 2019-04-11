@@ -675,7 +675,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = null;
         JSONObject reqJson = new JSONObject();
-        String response = null ;
+        String response = null;
         JSONObject jsonResponse = null;
         Map responseMap = new HashMap();
         Map registerRespose = null;
@@ -810,7 +810,6 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
         return responseMap;
     }*/
-
 
 
     public Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {

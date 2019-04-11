@@ -50,7 +50,7 @@ public class CryptoUtils {
         }
         try {
             if (null !=cipher)
-            cipher.init(Cipher.DECRYPT_MODE, key);
+                cipher.init(Cipher.DECRYPT_MODE, key);
         } catch (InvalidKeyException e1) {
             // TODO Auto-generated catch block
             LOGGER.error("InvalidKeyException -> CryptoUtils :"+e1);

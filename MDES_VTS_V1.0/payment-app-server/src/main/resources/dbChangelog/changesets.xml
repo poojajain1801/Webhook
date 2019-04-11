@@ -327,23 +327,53 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_AUDIT_TRAIL" tableName="AUDIT_TRAIL" />
     </changeSet>
 
-    <!--<changeSet author="rishikesh.k" id="201701091786">
-        <createTable tableName="">
-            <column name="BEARER" type="VARCHAR2(255)">
+    <changeSet author="tanmay.p" id="201701982786">
+        <createTable tableName="CONFIGURATION_MANAGEMENT_M">
+            <column name="REQUEST_ID" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="MESSAGE" type="VARCHAR2(255)">
+            <column name="HVT_LIMIT" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_HVT_SUPPORTED" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="MESSAGE_CODE" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+            <column name="CREATED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
             </column>
-            <column name="LANGUAGE_CODE" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+            <column name="MODIFIED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="STATUS" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="MESSAGE_CODE, LANGUAGE_CODE" constraintName="PK_MESSAGE" tableName="SYS_MESSAGES" />
-    </changeSet>-->
+        <addPrimaryKey columnNames="REQUEST_ID" constraintName="REQUEST_ID_M" tableName="CONFIGURATION_MANAGEMENT_M" />
+    </changeSet>
+
+    <changeSet author="tanmay.p" id="201709882786">
+        <createTable tableName="CONFIGURATION_MANAGEMENT">
+            <column name="REQUEST_ID" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="HVT_LIMIT" type="VARCHAR2(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="IS_HVT_SUPPORTED" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="REQUEST_ID" constraintName="REQUEST_ID_F" tableName="CONFIGURATION_MANAGEMENT" />
+    </changeSet>
 
     <changeSet author="tanmay.p" id="sqlFileInsert">
         <sqlFile path="dbChangelog\mdes-vts.sql"/>

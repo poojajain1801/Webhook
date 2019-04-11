@@ -2,10 +2,12 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTokenUpdatedReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.PushTransctionDetailsReq;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
 import com.comviva.mfs.hce.appserver.service.contract.TransactionManagementService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -31,6 +33,8 @@ public class NotificationController {
     private HCEControllerSupport hCEControllerSupport;
     @Autowired
     private TransactionManagementService transactionManagementService;
+    @Autowired
+    private RemoteNotificationService remoteNotificationService;
 
     public NotificationController(CardDetailService cardDetailService ) {
         this.cardDetailService = cardDetailService;
@@ -97,5 +101,30 @@ public class NotificationController {
         }
         return pushTransctionDetailsResponse;
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/digitization/1/0/getDeviceInfo",method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String,Object>getDeviceInfo(@RequestBody String getDeviceInfoReq ) {
+        LOGGER.debug("Enter notificationController->getDeviceInfo");
+        Map<String, Object> getDeviceInfoResponse = null;
+        GetDeviceInfoRequest getDeviceInfoRequest = null;
+        try {
+            getDeviceInfoRequest = (GetDeviceInfoRequest) hCEControllerSupport.requestFormation(getDeviceInfoReq, GetDeviceInfoRequest.class);
+            getDeviceInfoResponse = remoteNotificationService.getDeviceInfo(getDeviceInfoRequest);
+        } catch (HCEValidationException getDeviceInfoValidation) {
+            LOGGER.error("Exception Occured in TransactionManagementController->getDeviceInfo", getDeviceInfoValidation);
+            throw getDeviceInfoValidation;
+        }catch (HCEActionException getDeviceInfoActionException){
+            LOGGER.error("Exception Occured in TransactionManagementController->getDeviceInfo",getDeviceInfoActionException);
+            throw getDeviceInfoActionException;
+        } catch (Exception getDeviceInfoExcetption) {
+            LOGGER.error(" Exception Occured in TransactionManagementController->getDeviceInfo", getDeviceInfoExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getDeviceInfoResponse;
+    }
+
+
 }
 

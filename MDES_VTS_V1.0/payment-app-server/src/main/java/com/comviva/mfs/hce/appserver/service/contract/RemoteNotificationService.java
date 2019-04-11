@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RemoteNotificationRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 
@@ -21,4 +22,6 @@ public interface RemoteNotificationService {
      * @return Response
      */
     Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest);
+
+    Map<String,Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfoRequest);
 }

@@ -2,9 +2,11 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RemoteNotificationRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
 import com.google.common.collect.ImmutableMap;
@@ -125,6 +127,39 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
                 "errorDescription","Servicefaild");
 
         }
+    }
+
+    @Override
+    public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfoRequest) {
+        String tokenUniqueReference = null;
+        String paymentAppInstanceId = null;
+        Optional<DeviceInfo> deviceDetailList = null;
+        Map responseMap = new HashMap();
+        Map deviceInfo = new HashMap();
+
+        try {
+            tokenUniqueReference = getDeviceInfoRequest.getTokenUniqueReference();
+            paymentAppInstanceId = getDeviceInfoRequest.getPaymentAppInstanceId();
+            deviceDetailList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+            if (deviceDetailList.isPresent()){
+                deviceInfo.put("deviceName",deviceDetailList.get().getDeviceName());
+                deviceInfo.put("serialNumber",deviceDetailList.get().getImei());
+                responseMap.put("deviceInfo",deviceInfo);
+                responseMap.put("responseHost", "nbkewallet.nbkpilot.com");
+                responseMap.put("responseId",ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
+            }else {
+                throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
+            }
+
+        }catch (HCEActionException getDeviceInfoHCEactionException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->getDeviceInfo", getDeviceInfoHCEactionException);
+            throw getDeviceInfoHCEactionException;
+
+        } catch (Exception getDeviceInfoException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->getDeviceInfo", getDeviceInfoException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return responseMap;
     }
 
     private String getRnsRegId(String paymentAppInstanceId) {

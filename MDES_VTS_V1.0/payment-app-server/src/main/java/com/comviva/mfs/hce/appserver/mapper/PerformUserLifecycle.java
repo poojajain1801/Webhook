@@ -84,9 +84,7 @@ public class PerformUserLifecycle {
         String userSatus = null;
         String updatedUserStatus = null;
         UnRegisterReq unRegisterReq = null;
-
         try {
-
             switch (operation) {
                 case HCEConstants.SUSUPEND_USER:
                     userSatus = HCEConstants.ACTIVE;
@@ -110,8 +108,7 @@ public class PerformUserLifecycle {
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 
-            if(operation.equalsIgnoreCase(HCEConstants.DELETE_USER))
-            {
+            if(operation.equalsIgnoreCase(HCEConstants.DELETE_USER)) {
                 for (int i = 0; i < deviceInfoList.size(); i++) {
                     deviceInfo = deviceInfoList.get(i);
                     performDeleteUser(userId,deviceInfo.getPaymentAppInstanceId(),deviceInfo);
@@ -135,7 +132,6 @@ public class PerformUserLifecycle {
             }
 
             sendRnsMessage(rnsIdList, operation);
-
             userDetails.setStatus(updatedUserStatus);
             userDetailRepository.save(userDetails);
         } catch (HCEActionException userLifecycleManagementException) {
@@ -156,8 +152,8 @@ public class PerformUserLifecycle {
         }catch (Exception e){
             LOGGER.error("Exception Occored in suspendOrResumeCard",e);
         }
-
     }
+
     private void sendRnsMessage(List<String> rnsIdList, String operation) {
         LOGGER.debug("Inside sendRnsMessage");
         HashMap<String, String> notificationData = new HashMap<>();
@@ -181,7 +177,6 @@ public class PerformUserLifecycle {
     }
 
     public void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception {
-
         Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
         if (rnsResp.containsKey("errorCode")) {
             LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification-> notifyPanMetadataUpdate - > remoteNotification Sending Failed");

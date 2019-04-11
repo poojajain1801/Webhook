@@ -276,7 +276,6 @@ public class HCEControllerSupport {
             }else{
                 decryptedData = request;
             }
-
             return  decryptedData;
 
         }catch (HCEActionException decReqActionException){

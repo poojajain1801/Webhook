@@ -239,14 +239,19 @@ public class HCEMessageCodes {
     /** The Constant CARD_NOT_ELIGIBLE*/
     private static String CARD_NOT_ELIGIBLE;
     @Value("${CARD_NOT_ELIGIBLE}")
-    public static void setCardNotEligible(String cardNotEligible) {
+    public  void setCardNotEligible(String cardNotEligible) {
         CARD_NOT_ELIGIBLE = cardNotEligible;
     }
     public static String getCardNotEligible() {
         return CARD_NOT_ELIGIBLE;
     }
 
-
-
-
+    private static String DUPLICATE_REQUEST;
+    @Value("${DUPLICATE_REQUEST}")
+    private void setDuplicateRequest(String deplicateRequest){
+        DUPLICATE_REQUEST = deplicateRequest;
+    }
+    public static String getDuplicateRequest() {
+        return DUPLICATE_REQUEST;
+    }
 }

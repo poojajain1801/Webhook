@@ -27,6 +27,8 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
 
     List<CardDetails> findByPanUniqueReference(String panUniqueReference);
 
+    List<CardDetails> findByStatus(String Status);
+
     List<CardDetails> findByVisaProvisionTokenId(String visaProvisionTokenId);
 
     @Query("Select vc from CardDetails vc where vc.cardIdentifier =:cardIdentifier and vc.deviceInfo.userDetail.clientWalletAccountId=:clientWalletAccountId and vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status in(:active,:suspend)")

@@ -227,7 +227,6 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         return rnsRegID;
     }
 
-
     @Override
     public Map<String, Object> getTransactionsMasterCard(GetTransactionsRequest getTransactionsReq) {
         String tokenUniqueRef = getTransactionsReq.getTokenUniqueReference();
@@ -235,12 +234,14 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String paymentAppInstanceId = getTransactionsReq.getPaymentAppInstanceId();
         JSONObject reqJson = new JSONObject();
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
+        String authorizationStatus = null;
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = null;
         Map responseMap = null;
         String url = null;
         String id = null;
+        int transactionStatus = 0;
         try{
             if (tokenUniqueRef != null) {
                 Optional<CardDetails> oCardDetails = cardDetailRepository.findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference(paymentAppInstanceId,tokenUniqueRef);
@@ -261,55 +262,51 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             reqJson.put("authenticationCode",authenticationCode);
             url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
             id = "getTransactions";
-
-            //Temp
-            /*String masterCardResponse = "{\n" +
-                    "    \"authenticationCode\": \"d6056c59-02af-4be0-a618-e94cbe001040\",\n" +
-                    "    \"responseHost\": \"stl.services.mastercard.com/mtf/mdes\",\n" +
-                    "    \"message\": \"Transaction Success\",\n" +
-                    "    \"transactions\": [\n" +
-                    "        {\n" +
-                    "            \"recordId\": \"760466\",\n" +
-                    "            \"transactionType\": \"PURCHASE\",\n" +
-                    "            \"amount\": 4.44,\n" +
-                    "            \"merchantPostalCode\": \"1000\",\n" +
-                    "            \"transactionIdentifier\": \"8f81519bad41b7cc49d979be15d0f90a1d93f6c8b7bfc6a639012c8a4b2172df\",\n" +
-                    "            \"tokenUniqueReference\": \"DCOMMC00001321731102cdc9f9e54169b057906dab7d8812\",\n" +
-                    "            \"currencyCode\": \"EUR\",\n" +
-                    "            \"authorizationStatus\": \"AUTHORIZED\",\n" +
-                    "            \"merchantType\": \"5999\",\n" +
-                    "            \"transactionTimestamp\": \"2018-09-30T20:10:20-05:00\",\n" +
-                    "            \"merchantName\": \"MERCHANT NAME\"\n" +
-                    "        }\n" +
-                    "    ],\n" +
-                    "    \"responseCode\": \"200\",\n" +
-                    "    \"lastUpdatedTag\": \"MjAxOC0xMC0wMSAwNDoyMjoxNC4yNTU2OTk=\"\n" +
-                    "}";
-            JSONObject masterCardResponseJson = new JSONObject(masterCardResponse);
-            JSONArray masterCardResponseJsonArray = masterCardResponseJson.getJSONArray("transactions");
-            JSONObject tempJson = masterCardResponseJsonArray.getJSONObject(0);
-            tempJson.put("tokenUniqueReference",getTransactionsReq.getTokenUniqueReference());
-            JSONArray temJsonArray = new JSONArray();
-            temJsonArray.put(tempJson);
-            masterCardResponseJson.put("transactions",temJsonArray);
-            responseMap = JsonUtil.jsonStringToHashMap(masterCardResponseJson.toString());
-            */
-            //EndTemp
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
             LOGGER.info("Response recieved from masterCard ");
             if (responseMdes.hasBody()) {
                 response = String.valueOf(responseMdes.getBody());
                 jsonResponse = new JSONObject(response);
+                if (jsonResponse.has("transactions")){
+                    JSONArray originalArray = jsonResponse.getJSONArray("transactions");
+                    JSONArray duplicateArray = new JSONArray();
+                    int k = 0;
+                    int j = 0;
+                    int m = 0;
+                    int length = originalArray.length();
+                    for (int i = length-1; i>=0 ; i--){
+                        duplicateArray.put(k++,originalArray.get(i));
+                        authorizationStatus = duplicateArray.getJSONObject(m++).get("authorizationStatus").toString();
+                        switch (authorizationStatus){
+                            case "AUTHORIZED" :
+                                transactionStatus = 1;
+                                break;
+                            case "DECLINED" :
+                                transactionStatus = 3;
+                                break;
+                            case "CLEARED" :
+                                transactionStatus = 4;
+                                break;
+                            case "REVERSED" :
+                                transactionStatus = 2;
+                                break;
+                            default:
+                        }
+                        duplicateArray.getJSONObject(j++).put("transactionStatus",transactionStatus);
+                    }
+                    jsonResponse.put("transactions",duplicateArray);
+                }
             }
-            if(responseMdes.getStatusCode().value()== HCEConstants.REASON_CODE7) {
-                if(jsonResponse.has("errors") || jsonResponse.has("errorCode")) {
-                    responseMap = JsonUtil.jsonToMap(jsonResponse);
-                    responseMap.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
-                }else {
-                    txnDetails.setAuthCode(jsonResponse.getString("authenticationCode"));
-                    transactionRegDetailsRepository.save(txnDetails);
-                    responseMap = JsonUtil.jsonToMap(jsonResponse);
-                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+            if(responseMdes.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                if (jsonResponse != null) {
+                    if (jsonResponse.has("errors") || jsonResponse.has("errorCode")) {
+                        responseMap = JsonUtil.jsonToMap(jsonResponse);
+                    } else {
+                        txnDetails.setAuthCode(jsonResponse.getString("authenticationCode"));
+                        transactionRegDetailsRepository.save(txnDetails);
+                        responseMap = JsonUtil.jsonToMap(jsonResponse);
+                        responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    }
                 }
             }
             else{

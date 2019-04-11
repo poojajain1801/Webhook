@@ -49,11 +49,10 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رمز التوثيق غير صالح أو انتهت صلاحيته (عدم تطابق OTP)','726','2','notAllowed');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رمز التوثيق غير صالح أو انتهت صلاحيته','409','2','invalidParameters');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'معلمة غير صالحة مقدمة في طلب واجهة برمجة التطبيقات','400','2','invalidParameters');
-*/
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Returned if validation failed for eithe rclientWalletAccountEmailAddress or lastDigits.','726','1','inputValidationError');
+*/
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Returned if authorize vProvisionedTokenId as belonging to the Token Requestor fails','727','1','AuthError');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Visa declined this transaction. If you see this too frequently, and you think you are getting this in error please contact the issuer.','728','1','cardNotEligible');
-
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The JSON could not be parsed','729','1','INVALID_JSON');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The field name is not valid for the object.','730','1','UNRECOGNIZED_FIELD');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The request failed to present a valid cert to access the API','731','1','AUTHORIZATION_FAILED');
@@ -82,7 +81,6 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The cardlet ID could not be found','754','1','INVALID_CARDLET_ID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Call failed –unrecognized URI or required parameters not present','755','1','INVALID_METHOD');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect Tokenization Authentication Value','756','1','INCORRECT_TAV');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Authentication Code has expired or was invalidated','757','1','EXPIRED_CODE');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The data supplied for the request was invalid','758','1','INVALID_DATA');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'No Active Tokens','759','1','NO_ACTIVE_TOKENS');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The count of alternate payment credentials permitted at a time for the token has exceeded the limit','760','1','ALT_CREDENTIALS_COUNT_EXCEEDED');
@@ -93,9 +91,10 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'The PAN has already been provisioned to the device or the same request is currently being processed','765','1','DUPLICATE_REQUEST');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'AID RID value was not correct.','766','1','INVALID_AID_RID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','768','1','INCORRECT_CODE');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','769','1','INCORRECT_CODE_RETRIES_EXCEEDED');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Incorrect or expired OTP','770','1','EXPIRED_CODE');
-
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'You have exceeded the maximum number of attempts','769','1','INCORRECT_CODE_RETRIES_EXCEEDED');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Authentication Code has expired','770','1','EXPIRED_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'Invalid Authentication Code','771','1','INVALID_AUTHENTICATION_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'Duplicate Request Id','772','1');
 
 
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE) values (null,'نجاح المعاملات','200','2');
@@ -142,12 +141,14 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تكون قيمة الإدخال للمعلمات بتنسيق غير صالح - تحقق من صحة بيانات الإدخال','723','2','invalidParameters');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'هذا الرمز المميز لا يدعم حاليًا المساعدة الإنمائية الرسمية. من الممكن أن يدعمها في المستقبل.','724','2','notSupported');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'طريقة CVM المطلوبة غير متوفرة في هذا الوقت','725','2','cvmNotAvailable');
+
 /*
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رمز التوثيق غير صالح أو انتهت صلاحيته (عدم تطابق OTP)','726','2','notAllowed');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رمز التوثيق غير صالح أو انتهت صلاحيته','409','2','invalidParameters');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'معلمة غير صالحة مقدمة في طلب واجهة برمجة التطبيقات','400','2','invalidParameters');
-*/
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'عاد إذا فشل التحقق من الصحة ل eithe rclientWalletAccountEmailAddress أو الأرقام الأخيرة','400','2','inputValidationError');
+*/
+
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تمت إعادتها في حالة تخويل vProvisionedTokenId كما ينتمي إلى Token Requestor','401','2','AuthError');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رفضت فيزا هذه المعاملة. إذا كنت ترى ذلك بشكل متكرر ، وتعتقد أنك تحصل على هذا الخطأ ، فيرجى الاتصال بالمصدر','728','2','cardNotEligible');
 
@@ -179,7 +180,6 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لا يمكن العثور على معرف البطاقة','754','2','INVALID_CARDLET_ID');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'فشل الاتصال - معرف الموارد المنتظم غير المعترف به أو المعلمات المطلوبة غير موجودة','755','2','INVALID_METHOD');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'قيمة مصادقة توحيد الدقة غير صحيحة','756','2','INCORRECT_TAV');
-Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'انتهت صلاحية كود التوثيق أو تم إبطاله','757','2','EXPIRED_CODE');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'البيانات التي تم توفيرها للطلب غير صالحة','758','2','INVALID_DATA');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لا توجد رموز نشطة','759','2','NO_ACTIVE_TOKENS');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'تجاوز عدد بيانات اعتماد الدفع البديلة المسموح بها في وقت الرمز المميز الحد','760','2','ALT_CREDENTIALS_COUNT_EXCEEDED');
@@ -192,6 +192,8 @@ Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE)
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'OTP غير صحيح أو منتهي الصلاحية','768','2','INCORRECT_CODE');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لقد تجاوزت الحد الأقصى لعدد المحاولات','769','2','INCORRECT_CODE_RETRIES_EXCEEDED');
 Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'لقد انتهى هذا OTP','770','2','EXPIRED_CODE');
+Insert into SYS_MESSAGES (BEARER,MESSAGE,MESSAGE_CODE,LANGUAGE_CODE,REASON_CODE) values (null,'رمز المصادقة غير صالح','771','2','INVALID_AUTHENTICATION_CODE');
+
 
 
 
