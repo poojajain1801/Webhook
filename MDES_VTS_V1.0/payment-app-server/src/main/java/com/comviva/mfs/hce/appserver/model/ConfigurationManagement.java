@@ -45,7 +45,7 @@ public class ConfigurationManagement {
     }
 
     public Timestamp getCreatedOn() {
-        return createdOn;
+        return (createdOn);
     }
 
     public void setRequestId(String requestId) {
@@ -65,6 +65,6 @@ public class ConfigurationManagement {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 }

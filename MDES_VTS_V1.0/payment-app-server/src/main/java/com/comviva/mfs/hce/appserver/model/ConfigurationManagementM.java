@@ -1,6 +1,5 @@
 package com.comviva.mfs.hce.appserver.model;
 
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -51,11 +50,11 @@ public class ConfigurationManagementM implements Serializable {
     }
 
     public Timestamp getCreatedOn() {
-        return createdOn;
+        return (createdOn);
     }
 
     public Timestamp getModifiedOn() {
-        return modifiedOn;
+        return (modifiedOn);
     }
 
     public String getStatus() {
@@ -83,10 +82,10 @@ public class ConfigurationManagementM implements Serializable {
     }
 
     public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
+        this.createdOn = (createdOn);
     }
 
     public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = modifiedOn;
+        this.modifiedOn = (modifiedOn);
     }
 }

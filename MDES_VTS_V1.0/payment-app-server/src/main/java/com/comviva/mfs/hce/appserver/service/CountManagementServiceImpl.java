@@ -26,11 +26,11 @@ import java.util.Map;
 public class CountManagementServiceImpl implements CountManagementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CountManagementServiceImpl.class);
     @Autowired
-    UserDetailRepository userDetailRepository;
+    private UserDetailRepository userDetailRepository;
     @Autowired
-    DeviceDetailRepository deviceDetailRepository;
+    private DeviceDetailRepository deviceDetailRepository;
     @Autowired
-    CardDetailRepository cardDetailRepository;
+    private CardDetailRepository cardDetailRepository;
 
 
     @Override

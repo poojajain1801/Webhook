@@ -282,7 +282,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                         cardDetails.setCardType(HCEConstants.MASTERCARD);
                         cardDetails.setCardId(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
                         cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
+                        cardDetails.setCardSuffix(provisionRespMdes.getJSONObject("tokenInfo").getString("accountPanSuffix"));
+                        cardDetails.setTokenSuffix(provisionRespMdes.getJSONObject("tokenInfo").getString("tokenPanSuffix"));
                         cardDetails.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                        cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                         cardDetailRepository.save(cardDetails);
                     }else {
                         provisionRespMdes.put(HCEConstants.RESPONSE_CODE , HCEMessageCodes.getFailedAtThiredParty());
@@ -987,6 +990,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                             if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
                                 CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
                                 cardDetails.setStatus(status);
+                                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                                 cardDetailRepository.save(cardDetails);
                             }
                         }

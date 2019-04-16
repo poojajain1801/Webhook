@@ -29,9 +29,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
     @Autowired
-    ConfigurationManagementMRepository configurationManagementMRepository;
+    private ConfigurationManagementMRepository configurationManagementMRepository;
     @Autowired
-    ConfigurationManagementRepository configurationManagementRepository;
+    private ConfigurationManagementRepository configurationManagementRepository;
 
     @Override
     public Map<String, Object> setHvtValue(SetHvtValueRequest setHvtValueRequest) {

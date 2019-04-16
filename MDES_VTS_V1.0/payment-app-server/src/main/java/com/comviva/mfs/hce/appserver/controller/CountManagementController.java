@@ -25,7 +25,7 @@ public class CountManagementController {
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
     @Autowired
-    CountManagementService countManagementService;
+    private CountManagementService countManagementService;
 
     @ResponseBody
     @RequestMapping(value = "/userCount", method = RequestMethod.GET)

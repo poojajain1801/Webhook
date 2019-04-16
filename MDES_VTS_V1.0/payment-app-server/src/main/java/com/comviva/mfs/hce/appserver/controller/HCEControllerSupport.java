@@ -110,18 +110,17 @@ public class HCEControllerSupport {
         Class requestClass = null;
         StringBuffer errorMessage = null;
         String errMsg = null;
-
         try{
             LOGGER.debug("Enter in HCEControllerSupport->requestFormation");
             ObjectMapper mapper = new ObjectMapper();
-            obj =mapper.readValue(requestObj,groups[0]);
+            obj = mapper.readValue(requestObj,groups[0]);
             ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
             Validator validator = factory.getValidator();
             Set<ConstraintViolation<Object>> constraintViolations = validator.validate(obj);
             if (!constraintViolations.isEmpty()) {
                 errorMessage = new StringBuffer();
-                Iterator iter =null;
-                iter=constraintViolations.iterator();
+                Iterator iter = null;
+                iter = constraintViolations.iterator();
                 while (iter.hasNext()) {
                     ConstraintViolation arr = null;
                     arr=(ConstraintViolation) iter.next();
@@ -194,8 +193,7 @@ public class HCEControllerSupport {
             if(url!=null && !url.isEmpty()){
                 auditTrail.setServiceType(url);
             }
-            if(totalTime!=null && !totalTime.isEmpty())
-            {
+            if(totalTime!=null && !totalTime.isEmpty()){
                 auditTrail.setTotalTimeTaken(totalTime);
             }
             auditTrailRepository.save(auditTrail);
@@ -216,7 +214,7 @@ public class HCEControllerSupport {
             //
             // jks");
             fileName = env.getProperty("end.to.end.keystore.filename");
-            resourceLoader = new FileSystemResourceLoader() ;
+            resourceLoader = new FileSystemResourceLoader();
             resource = resourceLoader.getResource("classpath:"+fileName);
             inputStream  = resource.getInputStream();
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
@@ -231,7 +229,6 @@ public class HCEControllerSupport {
             LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
             throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
-
     }
 
 
@@ -272,7 +269,6 @@ public class HCEControllerSupport {
                 cipher.init(Cipher.DECRYPT_MODE, privateKey);
                 byte[] decData = cipher.doFinal(new Base64().decode(requestEncKey));
                 decryptedData = aesDecrypt(requestEncData, decData, requestIV);
-
             }else{
                 decryptedData = request;
             }
