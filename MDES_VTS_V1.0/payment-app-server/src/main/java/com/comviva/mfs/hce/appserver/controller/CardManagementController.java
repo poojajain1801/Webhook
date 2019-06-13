@@ -7,11 +7,13 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -36,6 +38,7 @@ public class CardManagementController {
     @RequestMapping(value = "/checkCardEligibility", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map<String, Object> addCard(@RequestBody String addCardParm) {
+        LOGGER.info("Check card eligibility request lands  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
         Map <String,Object> checkEligibilityResponse= null;
         AddCardParm addCardParmpojo = null;
         try{
@@ -48,6 +51,7 @@ public class CardManagementController {
             LOGGER.error(" Exception Occured in CardManagementController->addCard", addCardExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+        LOGGER.info("Check card eligibility response goes  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
         return checkEligibilityResponse;
     }
 
@@ -150,7 +154,7 @@ public class CardManagementController {
     @ServiceFlowStep("paymentApp")
     @DecryptFlowStep("decryptData")
     public Map<String, Object> enrollPan(@RequestBody String enrollPanRequest){
-        Map <String,Object> enrollPanResponse= null;
+        Map <String,Object> enrollPanResponse = null;
         EnrollPanRequest enrollPanRequestPojo = null;
         try{
             enrollPanRequestPojo =(EnrollPanRequest) hCEControllerSupport.requestFormation(enrollPanRequest,EnrollPanRequest.class);
@@ -177,6 +181,7 @@ public class CardManagementController {
         LOGGER.debug("Exit CardManagementController->getCardMetadata");
         return  getCardMetadataResp;
     }
+
     @ResponseBody
     @RequestMapping(value = "/getContent",method = RequestMethod.POST)
     public Map<String,Object>getContent(@RequestBody GetContentRequest getContentRequest){
@@ -190,6 +195,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
+    @DecryptFlowStep("decryptData")
     public Map<String,Object>delete(@RequestBody String lifeCycleManagementReq){
         LifeCycleManagementReq lifeCycleManagementReqPojo = null;
         Map<String,Object> lifeCycleManagementResp = null;
@@ -197,10 +203,10 @@ public class CardManagementController {
             lifeCycleManagementReqPojo = (LifeCycleManagementReq)hCEControllerSupport.requestFormation(lifeCycleManagementReq,LifeCycleManagementReq.class);
             lifeCycleManagementResp =  cardDetailService.performCardLifeCycleManagement(lifeCycleManagementReqPojo);
         }catch (HCEActionException enrollPanHceActionException){
-            LOGGER.error("Exception Occured in CardManagementController->enrollPan",enrollPanHceActionException);
+            LOGGER.error("Exception Occured in CardManagementController->lifeCycleManagement",enrollPanHceActionException);
             throw enrollPanHceActionException;
         }catch (Exception enrollPanExcetption) {
-            LOGGER.error(" Exception Occured in CardManagementController->enrollPan", enrollPanExcetption);
+            LOGGER.error(" Exception Occured in CardManagementController->lifeCycleManagement", enrollPanExcetption);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return lifeCycleManagementResp;
@@ -223,8 +229,8 @@ public class CardManagementController {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return  getToeknsTokensResp;
-
     }
+
     @ResponseBody
     @RequestMapping(value = "/searchTokens", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -297,4 +303,19 @@ public class CardManagementController {
         return getPublicKeyCertificateResp;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/customerCareContact", method = RequestMethod.GET)
+    public Map getCustomerCareContact() {
+        Map <String, Object> getCustomerCareContactResp = null;
+        try{
+            getCustomerCareContactResp = cardDetailService.getCustomerCareContact();
+        }catch (HCEActionException getCustomerCareContactException){
+            LOGGER.error("Exception Occured in CardManagementController->getCustomerCareContact",getCustomerCareContactException);
+            throw getCustomerCareContactException;
+        }catch (Exception getCustomerCareContactExcetption) {
+            LOGGER.error(" Exception Occured in CardManagementController->getCustomerCareContact", getCustomerCareContactExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return getCustomerCareContactResp;
+    }
 }

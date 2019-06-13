@@ -139,8 +139,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
 
     }
-    public Map notifyPanMetadataUpdate (NotificationServiceReq notificationServiceReq,String apiKey)
-    {
+    public Map notifyPanMetadataUpdate (NotificationServiceReq notificationServiceReq,String apiKey) {
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
         //Verify vProvisionID
         //Verify API key
@@ -205,8 +204,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     public Map notifyTxnDetailsUpdate (NotificationServiceReq notificationServiceReq,String apiKey) {
         Map rnsResp = new HashMap();
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate");
-        if (apiKey.equalsIgnoreCase(env.getProperty("apiKey")))
-        {
+        if (apiKey.equalsIgnoreCase(env.getProperty("apiKey"))) {
             //Return Invalid apiKey
         }
         //is.txnnotification.requires

@@ -4,10 +4,7 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
-import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
-import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
-import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
-import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.*;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
@@ -46,7 +43,9 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @Setter
@@ -234,7 +233,10 @@ public class EnrollDevice{
 
 
             final String sandBoxUrl =  env.getProperty("visaBaseUrlSandbox") + "/" + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" +env.getProperty("apiKey");
+            LOGGER.info("VISA register device before hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             jsonResponse = sendReqest.postHttpRequest(requestBody.getBytes(),requestBody,sandBoxUrl,prepareHeaderRequest);
+            LOGGER.info("VISA register device After hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
+
             if (HttpStatus.SC_OK == jsonResponse.getInt(HCEConstants.STATUS_CODE) ) {
                 jsonObject = jsonResponse.getJSONObject("response");
                 jsonObject.put("devEncKeyPair", devEncKeyPair.getPrivateKeyHex());

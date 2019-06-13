@@ -4,6 +4,7 @@ import com.comviva.mfs.hce.appserver.model.TransactionRegDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,5 +14,5 @@ import java.util.Optional;
 public interface TransactionRegDetailsRepository extends JpaRepository<TransactionRegDetails,String> {
 
     Optional<TransactionRegDetails> findByTokenUniqueReference(String tokenUniqueReference);
-    Optional<TransactionRegDetails> findByPaymentAppInstanceId(String paymentAppInstanceId);
+    List<TransactionRegDetails> findByPaymentAppInstanceId(String paymentAppInstanceId);
 }

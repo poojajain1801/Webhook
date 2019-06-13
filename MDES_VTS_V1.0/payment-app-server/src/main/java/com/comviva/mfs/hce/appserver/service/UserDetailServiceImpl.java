@@ -208,11 +208,11 @@ public class UserDetailServiceImpl implements UserDetailService {
             return responseMap;
 
         } catch (HCEActionException userLifecycleManagementException) {
-            LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManagementException);
+            LOGGER.error("Exception occured in UserDetailServiceImpl->userLifecycleManagement", userLifecycleManagementException);
             throw userLifecycleManagementException;
 
         } catch (Exception userLifecycleManageException) {
-            LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManageException);
+            LOGGER.error("Exception occured in UserDetailServiceImpl->userLifecycleManagement", userLifecycleManageException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 

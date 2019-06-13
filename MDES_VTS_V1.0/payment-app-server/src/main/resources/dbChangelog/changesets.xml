@@ -221,7 +221,7 @@
         <!--Transaction details table-->
         <createTable tableName="TRANSACTION_REG_DETAILS">
             <column name="id" type="VARCHAR2(255)">
-                <constraints nullable="false" primaryKey="true"/>
+                <constraints nullable="false" primaryKey="false"/>
             </column>
             <column name="payment_app_instance_id" type="VARCHAR2(255)">
                 <constraints nullable="false" unique="true"/>

@@ -91,6 +91,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             reqest.put("clientDeviceID", provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID());
             reqest.put("protectionType", provisionTokenGivenPanEnrollmentIdRequest.getProtectionType());
             presentationType.put(provisionTokenGivenPanEnrollmentIdRequest.getPresentationType());
+
+            /*presentationType.put("NFC-HCE");
+            presentationType.put("QR_CONSUMER_CLOUD");*/
+
             reqest.put("presentationType", presentationType);
             JSONObject termandCondition = new JSONObject();
             termandCondition.put("id", provisionTokenGivenPanEnrollmentIdRequest.getTermsAndConditionsID());

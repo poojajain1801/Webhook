@@ -106,7 +106,7 @@ public class HitMasterCardService
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
             LOGGER.debug("Request = " + (String)entity.getBody());
             LOGGER.debug("URL---- = " + url);
-            LOGGER.info("info---- = " + url);
+            LOGGER.info("URL---- = " + url);
             startTime = System.currentTimeMillis();
             if ("POST".equals(type))
             {
@@ -188,41 +188,17 @@ public class HitMasterCardService
 
     private RestTemplate restTemplate() throws Exception
     {
-        String allNews = "changeit";
-        String keystorepa = "changeit";
+        String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
         SSLContext sslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
-                .loadTrustMaterial(ResourceUtils.getFile(trustorename), allNews.toCharArray())
+                .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
                 .build();
 
-        HttpClient client;
-        /*if(env.getProperty("is.proxy.required").equals("Y")) {
-           *//* String proxyip = env.getProperty("proxyip");
-            String proxyport = env.getProperty("proxyport");
-            HttpHost proxy = new HttpHost(proxyip, Integer.valueOf(proxyport));
-           *//*
-           client = HttpClients.custom().setSSLContext(sslContext).build();
-        }
-        else
-        {
-            client = HttpClients.custom().setSSLContext(sslContext).build();
-        }*/
-
-        client = HttpClients.custom().setSSLContext(sslContext).build();
-
-        /*HttpHost proxy = new HttpHost("proxtserver", "");
-        client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);*/
-
-
-        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
-      /*  SSLContext sslContext = SSLContextBuilder.create().loadKeyMaterial(ResourceUtils.getFile("classpath:truststore.jks"), secretkey.toCharArray(), secretkey.toCharArray()).loadTrustMaterial(ResourceUtils.getFile("classpath:keystore.jks"), secretkey.toCharArray()).build();
         HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
-
-       // HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(client);
-
-        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));*/
+        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
         return new RestTemplate(factory);
     }
+
 }

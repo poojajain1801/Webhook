@@ -168,35 +168,4 @@ public class CryptoUtils {
         return (RSAPrivateKey) masterPrivateKey;
     }
 
-    public static PrivateKey getPrivateKeyFromKeyStore() throws Exception{
-        ResourceLoader resourceLoader = null;
-        Resource resource = null;
-        InputStream inputStream = null;
-        String fileName = null;
-        try{
-            //InputStream ins = DecryptPayload.class.getResourceAsStream("/keystore.
-            //
-            // jks");
-
-            //fileName = env.getProperty("end.to.end.keystore.filename");
-            fileName = "outboundkeystore.jks";
-            resourceLoader = new FileSystemResourceLoader() ;
-            resource = resourceLoader.getResource("classpath:"+fileName);
-            inputStream  = resource.getInputStream();
-
-            KeyStore keyStore = KeyStore.getInstance("JCEKS");
-            keyStore.load(inputStream, "nbk.123".toCharArray());   //Keystore password
-            KeyStore.PasswordProtection keyPassword =       //Key password
-                    new KeyStore.PasswordProtection("nbk.123".toCharArray());
-
-            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("123309", keyPassword);
-
-            PrivateKey privateKey = privateKeyEntry.getPrivateKey();
-            return privateKey;
-        }catch (Exception ex) {
-            //LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
-            throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
-        }
-
-    }
 }

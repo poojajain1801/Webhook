@@ -146,8 +146,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             // Call checkEligibility Api of MDES to check if the card is eligible for digitization.
             url = this.env.getProperty("mdesip") +this.env.getProperty("digitizationpath");
             id = "checkEligibility";
+            LOGGER.info("Check card eligibility before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, checkDeviceEligibilityRequest.toString(), "POST",id);
-
+            LOGGER.info("Check card eligibility after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             //Prepare Response
             if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
                 if (responseEntity.hasBody()) {
@@ -162,7 +163,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                     jsonResponse.put("message",jsonResponse.getString("errorDescription"));
                 }
                 else {
+                    LOGGER.info("Check card eligibility before DB operation  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                     ServiceData serviceData = serviceDataRepository.save(new ServiceData(null,  requestId, checkDeviceEligibilityRequest.toString().getBytes(), response.getBytes()));
+                    LOGGER.info("Check card eligibility after DB operation  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                     jsonResponse.put("statusCode",HCEMessageCodes.getSUCCESS());
                     jsonResponse.put("message","Success");
                     jsonResponse.put("serviceId",requestId);
@@ -430,20 +433,20 @@ public class CardDetailServiceImpl implements CardDetailService {
            }
            switch (result){
                case "SUCCESS":
-                   jsRespMdes.put("responseCode",String.valueOf(HCEConstants.REASON_CODE7));
-                   jsRespMdes.put("message",HCEConstants.SUCCESS);
+                   jsRespMdes.put(HCEConstants.RESPONSE_CODE ,String.valueOf(HCEConstants.REASON_CODE7));
                    break;
 
                case "INCORRECT_CODE":
 
-               case  "INCORRECT_CODE_RETRIES_EXCEEDED":
-
                case "EXPIRED_CODE":
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getIncorrectOtp());
+                   jsRespMdes.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getIncorrectOtp());
                    break;
 
+               case  "INCORRECT_CODE_RETRIES_EXCEEDED":
+                   jsRespMdes.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getFailedAtThiredParty());
+                   break;
                default:
-                   jsRespMdes.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
+                   jsRespMdes.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getFailedAtThiredParty());
 
            }
            /*
@@ -562,7 +565,6 @@ public class CardDetailServiceImpl implements CardDetailService {
                     }
                 }
 
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
@@ -574,9 +576,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             LOGGER.error("Exception occured in CardDetailServiceImpl->enrollPan", enrollPanException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
         LOGGER.debug("Exit CardDetailServiceImpl->enrollPan");
-
         return responseMap;
     }
 
@@ -587,8 +587,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response= null;
         JSONObject jsonResponse  = null;
         String request = "";
-        ResponseEntity responseEntity =null;
-        String strResponse=null;
+        ResponseEntity responseEntity = null;
+        String strResponse = null;
         Map responseMap = null;
         //JSONObject requestJson = null;
         String url = "";
@@ -607,7 +607,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
 
-            } else {
+            }else {
                 Map errorMap = new LinkedHashMap();
                 if(null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
@@ -666,7 +666,6 @@ public class CardDetailServiceImpl implements CardDetailService {
             LOGGER.debug("Exit CardDetailsServiceImpl->getContent");
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
     }
 
     @Override
@@ -689,7 +688,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         try{
             transactionDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueReference);
             if (!transactionDetails.isPresent()) {
-                LOGGER.error(" invalid tokenUniqueReference ");
+                LOGGER.error("invalid tokenUniqueReference ");
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
             transactionRegDetails = transactionDetails.get();
@@ -837,7 +836,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             try {
                 // Get the regcode1 and regcode2 from the DB and generate registrationHash
                 LOGGER.debug("Reg code1 ----------------------------------------------------- "+transactionRegDetails.getRegCode1());
-                LOGGER.debug("Reg code1 ----------------------------------------------------- "+transactionRegDetails.getRegCode2());
+                LOGGER.debug("Reg code2 ----------------------------------------------------- "+transactionRegDetails.getRegCode2());
                 registrationHash = MessageDigestUtil.sha256Hasing(transactionRegDetails.getRegCode1() + transactionRegDetails.getRegCode2());
             } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
                 LOGGER.error("Exception occured", e);
@@ -1340,7 +1339,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String rgk = "";
         try {
             //Decrypt notification Data
-            rgk = CryptoUtils.privateKeydecryption(CryptoUtils.getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
+            rgk = CryptoUtils.privateKeydecryption(getPrivateKeyFromKeyStore(), notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedKey());
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);
@@ -1375,8 +1374,25 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
         return ImmutableMap.of("responseHost","nbkewallet.nbkpilot.com",
                 "responseId", responseId);
+    }
 
-
+    @Override
+    public Map<String, Object> getCustomerCareContact() {
+        String customerCareContact = null;
+        Map responseMap = new HashMap();
+        try {
+            customerCareContact = env.getProperty("customerCareContact");
+            responseMap.put("customerCareContact",customerCareContact);
+            responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
+            responseMap.put(HCEConstants.MESSAGE,"Transaction Success");
+        } catch (HCEActionException getCustomerCareContactHCEactionException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->getCustomerCareContact", getCustomerCareContactHCEactionException);
+            throw getCustomerCareContactHCEactionException;
+        } catch (Exception getCustomerCareContactException) {
+            LOGGER.error("Exception occured in CardDetailServiceImpl->getCustomerCareContact", getCustomerCareContactException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return responseMap;
     }
 
     public String getRnsRegId(String paymentAppInstanceId) {
@@ -1404,7 +1420,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             fileName = env.getProperty("outboundtruststore");
             password = env.getProperty("outboundtruststorepass");
             alias = env.getProperty("outboundtruststorealias");
-            resourceLoader = new FileSystemResourceLoader() ;
+            resourceLoader = new FileSystemResourceLoader();
             resource = resourceLoader.getResource("classpath:"+fileName);
             inputStream  = resource.getInputStream();
 
@@ -1423,7 +1439,4 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
 
     }
-
-
-
 }

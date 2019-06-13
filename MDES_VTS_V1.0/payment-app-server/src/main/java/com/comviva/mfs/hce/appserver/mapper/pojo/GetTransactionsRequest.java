@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class GetTransactionsRequest {
 
-    private String tokenUniqueReference ;
+    private String tokenUniqueReference;
     private String paymentAppInstanceId;
 
     public GetTransactionsRequest(String tokenUniqueReference, String paymentAppInstanceId) {

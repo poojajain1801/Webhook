@@ -26,4 +26,5 @@ public interface CardDetailService {
     Map<String,Object> getSystemHealth();
     Object getPublicKeyCertificate();
     Map<String,Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo);
+    Map<String,Object> getCustomerCareContact();
 }

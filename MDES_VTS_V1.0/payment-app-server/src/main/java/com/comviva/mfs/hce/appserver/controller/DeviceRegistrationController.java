@@ -12,6 +12,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -39,6 +41,7 @@ public class DeviceRegistrationController {
     @RequestMapping(value = "/deviceRegistration", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public Map<String,Object> registerDevice(@RequestBody String enrollDeviceRequest) {
+        LOGGER.info("Register device request lands --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
         Map<String,Object> registerDeviceResponse = null;
         EnrollDeviceRequest enrollDeviceRequestPojo = null;
         try{
@@ -51,6 +54,7 @@ public class DeviceRegistrationController {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", regDeviceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+        LOGGER.info("Register device response goes --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
         return registerDeviceResponse;
     }
 

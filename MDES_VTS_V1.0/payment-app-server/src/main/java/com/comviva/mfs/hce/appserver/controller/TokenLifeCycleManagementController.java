@@ -1,5 +1,6 @@
 package com.comviva.mfs.hce.appserver.controller;
 
+import com.comviva.mfs.hce.appserver.decryptFlow.DecryptFlowStep;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
@@ -57,6 +58,7 @@ public class TokenLifeCycleManagementController {
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagementVisa",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
+    @DecryptFlowStep("decryptData")
     public Map<String,Object>lifeCycleManagementVisa(@RequestBody String lifeCycleManagementVisaRequest){
         LOGGER.debug("Enter TokenLifeCycleManagementController->lifeCycleManagementVisa");
         LifeCycleManagementVisaRequest lifeCycleManagementVisaRequestpojo = null;

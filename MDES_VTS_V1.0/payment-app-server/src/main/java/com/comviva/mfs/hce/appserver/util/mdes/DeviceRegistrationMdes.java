@@ -9,6 +9,7 @@ import com.comviva.mfs.hce.appserver.util.common.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.io.PrintStream;
+import java.util.Date;
 import java.util.Map;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -115,13 +116,12 @@ public class DeviceRegistrationMdes
             rnsInfo = new JSONObject();
             rnsInfo.put("gcmRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
             jsonRegDevice.put("rnsInfo", rnsInfo);
-
-
             url = this.env.getProperty("mdesip") + this.env.getProperty("mpamanagementPath");
             id = "register";
-
+            LOGGER.info("Master card register device before hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRegDevice.toString(), "POST", id);
-            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
+            LOGGER.info("Master card register device After hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
+            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)){
                 response =  String.valueOf(responseEntity.getBody());
                 mdes = new JSONObject(response);
                 responseJson = new JSONObject();
@@ -171,7 +171,9 @@ public class DeviceRegistrationMdes
             id = "checkEligibility";
             LOGGER.debug("URL in checkDeviceEligibility"+url);
             LOGGER.info("URL in checkDeviceEligibility"+url);
+            LOGGER.info("MC check device eligibility  before hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST",id);
+            LOGGER.info("MC check device eligibility after hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
                 response = String.valueOf(responseEntity.getBody());
             }

@@ -163,10 +163,11 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String tokenUniqueReference = pushTransctionDetailsReq.getTransactions().get(0).getTokenUniqueReference();
         HashMap rnsNotificationData = new HashMap();
         Map responseMap = new HashMap();
+        String responseId = null;
         LOGGER.debug("Inside TransactionManagementService---------->pushTransctionDetails");
         RnsGenericRequest rnsGenericRequest ;
         try {
-            rnsGenericRequest = new RnsGenericRequest();
+            /*rnsGenericRequest = new RnsGenericRequest();
             rnsNotificationData.put("requestId",requestId);
             rnsNotificationData.put("transactions",transactions);
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
@@ -193,8 +194,12 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 responseMap.put(HCEConstants.ERROR_CODE,HCEConstants.REASON_CODE_234);
                 responseMap.put("errorDescription","RNS Unavailable");
-            }
-            responseMap.put("responseId", env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
+            }*/
+            requestId = env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            responseMap.put("responseId",requestId );
+            responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
+            responseMap.put(HCEConstants.MESSAGE,"Transaction Success");
+
 
         }catch (HCEActionException pushTransctionDetailsHCEactionException) {
             LOGGER.error("Exception occured in TransactionManagementServiceImpl->pushTransctionDetails", pushTransctionDetailsHCEactionException);
@@ -234,7 +239,10 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String paymentAppInstanceId = getTransactionsReq.getPaymentAppInstanceId();
         JSONObject reqJson = new JSONObject();
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
+        Optional<CardDetails> oCardDetails = null;
+        Optional<TransactionRegDetails> oTxnDetails = null;
         String authorizationStatus = null;
+        List<TransactionRegDetails> transactionList = null;
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = null;
@@ -244,15 +252,16 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         int transactionStatus = 0;
         try{
             if (tokenUniqueRef != null) {
-                Optional<CardDetails> oCardDetails = cardDetailRepository.findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference(paymentAppInstanceId,tokenUniqueRef);
+                oCardDetails = cardDetailRepository.findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference(paymentAppInstanceId,tokenUniqueRef);
                 if (!oCardDetails.isPresent()) {
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
             }
-            Optional<TransactionRegDetails> oTxnDetails = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+            oTxnDetails = transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef);
             if (!oTxnDetails.isPresent()) {
-                throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
+                throw new HCEActionException(HCEMessageCodes.getInvalidTokenUniqueReference());
             }
+            transactionList = transactionRegDetailsRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
             TransactionRegDetails txnDetails = oTxnDetails.get();
             authenticationCode = txnDetails.getAuthCode();
             if (authenticationCode == null || authenticationCode.isEmpty()){
@@ -297,12 +306,16 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                     jsonResponse.put("transactions",duplicateArray);
                 }
             }
+
             if(responseMdes.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 if (jsonResponse != null) {
                     if (jsonResponse.has("errors") || jsonResponse.has("errorCode")) {
                         responseMap = JsonUtil.jsonToMap(jsonResponse);
                     } else {
-                        txnDetails.setAuthCode(jsonResponse.getString("authenticationCode"));
+                        int size = transactionList.size();
+                        for (int i = 0 ; i<size ; i++){
+                            transactionList.get(i).setAuthCode(jsonResponse.getString("authenticationCode"));
+                        }
                         transactionRegDetailsRepository.save(txnDetails);
                         responseMap = JsonUtil.jsonToMap(jsonResponse);
                         responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
@@ -338,7 +351,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         try{
             txnDetails= transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef);
             reqJson.put("tokenUniqueReference", tokenUniqueRef);
-            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId ;
+            url = env.getProperty("mdesip")  + env.getProperty("tdspath") + "/" + paymentAppInstanceId;
             id = "getRegistrationCode";
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqJson.toString(),"POST",id);
             if (responseMdes.hasBody()) {
