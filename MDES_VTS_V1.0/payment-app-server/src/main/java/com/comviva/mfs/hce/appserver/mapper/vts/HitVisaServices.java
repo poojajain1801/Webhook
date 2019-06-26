@@ -87,6 +87,7 @@ public class HitVisaServices extends VtsRequest {
          //   Enumeration headerNames = headers.getHeaderNames();
 
             Map sdsd = entity.getHeaders();
+            LOGGER.info("-------------------URL-------------------------"+url);
             LOGGER.debug("-------------------Begin Headers-------------------------");
             for (Object name : sdsd.entrySet())
             {
@@ -119,6 +120,7 @@ public class HitVisaServices extends VtsRequest {
             }
             if(response!=null){
                 HttpHeaders headers = response.getHeaders();
+
                 xCorrelationId = headers.get("X-CORRELATION-ID").get(0);
             }
 

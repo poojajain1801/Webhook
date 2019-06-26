@@ -166,7 +166,6 @@ public class EnrollDevice{
             //var.put("vCertificateID","bf617210");
             vtsCerts.put(1, var);
 
-
             resourceLoader = new FileSystemResourceLoader() ;
             resource = resourceLoader.getResource("classpath:master_keyPkcs8.key");
             inputStream  = resource.getInputStream();
@@ -231,11 +230,14 @@ public class EnrollDevice{
             prepareHeaderRequest.put("resourcePath","vts/clients/"+vClientID+"/devices/"+clientDeviceID);
             prepareHeaderRequest.put("requestBody",requestBody);
 
-
             final String sandBoxUrl =  env.getProperty("visaBaseUrlSandbox") + "/" + prepareHeaderRequest.get("resourcePath")+ "?apiKey=" +env.getProperty("apiKey");
+
+            //final String sandBoxUrl =  env.getProperty("visaBaseUrlSandbox") + "/" + "vts/clients/1/0/register";
+
             LOGGER.info("VISA register device before hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             jsonResponse = sendReqest.postHttpRequest(requestBody.getBytes(),requestBody,sandBoxUrl,prepareHeaderRequest);
             LOGGER.info("VISA register device After hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
+            LOGGER.info("VISA register device --> RESPONSE " +jsonResponse);
 
             if (HttpStatus.SC_OK == jsonResponse.getInt(HCEConstants.STATUS_CODE) ) {
                 jsonObject = jsonResponse.getJSONObject("response");
@@ -257,8 +259,6 @@ public class EnrollDevice{
                 jsonObject.put("deviceCerts-certFormat-integrity", "X509");
                 jsonObject.put("deviceCerts-certUsage-integrity", CertUsage.INTEGRITY);
                 jsonObject.put("deviceCerts-certValue-integrity", new String(b64SignCert));
-
-
                 jsonResponse.put("responseBody", jsonObject);
             }
             else {

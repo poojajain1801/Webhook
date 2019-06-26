@@ -13,14 +13,23 @@ import javax.net.ssl.SSLContext;
 
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.mdes.RequestResponseLoggingInterceptor;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.ProxyAuthenticationStrategy;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +46,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class HitMasterCardService
+public class HitMasterCardService implements RestTemplateCustomizer
 {
     @Autowired
     protected Environment env;
@@ -50,7 +59,7 @@ public class HitMasterCardService
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
-
+    SSLContext sslContext = null;
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id)
     {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
@@ -106,7 +115,7 @@ public class HitMasterCardService
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
             LOGGER.debug("Request = " + (String)entity.getBody());
             LOGGER.debug("URL---- = " + url);
-            LOGGER.info("URL---- = " + url);
+            LOGGER.info("info---- = " + url);
             startTime = System.currentTimeMillis();
             if ("POST".equals(type))
             {
@@ -188,17 +197,47 @@ public class HitMasterCardService
 
     private RestTemplate restTemplate() throws Exception
     {
+
         String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
-        SSLContext sslContext = SSLContextBuilder.create()
+        sslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
                 .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
                 .build();
-
-        HttpClient client = HttpClients.custom().setSSLContext(sslContext).build();
-        ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
-
-        return new RestTemplate(factory);
+        RestTemplate restTemplate= new RestTemplate();
+        customize(restTemplate);
+        return restTemplate;
     }
 
+    @Override
+    public void customize(RestTemplate restTemplate) {
+        String username = env.getProperty("username");
+        String password = env.getProperty("password");
+        String proxyip = env.getProperty("proxyip");
+        String proxyport = env.getProperty("proxyport");
+
+        HttpClient client = null;
+        if(!env.getProperty("is.proxy.required").equals("Y")) {
+            client = HttpClients.custom().setSSLContext(sslContext).build();
+        }else {
+            HttpHost proxy = new HttpHost(proxyip,Integer.valueOf(proxyport));
+            client = HttpClientBuilder.create()
+                    .setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
+
+                        @Override
+                        public HttpHost determineProxy(HttpHost target,
+                                                       HttpRequest request, HttpContext context)
+                                throws HttpException {
+
+                            return super.determineProxy(target, request, context);
+                        }
+
+                    }).setSSLContext(sslContext)
+                    .build();
+        }
+
+        restTemplate.setRequestFactory(
+                new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client)));
+    }
 }
+

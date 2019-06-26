@@ -46,7 +46,6 @@ public class SendReqest {
                 String proxyport = env.getProperty("proxyport");
                 String username = env.getProperty("username");
                 String password = env.getProperty("password");
-
                 System.setProperty("http.proxyHost", proxyip);
                 System.setProperty("http.proxyPort", proxyport);
                 System.setProperty("http.proxyUser", username);
@@ -57,11 +56,13 @@ public class SendReqest {
                 System.setProperty("https.proxyPassword",password);
             }
 
-
             byte[] postData = (requestData);
 
             urlObj = new URL(url);
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection)urlObj.openConnection();
+
+            //Temp for testing purpose
+            //HttpURLConnection httpsURLConnection = (HttpURLConnection) urlObj.openConnection();
 
             //set timeputs to 10 seconds
             httpsURLConnection.setConnectTimeout(10000);

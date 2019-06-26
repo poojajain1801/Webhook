@@ -174,6 +174,7 @@ public class DeviceRegistrationMdes
             LOGGER.info("MC check device eligibility  before hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
             responseEntity = this.hitMasterCardService.restfulServiceConsumerMasterCard(url, jsonRequest.toString(), "POST",id);
             LOGGER.info("MC check device eligibility after hit --> TIME " +HCEUtil.convertDateToTimestamp(new Date()));
+            LOGGER.info("Master Card check eligibility --> RESPONSE " +responseEntity);
             if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
                 response = String.valueOf(responseEntity.getBody());
             }

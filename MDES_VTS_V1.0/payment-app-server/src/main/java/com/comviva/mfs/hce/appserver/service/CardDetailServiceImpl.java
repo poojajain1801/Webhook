@@ -38,7 +38,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
@@ -136,6 +135,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             checkDeviceEligibilityRequest = new JSONObject();
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             checkDeviceEligibilityRequest.put("requestId", requestId);
+            checkDeviceEligibilityRequest.put("responseHost",env.getProperty("responseHost"));
             checkDeviceEligibilityRequest.put("tokenType", addCardParam.getTokenType());
             checkDeviceEligibilityRequest.put(PAYMENT_APP_INSTANCE_ID, addCardParam.getPaymentAppInstanceId());
             checkDeviceEligibilityRequest.put("paymentAppId", addCardParam.getPaymentAppId());
