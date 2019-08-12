@@ -59,7 +59,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
-    public SSLContext sslContext = null;
+    private SSLContext sslContext = null;
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id) {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
         ResponseEntity<String> response = null;
