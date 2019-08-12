@@ -16,7 +16,7 @@ private List<Transactions> transactions;
     public PushTransctionDetailsReq(String requestId, String responseHost, List<Transactions> transactions) {
         this.requestId = requestId;
         this.responseHost = responseHost;
-        this.transactions = transactions;
+        this.transactions = (transactions);
     }
 
     public PushTransctionDetailsReq() {

@@ -166,17 +166,21 @@ public class EnrollDevice{
             //var.put("vCertificateID","bf617210");
             vtsCerts.put(1, var);
 
+
+            LOGGER.info("Load MasterKey.key file before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             resourceLoader = new FileSystemResourceLoader() ;
             resource = resourceLoader.getResource("classpath:master_keyPkcs8.key");
             inputStream  = resource.getInputStream();
             PrivateKey masterPrivateKey = CertificateUtil.getRsaPrivateKey(inputStream);
+            LOGGER.info("Load MasterKey.key file After hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
 
+            LOGGER.info("Load MasterKey.pem file before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             resource = resourceLoader.getResource("classpath:master_cert.pem");
             inputStream   = resource.getInputStream();
             X509Certificate masterCertificate = CertificateUtil.getCertificate(inputStream);
 
             issuerName = new JcaX509CertificateHolder(masterCertificate).getSubject();
-
+            LOGGER.info("Load MasterKey.pem file after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             // Preparing Certificate Meta Data
             currentTimeInMilli = System.currentTimeMillis();
             certMetaData = new CertMetaData();
@@ -186,8 +190,14 @@ public class EnrollDevice{
             certMetaData.setNotAfter(currentTimeInMilli + CERTIFICATE_EXPIRY_DURATION);
             certMetaData.setSubject(new X500Name("CN=Device Certificate"));
 
-             devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
-             devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
+            LOGGER.info("generate devEncKeyPair before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+            devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
+            LOGGER.info("generate devEncKeyPair after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+
+            LOGGER.info("generate devSignKeyPair before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+            devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
+            LOGGER.info("generate devSignKeyPair after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+
 
 
             deviceCerts = new JSONArray();

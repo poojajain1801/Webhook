@@ -120,8 +120,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             }
             return ImmutableMap.of("responseHost", "localhost",
                     "responseId", "12345678");
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
             LOGGER.debug("Exception occored in RemoteNotificationServiceImpl-> sendRemoteNotification",e);
             return  ImmutableMap.of("errorCode","500",
                 "errorDescription","Servicefaild");

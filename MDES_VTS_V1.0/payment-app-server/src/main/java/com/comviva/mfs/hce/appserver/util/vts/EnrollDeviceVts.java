@@ -7,6 +7,7 @@ import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Calendar;
+import java.util.Date;
 
 /** Send enroll device request to VTS */
 // 1. Prepare Device Info
@@ -100,8 +102,9 @@ public class EnrollDeviceVts {
                 devicePersoData.setSignExpoHex((String) jsonObject.getJSONObject("responseBody").get("devSignKeyPair"));
                 devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
 
+                LOGGER.info("Encrypt device perso before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                 encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
-
+                LOGGER.info("Encrypt device perso After hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                 JSONObject devicePersoDataObject = new JSONObject();
                 devicePersoDataObject.put("deviceId", encDevicePersoData.getDeviceId());
                 devicePersoDataObject.put("walletAccountId", encDevicePersoData.getWalletAccountId());

@@ -135,7 +135,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             checkDeviceEligibilityRequest = new JSONObject();
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             checkDeviceEligibilityRequest.put("requestId", requestId);
-            checkDeviceEligibilityRequest.put("responseHost",env.getProperty("responseHost"));
+            //checkDeviceEligibilityRequest.put("responseHost",env.getProperty("responseHost"));
             checkDeviceEligibilityRequest.put("tokenType", addCardParam.getTokenType());
             checkDeviceEligibilityRequest.put(PAYMENT_APP_INSTANCE_ID, addCardParam.getPaymentAppInstanceId());
             checkDeviceEligibilityRequest.put("paymentAppId", addCardParam.getPaymentAppId());
@@ -424,10 +424,10 @@ public class CardDetailServiceImpl implements CardDetailService {
             url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             id = "activate";
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST",id);
-           if (responseEntity.hasBody()) {
-               response = String.valueOf(responseEntity.getBody());
-               jsRespMdes = new JSONObject(response);
-           }
+            if (responseEntity.hasBody()) {
+                response = String.valueOf(responseEntity.getBody());
+                jsRespMdes = new JSONObject(response);
+            }
            if(jsRespMdes.has("result")) {
                result = jsRespMdes.getString("result");
            }
@@ -1329,7 +1329,7 @@ public class CardDetailServiceImpl implements CardDetailService {
 
     @Override
     public Map<String, Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReq) {
-        LOGGER.debug("Enter CarddetailServiceImpl ----------------------------------------------notifyTokenUpdated-------");
+        LOGGER.debug("Enter CardDetailServiceImpl ----------------------------------------------notifyTokenUpdated-------");
         EncryptedPayload encryptedPayload = new EncryptedPayload();
         HashMap notifyTokenUpdatedMap = null;
         String responseId = ArrayUtil.getHexString(ArrayUtil.getRandom(8));

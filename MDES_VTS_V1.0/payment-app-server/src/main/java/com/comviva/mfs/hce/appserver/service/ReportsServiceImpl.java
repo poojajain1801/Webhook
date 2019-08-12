@@ -120,7 +120,7 @@ public class ReportsServiceImpl implements ReportsService {
     }
 
     @Override
-    public Map<String, Object> userDeviceCardReport(UserDeviceCardReportReq userDeviceCardReportReqReq) {
+    public Map<String, Object> userDeviceCardReport(UserDeviceCardReportReq userDeviceCardReportReq) {
         Date fromDate;
         Date toDate;
         String userId;
@@ -132,25 +132,25 @@ public class ReportsServiceImpl implements ReportsService {
         JSONObject responseJson  = new JSONObject();
         List<Object[]> cardList = null;
         try {
-            fromDate = userDeviceCardReportReqReq.getFromDate();
-            toDate = userDeviceCardReportReqReq.getToDate();
+            fromDate = userDeviceCardReportReq.getFromDate();
+            toDate = userDeviceCardReportReq.getToDate();
             if (fromDate == null || toDate == null){
                 LOGGER.info("Please Enter the fromDate and toDdate properly ");
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
-            userId = userDeviceCardReportReqReq.getUserId();
+            userId = userDeviceCardReportReq.getUserId();
             if (userId == null || userId.isEmpty()){
                 userId = "-";
             }
-            userStatus = userDeviceCardReportReqReq.getUserStatus();
+            userStatus = userDeviceCardReportReq.getUserStatus();
             if (userStatus == null || userStatus.isEmpty()){
                 userStatus = "-";
             }
-            deviceId = userDeviceCardReportReqReq.getDeviceId();
+            deviceId = userDeviceCardReportReq.getDeviceId();
             if (deviceId == null || deviceId.isEmpty()){
                 deviceId = "-";
             }
-            deviceStatus = userDeviceCardReportReqReq.getDeviceStatus();
+            deviceStatus = userDeviceCardReportReq.getDeviceStatus();
             if (deviceStatus == null || deviceStatus.isEmpty()){
                 deviceStatus = "-";
             }
@@ -191,7 +191,7 @@ public class ReportsServiceImpl implements ReportsService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId", (deviceDetailList.get(i))[0]);
             jsonObject.put("userRegistrationDate", deviceDetailList.get(i)[1]);
-            jsonObject.put("Userstatus", deviceDetailList.get(i)[2]);
+            jsonObject.put("UserStatus", deviceDetailList.get(i)[2]);
             jsonObject.put("imei",deviceDetailList.get(i)[3]);
             jsonObject.put("deviceName",deviceDetailList.get(i)[4]);
             jsonObject.put("deviceModel",deviceDetailList.get(i)[5]);

@@ -59,9 +59,8 @@ public class HitMasterCardService implements RestTemplateCustomizer
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
-    SSLContext sslContext = null;
-    public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id)
-    {
+    public SSLContext sslContext = null;
+    public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id) {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
         ResponseEntity<String> response = null;
         HttpEntity<String> entity = null;
@@ -71,7 +70,6 @@ public class HitMasterCardService implements RestTemplateCustomizer
         int proxyport = 0;
         Proxy proxy = null;
 
-
         this.headers = new HttpHeaders();
         this.headers.add("Accept", "application/json");
         this.headers.add("Accept", "application/pkix-cert");
@@ -79,10 +77,9 @@ public class HitMasterCardService implements RestTemplateCustomizer
         this.headers.add("Content-Type", "application/pkix-cert");
         this.headers.add("Accept-Encoding", "deflate");
         this.headers.add("Connection", "Keep-Alive");
-        this.headers.add("Host","mtf.services.mastercard.com");
+        this.headers.add("Host","services.mastercard.com");
         this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
-        try
-        {
+        try {
             if ((type.equalsIgnoreCase("GET")) || (requestBody.equalsIgnoreCase(null)) || (requestBody.isEmpty())) {
                 entity = new HttpEntity(this.headers);
             } else {
