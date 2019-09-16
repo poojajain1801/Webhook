@@ -5,12 +5,16 @@ import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.util.common.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,8 @@ public class DeviceRegistrationMdes
 
     @Autowired
     private HitMasterCardService hitMasterCardService;
+    @Autowired
+    private DeviceDetailRepository deviceDetailRepository;
     private final HCEControllerSupport hceControllerSupport;
 
     public void setEnv(Environment env) {
@@ -88,8 +94,7 @@ public class DeviceRegistrationMdes
         return null;
     }*/
 
-    public JSONObject registerDevice(EnrollDeviceRequest enrollDeviceRequest)
-    {
+    public JSONObject registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         ResponseEntity responseEntity = null;
         String response = null;
         String url = null;
@@ -148,11 +153,14 @@ public class DeviceRegistrationMdes
 
     public boolean checkDeviceEligibility(EnrollDeviceRequest enrollDeviceRequest) {
         JSONObject jsonRequest = new JSONObject();
+        JSONObject jsonResp = null;
         JSONObject deviceinfo = null;
         String requestId = null;
         String response = "";
         String url = "";
         String id = "";
+        String clientDeviceId = "";
+        Optional<DeviceInfo> deviceDetail;
         ResponseEntity responseEntity = null;
         LOGGER.debug("Enter in DeviceRegistrationMdes:->checkDeviceEligibility");
         try {

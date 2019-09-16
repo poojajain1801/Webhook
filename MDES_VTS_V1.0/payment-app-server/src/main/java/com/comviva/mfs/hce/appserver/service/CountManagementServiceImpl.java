@@ -36,12 +36,11 @@ public class CountManagementServiceImpl implements CountManagementService {
     @Override
     public Map<String, Object> getUserCount() {
         List<UserDetail> userDetailList = null;
-        int userCount = 0;
+        long userCount = 0;
         Map responsemap = new HashMap();
         try{
             LOGGER.info("Entering inside getUserCount *******  ");
-            userDetailList = userDetailRepository.findAll();
-            userCount = userDetailList.size();
+            userCount =  userDetailRepository.count();
             responsemap.put("userCount",userCount);
         }catch(HCEActionException getUserCountHCEactionException){
             LOGGER.error("Exception occured in CountManagementServiceImpl->getUserCount", getUserCountHCEactionException);
@@ -59,10 +58,9 @@ public class CountManagementServiceImpl implements CountManagementService {
     public Map<String, Object> getDeviceCount() {
         List<DeviceInfo> deviceInfoList = null;
         Map responseMap = new HashMap();
-        int deviceCount = 0;
+        long deviceCount = 0;
         try {
-            deviceInfoList = deviceDetailRepository.findAll();
-            deviceCount = deviceInfoList.size();
+            deviceCount = deviceDetailRepository.count();
             responseMap.put("deviceCount",deviceCount);
         }catch(HCEActionException getDeviceCountHCEactionException){
             LOGGER.error("Exception occured in CountManagementServiceImpl->getDeviceCount", getDeviceCountHCEactionException);
@@ -79,10 +77,9 @@ public class CountManagementServiceImpl implements CountManagementService {
     public Map<String, Object> getTokenCount() {
         List<CardDetails> cardDetailsList = null;
         Map responseMap = new HashMap();
-        int tokenCount = 0;
+        long tokenCount = 0;
         try {
-            cardDetailsList = cardDetailRepository.findAll();
-            tokenCount = cardDetailsList.size();
+            tokenCount = cardDetailRepository.count();
             responseMap.put("tokenCount",tokenCount);
         }catch(HCEActionException getTokenCountHCEactionException){
             LOGGER.error("Exception occured in CountManagementServiceImpl->getTokenCount", getTokenCountHCEactionException);

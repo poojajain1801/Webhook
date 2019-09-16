@@ -336,8 +336,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "PUT");
 
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
 
@@ -377,7 +376,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String url;
         Map responseMap = new LinkedHashMap();
         HitVisaServices hitVisaServices =null;
-        Date date ;
+        Date date;
         try {
             //check if the provision id is correct or not
             long unixTimestamp = Instant.now().getEpochSecond();

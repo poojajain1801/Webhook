@@ -81,8 +81,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
 
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "GET");
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 strResponse = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(strResponse);
                 response = JsonUtil.jsonStringToHashMap(strResponse);

@@ -106,7 +106,6 @@ public class HitMasterCardService implements RestTemplateCustomizer
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
                 requestFactory.setProxy(proxy);
-
             }
             RestTemplate restTemplate = restTemplate();
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
@@ -114,8 +113,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
             LOGGER.debug("URL---- = " + url);
             LOGGER.info("info---- = " + url);
             startTime = System.currentTimeMillis();
-            if ("POST".equals(type))
-            {
+            if ("POST".equals(type)) {
                 LOGGER.debug("Request medthod  ########################################################## = " + type);
                 LOGGER.info("Request medthod  ###########################################################= " + type);
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);

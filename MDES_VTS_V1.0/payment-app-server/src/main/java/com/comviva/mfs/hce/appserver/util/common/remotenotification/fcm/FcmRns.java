@@ -24,14 +24,12 @@ public class FcmRns implements RemoteNotification {
     private Environment env;
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
     protected FcmRns(Environment env) {
-
         this.env= env;
     }
 
     private String convertStreamToString (InputStream inStream) throws Exception {
         InputStreamReader inputStream = new InputStreamReader(inStream);
         BufferedReader bReader = new BufferedReader(inputStream);
-
         StringBuilder sb = new StringBuilder();
         String line = null;
         while((line = bReader.readLine()) != null) {
@@ -53,7 +51,6 @@ public class FcmRns implements RemoteNotification {
                 String proxyport = env.getProperty("proxyport");
                 String username = env.getProperty("username");
                 String password = env.getProperty("password");
-
                 System.setProperty("http.proxyHost", proxyip);
                 System.setProperty("http.proxyPort", proxyport);
                 System.setProperty("http.proxyUser", username);

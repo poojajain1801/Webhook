@@ -37,6 +37,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
 
     public Map sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {
+        Map responseMap = new HashMap();
         String paymentAppProviderId = remoteNotificationReq.getPaymentAppProviderId();
         String paymentAppInstanceId = remoteNotificationReq.getPaymentAppInstanceId();
         String notificationData = remoteNotificationReq.getNotificationData();
@@ -84,23 +85,23 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
                 return ImmutableMap.of("errorCode", "234",
                         "errorDescription", "RNS Unavailable");
             }
-            return ImmutableMap.of("responseHost", "localhost",
-                    "responseId", "12345678");
-
-        }catch (HCEActionException sendRemoteNotificationMessageHCEactionException) {
-            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotificationMessage", sendRemoteNotificationMessageHCEactionException);
-            throw sendRemoteNotificationMessageHCEactionException;
-
-        } catch (Exception sendRemoteNotificationMessageException) {
-            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotificationMessage", sendRemoteNotificationMessageException);
+            responseMap.put("responseHost", "wallet.mahindracomviva.com");
+            responseMap.put("responseId",ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
+        }catch (HCEActionException remoteNotificationHCEactionException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotificationMessage", remoteNotificationHCEactionException);
+            throw remoteNotificationHCEactionException;
+        }catch (Exception remoteNotificationException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotificationMessage", remoteNotificationException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+        return responseMap;
     }
 
     public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
-        // Create Remote Notification Data
-        LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");
+        Map responseMap = new HashMap();
         try {
+            LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");
+            // Create Remote Notification Data
             Map rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             JSONObject payloadObject = new JSONObject();
@@ -118,14 +119,17 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVERFCM_MESSAGE");
             }
-            return ImmutableMap.of("responseHost", "localhost",
-                    "responseId", "12345678");
-        }catch (Exception e) {
-            LOGGER.debug("Exception occored in RemoteNotificationServiceImpl-> sendRemoteNotification",e);
-            return  ImmutableMap.of("errorCode","500",
-                "errorDescription","Servicefaild");
+            responseMap.put("responseHost", "wallet.mahindracomviva.com");
+            responseMap.put("responseId",ArrayUtil.getHexString(ArrayUtil.getRandom(16)));
+        }catch (HCEActionException remoteNotificationHCEactionException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotification", remoteNotificationHCEactionException);
+            throw remoteNotificationHCEactionException;
+        }catch (Exception remoteNotificationException) {
+            LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotification", remoteNotificationException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
 
         }
+        return responseMap;
     }
 
     @Override
@@ -144,7 +148,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
                 deviceInfo.put("deviceName",deviceDetailList.get().getDeviceName());
                 deviceInfo.put("serialNumber",deviceDetailList.get().getImei());
                 responseMap.put("deviceInfo",deviceInfo);
-                responseMap.put("responseHost", "nbkewallet.nbkpilot.com");
+                responseMap.put("responseHost", "wallet.mahindracomviva.com");
                 responseMap.put("responseId",ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
             }else {
                 throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());

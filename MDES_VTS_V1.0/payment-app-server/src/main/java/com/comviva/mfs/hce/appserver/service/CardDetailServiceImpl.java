@@ -97,7 +97,10 @@ public class CardDetailServiceImpl implements CardDetailService {
      */
     public Map<String, Object> checkDeviceEligibility(AddCardParm addCardParam) {
         Map<String, Object> mapResponse = null;
+        String paymentAppInstanceId = "";
+        Optional<DeviceInfo> deviceDetail;
         String url = null;
+        JSONObject jsonResp = new JSONObject();
         JSONObject checkDeviceEligibilityRequest = null;
         Optional<DeviceInfo> deviceInfoOptional = null;
         ResponseEntity responseEntity = null;
@@ -153,6 +156,13 @@ public class CardDetailServiceImpl implements CardDetailService {
             if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
                 if (responseEntity.hasBody()) {
                     response = String.valueOf(responseEntity.getBody());
+                    jsonResp = new JSONObject(response);
+                    paymentAppInstanceId = addCardParam.getPaymentAppInstanceId();
+                    deviceDetail = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+                    if (deviceDetail.isPresent()){
+                        deviceDetail.get().setNfcCapable(jsonResp.getString("responseHost"));
+                        deviceDetailRepository.save(deviceDetail.get());
+                    }
                 }
                 //response =  String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
@@ -190,6 +200,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     public Map<String, Object> addCard(DigitizationParam digitizationParam) {
         Optional<DeviceInfo> deviceInfoList = null;
         String eligibilityRequest = null;
+        Optional<DeviceInfo> deviceDetail;
         String eligibilityResponse = null;
         JSONObject jsonRequest = null;
         JSONObject jsonResponse = null;
@@ -202,6 +213,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = null;
         CardDetails cardDetails = null;
         String decision = "";
+        String paymentAppInstanceId ="";
+        String urlHost = null;
         try {
            // deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(digitizationParam.getPaymentAppInstanceId());
             /*if (!deviceInfoOptional.isPresent()) {
@@ -248,7 +261,16 @@ public class CardDetailServiceImpl implements CardDetailService {
             digitizeReq.put("cardInfo", cardInfo);
 
             // String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/addCard", digitizeReq);
-            url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
+            paymentAppInstanceId = digitizationParam.getPaymentAppInstanceId();
+            deviceDetail = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+            if (deviceDetail.isPresent() && !(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")){
+                urlHost = deviceDetail.get().getNfcCapable();
+            }
+            if (urlHost == null) {
+                url = this.env.getProperty("mdesip") + this.env.getProperty("digitizationpath");
+            }else {
+                url = "https://"+urlHost + this.env.getProperty("digitizationpath");
+            }
             String id = "digitize";
             ResponseEntity responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, digitizeReq.toString(), "POST",id);
 
@@ -478,10 +500,10 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> enrollPan (EnrollPanRequest enrollPanRequest) {
-        List<DeviceInfo> deviceInfoList ;
+        List<DeviceInfo> deviceInfoList;
         ObjectMapper objectMapper ;
         Map<String, Object> map ;
-        JSONObject jsonencPaymentInstrument ;
+        JSONObject jsonencPaymentInstrument;
         String encPaymentInstrument ;
         JSONObject jsonResponse = null;
         ResponseEntity responseEntity ;
@@ -1023,7 +1045,10 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject jsRespMdes = new JSONObject();
         String requestId = "";
         JSONObject authenticationCode = null;
+        String paymentAppInstanceId = null;
         String id = "";
+        String urlHost = null;
+        Optional<DeviceInfo> deviceDetail = null;
         try {
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             reqMdes  = new JSONObject();
@@ -1034,7 +1059,19 @@ public class CardDetailServiceImpl implements CardDetailService {
             authenticationCode = new JSONObject();
             authenticationCode.put("id",activationCodeReq.getAuthenticationCodeId());
             reqMdes.put("authenticationMethod", authenticationCode);
-            url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
+
+            paymentAppInstanceId = activationCodeReq.getPaymentAppInstanceId();
+            deviceDetail = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
+            if (deviceDetail.isPresent() && !(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")){
+                urlHost = deviceDetail.get().getNfcCapable();
+            }
+            if (urlHost == null) {
+                url = this.env.getProperty("mdesip") + this.env.getProperty("digitizationpath");
+            }else {
+                url = "https://"+urlHost + this.env.getProperty("digitizationpath");
+            }
+
+            //url = this.env.getProperty("mdesip")  +this.env.getProperty("digitizationpath");
             id = "requestActivationCode";
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,reqMdes.toString(),"POST",id);
             if (responseEntity.hasBody()) {
@@ -1332,7 +1369,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         LOGGER.debug("Enter CardDetailServiceImpl ----------------------------------------------notifyTokenUpdated-------");
         EncryptedPayload encryptedPayload = new EncryptedPayload();
         HashMap notifyTokenUpdatedMap = null;
-        String responseId = ArrayUtil.getHexString(ArrayUtil.getRandom(8));
+        String responseId = null;
         RnsGenericRequest rnsGenericRequest = new RnsGenericRequest();
         JSONObject requestJson = null;
         String strRequest = "";
@@ -1360,6 +1397,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
             Gson gson = new Gson();
             String json = gson.toJson(response);
+            responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             LOGGER.debug("CardDetailServiceImpl -> notifyTokenUpdated->Raw response from FCM server" + json);
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return ImmutableMap.of("errorCode", "720",

@@ -251,7 +251,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             //Send Delete card request to VISA
             List<CardDetails> cardDetails = deviceInfo.getCardDetails();
             deleteVISACards(cardDetails);
-
             paymentAppInstanceId = deviceInfo.getPaymentAppInstanceId();
             requestJson = new JSONObject();
             requestJson.put("responseHost",env.getProperty("responsehost"));

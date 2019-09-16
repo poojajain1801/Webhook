@@ -346,7 +346,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = new JSONObject();
         Map responseMap = null;
-        String url = null ;
+        String url = null;
         String id = null;
         try{
             txnDetails= transactionRegDetailsRepository.findByTokenUniqueReference(tokenUniqueRef);
