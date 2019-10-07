@@ -128,7 +128,6 @@ public class PerformUserLifecycle {
                 deviceInfo.setStatus(updatedUserStatus);
                 deviceDetailRepository.save(deviceInfo);
 
-
             }
 
             sendRnsMessage(rnsIdList, operation);
@@ -144,11 +143,10 @@ public class PerformUserLifecycle {
         }
         LOGGER.debug("Exit userLifecycleManagement");
     }
-    private void suspendOrResumeCard(String clientDeviceId,String operation)
-    {
+    private void suspendOrResumeCard(String clientDeviceId,String operation) {
         try {
-            cardDetailRepository.updateCardDetails(clientDeviceId,operation);
 
+            cardDetailRepository.updateCardDetails(clientDeviceId,operation);
         }catch (Exception e){
             LOGGER.error("Exception Occored in suspendOrResumeCard",e);
         }

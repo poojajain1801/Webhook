@@ -56,7 +56,7 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId")
+    @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status <> 'N'" )
     void updateCardDetails(@Param("clientDeviceId") String clientDeviceId, @Param("status") String status);
 
     @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn, c.cardSuffix, c.tokenSuffix, c.createdOn, c.status, c.replenishOn FROM CardDetails c JOIN c.deviceInfo d JOIN d.userDetail u " +

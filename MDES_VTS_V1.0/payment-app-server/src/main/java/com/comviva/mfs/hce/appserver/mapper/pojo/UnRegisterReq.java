@@ -11,7 +11,7 @@ import java.lang.reflect.Array;
 public class UnRegisterReq {
     private String imei;
     private String userId;
-    private String paymentAppInstanceId ;
+    private String paymentAppInstanceId;
 
     public UnRegisterReq(String imei, String userId, String paymentAppInstanceId) {
         this.imei = imei;

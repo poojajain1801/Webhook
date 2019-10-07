@@ -348,8 +348,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             requestJson.put("paymentAppId",tokenizeRequest.getPaymentAppId());
             url = "";
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",null);
-            if(responseEntity.hasBody())
-            {
+            if(responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 responseJson = new JSONObject(response);
 

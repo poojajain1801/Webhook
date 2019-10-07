@@ -250,7 +250,7 @@
         </createIndex>
     </changeSet>
 
-    <changeSet author="tanmay.p" id="201701091341">
+    <changeSet author="Rishikesh" id="201701091341">
         <addColumn tableName="TRANSACTION_REG_DETAILS">
             <column name="STATUS" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
@@ -258,7 +258,7 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="tanmay.p" id="201701091129">
+    <changeSet author="Rishikesh" id="201701091129">
         <addColumn tableName="USER_DETAILS">
             <column name="LANGUAGE_CODE" type="VARCHAR2(255)" >
                 <constraints nullable="true"/>
@@ -285,7 +285,7 @@
         <addPrimaryKey columnNames="MESSAGE_CODE, LANGUAGE_CODE" constraintName="PK_MESSAGE" tableName="SYS_MESSAGES" />
     </changeSet>
 
-    <changeSet author="tanmay.p" id="201701091234">
+    <changeSet author="Rishikesh" id="201701091234">
         <addColumn tableName="SYS_MESSAGES">
             <column name="REASON_CODE" type="VARCHAR2(255)" >
                 <constraints nullable="true"/>
@@ -327,7 +327,7 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_AUDIT_TRAIL" tableName="AUDIT_TRAIL" />
     </changeSet>
 
-    <changeSet author="tanmay.p" id="201701982786">
+    <changeSet author="Rishikesh" id="201701982786">
         <createTable tableName="CONFIGURATION_MANAGEMENT_M">
             <column name="REQUEST_ID" type="VARCHAR2(255)">
                 <constraints nullable="false"/>
@@ -354,7 +354,7 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="REQUEST_ID_M" tableName="CONFIGURATION_MANAGEMENT_M" />
     </changeSet>
 
-    <changeSet author="tanmay.p" id="201709882786">
+    <changeSet author="Rishikesh" id="201709882786">
         <createTable tableName="CONFIGURATION_MANAGEMENT">
             <column name="REQUEST_ID" type="VARCHAR2(255)">
                 <constraints nullable="false"/>

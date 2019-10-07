@@ -10,6 +10,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
+import com.visa.cbp.encryptionutils.common.EncryptionEnvironment;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
 import lombok.Setter;
 import org.json.JSONObject;
@@ -86,9 +87,7 @@ public class EnrollDeviceVts {
             devicePersoData = new DevicePersoData();
             encDevicePersoData = new EncDevicePersoData();
             jsonObject=new JSONObject(inputString);
-
             if("200".equals(jsonObject.get(HCEConstants.STATUS_CODE))) {
-
                 devicePersoData.setDeviceId((String) jsonObject.getJSONObject("responseBody").get("clientDeviceID"));
                 String DeviceSalt = String.format("%014X", Calendar.getInstance().getTime().getTime());
                 DeviceSalt = DeviceSalt + ArrayUtil.getHexString(ArrayUtil.getRandom(9));
@@ -103,7 +102,15 @@ public class EnrollDeviceVts {
                 devicePersoData.setSignCert((String) jsonObject.getJSONObject("responseBody").get("devSignCertificate"));
 
                 LOGGER.info("Encrypt device perso before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
-                encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(devicePersoData);
+                if(!(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")) {
+                    if (this.env.getProperty("cemea").equalsIgnoreCase("Y")){
+                        encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.CEMA_PROD, devicePersoData);
+                    }else{
+                        encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.PROD, devicePersoData);
+                    }
+                }else {
+                    encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.SBX, devicePersoData);
+                }
                 LOGGER.info("Encrypt device perso After hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                 JSONObject devicePersoDataObject = new JSONObject();
                 devicePersoDataObject.put("deviceId", encDevicePersoData.getDeviceId());
@@ -124,6 +131,5 @@ public class EnrollDeviceVts {
         }
         return jsonObject.toString();
     }
-
 
 }

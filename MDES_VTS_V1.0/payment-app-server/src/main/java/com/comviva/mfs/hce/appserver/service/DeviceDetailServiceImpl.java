@@ -245,7 +245,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
             if (deviceInfo == null){
                 LOGGER.error(" No Device is registered with UserID :"+userID);
-                throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
+                responseMap = new HashMap();
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                return responseMap;
             }
 
             //Send Delete card request to VISA
