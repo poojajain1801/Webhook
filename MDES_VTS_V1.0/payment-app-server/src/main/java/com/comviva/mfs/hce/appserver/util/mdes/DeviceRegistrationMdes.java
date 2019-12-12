@@ -165,6 +165,7 @@ public class DeviceRegistrationMdes
         LOGGER.debug("Enter in DeviceRegistrationMdes:->checkDeviceEligibility");
         try {
             deviceinfo = new JSONObject(enrollDeviceRequest.getMdes().getDeviceInfo());
+            deviceinfo.remove("imei");
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             jsonRequest.put("requestId",requestId);
             jsonRequest.put("paymentAppInstanceId", enrollDeviceRequest.getMdes().getPaymentAppInstanceId());

@@ -11,7 +11,10 @@ import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.ReportsService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -134,10 +137,6 @@ public class ReportsServiceImpl implements ReportsService {
         try {
             fromDate = userDeviceCardReportReq.getFromDate();
             toDate = userDeviceCardReportReq.getToDate();
-            if (fromDate == null || toDate == null){
-                LOGGER.info("Please Enter the fromDate and toDdate properly ");
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
             userId = userDeviceCardReportReq.getUserId();
             if (userId == null || userId.isEmpty()){
                 userId = "-";
@@ -154,7 +153,11 @@ public class ReportsServiceImpl implements ReportsService {
             if (deviceStatus == null || deviceStatus.isEmpty()){
                 deviceStatus = "-";
             }
-            cardList = cardDetailRepository.findUserDeviceCardReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
+            if (fromDate == null || toDate == null){
+                cardList = cardDetailRepository.findUserDeviceCardReportWithoutDate(userId, deviceId, userStatus, deviceStatus);
+            }else {
+                cardList = cardDetailRepository.findUserDeviceCardReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
+            }
             size = cardList.size();
             responseJson = responseJsonCard(cardList , size);
             LOGGER.info("List of queried CardList ******** "+responseJson);
@@ -223,6 +226,11 @@ public class ReportsServiceImpl implements ReportsService {
             jsonObject.put("cardAddedDate",cardlList.get(i)[11]);
             jsonObject.put("tokenStatus",cardlList.get(i)[12]);
             jsonObject.put("replenishOn",cardlList.get(i)[13]);
+            jsonObject.put("paymentAppInstanceId",cardlList.get(i)[14]);
+            jsonObject.put("schemeType",cardlList.get(i)[15]);
+            jsonObject.put("tokenUniqueReference",cardlList.get(i)[16]);
+            jsonObject.put("visaProvisionTokenId",cardlList.get(i)[17]);
+            jsonObject.put("userModifiedOn",cardlList.get(i)[18]);
             jArray.put(jsonObject);
         }
         responseJson.put("userDeviceCardMappingReport", jArray);

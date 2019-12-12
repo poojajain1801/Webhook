@@ -67,5 +67,13 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
             "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
     List<Object[]> findUserDeviceCardReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
 
+    @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn, c.cardSuffix, c.tokenSuffix, c.createdOn, c.status, c.replenishOn, c.masterPaymentAppInstanceId, c.cardType, c.masterTokenUniqueReference, c.visaProvisionTokenId, u.modifiedOn  FROM CardDetails c JOIN c.deviceInfo d JOIN d.userDetail u " +
+            "where d.status <> 'N' and c.status <> 'N' and " +
+            "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
+            "(CASE when (:imei <> '-') then d.imei else '-' end = :imei ) and " +
+            "(CASE when (:userStatus <> '-') then u.status else '-' end = :userStatus ) and " +
+            "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
+    List<Object[]> findUserDeviceCardReportWithoutDate(@Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
+
 }
 

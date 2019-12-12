@@ -185,10 +185,10 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/getContent",method = RequestMethod.POST)
     public Map<String,Object>getContent(@RequestBody GetContentRequest getContentRequest){
-        LOGGER.debug("Enter CardManagementController->getCardMetadata");
+        LOGGER.debug("Enter CardManagementController->getContent");
         Map<String,Object> getContentResp = null;
         getContentResp = cardDetailService.getContent(getContentRequest);
-        LOGGER.debug("Enter CardManagementController->getCardMetadata");
+        LOGGER.debug("Exit CardManagementController->getContent");
       return getContentResp;
     }
 

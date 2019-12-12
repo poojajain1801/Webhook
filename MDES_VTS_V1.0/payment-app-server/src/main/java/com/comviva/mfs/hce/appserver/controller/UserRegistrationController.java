@@ -24,6 +24,8 @@ import java.util.Map;
 /**
  * Created by Tanmay.Patel on 1/8/2017.
  */
+
+@CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping("/api/user")
 public class UserRegistrationController {
@@ -37,9 +39,10 @@ public class UserRegistrationController {
     private HCEControllerSupport hCEControllerSupport;
 
 
-    @ServiceFlowStep("paymentApp")
+
     @ResponseBody
     @RequestMapping(value = "/userRegistration", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ServiceFlowStep("paymentApp")
     public Map<String,Object> registerUser(@RequestBody String registerUserRequest){
         Map<String,Object> registerUser = null;
         RegisterUserRequest registerUserRequestPojo = null;
@@ -79,9 +82,10 @@ public class UserRegistrationController {
 
 
 
-    @ServiceFlowStep("paymentApp")
+
     @ResponseBody
     @RequestMapping(value = "/setLanguage", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ServiceFlowStep("paymentApp")
     public Map<String,Object> setLanguage(@RequestBody String setLanguageReq){
         Map<String,Object> setLanguageResp = null;
         SetLanguageReq setLanguageReqPojo = null;
@@ -99,9 +103,10 @@ public class UserRegistrationController {
         return setLanguageResp;
     }
 
-    @ServiceFlowStep("paymentApp")
+
     @ResponseBody
     @RequestMapping(value = "/userLifecycleManagement", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ServiceFlowStep("paymentApp")
     public Map<String,Object> userLifecycleManagement(@RequestBody String userLifecycleManagementRequest){
         Map<String,Object> userLifecycleManagementResp = null;
         UserLifecycleManagementReq userLifecycleManagementPojo = null;
@@ -116,7 +121,6 @@ public class UserRegistrationController {
             LOGGER.error(" Exception Occured in Enter UserRegistrationController->registerUser", regUserException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-
 
         return userLifecycleManagementResp;
     }
