@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  * Created by Madan amgoth on 5/9/2017.
  */
+@CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping("/api/token")
 public class TokenLifeCycleManagementController {

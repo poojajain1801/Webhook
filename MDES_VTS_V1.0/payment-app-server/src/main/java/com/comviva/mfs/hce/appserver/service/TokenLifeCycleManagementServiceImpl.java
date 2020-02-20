@@ -98,13 +98,11 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                             cardStatus = HCEConstants.ACTIVE;
                             break;
                         case "DELETED":
+                        case "INACTIVE":
                             cardStatus = HCEConstants.INACTIVE;
                             break;
                         case "SUSPENDED":
                             cardStatus = HCEConstants.SUSUPEND;
-                            break;
-                        case "INACTIVE":
-                            cardStatus = HCEConstants.INACTIVE;
                             break;
                         default:
                             response.put("responseCode", HCEMessageCodes.getSUCCESS());
@@ -231,7 +229,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
     }
     @Transactional
    public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest) {
-
         Map<String, Object> responseMap = null;
         String userId = null;
         List<UserDetail> userDetailList = null;
@@ -312,16 +309,15 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
 
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }
-        } catch (HCEActionException getTokeListHceActionException) {
-            LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokeListHceActionException);
+        }catch (HCEActionException getTokeListHceActionException) {
+            LOGGER.error("Exception occurred in DeviceDetailServiceImpl->registerDevice", getTokeListHceActionException);
             throw getTokeListHceActionException;
 
-        } catch (Exception getTokenListException) {
-            LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", getTokenListException);
+        }catch (Exception getTokenListException) {
+            LOGGER.error("Exception occurred in DeviceDetailServiceImpl->registerDevice", getTokenListException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 

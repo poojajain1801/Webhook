@@ -12,9 +12,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class DeviceReportReq {
-    @NotNull
+
     private Date fromDate;
-    @NotNull
+
     private Date toDate;
     private String userId;
     private String deviceId;

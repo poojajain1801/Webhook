@@ -49,17 +49,17 @@ public class ReportsServiceImpl implements ReportsService {
         Map <String, Object> response;
         JSONObject responseJson = new JSONObject();
         try {
-            if (fromDate == null || toDate == null){
-                LOGGER.info("Please Enter the fromDate and toDdate properly ");
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
             if (userId == null || userId.isEmpty()){
                 userId = "-";
             }
             if (userStatus == null || userStatus.isEmpty()){
                 userStatus = "-";
             }
-            userDetailList = userDetailRepository.findConsumerReport(fromDate,toDate,userId,userStatus);
+            if (fromDate == null || toDate == null){
+                userDetailList = userDetailRepository.findConsumerReportNoDate(userId, userStatus);
+            }else {
+                userDetailList = userDetailRepository.findConsumerReport(fromDate, toDate, userId, userStatus);
+            }
             responseJson = responseJsonUser(userDetailList);
             response = JsonUtil.jsonToMap(responseJson);
         }catch (HCEActionException consumerReportException){
@@ -87,10 +87,6 @@ public class ReportsServiceImpl implements ReportsService {
         try {
             fromDate = deviceReportReq.getFromDate();
             toDate = deviceReportReq.getToDate();
-            if (fromDate == null || toDate == null){
-                LOGGER.info("Please Enter the fromDate and toDdate properly ");
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
             userId = deviceReportReq.getUserId();
             if (userId == null || userId.isEmpty()){
                 userId = "-";
@@ -107,7 +103,11 @@ public class ReportsServiceImpl implements ReportsService {
             if (deviceStatus == null || deviceStatus.isEmpty()){
                 deviceStatus = "-";
             }
-            deviceUserList = deviceDetailRepository.findDeviceReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
+            if (fromDate == null || toDate == null){
+                deviceUserList = deviceDetailRepository.findDeviceReportNoDate(userId, deviceId, userStatus, deviceStatus);
+            }else {
+                deviceUserList = deviceDetailRepository.findDeviceReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
+            }
             size = deviceUserList.size();
             responseJson = responseJsonDevice(deviceUserList , size);
             LOGGER.info("List of queried deviceList ******** "+responseJson);
@@ -181,6 +181,7 @@ public class ReportsServiceImpl implements ReportsService {
             jsonObject.put("userId", userDetailList.get(i).getUserId());
             jsonObject.put("status", userDetailList.get(i).getStatus());
             jsonObject.put("createdOn", userDetailList.get(i).getCreatedOn());
+            jsonObject.put("modifiedOn", userDetailList.get(i).getModifiedOn());
             jArray.put(jsonObject);
         }
         responseJson.put("consumerReport", jArray);
@@ -214,7 +215,7 @@ public class ReportsServiceImpl implements ReportsService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId", (cardlList.get(i))[0]);
             jsonObject.put("userRegistrationDate", cardlList.get(i)[1]);
-            jsonObject.put("Userstatus", cardlList.get(i)[2]);
+            jsonObject.put("userStatus", cardlList.get(i)[2]);
             jsonObject.put("imei",cardlList.get(i)[3]);
             jsonObject.put("deviceName",cardlList.get(i)[4]);
             jsonObject.put("deviceModel",cardlList.get(i)[5]);

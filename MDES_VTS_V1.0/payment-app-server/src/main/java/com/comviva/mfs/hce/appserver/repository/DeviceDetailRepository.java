@@ -38,10 +38,19 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
     DeviceInfo findDeviceDetailsWithIMEI(@Param("imei") String imei, @Param("userId") String userId,@Param("status") String status);
 
     @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn FROM DeviceInfo d JOIN d.userDetail u " +
-            "where u.createdOn between :fromDate and :toDate and " +
+        "where u.createdOn between :fromDate and :toDate and " +
+        "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
+        "(CASE when (:imei <> '-') then d.imei else '-' end = :imei ) and " +
+        "(CASE when (:userStatus <> '-') then u.status else '-' end = :userStatus ) and " +
+        "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
+    List<Object[]> findDeviceReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
+
+    @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn FROM DeviceInfo d JOIN d.userDetail u " +
+            "where d.status <> 'N' and " +
             "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
             "(CASE when (:imei <> '-') then d.imei else '-' end = :imei ) and " +
             "(CASE when (:userStatus <> '-') then u.status else '-' end = :userStatus ) and " +
             "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
-    List<Object[]> findDeviceReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
+    List<Object[]> findDeviceReportNoDate(@Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
+
 }
