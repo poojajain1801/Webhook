@@ -541,7 +541,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 map.put("locale", enrollPanRequest.getLocale());
                 map.put("panSource", enrollPanRequest.getPanSource());
                 jsonencPaymentInstrument = new JSONObject(enrollPanRequest.getEncPaymentInstrument());
-                encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), env.getProperty("apiKey"), env.getProperty("sharedSecret"));
+                encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), env.getProperty("apiKeyEnc"), env.getProperty("sharedSecretEnc"));
                 map.put("encPaymentInstrument", encPaymentInstrument);
                 map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
                 hitVisaServices = new HitVisaServices(env);

@@ -18,7 +18,6 @@ public class VtsDeviceRequest {
 
 
 
-
     public VtsDeviceRequest() {
     }
 }

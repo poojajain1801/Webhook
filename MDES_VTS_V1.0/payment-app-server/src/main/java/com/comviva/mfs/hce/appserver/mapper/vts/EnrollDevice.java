@@ -127,7 +127,6 @@ public class EnrollDevice{
         JSONObject var =null;
         String vtsCertificateIDConf = null;
         String vtsCertificateIDSign =null;
-
         Resource resource = null;
         InputStream inputStream = null;
         CertMetaData certMetaData =null;
@@ -166,9 +165,8 @@ public class EnrollDevice{
             //var.put("vCertificateID","bf617210");
             vtsCerts.put(1, var);
 
-
             LOGGER.info("Load MasterKey.key file before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
-            resourceLoader = new FileSystemResourceLoader() ;
+            resourceLoader = new FileSystemResourceLoader();
             resource = resourceLoader.getResource("classpath:master_keyPkcs8.key");
             inputStream  = resource.getInputStream();
             PrivateKey masterPrivateKey = CertificateUtil.getRsaPrivateKey(inputStream);
@@ -178,6 +176,7 @@ public class EnrollDevice{
             resource = resourceLoader.getResource("classpath:master_cert.pem");
             inputStream   = resource.getInputStream();
             X509Certificate masterCertificate = CertificateUtil.getCertificate(inputStream);
+
 
             issuerName = new JcaX509CertificateHolder(masterCertificate).getSubject();
             LOGGER.info("Load MasterKey.pem file after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
@@ -197,8 +196,6 @@ public class EnrollDevice{
             LOGGER.info("generate devSignKeyPair before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
             LOGGER.info("generate devSignKeyPair after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
-
-
 
             deviceCerts = new JSONArray();
             var = new JSONObject();

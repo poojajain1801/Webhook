@@ -74,8 +74,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(getTokenStatusRequest.getVprovisionedTokenID());
             if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
                 cardDetails = cardDetailsList.get(0);
-
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
@@ -116,7 +114,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 LOGGER.debug("Exit TokenLifeCycleManagementService->getTokenStatus");
                 response.put("responseCode", HCEMessageCodes.getSUCCESS());
                 response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-
                 return response;
             }
             else
@@ -227,6 +224,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
     }
+
     @Transactional
    public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest) {
         Map<String, Object> responseMap = null;
@@ -249,7 +247,6 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         int size = 0;
         int totalCount = 0;
         try {
-
             userId = getTokenListRequest.getUserId();
             index = getTokenListRequest.getIndex();
             maxRecord = getTokenListRequest.getMaxRecord();

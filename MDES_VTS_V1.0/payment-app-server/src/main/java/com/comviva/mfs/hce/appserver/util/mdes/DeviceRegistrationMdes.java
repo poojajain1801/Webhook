@@ -117,7 +117,6 @@ public class DeviceRegistrationMdes
             jsonRegDevice.put("rgk", mdesDeviceRequest.getRgk());
             jsonRegDevice.put("deviceFingerprint", mdesDeviceRequest.getDeviceFingerprint());
             jsonRegDevice.put("newMobilePin", mdesDeviceRequest.getMobilePin());
-
             rnsInfo = new JSONObject();
             rnsInfo.put("gcmRegistrationId", enrollDeviceRequest.getGcmRegistrationId());
             jsonRegDevice.put("rnsInfo", rnsInfo);
