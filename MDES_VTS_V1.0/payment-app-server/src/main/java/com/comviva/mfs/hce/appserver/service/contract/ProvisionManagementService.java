@@ -15,5 +15,5 @@ public interface ProvisionManagementService {
     Map<String ,Object>submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest);
     Map<String,Object>validateOTP(ValidateOTPRequest validateOTPRequest);
     Map<String,Object>getStepUpOptions(GetStepUpOptionsRequest getStepUpOptionsRequest);
-
+    Map<String, Object> replenishODAData(ReplenishODADataRequest replenishODADataRequest);
 }

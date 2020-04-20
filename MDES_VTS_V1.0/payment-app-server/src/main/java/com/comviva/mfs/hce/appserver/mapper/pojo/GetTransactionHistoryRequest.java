@@ -12,7 +12,6 @@ import lombok.Setter;
  */
 
 public class GetTransactionHistoryRequest {
-
     private String vProvisionedTokenID;
     private String Count;
 

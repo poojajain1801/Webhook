@@ -183,6 +183,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                     cardStatus = HCEConstants.SUSUPEND;
                     break;
                 case "RESUME":
+                case "UNSUSPEND":
                     LOGGER.debug("Inside TokenLifeCycleManagementServiceImpl-> RESUME");
                     resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/resume";
                     //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/resume?apiKey=key

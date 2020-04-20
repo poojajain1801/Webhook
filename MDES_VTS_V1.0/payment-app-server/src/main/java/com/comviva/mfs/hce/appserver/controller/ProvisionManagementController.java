@@ -176,4 +176,25 @@ public class ProvisionManagementController {
         }
         return getStepUpOptions;
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/replenishODAData",method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String ,Object>replenishODAData( @RequestBody String replenishODADataRequest){
+        LOGGER.debug("Enter ProvisionManagementController-> replenishODAData ");
+        ReplenishODADataRequest replenishODADataRequestPojo = null;
+        Map <String,Object> replineshODADataResp= null;
+        try {
+            replenishODADataRequestPojo = (ReplenishODADataRequest) hCEControllerSupport.requestFormation(replenishODADataRequest, ReplenishODADataRequest.class);
+            replineshODADataResp = provisionManagementService.replenishODAData(replenishODADataRequestPojo);
+        }catch (HCEActionException replenishODAData){
+            LOGGER.error("Exception Occured in ProvisionManagementController->activeAccountManagementReplenish",replenishODAData);
+            throw replenishODAData;
+        }catch (Exception replenishODAData) {
+            LOGGER.error(" Exception Occured in ProvisionManagementController->activeAccountManagementReplenish", replenishODAData);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.debug("exit ProvisionManagementController-> activeAccountManagementReplenish ");
+        return replineshODADataResp;
+    }
 }

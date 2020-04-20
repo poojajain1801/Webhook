@@ -56,7 +56,7 @@ public class ReportsServiceImpl implements ReportsService {
                 userStatus = "-";
             }
             if (fromDate == null || toDate == null){
-                userDetailList = userDetailRepository.findConsumerReportNoDate(userId, userStatus);
+                userDetailList = userDetailRepository.findConsumerReportNoDate(userId);
             }else {
                 userDetailList = userDetailRepository.findConsumerReport(fromDate, toDate, userId, userStatus);
             }

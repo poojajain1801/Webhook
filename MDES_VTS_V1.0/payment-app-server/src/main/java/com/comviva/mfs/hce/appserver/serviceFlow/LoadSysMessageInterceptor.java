@@ -99,7 +99,7 @@ public class LoadSysMessageInterceptor {
                 }else {
                     responseMessageMap.putAll(responseData);
                 }
-            } else if (responseCode !=null){
+            } else if (responseCode !=null && !responseCode.equals("400")){
                 responseMessageMap.putAll(responseData);
                 responseMessageMap.putAll(hceControllerSupport.formResponse(responseCode));
 

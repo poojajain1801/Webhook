@@ -196,7 +196,6 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    @DecryptFlowStep("decryptData")
     public Map<String,Object>delete(@RequestBody String lifeCycleManagementReq){
         LifeCycleManagementReq lifeCycleManagementReqPojo = null;
         Map<String,Object> lifeCycleManagementResp = null;

@@ -30,10 +30,9 @@ public interface UserDetailRepository extends JpaRepository<UserDetail, String>{
     List<UserDetail>findConsumerReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId,  @Param("status")String status);
 
     @Query("SELECT u FROM UserDetail u " +
-            "where " +
-            "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
-            "(CASE when (:status <> '-') then u.status else '-' end = :status )")
-    List<UserDetail>findConsumerReportNoDate(@Param("userId")String userId,  @Param("status")String status);
+            "where u.status <> 'N' and " +
+            "(CASE when (:userId <> '-') then u.userId else '-' end = :userId )")
+    List<UserDetail>findConsumerReportNoDate(@Param("userId")String userId);
 }
 
 

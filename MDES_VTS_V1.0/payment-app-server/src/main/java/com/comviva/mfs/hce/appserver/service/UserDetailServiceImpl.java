@@ -177,10 +177,10 @@ public class UserDetailServiceImpl implements UserDetailService {
                     userMap.put("MessageCode",messageCode);
                 } else {
                     if (userDetails.getStatus().equalsIgnoreCase(HCEConstants.ACTIVE)) {
-                        message = "User ID avilable";
+                        message = "User ID Available";
                         messageCode = HCEMessageCodes.getSUCCESS();
                     } else {
-                        message = "User ID avilable but Inactive";
+                        message = "User ID available but Inactive";
                         messageCode = HCEMessageCodes.getInvalidUser();
                     }
                     userMap.put("UserId", userIdlist.get(i));
@@ -292,6 +292,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         }
         userDetail.setStatus(HCEConstants.ACTIVE);
         userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        userDetail.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
         userDetail.setUserId(registerUserRequest.getUserId());
         userDetail.setLanguageCode(registerUserRequest.getLanguageCode());
         return userDetail;

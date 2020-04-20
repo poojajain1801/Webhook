@@ -309,7 +309,7 @@
         <dependency>
             <groupId>encryption-utilities</groupId>
             <artifactId>encryption-utilities</artifactId>
-            <version>2.60.4</version>
+            <version>2.65.2</version>
             <scope>system</scope>
             <systemPath>${basedir}/src/main/lib/encryption-utilities-2.65.2-external.jar</systemPath>
         </dependency>
@@ -317,7 +317,7 @@
         <dependency>
             <groupId>SDK-MapUtil</groupId>
             <artifactId>SDK-MapUtil</artifactId>
-            <version>5.1.0</version>
+            <version>5.2.1.1</version>
             <scope>system</scope>
             <systemPath>${basedir}/src/main/lib/SDK-MapUtil-5.2.1.1.jar</systemPath>
         </dependency>
@@ -325,7 +325,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>2.10.1</version>
+            <version>4.34.2</version>
             <scope>system</scope>
             <systemPath>${basedir}/src/main/lib/nimbus-jose-jwt-4.34.2.jar</systemPath>
         </dependency>
@@ -473,10 +473,13 @@
                         <configuration>
                             <tasks>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.60.4.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.65.2-external.jar" />
                                 </copy>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-5.1.0.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-5.2.1.1.jar" />
+                                </copy>
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="nimbus-jose-jwt-4.34.2.jar" />
                                 </copy>
                             </tasks>
                         </configuration>

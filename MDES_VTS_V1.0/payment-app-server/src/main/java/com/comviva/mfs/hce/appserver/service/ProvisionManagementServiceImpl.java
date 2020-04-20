@@ -202,16 +202,16 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             /*cardDetails.setStatus(HCEConstants.ACTIVE);
             cardDetailRepository.save(cardDetails);
 */
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
             }
 
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
-
-
+                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                cardDetails.setStatus(HCEConstants.ACTIVE);
+                cardDetailRepository.save(cardDetails);
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
 
@@ -510,5 +510,46 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return responseMap;
+    }
+
+    @Override
+    public Map<String, Object> replenishODAData(ReplenishODADataRequest replenishODADataRequest) {
+        String vProvisionedTokenID = replenishODADataRequest.getVprovisionedTokenID();
+        String resourcePath = null;
+        String url = null;
+        String request = "";
+        String response = null;
+        JSONObject jsonResponse = new JSONObject();
+        Map responseMap = new LinkedHashMap();
+        ResponseEntity responseVts = null;
+        HitVisaServices hitVisaServices = new HitVisaServices(env);
+        try{
+            resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/replenishODA";
+            url = env.getProperty("visaBaseUrlSandbox") + "/" + resourcePath + "?apiKey=" + env.getProperty("apiKey");
+            responseVts = hitVisaServices.restfulServiceConsumerVisa(url, request, resourcePath, "POST");
+            if (responseVts.hasBody()) {
+                response = String.valueOf(responseVts.getBody());
+                jsonResponse = new JSONObject(response);
+            }
+            if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
+                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+            } else {
+                if (null != jsonResponse) {
+                    responseMap.put(HCEConstants.RESPONSE_CODE, Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
+                    responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
+                }
+            }
+
+        }catch (HCEActionException replenishODAData) {
+            LOGGER.error("Exception occurred in ProvisionManagementServiceImpl->replenishODAData", replenishODAData);
+            throw replenishODAData;
+        } catch (Exception replenishODAData) {
+            LOGGER.error("Exception occurred in ProvisionManagementServiceImpl->replenishODAData", replenishODAData);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return responseMap;
+
     }
 }

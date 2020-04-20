@@ -17,6 +17,7 @@ import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import org.json.JSONObject;
@@ -27,10 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 @Component
 public class PerformUserLifecycle {
@@ -103,8 +102,11 @@ public class PerformUserLifecycle {
             }
 
             //Get the list of device info associated with the userID
-            deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), userSatus);
+            deviceInfoList = deviceDetailRepository.findByClientWalletAccountIdAndStatus(userDetails.getClientWalletAccountId(), HCEConstants.INACTIVE);
             if (deviceInfoList.isEmpty()) {
+                userDetails.setStatus(updatedUserStatus);
+                userDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                userDetailRepository.save(userDetails);
                 throw new HCEActionException(HCEMessageCodes.getDeviceNotRegistered());
             }
 
@@ -129,9 +131,9 @@ public class PerformUserLifecycle {
                 deviceDetailRepository.save(deviceInfo);
 
             }
-
             sendRnsMessage(rnsIdList, operation);
             userDetails.setStatus(updatedUserStatus);
+            userDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
             userDetailRepository.save(userDetails);
         } catch (HCEActionException userLifecycleManagementException) {
             LOGGER.error("Exception occured in UserDetailServiceImpl->registerUser", userLifecycleManagementException);

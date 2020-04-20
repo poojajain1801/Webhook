@@ -28,7 +28,7 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
     @Query("Select d from DeviceInfo d where d.userDetail.clientWalletAccountId=:clientWalletAccountId")
     List<DeviceInfo> findByClientWalletAccountId(@Param("clientWalletAccountId") String clientWalletAccountId);
 
-    @Query("Select d from DeviceInfo d where d.userDetail.clientWalletAccountId=:clientWalletAccountId and d.status=:status")
+    @Query("Select d from DeviceInfo d where d.userDetail.clientWalletAccountId=:clientWalletAccountId and d.status<>:status")
     List<DeviceInfo> findByClientWalletAccountIdAndStatus(@Param("clientWalletAccountId") String clientWalletAccountId,@Param("status") String status);
 
     @Query("Select d from DeviceInfo d where d.clientDeviceId =:clientDeviceId and d.userDetail.clientWalletAccountId=:clientWalletAccountId and d.status=:status")
