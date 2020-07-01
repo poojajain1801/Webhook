@@ -1,9 +1,7 @@
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.CardDetail;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
@@ -17,8 +15,10 @@ import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.*;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
+import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,6 @@ import java.util.*;
  */
 @Service
 public class DeviceDetailServiceImpl implements DeviceDetailService {
-
     private final DeviceDetailRepository deviceDetailRepository;
     private final CardDetailRepository cardDetailRepository;
     private final UserDetailService userDetailService;
@@ -230,10 +229,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         String id = null;
         Map responseMap = null;
         String url = null;
-        String response = null;
         String userID = null;
         String imei = null;
         HttpStatus statusCode = null;
+        RnsGenericRequest rnsGenericRequest;
+        HashMap rnsNotificationData = new HashMap();
         try {
             imei = unRegisterReq.getImei();
             userID = unRegisterReq.getUserId();
@@ -250,42 +250,43 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
             }
-
             //Send Delete card request to VISA
             List<CardDetails> cardDetails = deviceInfo.getCardDetails();
             deleteVISACards(cardDetails);
-            paymentAppInstanceId = deviceInfo.getPaymentAppInstanceId();
-            requestJson = new JSONObject();
-            requestJson.put("responseHost",env.getProperty("responsehost"));
-            requestJson.put("requestId",env.getProperty("reqestid")+ ArrayUtil.getHexString(ArrayUtil.getRandom(22)));
-            requestJson.put("paymentAppInstanceId",paymentAppInstanceId);
-            url = env.getProperty("mdesip") + env.getProperty("mpamanagementPath");
-            id = "unregister";
-            /*responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",id);
-            if (responseMdes!= null && responseMdes.hasBody()) {
-                response = String.valueOf(responseMdes.getBody());
-                jsonResponse = new JSONObject(response);
-                responseMap = JsonUtil.jsonToMap(jsonResponse);
-                statusCode = responseMdes.getStatusCode();
-            }
-            if(statusCode!=null && statusCode.value() == HCEConstants.REASON_CODE7) {
-                LOGGER.debug("MasterCard UnRegister successful for userID: "+userID);
-
-            }
-            else{
-                LOGGER.error("Unregister failed at masterCard for UserID : "+userID);
-                *//*if (responseMdes!=null) {
-                    responseMap = JsonUtil.jsonToMap(jsonResponse);
-                    responseMap.put("responseCode", responseMdes.getStatusCode().value());
-                }
-                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-*//*            }*/
             cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
+
+            String rnsID = getRnsRegId(imei, userID);
             deviceInfo.setStatus(HCEConstants.INACTIVE);
             deviceDetailRepository.save(deviceInfo);
+
+            //Sending notification to device
+            rnsGenericRequest = new RnsGenericRequest();
+            rnsNotificationData.put("imei",imei);
+            rnsNotificationData.put("userID",userID);
+            rnsNotificationData.put(HCEConstants.OPERATION, "DELETEDEVICE");
+            rnsGenericRequest.setIdType(UniqueIdType.ALL);
+            rnsGenericRequest.setRegistrationId(rnsID);
+            rnsGenericRequest.setRnsData(rnsNotificationData);
+            Map rnsData = rnsGenericRequest.getRnsData();
+            rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
+            JSONObject payloadObject = new JSONObject();
+            payloadObject.put("data", new JSONObject(rnsData));
+            payloadObject.put("to", rnsGenericRequest.getRegistrationId());
+            LOGGER.debug("RemoteNotificationServiceImpl -> unRegisterDevice -> RNS ID "+rnsGenericRequest.getRegistrationId());
+            payloadObject.put("priority","high");
+            payloadObject.put("time_to_live",2160000);
+            RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
+            RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
+            Gson gson = new Gson();
+            String json = gson.toJson(response);
+            LOGGER.debug("RemoteNotificationServiceImpl -> unRegisterDevice ->Raw response from FCM server "+json);
             responseMap = new HashMap();
             responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
             responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+            if (Integer.valueOf(response.getErrorCode()) != 200) {
+                responseMap.put("Notification to device Status code", response.getErrorCode());
+            }else
+                responseMap.put("Notification to device Status code", HCEMessageCodes.getSUCCESS());
 
         }catch(HCEActionException unRegisterDeviceHCEactionException){
             LOGGER.error("Exception occured in CardDetailServiceImpl->unRegisterDevice",unRegisterDeviceHCEactionException);
@@ -304,7 +305,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         lifeCycleManagementVisaRequest.setOperation("DELETE");
         lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
         for (int i=0 ; i<visaCardList.size() ; i++) {
-            if (!(visaCardList.get(i).getVisaProvisionTokenId()==null||visaCardList.get(i).getVisaProvisionTokenId().isEmpty())){
+            if ((visaCardList.get(i).getVisaProvisionTokenId() != null && visaCardList.get(i).getStatus().equals("Y"))){
                 lifeCycleManagementVisaRequest.setVprovisionedTokenID(visaCardList.get(i).getVisaProvisionTokenId());
                 responseMap1 = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
                 LOGGER.debug("Visa response after unregister ****************   " + responseMap1);
@@ -312,5 +313,12 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         }
     }
 
-
+    private String getRnsRegId(String imei, String userID) {
+        String rnsRegID = null;
+        DeviceInfo deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei, userID, HCEConstants.ACTIVE);
+        if(deviceInfo != null ){
+            rnsRegID = deviceInfo.getRnsRegistrationId();
+        }
+        return rnsRegID;
+    }
 }

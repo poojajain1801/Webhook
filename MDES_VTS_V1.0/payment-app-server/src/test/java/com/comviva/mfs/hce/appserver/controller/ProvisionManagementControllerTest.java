@@ -372,7 +372,7 @@ public class ProvisionManagementControllerTest {
         String URI = "/api/provision/activeAccountManagementConfirmReplenishment";
         String inputInJson = this.mapToJson(request);
 
-        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ActiveAccountManagementConfirmReplenishmentRequest.class))).thenReturn(successScenario);
+        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ConfirmReplenishmenRequest.class))).thenReturn(successScenario);
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post(URI)
                 .accept(MediaType.APPLICATION_JSON).content(inputInJson)
@@ -393,7 +393,7 @@ public class ProvisionManagementControllerTest {
         String URI = "/api/provision/activeAccountManagementConfirmReplenishment";
         String inputInJson = this.mapToJson(request);
         HCEActionException hceActionException = new HCEActionException("707");
-        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ActiveAccountManagementConfirmReplenishmentRequest.class))).thenThrow(hceActionException);
+        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ConfirmReplenishmenRequest.class))).thenThrow(hceActionException);
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post(URI)
                 .accept(MediaType.APPLICATION_JSON).content(inputInJson)
@@ -413,7 +413,7 @@ public class ProvisionManagementControllerTest {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         String URI = "/api/provision/activeAccountManagementConfirmReplenishment";
         String inputInJson = this.mapToJson(request);
-        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ActiveAccountManagementConfirmReplenishmentRequest.class))).thenThrow(Exception.class);
+        Mockito.when(provisionManagementService.ActiveAccountManagementConfirmReplenishment(Mockito.any(ConfirmReplenishmenRequest.class))).thenThrow(Exception.class);
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .post(URI)
                 .accept(MediaType.APPLICATION_JSON).content(inputInJson)

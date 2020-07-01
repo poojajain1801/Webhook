@@ -299,15 +299,15 @@
             <column name="REQUEST_ID" type="VARCHAR2(255)">
                 <constraints nullable="true"/>
             </column>
-            <column name="REQUEST" type="BLOB">
+            <column name="REQUEST" type="BYTEA">
                 <constraints nullable="false"/>
             </column>
-            <column name="RESPONSE" type="BLOB">
+            <column name="RESPONSE" type="BYTEA">
                 <constraints nullable="false"/>
             </column>
 
             <column name="RESPONSE_CODE" type="VARCHAR2(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="true"/>
             </column>
 
             <column name="CREATED_BY" type="VARCHAR2(255)">

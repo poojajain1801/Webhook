@@ -59,6 +59,7 @@ public class DeviceInfo implements Serializable {
     @Column(name="RNS_REGISTRATION_ID")
     private String rnsRegistrationId;
 
+    @Column(name="STATUS")
     private String status;
 
     @Column(name="V_CLIENT_ID")

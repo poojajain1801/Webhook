@@ -71,7 +71,6 @@ public class LoadSysMessageInterceptor {
             String requestData = (String)originalMethod.getArgs()[0];
             userId = hceControllerSupport.findUserId(requestData);
             hceControllerSupport.setUserId(userId);
-            LOGGER.debug("User ID is  ******* :"  +userId);
 
             responseData = (Map) originalMethod.proceed();
 

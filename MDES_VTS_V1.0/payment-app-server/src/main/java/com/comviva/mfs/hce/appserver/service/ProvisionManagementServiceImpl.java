@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +74,6 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String vPanEnrollmentID = null;
         String clientDeviceID = null;
         try {
-
             LOGGER.debug("Enter ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
             emailAdress = provisionTokenGivenPanEnrollmentIdRequest.getEmailAddress();
             emailHash = MessageDigestUtil.getEmailHashAlgorithmValue(emailAdress);
@@ -250,6 +248,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject hceData = new JSONObject();
         JSONObject dynParams = new JSONObject();
         JSONArray tvl = new JSONArray();
+        CardDetails cardDetails = null;
         Map responseMap = new LinkedHashMap();
         List tvlData = activeAccountManagementReplenishRequest.getTvl();
         try{
@@ -272,16 +271,24 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/replenish";
             hitVisaServices = new HitVisaServices(env);
             responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestMap.toString(), resourcePath, "POST");
-            if (responseEntity.hasBody())
-            {
+            if (responseEntity.hasBody()) {
                 response = String.valueOf(responseEntity.getBody());
                 jsonResponse = new JSONObject(response);
                 responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
 
             }
 
+
             if (responseEntity.getStatusCode().value() == 200) {
                 //TODO:Store the vProvisonTokenID in the DB
+                List<CardDetails> cardDetailsList = cardDetailRepository.findByVisaProvisionTokenId(vProvisionedTokenID);
+                if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+                    cardDetails = cardDetailsList.get(0);
+                    cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetails.setReplenishOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetails.setStatus(HCEConstants.ACTIVE);
+                    cardDetailRepository.save(cardDetails);
+                }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementReplenish");
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
@@ -308,7 +315,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         }
     }
 
-    public Map<String, Object> ActiveAccountManagementConfirmReplenishment(ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequest) {
+    public Map<String, Object> ActiveAccountManagementConfirmReplenishment(ConfirmReplenishmenRequest activeAccountManagementConfirmReplenishmentRequest) {
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
         String vProvisionedTokenID = "";
@@ -329,7 +336,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             tokenInfo.put("hceData",hceData);
             requestMap.put("tokenInfo",tokenInfo);
 
-            vProvisionedTokenID = activeAccountManagementConfirmReplenishmentRequest.getVprovisionedTokenID();
+            vProvisionedTokenID = activeAccountManagementConfirmReplenishmentRequest.getvProvisionedTokenID();
             //https://sandbox.digital.visa.com/vts/provisionedTokens/{vProvisionedTokenID}/replenish?apiKey=key
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/provisionedTokens/" + vProvisionedTokenID + "/confirmReplenishment" + "?apiKey=" + env.getProperty("apiKey");
             String resourcePath = "vts/provisionedTokens/"+vProvisionedTokenID+"/confirmReplenishment";

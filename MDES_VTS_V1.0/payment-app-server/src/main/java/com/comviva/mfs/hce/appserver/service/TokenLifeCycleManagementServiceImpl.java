@@ -301,12 +301,9 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                         totalCount = cardDetailsList.size();
                     }
                     responseMap.put(HCEConstants.TOTAL_COUNT,Integer.toString(totalCount));
-
-
                 }else{
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }

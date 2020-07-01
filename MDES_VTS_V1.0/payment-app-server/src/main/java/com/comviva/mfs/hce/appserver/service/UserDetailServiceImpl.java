@@ -224,7 +224,6 @@ public class UserDetailServiceImpl implements UserDetailService {
         Map languageResp = new HashMap();
         UserDetail userDetail = null;
         String languageCode = null;
-
         try {
             userId = getLanguageReq.getUserId();
             userDetail = userDetailRepository.findByUserId(userId);
@@ -291,7 +290,9 @@ public class UserDetailServiceImpl implements UserDetailService {
             userDetail.setClientWalletAccountId(HCEUtil.generateRandomId(HCEConstants.USER_PREFIX));
         }
         userDetail.setStatus(HCEConstants.ACTIVE);
-        userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        if (userDetail.getCreatedOn() == null) {
+            userDetail.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        }
         userDetail.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
         userDetail.setUserId(registerUserRequest.getUserId());
         userDetail.setLanguageCode(registerUserRequest.getLanguageCode());

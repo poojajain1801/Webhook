@@ -1,6 +1,7 @@
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AuditLogsRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.ConsumerReportReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceReportReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UserDeviceCardReportReq;
@@ -84,5 +85,24 @@ public class ReportsManagementController {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return userDeviceCardReportResp;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/auditLogs", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> auditLogs(@RequestBody String auditLogs) {
+        Map<String, Object> auditLogsResp = null;
+        AuditLogsRequest auditLogsRequest = null;
+        try{
+            auditLogsRequest =(AuditLogsRequest) hCEControllerSupport.requestFormation(auditLogs,AuditLogsRequest.class);
+            auditLogsResp  = reportsService.auditLogs(auditLogsRequest);
+        }catch (HCEActionException auditLogsHCEExp){
+            LOGGER.error("Exception Occured in ReportManagementController->auditLogs",auditLogsHCEExp);
+            throw auditLogsHCEExp;
+        }catch (Exception auditLogsExp) {
+            LOGGER.error(" Exception Occured in ReportManagementController->auditLogs", auditLogsExp);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return auditLogsResp;
     }
 }

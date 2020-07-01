@@ -11,7 +11,7 @@ public interface ProvisionManagementService {
     Map<String, Object> ProvisionTokenGivenPanEnrollmentId(ProvisionTokenGivenPanEnrollmentIdRequest panEnrollmentIdRequest);
     Map<String, Object>ConfirmProvisioning(ConfirmProvisioningRequest confirmProvisioningRequest);
     Map<String ,Object>ActiveAccountManagementReplenish(ActiveAccountManagementReplenishRequest activeAccountManagementReplenishRequest);
-    Map<String,Object>ActiveAccountManagementConfirmReplenishment(ActiveAccountManagementConfirmReplenishmentRequest activeAccountManagementConfirmReplenishmentRequest);
+    Map<String,Object>ActiveAccountManagementConfirmReplenishment(ConfirmReplenishmenRequest activeAccountManagementConfirmReplenishmentRequest);
     Map<String ,Object>submitIDandVStepupMethod(SubmitIDandVStepupMethodRequest submitIDandVStepupMethodRequest);
     Map<String,Object>validateOTP(ValidateOTPRequest validateOTPRequest);
     Map<String,Object>getStepUpOptions(GetStepUpOptionsRequest getStepUpOptionsRequest);

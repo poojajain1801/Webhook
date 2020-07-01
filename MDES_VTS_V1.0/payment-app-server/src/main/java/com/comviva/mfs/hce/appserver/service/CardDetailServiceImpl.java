@@ -1471,7 +1471,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             PrivateKey privateKey = privateKeyEntry.getPrivateKey();
             return privateKey;
         }catch (Exception ex) {
-            //LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : " + ex.getMessage(), ex);
+            LOGGER.error("Error in AESEncrypt getPrivateKeyFromKeyStore : ", ex);
             throw new HCEActionException(HCEMessageCodes.getUnableToParseRequest());
         }
 

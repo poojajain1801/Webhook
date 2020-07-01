@@ -60,7 +60,7 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
     void updateCardDetails(@Param("clientDeviceId") String clientDeviceId, @Param("status") String status);
 
     @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn, c.cardSuffix, c.tokenSuffix, c.createdOn, c.status, c.replenishOn, c.masterPaymentAppInstanceId, c.cardType, c.masterTokenUniqueReference, c.visaProvisionTokenId, u.modifiedOn FROM CardDetails c JOIN c.deviceInfo d JOIN d.userDetail u " +
-            "where u.createdOn between :fromDate and :toDate and " +
+            "where c.createdOn between :fromDate and :toDate and " +
             "(CASE when (:userId <> '-') then u.userId else '-' end = :userId ) and " +
             "(CASE when (:imei <> '-') then d.imei else '-' end = :imei ) and " +
             "(CASE when (:userStatus <> '-') then u.status else '-' end = :userStatus ) and " +

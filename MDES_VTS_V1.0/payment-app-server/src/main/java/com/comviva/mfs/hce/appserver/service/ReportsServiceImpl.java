@@ -2,10 +2,13 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AuditLogsRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.ConsumerReportReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceReportReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UserDeviceCardReportReq;
+import com.comviva.mfs.hce.appserver.model.AuditTrail;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.AuditTrailRepository;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
@@ -21,7 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Created by rishikesh.kumar on 09-01-2019.
@@ -38,6 +46,8 @@ public class ReportsServiceImpl implements ReportsService {
     private CardDetailRepository cardDetailRepository;
     @Autowired
     private HCEControllerSupport hceControllerSupport;
+    @Autowired
+    private AuditTrailRepository auditTrailRepository;
 
     @Override
     public Map<String, Object> consumerReport(ConsumerReportReq consumerReportReq) {
@@ -58,10 +68,16 @@ public class ReportsServiceImpl implements ReportsService {
             if (fromDate == null || toDate == null){
                 userDetailList = userDetailRepository.findConsumerReportNoDate(userId);
             }else {
+                Calendar c = Calendar.getInstance();
+                c.setTime(toDate);
+                c.add(Calendar.DATE, 1);
+                toDate = c.getTime();
                 userDetailList = userDetailRepository.findConsumerReport(fromDate, toDate, userId, userStatus);
             }
             responseJson = responseJsonUser(userDetailList);
             response = JsonUtil.jsonToMap(responseJson);
+            response.put("responseCode", HCEMessageCodes.getSUCCESS());
+            response.put("message", "Transaction Success");
         }catch (HCEActionException consumerReportException){
             LOGGER.error("Exception occured in ReportsServiceImpl->consumerReport", consumerReportException);
             throw consumerReportException;
@@ -106,12 +122,18 @@ public class ReportsServiceImpl implements ReportsService {
             if (fromDate == null || toDate == null){
                 deviceUserList = deviceDetailRepository.findDeviceReportNoDate(userId, deviceId, userStatus, deviceStatus);
             }else {
+                Calendar c = Calendar.getInstance();
+                c.setTime(toDate);
+                c.add(Calendar.DATE, 1);
+                toDate = c.getTime();
                 deviceUserList = deviceDetailRepository.findDeviceReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
             }
             size = deviceUserList.size();
             responseJson = responseJsonDevice(deviceUserList , size);
             LOGGER.info("List of queried deviceList ******** "+responseJson);
             response = JsonUtil.jsonToMap(responseJson);
+            response.put("responseCode", HCEMessageCodes.getSUCCESS());
+            response.put("message", "Transaction Success");
         }catch (HCEActionException deviceReportException){
             LOGGER.error("Exception occured in ReportsServiceImpl->deviceReport", deviceReportException);
             throw deviceReportException;
@@ -156,17 +178,50 @@ public class ReportsServiceImpl implements ReportsService {
             if (fromDate == null || toDate == null){
                 cardList = cardDetailRepository.findUserDeviceCardReportWithoutDate(userId, deviceId, userStatus, deviceStatus);
             }else {
+                Calendar c = Calendar.getInstance();
+                c.setTime(toDate);
+                c.add(Calendar.DATE, 1);
+                toDate = c.getTime();
                 cardList = cardDetailRepository.findUserDeviceCardReport(fromDate, toDate, userId, deviceId, userStatus, deviceStatus);
             }
             size = cardList.size();
             responseJson = responseJsonCard(cardList , size);
             LOGGER.info("List of queried CardList ******** "+responseJson);
             response = JsonUtil.jsonToMap(responseJson);
+            response.put("responseCode", HCEMessageCodes.getSUCCESS());
+            response.put("message", "Transaction Success");
         }catch (HCEActionException userDeviceCardReportException){
             LOGGER.error("Exception occured in ReportsServiceImpl->userDeviceCardReport", userDeviceCardReportException);
             throw userDeviceCardReportException;
         }catch (Exception userDeviceCardReportException){
             LOGGER.error("Exception occured in ReportsServiceImpl->userDeviceCardReport", userDeviceCardReportException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return response;
+    }
+
+    @Override
+    public Map<String, Object> auditLogs(AuditLogsRequest auditLogsRequest) {
+        Date fromDate = auditLogsRequest.getFromDate();
+        Date toDate = auditLogsRequest.getToDate();
+        Map <String, Object> response = null;
+        JSONObject responseJson  = new JSONObject();
+        int size = 0;
+        try {
+            Calendar c = Calendar.getInstance();
+            c.setTime(toDate);
+            c.add(Calendar.DATE, 1);
+            toDate = c.getTime();
+            List<AuditTrail> auditTrailList = auditTrailRepository.findAuditTrailReport(fromDate, toDate);
+            responseJson = responseJsonAudit(auditTrailList);
+            response = JsonUtil.jsonToMap(responseJson);
+            response.put("responseCode", HCEMessageCodes.getSUCCESS());
+            response.put("message", "Transaction Success");
+        }catch (HCEActionException auditLogsReportException){
+            LOGGER.error("Exception occured in ReportsServiceImpl->auditLogs", auditLogsReportException);
+            throw auditLogsReportException;
+        }catch (Exception auditLogsException){
+            LOGGER.error("Exception occured in ReportsServiceImpl->auditLogs", auditLogsException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return response;
@@ -188,6 +243,24 @@ public class ReportsServiceImpl implements ReportsService {
         return responseJson;
     }
 
+    private JSONObject responseJsonAudit (List<AuditTrail> auditTrailList){
+        int userCount = auditTrailList.size();
+        JSONObject responseJson = new JSONObject();
+        JSONArray jArray = new JSONArray();
+        for(int i=0;i<userCount;i++) {
+            org.json.JSONObject jsonObject = new org.json.JSONObject();
+            jsonObject.put("requestId", auditTrailList.get(i).getRequestId());
+            jsonObject.put("createdBy", auditTrailList.get(i).getCreatedBy());
+            jsonObject.put("clientDeviceId", auditTrailList.get(i).getClientDeviceId());
+            jsonObject.put("createdOn", auditTrailList.get(i).getCreatedOn());
+            jsonObject.put("serviceType", auditTrailList.get(i).getServiceType());
+            jsonObject.put("responseCode", auditTrailList.get(i).getResponseCode());
+            jArray.put(jsonObject);
+        }
+        responseJson.put("auditLogsReport", jArray);
+        return responseJson;
+    }
+
     private JSONObject responseJsonDevice (List<Object[]> deviceDetailList , int deviceCount ){
         JSONObject responseJson = new JSONObject();
         JSONArray jArray = new JSONArray();
@@ -195,7 +268,7 @@ public class ReportsServiceImpl implements ReportsService {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId", (deviceDetailList.get(i))[0]);
             jsonObject.put("userRegistrationDate", deviceDetailList.get(i)[1]);
-            jsonObject.put("UserStatus", deviceDetailList.get(i)[2]);
+            jsonObject.put("userStatus", deviceDetailList.get(i)[2]);
             jsonObject.put("imei",deviceDetailList.get(i)[3]);
             jsonObject.put("deviceName",deviceDetailList.get(i)[4]);
             jsonObject.put("deviceModel",deviceDetailList.get(i)[5]);
@@ -208,9 +281,10 @@ public class ReportsServiceImpl implements ReportsService {
         return responseJson;
     }
 
-    private JSONObject responseJsonCard (List<Object[]> cardlList , int cardCount ){
+    private JSONObject responseJsonCard (List<Object[]> cardlList , int cardCount ) throws ParseException {
         JSONObject responseJson = new JSONObject();
         JSONArray jArray = new JSONArray();
+        SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
         for(int i=0;i<cardCount;i++) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("userId", (cardlList.get(i))[0]);
@@ -225,13 +299,17 @@ public class ReportsServiceImpl implements ReportsService {
             jsonObject.put("cardSuffix",cardlList.get(i)[9]);
             jsonObject.put("tokenSuffix",cardlList.get(i)[10]);
             jsonObject.put("cardAddedDate",cardlList.get(i)[11]);
+            Date cardAddedDate = (Date) cardlList.get(i)[11];
+            Date todaysDate = HCEUtil.convertDateToTimestamp(new Date());
+            long difference = todaysDate.getTime() - cardAddedDate.getTime();
+            int daysBetween = (int) (difference / (1000*60*60*24));
             jsonObject.put("tokenStatus",cardlList.get(i)[12]);
             jsonObject.put("replenishOn",cardlList.get(i)[13]);
             jsonObject.put("paymentAppInstanceId",cardlList.get(i)[14]);
             jsonObject.put("schemeType",cardlList.get(i)[15]);
             jsonObject.put("tokenUniqueReference",cardlList.get(i)[16]);
             jsonObject.put("visaProvisionTokenId",cardlList.get(i)[17]);
-            jsonObject.put("userModifiedOn",cardlList.get(i)[18]);
+            jsonObject.put("addedSince",daysBetween+" Days");
             jArray.put(jsonObject);
         }
         responseJson.put("userDeviceCardMappingReport", jArray);

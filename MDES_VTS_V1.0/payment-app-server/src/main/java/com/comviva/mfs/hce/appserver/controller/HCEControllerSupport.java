@@ -193,9 +193,9 @@ public class HCEControllerSupport {
             if(url!=null && !url.isEmpty()){
                 auditTrail.setServiceType(url);
             }
-            if(totalTime!=null && !totalTime.isEmpty()){
+            /*if(totalTime!=null && !totalTime.isEmpty()){
                 auditTrail.setTotalTimeTaken(totalTime);
-            }
+            }*/
             auditTrailRepository.save(auditTrail);
             LOGGER.debug("Exit HCEControllerSupport->maintainAudiTrail");
 
@@ -359,6 +359,9 @@ public class HCEControllerSupport {
             }else if(!jsonObject.isNull("vProvisionedTokenID")){
                 vprovisionedTokenID = (String)jsonObject.get("vProvisionedTokenID");
                 userId = findUserIdByVProvisionedTokenID(vprovisionedTokenID);
+            }else if(!jsonObject.isNull("vprovisionedTokenID")){
+                vprovisionedTokenID = (String)jsonObject.get("vprovisionedTokenID");
+                userId = findUserIdByVProvisionedTokenID(vprovisionedTokenID);
             }else if(!jsonObject.isNull("tokenUniqueReference")){
                 tokenUniqueReference = (String)jsonObject.get("tokenUniqueReference");
                 userId = findUserIdByTokenUniqueReference(tokenUniqueReference);
@@ -379,9 +382,10 @@ public class HCEControllerSupport {
             clientDeviceId = jsonObject.getString("clientDeviceID");
         }
         else{
-            if(!jsonObject.isNull("vprovisionedTokenId"))
-            {
-                clientDeviceId = jsonObject.getString("vprovisionedTokenId");
+            if(!jsonObject.isNull("vprovisionedTokenID")) {
+                clientDeviceId = jsonObject.getString("vprovisionedTokenID");
+            }else if (!jsonObject.isNull("vProvisionedTokenId")){
+                clientDeviceId = jsonObject.getString("vProvisionedTokenId");
             }
         }
         return clientDeviceId;

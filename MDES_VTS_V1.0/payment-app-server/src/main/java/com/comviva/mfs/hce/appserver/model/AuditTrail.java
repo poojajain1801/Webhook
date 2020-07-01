@@ -28,8 +28,8 @@ public class AuditTrail implements Serializable {
 	@Column(name="CLIENT_DEVICE_ID")
 	private String clientDeviceId;
 
-	@Column(name="TOTAL_TIME_TAKEN")
-	private String totalTimeTaken;
+/*	@Column(name="TOTAL_TIME_TAKEN")
+	private String totalTimeTaken;*/
 
 	@Column(name="CREATED_ON")
 	private Timestamp createdOn;
@@ -37,10 +37,8 @@ public class AuditTrail implements Serializable {
 	@Column(name="SERVICE_TYPE")
 	private String serviceType;
 
-	@Lob
 	private byte[] request;
 
-	@Lob
 	private byte[] response;
 
 	@Column(name="RESPONSE_CODE")
@@ -49,71 +47,72 @@ public class AuditTrail implements Serializable {
 	public AuditTrail() {
 	}
 
-	public String getRequestId() {
-		return this.requestId;
-	}
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
-	public void setRequestId(String requestId) {
-		this.requestId = requestId;
-	}
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
 
-	public String getCreatedBy() {
-		return this.createdBy;
-	}
+    public void setClientDeviceId(String clientDeviceId) {
+        this.clientDeviceId = clientDeviceId;
+    }
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
-	}
+    public void setCreatedOn(Timestamp createdOn) {
+        this.createdOn = createdOn;
+    }
 
-	public Timestamp getCreatedOn() {
-		return (this.createdOn);
-	}
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
 
-	public void setCreatedOn(Timestamp createdOn) {
-		this.createdOn = (createdOn);
-	}
+    public void setResponseCode(String responseCode) {
+        this.responseCode = responseCode;
+    }
 
-	public byte[] getRequest() {
-		return (this.request);
-	}
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
-	public void setRequest(byte[] request) {
-		this.request = (request);
-	}
+    public String getRequestId() {
+        return requestId;
+    }
 
-	public byte[] getResponse() {
-		return (this.response);
-	}
+    public String getCreatedBy() {
+        return createdBy;
+    }
 
-	public void setResponse(byte[] response) {
-		this.response = (response);
-	}
+    public String getClientDeviceId() {
+        return clientDeviceId;
+    }
 
-	public String getResponseCode() {
-		return this.responseCode;
-	}
 
-	public void setResponseCode(String responseCode) {
-		this.responseCode = responseCode;
-	}
+    public Timestamp getCreatedOn() {
+        return createdOn;
+    }
 
-	public String getServiceType() {
-		return serviceType;
-	}
+    public String getServiceType() {
+        return serviceType;
+    }
 
-	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
-	}
+    public String getResponseCode() {
+        return responseCode;
+    }
 
-	public String getClientDeviceId() {
-		return clientDeviceId;
-	}
+    public void setRequest(byte[] request) {
+        this.request = request;
+    }
 
-	public void setClientDeviceId(String clientDeviceId) {
-		this.clientDeviceId = clientDeviceId;
-	}
+    public void setResponse(byte[] response) {
+        this.response = response;
+    }
 
-	public String getTotalTimeTaken() { return totalTimeTaken;	}
+    public byte[] getRequest() {
+        return request;
+    }
 
-	public void setTotalTimeTaken(String totalTimeTaken) { this.totalTimeTaken = totalTimeTaken;	}
+    public byte[] getResponse() {
+        return response;
+    }
 }

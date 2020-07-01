@@ -120,7 +120,6 @@ public class HitVisaServices extends VtsRequest {
             }
             if(response!=null){
                 HttpHeaders headers = response.getHeaders();
-
                 xCorrelationId = headers.get("X-CORRELATION-ID").get(0);
             }
 
