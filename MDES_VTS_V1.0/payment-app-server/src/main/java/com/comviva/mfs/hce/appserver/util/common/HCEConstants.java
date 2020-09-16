@@ -231,5 +231,6 @@ public class HCEConstants {
     public static final int REASON_CODE7 = 200;
     public static final int REASON_CODE_234 = 234;
     public static final int REASON_CODE8 = 201;
+    public static final int REASON_CODE9 = 400;
 
 }

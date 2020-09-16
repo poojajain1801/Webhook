@@ -69,15 +69,16 @@ public class DeviceInfo implements Serializable {
     @Column(name="DEVICE_NAME")
     private String deviceName;
 
+
     //bi-directional many-to-one association to DeviceInfo
     @ManyToOne
     @JoinColumn(name="CLIENT_WALLET_ACCOUNT_ID")
     private UserDetail userDetail;
 
 
-
     //bi-directional many-to-one association to CardDetail
     @OneToMany(mappedBy="deviceInfo")
+
     private List<CardDetails> cardDetails;
 
 
@@ -251,4 +252,5 @@ public class DeviceInfo implements Serializable {
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
     }
+
 }

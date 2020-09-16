@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,15 +11,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class VtsCerts {
-
-    private String  vCertificateID;
-    private String  certUsage;
-    public VtsCerts(String vCertificateID,String certUsage) {
-
-        this.vCertificateID=vCertificateID;
-        this.certUsage=certUsage;
-    }
-    public VtsCerts() {
-    }
+    private String vCertificateID;
+    private String certUsage;
 }

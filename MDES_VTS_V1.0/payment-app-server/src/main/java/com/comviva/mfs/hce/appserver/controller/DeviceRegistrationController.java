@@ -2,13 +2,8 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
-
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -77,6 +72,28 @@ public class DeviceRegistrationController {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return unRegisterResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/enrollDeviceDas", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> enrollDeviceForDas(@RequestBody String enrollDeviceDasReq) {
+        LOGGER.info("Enroll device for DAS request lands --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        Map<String, Object> enrollDeviceDasResponse = null;
+        EnrollDeviceDasRequest enrollDeviceDasReqPojo = null;
+        try {
+            enrollDeviceDasReqPojo = (EnrollDeviceDasRequest) hCEControllerSupport.requestFormation(enrollDeviceDasReq,
+                    EnrollDeviceDasRequest.class);
+            enrollDeviceDasResponse = deviceDetailService.enrollDeviceDas(enrollDeviceDasReqPojo);
+        } catch (HCEActionException dasRegHCEActionException){
+            LOGGER.error("Exception Occured in Enter DeviceRegistrationController->enroll Device for DAS",dasRegHCEActionException);
+            throw dasRegHCEActionException;
+        }catch (Exception dasRegException) {
+            LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->enroll Device for DAS", dasRegException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.info("Enroll device for DAS request Ends at --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        return enrollDeviceDasResponse;
     }
 
 }

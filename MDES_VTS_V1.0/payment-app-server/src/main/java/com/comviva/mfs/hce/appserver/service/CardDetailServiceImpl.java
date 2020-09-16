@@ -991,30 +991,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 } else {
                     responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
                     JSONArray tokensArray = responseJson.getJSONArray("tokens");
-                    for (int i = 0; i < tokensArray.length(); i++) {
-                        JSONObject j = tokensArray.getJSONObject(i);
-                        if (j.has("status")) {
-                            tokenUniqueRef = j.getString("tokenUniqueReference");
-                            statusFromMastercard = j.getString("status");
-                            switch (statusFromMastercard) {
-                                case "DEACTIVATED":
-                                    status = HCEConstants.INACTIVE;
-                                    break;
-                                case "SUSPENDED":
-                                    status = HCEConstants.SUSUPEND;
-                                    break;
-                                case "ACTIVE":
-                                    status = HCEConstants.ACTIVE;
-                                    break;
-                            }
-                            if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
-                                CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
-                                cardDetails.setStatus(status);
-                                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                                cardDetailRepository.save(cardDetails);
-                            }
-                        }
-                    }
+                    updateTokenStatus(tokensArray);
                 }
                 //Check the status of indivisual token and update the status of the token in the DB
                 //Call update the card starus of the token in CMS-D
@@ -1034,6 +1011,37 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Call update the card starus of the token in CMS-D
         //Send response
         return JsonUtil.jsonStringToHashMap(responseJson.toString());
+    }
+
+    // updates the token status based on tokenUniqueReferenceId
+    private void updateTokenStatus(JSONArray tokensArray) {
+        String tokenUniqueRef = "";
+        String statusFromMastercard = "";
+        String status = "";
+        for (int i = 0; i < tokensArray.length(); i++) {
+            JSONObject j = tokensArray.getJSONObject(i);
+            if (j.has("status")) {
+                tokenUniqueRef = j.getString("tokenUniqueReference");
+                statusFromMastercard = j.getString("status");
+                switch (statusFromMastercard) {
+                    case "DEACTIVATED":
+                        status = HCEConstants.INACTIVE;
+                        break;
+                    case "SUSPENDED":
+                        status = HCEConstants.SUSUPEND;
+                        break;
+                    case "ACTIVE":
+                        status = HCEConstants.ACTIVE;
+                        break;
+                }
+                if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
+                    CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                    cardDetails.setStatus(status);
+                    cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetailRepository.save(cardDetails);
+                }
+            }
+        }
     }
 
     public Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq) {
@@ -1379,6 +1387,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             strRequest = CryptoUtils.AESEncryption(notifyTokenUpdatedReq.getEncryptedPayload().getEncryptedData(), rgk, Cipher.DECRYPT_MODE, notifyTokenUpdatedReq.getEncryptedPayload().getIv());
             requestJson = new JSONObject(strRequest);
             notifyTokenUpdatedMap = (HashMap)JsonUtil.jsonStringToHashMap(strRequest);
+
             //Prepare FCM Request
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(requestJson.getString("paymentAppInstanceId")));
@@ -1398,9 +1407,13 @@ public class CardDetailServiceImpl implements CardDetailService {
             String json = gson.toJson(response);
             responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             LOGGER.debug("CardDetailServiceImpl -> notifyTokenUpdated->Raw response from FCM server" + json);
+            //if getErrorCode == 200 update the token status
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVER_MESSAGE");
+            } else {
+                JSONArray tokensArray = requestJson.getJSONArray("tokens");
+                updateTokenStatus(tokensArray);
             }
         } catch (HCEActionException notifyTokenUpdatedHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->notifyTokenUpdated", notifyTokenUpdatedHCEactionException);
