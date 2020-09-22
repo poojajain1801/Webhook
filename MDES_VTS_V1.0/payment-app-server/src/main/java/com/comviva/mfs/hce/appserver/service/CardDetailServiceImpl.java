@@ -134,6 +134,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             //Get DeviceInfo
             JSONObject deviceInfo = new JSONObject(addCardParam.getDeviceInfo());
             DeviceInfoRequest deviceInfoRequest = addCardParam.getDeviceInfo();
+            deviceInfo.remove("imei");
 
             checkDeviceEligibilityRequest = new JSONObject();
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
@@ -143,6 +144,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             checkDeviceEligibilityRequest.put(PAYMENT_APP_INSTANCE_ID, addCardParam.getPaymentAppInstanceId());
             checkDeviceEligibilityRequest.put("paymentAppId", addCardParam.getPaymentAppId());
             checkDeviceEligibilityRequest.put("cardInfo", cardInfoJsonObj);
+
             checkDeviceEligibilityRequest.put("deviceInfo", deviceInfo);
             checkDeviceEligibilityRequest.put("cardletId",this.env.getProperty("cardletId"));
             checkDeviceEligibilityRequest.put("consumerLanguage", "en");
@@ -541,7 +543,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                 map.put("locale", enrollPanRequest.getLocale());
                 map.put("panSource", enrollPanRequest.getPanSource());
                 jsonencPaymentInstrument = new JSONObject(enrollPanRequest.getEncPaymentInstrument());
-                encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), env.getProperty("apiKeyEnc"), env.getProperty("sharedSecretEnc"));
+                String apiKey = env.getProperty("apiKeyEnc") == null?this.env.getProperty("apiKey"):env.getProperty("apiKeyEnc");
+                String sharedSecret = env.getProperty("sharedSecretEnc") == null?this.env.getProperty("sharedSecret"):env.getProperty("sharedSecretEnc");
+//                encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), env.getProperty("apiKeyEnc"), env.getProperty("sharedSecretEnc"));
+                encPaymentInstrument = JWTUtility.createSharedSecretJwe(jsonencPaymentInstrument.toString(), apiKey, sharedSecret);
                 map.put("encPaymentInstrument", encPaymentInstrument);
                 map.put("consumerEntryMode", enrollPanRequest.getConsumerEntryMode());
                 hitVisaServices = new HitVisaServices(env);
@@ -991,30 +996,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 } else {
                     responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
                     JSONArray tokensArray = responseJson.getJSONArray("tokens");
-                    for (int i = 0; i < tokensArray.length(); i++) {
-                        JSONObject j = tokensArray.getJSONObject(i);
-                        if (j.has("status")) {
-                            tokenUniqueRef = j.getString("tokenUniqueReference");
-                            statusFromMastercard = j.getString("status");
-                            switch (statusFromMastercard) {
-                                case "DEACTIVATED":
-                                    status = HCEConstants.INACTIVE;
-                                    break;
-                                case "SUSPENDED":
-                                    status = HCEConstants.SUSUPEND;
-                                    break;
-                                case "ACTIVE":
-                                    status = HCEConstants.ACTIVE;
-                                    break;
-                            }
-                            if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
-                                CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
-                                cardDetails.setStatus(status);
-                                cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                                cardDetailRepository.save(cardDetails);
-                            }
-                        }
-                    }
+                    updateTokenStatus(tokensArray);
                 }
                 //Check the status of indivisual token and update the status of the token in the DB
                 //Call update the card starus of the token in CMS-D
@@ -1034,6 +1016,37 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Call update the card starus of the token in CMS-D
         //Send response
         return JsonUtil.jsonStringToHashMap(responseJson.toString());
+    }
+
+    // updates the token status based on tokenUniqueReferenceId
+    private void updateTokenStatus(JSONArray tokensArray) {
+        String tokenUniqueRef = "";
+        String statusFromMastercard = "";
+        String status = "";
+        for (int i = 0; i < tokensArray.length(); i++) {
+            JSONObject j = tokensArray.getJSONObject(i);
+            if (j.has("status")) {
+                tokenUniqueRef = j.getString("tokenUniqueReference");
+                statusFromMastercard = j.getString("status");
+                switch (statusFromMastercard) {
+                    case "DEACTIVATED":
+                        status = HCEConstants.INACTIVE;
+                        break;
+                    case "SUSPENDED":
+                        status = HCEConstants.SUSUPEND;
+                        break;
+                    case "ACTIVE":
+                        status = HCEConstants.ACTIVE;
+                        break;
+                }
+                if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
+                    CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                    cardDetails.setStatus(status);
+                    cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                    cardDetailRepository.save(cardDetails);
+                }
+            }
+        }
     }
 
     public Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq) {
@@ -1398,9 +1411,13 @@ public class CardDetailServiceImpl implements CardDetailService {
             String json = gson.toJson(response);
             responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             LOGGER.debug("CardDetailServiceImpl -> notifyTokenUpdated->Raw response from FCM server" + json);
+
             if (Integer.valueOf(response.getErrorCode()) != 200) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVER_MESSAGE");
+            } else {
+                JSONArray tokensArray = requestJson.getJSONArray("tokens");
+                updateTokenStatus(tokensArray);
             }
         } catch (HCEActionException notifyTokenUpdatedHCEactionException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->notifyTokenUpdated", notifyTokenUpdatedHCEactionException);
