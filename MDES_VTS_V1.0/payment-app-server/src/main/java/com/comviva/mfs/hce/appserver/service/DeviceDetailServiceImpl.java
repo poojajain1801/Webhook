@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.vts.CertUsage;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -20,6 +21,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.google.gson.Gson;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,6 +331,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 JSONObject requestJson = new JSONObject();
                 JSONObject deviceInfo = new JSONObject();
                 JSONObject deviceProfile = new JSONObject();
+                List<JSONObject> visaCertList = new ArrayList<>();
 
                 deviceInfo.put("deviceName", enrollDeviceDasReqPojo.getDeviceInfo().getDeviceName());
                 deviceInfo.put("deviceType", enrollDeviceDasReqPojo.getDeviceInfo().getDeviceType());
@@ -337,11 +340,22 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 deviceProfile.put("hardwareBackKeystoreSupport", enrollDeviceDasReqPojo.getDeviceProfile().hardwareBackKeystoreSupport);
                 deviceProfile.put("keyAttestationSupport", enrollDeviceDasReqPojo.getDeviceProfile().keyAttestationSupport);
 
+                List<VtsCerts> visaCerts = enrollDeviceDasReqPojo.getVisaCertReferenceList();
+
+                if(!visaCerts.isEmpty()) {
+                    for(VtsCerts vtsCerts: visaCerts) {
+                        JSONObject map = new JSONObject();
+                        map.put("certUsage", vtsCerts.getCertUsage());
+                        map.put("vCertificateID",vtsCerts.getVCertificateID());
+                        visaCertList.add(map);
+                    }
+                }
+
                 requestJson.put("deviceCertList", enrollDeviceDasReqPojo.getDeviceCertList());
                 requestJson.put("deviceInfo", deviceInfo);
                 requestJson.put("deviceProfile", deviceProfile);
-                requestJson.put("visaCertReferenceList", enrollDeviceDasReqPojo.getVisaCertReferenceList());
-                requestJson.put("profileAppID", enrollDeviceDasReqPojo.getProfileAppID());
+                requestJson.put("visaCertReferenceList", visaCertList);
+//                requestJson.put("profileAppID", enrollDeviceDasReqPojo.getProfileAppID());
 
                 LOGGER.debug("before hitting enroll device for das");
                 resourcePath = "vts/das/clients/"+vClientID+"/devices/"+clientDeviceId;
@@ -354,7 +368,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     strResponse = String.valueOf(responseEntity.getBody());
                     jsonResponse = new JSONObject(strResponse);
                 }
-                if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8
+                if ((responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7)
                         ||responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE9) {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                     responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
