@@ -994,9 +994,11 @@ public class CardDetailServiceImpl implements CardDetailService {
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", tokensJsonObj.getString("errorDescription"));
                 } else {
-                    responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    JSONArray tokensArray = responseJson.getJSONArray("tokens");
-                    updateTokenStatus(tokensArray);
+                    if (responseJson != null) {
+                        responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
+                        JSONArray tokensArray = responseJson.getJSONArray("tokens");
+                        updateTokenStatus(tokensArray);
+                    }
                 }
                 //Check the status of indivisual token and update the status of the token in the DB
                 //Call update the card starus of the token in CMS-D
