@@ -980,16 +980,16 @@ public class CardDetailServiceImpl implements CardDetailService {
             //Check if https req is 200
             if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 //Check the status of indivisual token and update the status of the token in the DB
-                if (responseJson.has("tokens")) {
+                if (null != responseJson && responseJson.has("tokens")) {
                     tokens = responseJson.getJSONArray("tokens");
                     tokensJsonObj = (JSONObject) tokens.get(0);
                 }
 
-                if (responseJson.has("errors")) {
+                if (null != responseJson && responseJson.has("errors")) {
                     responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", responseJson.getString("errorDescription"));
-                } else if (tokensJsonObj.has("errorCode")) {
+                } else if (null != tokensJsonObj && tokensJsonObj.has("errorCode")) {
                     responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", tokensJsonObj.getString("errorDescription"));
@@ -1015,7 +1015,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Check the status of indivisual token and update the status of the token in the DB
         //Call update the card starus of the token in CMS-D
         //Send response
-        return JsonUtil.jsonStringToHashMap(responseJson.toString());
+        String responseString = (null != responseJson) ? responseJson.toString():"";
+        return JsonUtil.jsonStringToHashMap(responseString);
     }
 
     // updates the token status based on tokenUniqueReferenceId
