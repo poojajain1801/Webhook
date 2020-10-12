@@ -695,7 +695,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     @Override
-    public Map notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq) {
+    public Map<String, Object> notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq) {
         String tokenUniqueReference = notifyTransactionDetailsReq.getTokenUniqueReference();
         String registrationCode2 = notifyTransactionDetailsReq.getRegistrationCode2();
         String tdsUrl = notifyTransactionDetailsReq.getTdsUrl();
@@ -840,7 +840,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }*/
 
 
-    public Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {
+    public Map<String, Object> registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {
         String tokenUniqueRef = tdsRegistrationReq.getTokenUniqueReference();
         String registrationHash = null;
         Optional<TransactionRegDetails> transactionDetails = null;
@@ -849,7 +849,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = null;
         JSONObject requestJson = new JSONObject();
         ResponseEntity responseMdes = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap();
         String url = null;
         String id = null;
         try {
@@ -907,7 +907,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return responseMap;
     }
 
-    public Map performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq) {
+    public Map<String, Object> performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq) {
         String paymentAppInstanceID = lifeCycleManagementReq.getPaymentAppInstanceId();
         List<String> tokenUniqueRefList = lifeCycleManagementReq.getTokenUniqueReferences();
         String tokenUniqueRef = "";
@@ -1115,7 +1115,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonToMap(jsRespMdes);
     }
 
-    public Map searchTokens(SearchTokensReq searchTokensReq) {
+    public Map<String, Object> searchTokens(SearchTokensReq searchTokensReq) {
         JSONObject searchTokenReq = null;
         String url = "";
         String id = "";
@@ -1164,7 +1164,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         return JsonUtil.jsonToMap(jsRespMdes);
     }
 
-    public  Map getTokens(GetTokensRequest getTokensRequest) {
+    public Map<String, Object> getTokens(GetTokensRequest getTokensRequest) {
         JSONObject getTokenReq = null;
         String url = "";
         String id = "";
@@ -1218,7 +1218,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     @Override
-    public Map unregisterTds(UnregisterTdsReq unregisterTdsReq) {
+    public Map<String, Object> unregisterTds(UnregisterTdsReq unregisterTdsReq) {
         String tokenUniqueReference = unregisterTdsReq.getTokenUniqueReference();
         String paymentAppInstanceId = unregisterTdsReq.getPaymentAppInstanceId();
         String authenticationCode = null;
@@ -1330,9 +1330,9 @@ public class CardDetailServiceImpl implements CardDetailService {
     }*/
 
     @Override
-    public Map getSystemHealth() {
+    public Map<String, Object> getSystemHealth() {
         ResponseEntity responseMdes = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap();
         String url = null;
         String id = "";
         try {
@@ -1399,7 +1399,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             rnsGenericRequest.setIdType(UniqueIdType.MDES);
             rnsGenericRequest.setRegistrationId(getRnsRegId(requestJson.getString("paymentAppInstanceId")));
             rnsGenericRequest.setRnsData(notifyTokenUpdatedMap);
-            Map rnsData = rnsGenericRequest.getRnsData();
+            Map<String, String> rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             rnsData.put("SUBTYPE","MDES_LCM");
             JSONObject payloadObject = new JSONObject();
