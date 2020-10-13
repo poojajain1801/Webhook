@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokenListRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokenStatusRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
 
 import java.util.Map;
 

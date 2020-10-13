@@ -1,6 +1,9 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetRegistrationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionHistoryRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionsRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.PushTransctionDetailsReq;
 
 import java.util.Map;
 

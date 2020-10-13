@@ -2,17 +2,14 @@ package com.comviva.mfs.hce.appserver.util.mdes;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.MdesDeviceRequest;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
-import com.comviva.mfs.hce.appserver.util.common.*;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import java.io.PrintStream;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
 import org.json.JSONObject;
@@ -20,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 

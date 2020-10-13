@@ -1,7 +1,8 @@
 package com.comviva.mfs.hce.appserver.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 /**
  * The primary key class for the SYS_MESSAGES database table.

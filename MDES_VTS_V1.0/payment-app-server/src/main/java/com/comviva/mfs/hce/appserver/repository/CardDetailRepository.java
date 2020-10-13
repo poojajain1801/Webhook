@@ -2,7 +2,7 @@ package com.comviva.mfs.hce.appserver.repository;
 
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 
-import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

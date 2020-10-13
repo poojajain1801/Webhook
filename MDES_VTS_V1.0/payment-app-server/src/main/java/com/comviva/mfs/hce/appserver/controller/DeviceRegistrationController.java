@@ -1,14 +1,9 @@
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
-
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -16,10 +11,14 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+
 import java.util.Date;
 import java.util.Map;
 

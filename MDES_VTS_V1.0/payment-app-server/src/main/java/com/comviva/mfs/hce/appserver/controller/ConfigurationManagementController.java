@@ -1,7 +1,6 @@
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.ApproveHvtRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.SetHvtValueRequest;
 import com.comviva.mfs.hce.appserver.service.contract.ConfigurationService;
@@ -10,7 +9,12 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 

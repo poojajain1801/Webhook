@@ -3,7 +3,10 @@ package com.comviva.mfs.hce.appserver.controller;
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UserLifecycleManagementReq;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -28,11 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.annotation.Resource;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
 
 /**

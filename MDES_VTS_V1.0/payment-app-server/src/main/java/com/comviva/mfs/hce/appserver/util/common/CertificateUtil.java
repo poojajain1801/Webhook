@@ -1,16 +1,15 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
-import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.core.io.FileSystemResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;

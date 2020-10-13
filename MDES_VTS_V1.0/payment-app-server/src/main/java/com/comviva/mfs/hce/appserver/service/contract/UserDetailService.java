@@ -1,6 +1,9 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UserLifecycleManagementReq;
 
 import java.util.Map;
 

@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static org.junit.Assert.*;
+
 
 /**
  * Created by Rishikesh.kumar on 1/05/2018.

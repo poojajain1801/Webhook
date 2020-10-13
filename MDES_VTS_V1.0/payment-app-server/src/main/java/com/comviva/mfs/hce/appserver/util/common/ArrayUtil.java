@@ -3,6 +3,9 @@ package com.comviva.mfs.hce.appserver.util.common;
 import java.security.SecureRandom;
 
 public class ArrayUtil {
+
+	private ArrayUtil() {}
+
 	public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 

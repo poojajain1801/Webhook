@@ -2,7 +2,13 @@ package com.comviva.mfs.hce.appserver.controller;
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActiveAccountManagementReplenishRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ConfirmProvisioningRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ConfirmReplenishmenRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetStepUpOptionsRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ProvisionTokenGivenPanEnrollmentIdRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SubmitIDandVStepupMethodRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ValidateOTPRequest;
 import com.comviva.mfs.hce.appserver.service.contract.ProvisionManagementService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -27,7 +33,6 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
-import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
 import static org.junit.Assert.assertEquals;
 
 /**

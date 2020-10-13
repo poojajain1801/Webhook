@@ -1,16 +1,20 @@
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
-import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetRegistrationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionHistoryRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionsRequest;
 import com.comviva.mfs.hce.appserver.service.contract.TransactionManagementService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 

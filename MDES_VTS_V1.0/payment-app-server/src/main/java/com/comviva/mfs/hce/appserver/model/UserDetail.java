@@ -1,7 +1,11 @@
 package com.comviva.mfs.hce.appserver.model;
 
-import org.hibernate.annotations.GenericGenerator;
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;

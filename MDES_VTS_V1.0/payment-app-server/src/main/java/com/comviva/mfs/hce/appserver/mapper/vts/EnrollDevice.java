@@ -1,16 +1,16 @@
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
-import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.VtsDeviceInfoRequest;
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
-import com.comviva.mfs.hce.appserver.util.common.*;
-import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.CertificateUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import com.visa.cbp.encryptionutils.common.CertMetaData;
 import com.visa.cbp.encryptionutils.common.DeviceKeyPair;
-import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
@@ -24,28 +24,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 
 @Setter

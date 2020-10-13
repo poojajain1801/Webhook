@@ -1,7 +1,10 @@
 package com.comviva.mfs.hce.appserver.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+import javax.persistence.Cacheable;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * The persistent class for the SYS_MESSAGES database table.
