@@ -24,6 +24,10 @@ import org.springframework.security.core.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Authentication Listener
+ * onAuthentication method
+ * */
 public interface AuthenticationListener {
     void onAuthentication(Authentication previousAuthentication, Authentication newAuthentication, HttpServletRequest request);
 }

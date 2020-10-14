@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 @NoArgsConstructor
 public class ArrayUtil {
 
-	public static String getHexString(byte[] buffer){
+    public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 
 		for(int i = 0; i < buffer.length; i++){
@@ -17,11 +17,13 @@ public class ArrayUtil {
 	}
 
 	public static byte[] getByteArray(String hexStr){
-		int length = hexStr.length()/2;
+        int two = 2;
+        int length = hexStr.length()/ two;
 		byte[] buffer = new byte[length];
 
 		for(int i = 0; i < length; i++){
-			buffer[i] = (byte)Integer.parseInt(hexStr.substring(2*i, 2*i+2), 16);
+            int sixteen = 16;
+            buffer[i] = (byte)Integer.parseInt(hexStr.substring(two *i, two *i+ two), sixteen);
 		}
 		return buffer;
 	}
@@ -49,8 +51,8 @@ public class ArrayUtil {
 		secureRandom.nextBytes(random);
 		return random;
 	}
-	public static String getRequestId ()
-	{
-		return "COMREQID"+getHexString(getRandom(22));
+	public static String getRequestId () {
+        int twentyTwo = 22;
+        return "COMREQID"+getHexString(getRandom(twentyTwo));
 	}
 }

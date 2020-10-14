@@ -17,11 +17,13 @@ public class ArrayUtil {
 	}
 
 	public static byte[] getByteArray(String hexStr){
-		int length = hexStr.length()/2;
+	    int two = 2;
+	    int sixteen =16;
+		int length = hexStr.length()/two;
 		byte[] buffer = new byte[length];
 
 		for(int i = 0; i < length; i++){
-			buffer[i] = (byte)Integer.parseInt(hexStr.substring(2*i, 2*i+2), 16);
+			buffer[i] = (byte)Integer.parseInt(hexStr.substring(two*i, two*i+two), sixteen);
 		}
 		return buffer;
 	}

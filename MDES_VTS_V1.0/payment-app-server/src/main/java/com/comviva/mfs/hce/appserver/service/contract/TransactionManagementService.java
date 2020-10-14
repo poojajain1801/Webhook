@@ -14,5 +14,5 @@ public interface TransactionManagementService {
     Map<String,Object>getTransactionHistoryVisa(GetTransactionHistoryRequest getTransactionHistoryRequest);
     Map<String,Object>pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq);
     Map<String,Object> getTransactionsMasterCard(GetTransactionsRequest getTransactionsPojo);
-    Map getRegistrationCode(GetRegistrationCodeReq getRegistrationCodeReq);
+    Map<String, Object> getRegistrationCode(GetRegistrationCodeReq getRegistrationCodeReq);
 }
