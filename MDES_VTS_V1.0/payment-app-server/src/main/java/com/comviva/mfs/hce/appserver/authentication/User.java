@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
-//import java.util.*;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,8 +99,8 @@ public class User implements UserDetails {
         return this.toMap();
     }
 
-    private Map toMap() {
-        Map map = new HashMap<>();
+    private Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
         map.put("registrationId", id);
         map.put("username", username);
         map.put("name", displayName);

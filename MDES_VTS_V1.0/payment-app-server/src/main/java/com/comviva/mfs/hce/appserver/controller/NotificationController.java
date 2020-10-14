@@ -47,7 +47,7 @@ public class NotificationController {
     @ResponseBody
     @RequestMapping(value = "/digitization/1/0/notifyTokenUpdated", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map notifyTokenUpdated(@RequestBody String notifyTokenUpdatedReq) {
+    public Map<String, Object> notifyTokenUpdated(@RequestBody String notifyTokenUpdatedReq) {
         Map <String, Object> notifyTokenUpdatedResp = null ;
         NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo = null ;
         try{
@@ -67,7 +67,7 @@ public class NotificationController {
     @ResponseBody
     @RequestMapping(value = "/digitization/1/0/notifyTransactionDetails", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map notifyTransactionDetails(@RequestBody String notifyTransactionDetailsReq) {
+    public Map<String, Object> notifyTransactionDetails(@RequestBody String notifyTransactionDetailsReq) {
         Map <String, Object> notifyTransactionDetailsResp = null ;
         NotifyTransactionDetailsReq notifyTransactionDetailsReqPojo = null ;
         try{
@@ -86,7 +86,7 @@ public class NotificationController {
     @ResponseBody
     @RequestMapping(value = "/digitization/1/0/pushTransactionDetails",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map<String,Object>pushTransctionDetails(@RequestBody String pushTxnDetailsReq ) {
+    public Map<String,Object> pushTransctionDetails(@RequestBody String pushTxnDetailsReq ) {
         LOGGER.debug("Enter TransactionManagementController->pushTransctionDetails");
         Map<String, Object> pushTransctionDetailsResponse = null;
         PushTransctionDetailsReq pushTransctionDetailsReq = null;

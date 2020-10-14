@@ -8,7 +8,6 @@ import java.net.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import javax.net.ssl.SSLContext;
 
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
@@ -17,11 +16,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -37,7 +33,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -50,7 +45,6 @@ public class HitMasterCardService implements RestTemplateCustomizer
 {
     @Autowired
     protected Environment env;
-    private HttpHeaders headers;
 
     @Autowired
     public HitMasterCardService(Environment env)
@@ -65,31 +59,29 @@ public class HitMasterCardService implements RestTemplateCustomizer
         ResponseEntity<String> response = null;
         HttpEntity<String> entity = null;
         long startTime = 0;
-
         String proxyip = null;
         int proxyport = 0;
         Proxy proxy = null;
 
-        this.headers = new HttpHeaders();
-        this.headers.add("Accept", "application/json");
-        this.headers.add("Accept", "application/pkix-cert");
-        this.headers.add("Content-Type", "application/json");
-        this.headers.add("Content-Type", "application/pkix-cert");
-        this.headers.add("Accept-Encoding", "deflate");
-        this.headers.add("Connection", "Keep-Alive");
-        this.headers.add("Host","services.mastercard.com");
-        this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Accept", "application/json");
+        headers.add("Accept", "application/pkix-cert");
+        headers.add("Content-Type", "application/json");
+        headers.add("Content-Type", "application/pkix-cert");
+        headers.add("Accept-Encoding", "deflate");
+        headers.add("Connection", "Keep-Alive");
+        headers.add("Host","services.mastercard.com");
+        headers.add("User-Agent", "Apache-HttpClient/4.1.1");
         try {
-            if ((type.equalsIgnoreCase("GET")) || (requestBody.equalsIgnoreCase(null)) || (requestBody.isEmpty())) {
-                entity = new HttpEntity(this.headers);
+            if (("GET".equalsIgnoreCase(type)) || null == requestBody || (requestBody.isEmpty())) {
+                entity = new HttpEntity(headers);
             } else {
-                entity = new HttpEntity(requestBody, this.headers);
+                entity = new HttpEntity(requestBody, headers);
             }
             LOGGER.debug("Configuring SSL...");
             // RestTemplate restTemplate = restTemplate();
-            Map idMap = new HashMap();
-            /*if (!(id.equalsIgnoreCase("")|| id.isEmpty()))
-            {
+            Map<String, Object> idMap = new HashMap();
+            /*if (!(id.equalsIgnoreCase("")|| id.isEmpty())) {
                 +"/{assetId}";
                 //idMap.put("id","checkEligibility");
 
@@ -100,8 +92,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
             idMap.put("id",id);
 
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            if(env.getProperty("is.proxy.required").equals("Y"))
-            {
+            if(("Y").equalsIgnoreCase(env.getProperty("is.proxy.required"))) {
                 proxyip = env.getProperty("proxyip");
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
@@ -117,30 +108,23 @@ public class HitMasterCardService implements RestTemplateCustomizer
                 LOGGER.debug("Request medthod  ########################################################## = " + type);
                 LOGGER.info("Request medthod  ###########################################################= " + type);
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
-
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.debug("Response Body******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
-            else if ("PUT".equals(type))
-            {
+            else if ("PUT".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
-            else if ("GET".equalsIgnoreCase(type))
-            {
+            else if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
             }
         }
-        catch (HttpClientErrorException httpClintException)
-        {
+        catch (HttpClientErrorException httpClintException) {
             LOGGER.error("Staus code recived from master card--->", httpClintException);
             LOGGER.error("Staus code recived from master card Messageeeee--->", httpClintException.getMessage());
             LOGGER.error("Staus code recived from master card   ResponseBodyAsString--->", httpClintException.getResponseBodyAsString());
@@ -159,21 +143,18 @@ public class HitMasterCardService implements RestTemplateCustomizer
             }
             //return response;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
 
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
-        }
-        finally {
+        } finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
             if(response!=null){
                 statusCode = response.getStatusCode().value();
 
-            }
-            if(null !=response) {
+            } if(null !=response) {
                 String requestId = "";
                 if (!(null==requestBody||(requestBody.isEmpty()))) {
                     JSONObject requestJson = new JSONObject(requestBody);
@@ -190,8 +171,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
 
 
 
-    private RestTemplate restTemplate() throws Exception
-    {
+    private RestTemplate restTemplate() throws Exception {
 
         String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
@@ -206,13 +186,13 @@ public class HitMasterCardService implements RestTemplateCustomizer
 
     @Override
     public void customize(RestTemplate restTemplate) {
-        String username = env.getProperty("username");
-        String password = env.getProperty("password");
+//        String username = env.getProperty("username");
+//        String password = env.getProperty("password");
         String proxyip = env.getProperty("proxyip");
         String proxyport = env.getProperty("proxyport");
 
         HttpClient client = null;
-        if(!env.getProperty("is.proxy.required").equals("Y")) {
+        if(!("Y").equalsIgnoreCase(env.getProperty("is.proxy.required"))) {
             client = HttpClients.custom().setSSLContext(sslContext).build();
         }else {
             HttpHost proxy = new HttpHost(proxyip,Integer.valueOf(proxyport));

@@ -2,7 +2,7 @@ package com.comviva.mfs.hce.appserver.mapper;
 
 import com.comviva.mfs.hce.appserver.mapper.error.PropertyErrors;
 import com.comviva.mfs.hce.appserver.mapper.validation.Validatable;
-import com.comviva.mfs.hce.appserver.mapper.UserManagementConfiguration;
+
 
 /**
  * Created by tanmay.patel on 12/26/2016.

@@ -36,7 +36,7 @@ public class ConfigurationManagementController {
     @ResponseBody
     @RequestMapping(value = "/setHvtValue", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map setHvtValue(@RequestBody String setHvtValueReq) {
+    public Map<String,Object> setHvtValue(@RequestBody String setHvtValueReq) {
         SetHvtValueRequest setHvtValueRequestpojo = null;
         Map <String,Object>setHvtValueResponse= null;
         try {
@@ -54,7 +54,7 @@ public class ConfigurationManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/getPendingRequests", method = RequestMethod.GET)
-    public Map getPendingRequests() {
+    public Map<String,Object> getPendingRequests() {
         Map <String,Object>getPendingRequestsResp= null;
         try {
             getPendingRequestsResp =  configurationService.getPendingRequests();
@@ -71,7 +71,7 @@ public class ConfigurationManagementController {
     @ResponseBody
     @RequestMapping(value = "/approve", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map approveHvt(@RequestBody String approveHvtRequest) {
+    public Map<String,Object> approveHvt(@RequestBody String approveHvtRequest) {
         ApproveHvtRequest approveHvtRequestPojo = null;
         Map <String,Object>approveHvtResponse= null;
         try {

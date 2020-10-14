@@ -121,7 +121,6 @@ public class HCEControllerSupport {
 
     public  Object requestFormation(String requestObj ,Class<?>... groups) throws  Exception{
         Object obj = null;
-        Class requestClass = null;
         StringBuffer errorMessage = null;
         String errMsg = null;
         try{
@@ -168,7 +167,7 @@ public class HCEControllerSupport {
         userDetail = userDetailRepository.findByUserId(userId);
         if (userDetail !=null ){
             languageCode = userDetail.getLanguageCode();
-            if(languageCode == null || languageCode.isEmpty() || languageCode.equals("") || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
+            if(null == languageCode || languageCode.isEmpty() || ("").equals(languageCode) || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
                 languageCode = "1";
             }
         }

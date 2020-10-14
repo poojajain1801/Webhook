@@ -1,9 +1,12 @@
 package com.comviva.mfs.hce.appserver.constants;
 
+import lombok.NoArgsConstructor;
+
 /**
  * Constants values.
  * Created by tarkeshwar.v on 2/8/2017.
  */
+@NoArgsConstructor
 public class ServerConfig {
     // public static final String MDES_IP = "http://192.168.1.3";
     //public static final String MDES_IP = "http://172.19.2.24";

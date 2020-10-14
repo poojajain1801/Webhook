@@ -34,7 +34,7 @@ public class RemoteNotificationController {
     @ResponseBody
     @RequestMapping(value = "/sendRemoteNotificationMessage", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map sendRemoteNotificationMessage(@RequestBody String remoteNotificationReq) {
+    public Map<String, Object> sendRemoteNotificationMessage(@RequestBody String remoteNotificationReq) {
         LOGGER.debug("Inside RemoteNotificationController----------->sendRemoteNotificationMessage");
         Map <String,Object> sendRemoteNotificationMessageResponse= null;
         RemoteNotificationRequest remoteNotificationRequestPojo = null;
@@ -54,7 +54,7 @@ public class RemoteNotificationController {
     @ResponseBody
     @RequestMapping(value = "/sendGenericRemoteNotificationMessage", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map sendGenericRns(@RequestBody String rnsGenericRequest) {
+    public Map<String, Object> sendGenericRns(@RequestBody String rnsGenericRequest) {
         LOGGER.debug("Inside RemoteNotificationController----------->sendGenericRemoteNotificationMessage");
         Map <String,Object> sendGenericRemoteNotificationMessageResp= null;
         RnsGenericRequest rnsGenericRequestPojo = null;

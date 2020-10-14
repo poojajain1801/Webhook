@@ -39,7 +39,7 @@ public class TransactionManagementController {
     @ResponseBody
     @RequestMapping(value = "/getTransactions", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map getTransactionsMasterCard(@RequestBody String getTransactionsRequest) {
+    public Map<String, Object> getTransactionsMasterCard(@RequestBody String getTransactionsRequest) {
         Map <String, Object> getTransactionsResp=null ;
         GetTransactionsRequest getTransactionsPojo=null ;
         try{
@@ -80,7 +80,7 @@ public class TransactionManagementController {
     @ResponseBody
     @RequestMapping(value = "/registerWithTDS", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map registerWithTDS(@RequestBody String getRegistrationCodeReq) {
+    public Map<String, Object> registerWithTDS(@RequestBody String getRegistrationCodeReq) {
         Map <String, Object> getTransactionsResp=null ;
         GetRegistrationCodeReq getRegistrationCodeReqPojo=null ;
         try{

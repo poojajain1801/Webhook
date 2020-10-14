@@ -19,7 +19,7 @@ public class AuthenticationStrategyFactory {
     }
 
     public AuthenticationStrategy create() {
-        String configuredAuthenticationMode = environment.getProperty("authentication.mode", AuthenticationMode.NONE.getAuthenticationMode());
+        String configuredAuthenticationMode = environment.getProperty("authentication.mode", AuthenticationMode.NONE.getAuthMode());
         switch (configuredAuthenticationMode) {
             case "none":
                 return new NoAuthenticationStrategy();

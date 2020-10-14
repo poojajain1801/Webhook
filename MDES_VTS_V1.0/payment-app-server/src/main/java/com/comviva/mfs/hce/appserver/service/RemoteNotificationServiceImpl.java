@@ -39,12 +39,12 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
     private Environment env;
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
 
-    public Map sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {
-        Map responseMap = new HashMap();
+    public Map<String, Object> sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {
+        Map<String, Object> responseMap = new HashMap<>();
         String paymentAppProviderId = remoteNotificationReq.getPaymentAppProviderId();
         String paymentAppInstanceId = remoteNotificationReq.getPaymentAppInstanceId();
         String notificationData = remoteNotificationReq.getNotificationData();
-        HashMap rnsNotificationData = new HashMap();
+        HashMap<String, String> rnsNotificationData = new HashMap<>();
         LOGGER.debug("Inside RemoteNotificationServiceImpl---------->sendRemoteNotificationMessage");
         RnsGenericRequest rnsGenericRequest ;
         try {
@@ -100,8 +100,8 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
         return responseMap;
     }
 
-    public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
-        Map responseMap = new HashMap();
+    public Map<String, Object> sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
+        Map<String, Object> responseMap = new HashMap<>();
         try {
             LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");
             // Create Remote Notification Data
@@ -137,14 +137,14 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
 
     @Override
     public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfoRequest) {
-        String tokenUniqueReference = null;
+//        String tokenUniqueReference = null;
         String paymentAppInstanceId = null;
-        Optional<DeviceInfo> deviceDetailList = null;
-        Map responseMap = new HashMap();
-        Map deviceInfo = new HashMap();
+        Optional<DeviceInfo> deviceDetailList;
+        Map<String, Object> responseMap = new HashMap<>();
+        Map<String, Object> deviceInfo = new HashMap();
 
         try {
-            tokenUniqueReference = getDeviceInfoRequest.getTokenUniqueReference();
+//            tokenUniqueReference = getDeviceInfoRequest.getTokenUniqueReference();
             paymentAppInstanceId = getDeviceInfoRequest.getPaymentAppInstanceId();
             deviceDetailList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
             if (deviceDetailList.isPresent()){

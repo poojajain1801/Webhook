@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,19 +11,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ActivateReq {
     private String paymentAppInstanceId;
     private String tokenUniqueReference;
     private String authenticationCode;
     private String tokenizationAuthenticationValue;
-
-    public ActivateReq(String paymentAppInstanceId, String tokenUniqueReference, String authenticationCode, String tokenizationAuthenticationValue) {
-        this.paymentAppInstanceId = paymentAppInstanceId;
-        this.tokenUniqueReference = tokenUniqueReference;
-        this.authenticationCode = authenticationCode;
-        this.tokenizationAuthenticationValue = tokenizationAuthenticationValue;
-    }
-
-    public ActivateReq() {
-    }
 }

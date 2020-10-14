@@ -47,8 +47,8 @@ public class ErrorDescription {
         this(null, code, message);
     }
 
-    public Map toMap() {
-        Map map = new HashMap<String, Object>();
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
         if (isNotEmpty(field)) {
             map.put("field", field);
         }

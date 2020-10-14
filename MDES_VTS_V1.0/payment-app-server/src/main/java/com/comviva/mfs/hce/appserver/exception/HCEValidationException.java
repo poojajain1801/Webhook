@@ -1,7 +1,5 @@
 package com.comviva.mfs.hce.appserver.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by shadab.ali on 12-09-2017.
@@ -25,6 +23,7 @@ public class HCEValidationException  extends RuntimeException {
      * method to get the messageCode
      * @return messageCode string
      */
+    @Override
     public String getMessage() {
         return message;
     }

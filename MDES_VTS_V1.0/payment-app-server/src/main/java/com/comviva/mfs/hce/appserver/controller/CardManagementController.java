@@ -151,7 +151,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/requestActivationCode", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map requestActivationCode(@RequestBody String activationCodeReq) {
+    public Map<String, Object> requestActivationCode(@RequestBody String activationCodeReq) {
         ActivationCodeReq activationCodeReqPojo = null;
         Map <String,Object>requestActivationCodeResponse= null;
         try {
@@ -232,7 +232,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map getToekns(@RequestBody String getTokensRequest) {
+    public Map<String, Object> getToekns(@RequestBody String getTokensRequest) {
         Map<String,Object> getToeknsTokensResp = null;
         GetTokensRequest getTokensRequestPojo = null;
         try {
@@ -251,7 +251,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/searchTokens", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map searchTokens(@RequestBody String getTokensRequest) {
+    public Map<String,Object> searchTokens(@RequestBody String getTokensRequest) {
         Map<String,Object> searchTokensResp = null;
         SearchTokensReq searchTokensReqPojo = null;
         try {
@@ -271,7 +271,7 @@ public class CardManagementController {
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map unregisterFromTds(@RequestBody String unregisterTdsReq) {
+    public Map<String,Object> unregisterFromTds(@RequestBody String unregisterTdsReq) {
         Map <String, Object> unregisterTdsResp=null ;
         UnregisterTdsReq unregisterTdsReqPojo = null ;
         try{
@@ -289,7 +289,7 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/getSystemHealth", method = RequestMethod.GET)
-    public Map getSystemHealth() {
+    public Map<String,Object> getSystemHealth() {
         Map <String, Object> getSystemHealthResp=null;
         try{
             //Check master card is accessable or not.
@@ -322,7 +322,7 @@ public class CardManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/customerCareContact", method = RequestMethod.GET)
-    public Map getCustomerCareContact() {
+    public Map<String,Object> getCustomerCareContact() {
         Map <String, Object> getCustomerCareContactResp = null;
         try{
             getCustomerCareContactResp = cardDetailService.getCustomerCareContact();

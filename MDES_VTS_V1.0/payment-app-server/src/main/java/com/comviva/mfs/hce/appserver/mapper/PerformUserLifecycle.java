@@ -82,21 +82,21 @@ public class PerformUserLifecycle {
         List<DeviceInfo> deviceInfoList = null;
         DeviceInfo deviceInfo = null;
         List<String> rnsIdList = null;
-        String userSatus = null;
+//        String userStatus = null;
         String updatedUserStatus = null;
-        UnRegisterReq unRegisterReq = null;
+//        UnRegisterReq unRegisterReq = null;
         try {
             switch (operation) {
                 case HCEConstants.SUSUPEND_USER:
-                    userSatus = HCEConstants.ACTIVE;
+//                    userStatus = HCEConstants.ACTIVE;
                     updatedUserStatus = HCEConstants.SUSUPEND;
                     break;
                 case HCEConstants.UNSUSPEND_USER:
-                    userSatus = HCEConstants.SUSUPEND;
+//                    userStatus = HCEConstants.SUSUPEND;
                     updatedUserStatus = HCEConstants.ACTIVE;
                     break;
                 case HCEConstants.DELETE_USER:
-                    userSatus = HCEConstants.ACTIVE;
+//                    userStatus = HCEConstants.ACTIVE;
                     updatedUserStatus = HCEConstants.INACTIVE;
                     break;
                 default:
@@ -179,7 +179,7 @@ public class PerformUserLifecycle {
     }
 
     public void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception {
-        Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
+        Map<String, Object> rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
         if (rnsResp.containsKey("errorCode")) {
             LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification-> notifyPanMetadataUpdate - > remoteNotification Sending Failed");
             LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->sendNotification-> notifyPanMetadataUpdate");
@@ -242,7 +242,7 @@ public class PerformUserLifecycle {
 
     @Async
     public void deleteVISACards(List<CardDetails> visaCardList) {
-        Map responseMap1 = null;
+        Map<String, Object> responseMap1 = null;
         lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         lifeCycleManagementVisaRequest.setOperation("DELETE");
         lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");

@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,6 +11,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ActivateResp {
     private String responseHost;
     private String responseId;
@@ -16,14 +20,4 @@ public class ActivateResp {
     private String reasonCode;
     private String reasonDescription;
 
-    public ActivateResp(String responseHost, String responseId, String result, String reasonCode, String reasonDescription) {
-        this.responseHost = responseHost;
-        this.responseId = responseId;
-        this.result = result;
-        this.reasonCode = reasonCode;
-        this.reasonDescription = reasonDescription;
-    }
-
-    public ActivateResp() {
-    }
 }

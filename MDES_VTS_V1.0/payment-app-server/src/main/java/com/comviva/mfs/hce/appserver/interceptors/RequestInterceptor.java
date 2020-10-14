@@ -21,9 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class RequestInterceptor  extends HandlerInterceptorAdapter{
 
-    private static final Logger logger =  LoggerFactory.getLogger(RequestInterceptor.class);
-
-
     @Autowired
     private HCEControllerSupport hceControllerSupport;
     @Autowired
