@@ -1,6 +1,5 @@
 package com.comviva.mfs.hce.appserver.repository;
 
-import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.ConfigurationManagementM;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

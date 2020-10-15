@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.util.common;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.BufferedReader;
@@ -18,6 +20,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 public class CertificateUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CertificateUtil.class);
+
     /**
      * Read RSA Private Key from given file.
      * @param filename  File path.
@@ -78,7 +83,8 @@ public class CertificateUtil {
         RSAPublicKey rsaPublicKey = (RSAPublicKey) cer.getPublicKey();
 
         String strKeyValue = ArrayUtil.getHexString(rsaPublicKey.getEncoded());
-        System.out.println(strKeyValue);
+//        System.out.println(strKeyValue);
+        LOGGER.info(strKeyValue + "");
         return rsaPublicKey;
     }
 

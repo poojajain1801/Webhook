@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,14 +11,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelInfo {
-
     private String  vCertificateID;
     private String certUsage;
-    public ChannelInfo(String vCertificateID,String certUsage) {
-        this.vCertificateID=vCertificateID;
-        this.certUsage=certUsage;
-    }
-    public ChannelInfo() {
-    }
 }

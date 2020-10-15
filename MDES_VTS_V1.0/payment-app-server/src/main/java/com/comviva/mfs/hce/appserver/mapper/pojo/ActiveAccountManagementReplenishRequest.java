@@ -1,9 +1,9 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.lang.reflect.Array;
 import java.util.List;
 
 /**
@@ -12,6 +12,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ActiveAccountManagementReplenishRequest {
 
     private String mac;
@@ -19,15 +21,4 @@ public class ActiveAccountManagementReplenishRequest {
     private String sc;
     private List tvl;
     private String vprovisionedTokenID;
-
-    public ActiveAccountManagementReplenishRequest(String mac, String api, String sc, List tvl, String vprovisionedTokenID) {
-        this.mac = mac;
-        this.api = api;
-        this.sc = sc;
-        this.tvl = (tvl);
-        this.vprovisionedTokenID = vprovisionedTokenID;
-    }
-
-    public ActiveAccountManagementReplenishRequest() {
-    }
 }
