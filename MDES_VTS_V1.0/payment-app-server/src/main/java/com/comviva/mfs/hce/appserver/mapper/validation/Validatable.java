@@ -24,5 +24,10 @@ package com.comviva.mfs.hce.appserver.mapper.validation;
 import com.comviva.mfs.hce.appserver.mapper.error.PropertyErrors;
 
 public interface Validatable {
+    /**
+     * validate
+     * @param validationContext validationContext
+     * @return PropertyErrors
+     * */
     PropertyErrors validate(ValidationContext validationContext);
 }

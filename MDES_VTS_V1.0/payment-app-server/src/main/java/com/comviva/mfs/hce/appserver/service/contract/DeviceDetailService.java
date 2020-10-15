@@ -1,10 +1,7 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceRegistrationResponse;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.RegDeviceParam;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -13,10 +10,17 @@ import java.util.Map;
  */
 public interface DeviceDetailService {
     /**
-     * @param enrollDeviceRequest
-     * @return
+     * registerDevice
+     * @param enrollDeviceRequest enrollDeviceRequest
+     * @return map
      */
     Map<String,Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest);
+
+    /**
+     * unRegisterDevice
+     * @param unRegisterReq unRegisterRequest
+     * @return map
+     * */
     Map<String,Object> unRegisterDevice(UnRegisterReq unRegisterReq);
 
 }

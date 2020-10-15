@@ -11,8 +11,31 @@ import java.util.Map;
  * Created by Amgoth.madan on 5/10/2017.
  */
 public interface TransactionManagementService {
+    /**
+     * getTransactionHistoryVisa
+     * @param getTransactionHistoryRequest getTransactionRequest
+     * @return map
+     * */
     Map<String,Object>getTransactionHistoryVisa(GetTransactionHistoryRequest getTransactionHistoryRequest);
+
+    /**
+     * pushTransactionDetails
+     * @param pushTransctionDetailsReq pushTransactionRequest
+     * @return map
+     * */
     Map<String,Object>pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq);
+
+    /**
+     * getTransactionMasterCard
+     * @param getTransactionsPojo getTransactionsPojo
+     * @return map
+     * */
     Map<String,Object> getTransactionsMasterCard(GetTransactionsRequest getTransactionsPojo);
+
+    /**
+     * getRegistrationCode
+     * @param getRegistrationCodeReq getRegistrationCodeRequest
+     * @return map
+     * */
     Map<String, Object> getRegistrationCode(GetRegistrationCodeReq getRegistrationCodeReq);
 }

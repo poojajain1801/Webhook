@@ -10,7 +10,24 @@ import java.util.Map;
  * Created by Madan.Amgoth on 5/9/2017.
  */
 public interface TokenLifeCycleManagementService {
+    /**
+     * getTokenstatus
+     * @param getTokenStatusRequest getTokenStatusRequest
+     * @return map
+     * */
     Map<String,Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest);
+
+    /**
+     * lifeCycleManagementVisa
+     * @param lifeCycleManagementVisaRequest lifeCycleMgmtVisa
+     * @return map
+     * */
     Map<String,Object>lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest);
-    public  Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest);
+
+    /**
+     * getTokenList
+     * @param getTokenListRequest getTokenListRequest
+     * @return map
+     * */
+    Map<String,Object> getTokenList(GetTokenListRequest getTokenListRequest);
 }
