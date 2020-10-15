@@ -12,16 +12,23 @@ import java.util.Map;
 public interface RemoteNotificationService {
     /**
      * This API is used by MDES to send a Remote Notification Message to the Mobile Payment App via a server.
-     * @param remoteNotificationReq
+     * @param remoteNotificationReq remoteNoficationReq
      * @return Response
      */
     Map<String, Object> sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq);
 
     /**
      * Generic purpose API to send remote notification data to Mobile Application. Can be used by MDES/VTS
+     * @param rnsGenericRequest rnsGenericRequest
      * @return Response
      */
     Map<String, Object> sendRemoteNotification(RnsGenericRequest rnsGenericRequest);
 
+
+    /**
+     * getDeviceInfo
+     * @param getDeviceInfoRequest deviceInfoRequest
+     * @return map
+     * */
     Map<String,Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfoRequest);
 }
