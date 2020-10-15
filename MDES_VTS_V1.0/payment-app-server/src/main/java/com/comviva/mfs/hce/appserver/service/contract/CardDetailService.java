@@ -25,21 +25,29 @@ import java.util.Map;
 public interface CardDetailService {
     /**
      * CheckDevice Eligibility
+     * @param addCardParm card details
+     * @return Map
      * */
     Map<String, Object> checkDeviceEligibility(AddCardParm addCardParm);
 
     /**
      * Add Card
+     * @param digitizationParam digitazation details
+     * @return Map
      * */
     Map<String, Object>  addCard(DigitizationParam digitizationParam);
 
     /**
      * tokenize
+     * @param tokenizeRequest token details
+     * @return Map
      * */
     Map<String, Object>  tokenize(TokenizeRequest tokenizeRequest);
 
     /**
      * GetAssetPojo
+     * @param assetId asset id
+     * @return Map
      * */
     Map<String, Object> getAsset(GetAssetPojo assetId);
 
@@ -50,71 +58,96 @@ public interface CardDetailService {
 
     /**
      * enrollPan
+     * @param enrollPanRequest enroll pan details
+     * @return Map
      * */
     Map<String, Object> enrollPan(EnrollPanRequest enrollPanRequest);
 
     /**
      * getCardMetaData
+     * @param getCardMetadataRequest card metadata
+     * @return Map
      * */
     Map<String,Object> getCardMetadata(GetCardMetadataRequest getCardMetadataRequest);
 
     /**
      * getContent
+     * @param getContentRequest contentRequest
+     * @return Map
      * */
     Map<String,Object>getContent(GetContentRequest getContentRequest);
 
     /**
      * notifyTransactionDetails
+     * @param notifyTransactionDetailsReq notification
+     * @return Map
      * */
     Map<String, Object> notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq);
 
     /**
      * registerWithTDS
+     * @param tdsRegistrationReq tdsRequest
+     * @return Map
      * */
     Map<String, Object> registerWithTDS(TDSRegistrationReq tdsRegistrationReq);
 
     /**
      * performCardLifeCycleManagement
+     * @param lifeCycleManagementReq lifeCycleManagement details
+     * @return Map
      * */
     Map<String, Object> performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq);
 
     /**
      * getTokens
+     * @param getTokensRequest tokenRequest
+     * @return Map
      * */
     Map<String, Object> getTokens(GetTokensRequest getTokensRequest);
 
     /**
      * requestActivationCode
+     * @param activationCodeReq activatationCoderequest
+     * @return Map
      * */
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
 
     /**
      * searchTokens
+     * @param searchTokensReq searchTokenReq
+     * @return Map
      * */
     Map<String, Object> searchTokens(SearchTokensReq searchTokensReq);
 
     /**
      * unregisterTds
+     * @param unregisterTdsReq unregisterTdsRequest
+     * @return Map
      * */
     Map<String, Object> unregisterTds(UnregisterTdsReq unregisterTdsReq);
 
     /**
      * getSystemHealth
+     * @return Map
      * */
     Map<String,Object> getSystemHealth();
 
     /**
      * getPublicKeyCertificate
+     * @return object
      * */
     Object getPublicKeyCertificate();
 
     /**
      * notifyTokenUpdated
+     * @param notifyTokenUpdatedReqPojo notifyTokenUpdatedPojo
+     * @return Map
      * */
     Map<String,Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo);
 
     /**
      * getCustomerCareContact
+     * @return Map
      * */
     Map<String,Object> getCustomerCareContact();
 }
