@@ -66,7 +66,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     public Map<String, Object> getTransactionHistoryVisa(GetTransactionHistoryRequest getTransactionHistoryRequest) {
         LOGGER.debug("Enter TransactionManagementServiceImpl->getTransactionHistory");
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-        Map response = new LinkedHashMap();
+        Map<String, Object> response = new LinkedHashMap<>();
         String localTime = null;
         JSONObject jsonResponse = null;
         String request = "";
@@ -88,17 +88,17 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                 response = null;
             }
             JSONObject decryptedJsonObj = null;
-            Map decArray = null;
+            Map<String, Object> decArray = null;
             List<Map<String,Object>> decMapList =null;
             String decString = null;
-            if (responseEntity.getStatusCode().value() == 200) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 JSONArray txnHistory;
 
                 if (null !=jsonResponse) {
                     txnHistory = jsonResponse.getJSONArray("transactionDetails");
                     decMapList = new ArrayList();
                     for (int i = 0; i < txnHistory.length(); i++) {
-                        decArray = new LinkedHashMap();
+                        decArray = new LinkedHashMap<>();
                         decString = txnHistory.getJSONObject(i).getString("encTransactionInfo");
                         decString = JWTUtility.decryptJwe(decString, env.getProperty("sharedSecret"));
                         decryptedJsonObj = new JSONObject(decString);
@@ -118,7 +118,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                 return response;
 
             } else {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -160,11 +160,11 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
 
     public Map<String, Object> pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq) {
         String requestId = pushTransctionDetailsReq.getRequestId();
-        List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
-        String tokenUniqueReference = pushTransctionDetailsReq.getTransactions().get(0).getTokenUniqueReference();
-        HashMap rnsNotificationData = new HashMap();
-        Map responseMap = new HashMap();
-        String responseId = null;
+//        List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
+//        String tokenUniqueReference = pushTransctionDetailsReq.getTransactions().get(0).getTokenUniqueReference();
+//        HashMap rnsNotificationData = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
+//        String responseId = null;
         LOGGER.debug("Inside TransactionManagementService---------->pushTransctionDetails");
         RnsGenericRequest rnsGenericRequest ;
         try {
@@ -247,7 +247,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = null;
-        Map responseMap = null;
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         int transactionStatus = 0;
@@ -346,7 +346,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = new JSONObject();
-        Map responseMap = null;
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         try{

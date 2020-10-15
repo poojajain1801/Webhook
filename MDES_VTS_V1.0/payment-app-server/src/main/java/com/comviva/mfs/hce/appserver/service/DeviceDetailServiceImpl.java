@@ -88,11 +88,11 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Transactional
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         String vClientID = env.getProperty("vClientID");
-        Map<String, Object> response = new HashMap();
+        Map<String, Object> response = new HashMap<>();
         String isMastercardRegistrationDone = null;
         String isVisaDeviceRegistrationDone = null;
-        Map mdesRespMap = new HashMap();
-        Map vtsRespMap = new HashMap();
+        Map<String, Object> mdesRespMap = new HashMap<>();
+        Map<String, Object> vtsRespMap = new HashMap<>();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
         String schemeType = "";
@@ -108,7 +108,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     isMastercardRegistrationDone = deviceInfos.get().getIsMastercardEnabled();
                     isVisaDeviceRegistrationDone = deviceInfos.get().getIsVisaEnabled();
                 }
-                if((deviceInfos.isPresent()) ||(isMastercardRegistrationDone.equalsIgnoreCase("Y")&&isVisaDeviceRegistrationDone.equalsIgnoreCase("Y"))){
+                if((deviceInfos.isPresent()) ||("Y".equalsIgnoreCase(isMastercardRegistrationDone) && "Y".equalsIgnoreCase(isVisaDeviceRegistrationDone))){
 					deviceInfo = deviceInfos.get();
                     if(!userDetail.getClientWalletAccountId().equals(deviceInfo.getUserDetail().getClientWalletAccountId())){
                         throw new HCEActionException(HCEMessageCodes.getInvalidUserAndDevice());
@@ -129,7 +129,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 schemeType = "ALL";
             }
 
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MASTERCARD")))
+            if (("ALL".equalsIgnoreCase(schemeType))||("MASTERCARD".equalsIgnoreCase(schemeType)))
                 isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
 
             if (isMdesDevElib) {
@@ -168,7 +168,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             }
             // *******************VTS : Register with VTS Start**********************
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("VISA"))) {
+            if (("ALL".equalsIgnoreCase(schemeType))||("VISA".equalsIgnoreCase(schemeType))) {
                 String vtsResp = enrollDeviceVts.register(vClientID, enrollDeviceRequest);
                 JSONObject vtsRespJson = null;
                 JSONObject vtsJsonObject = new JSONObject(vtsResp);
@@ -200,7 +200,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             }
 
-            if(HCEConstants.ACTIVE.equals(env.getProperty("is.hvt.supported"))){
+            if(env.getProperty("is.hvt.supported").equals(HCEConstants.ACTIVE)){
                 response.put("isHvtSupported", true);
             }else{
                 response.put("isHvtSupported", false);
@@ -233,15 +233,15 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Override
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
-        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+//        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         DeviceInfo deviceInfo = null;
-        String paymentAppInstanceId = null;
-        JSONObject requestJson = null;
-        ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
-        String id = null;
-        Map responseMap = null;
-        String url = null;
+//        String paymentAppInstanceId = null;
+//        JSONObject requestJson = null;
+//        ResponseEntity responseMdes = null;
+//        JSONObject jsonResponse = null;
+//        String id = null;
+        Map<String, Object> responseMap = null;
+//        String url = null;
         String userID = null;
         String imei = null;
         HttpStatus statusCode = null;
@@ -258,7 +258,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
             if (deviceInfo == null){
                 LOGGER.error(" No Device is registered with UserID :"+userID);
-                responseMap = new HashMap();
+                responseMap = new HashMap<>();
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
@@ -296,7 +296,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             responseMap = new HashMap();
             responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
             responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-            if (Integer.valueOf(response.getErrorCode()) != 200) {
+            if (Integer.valueOf(response.getErrorCode()) != HCEConstants.REASON_CODE7) {
                 responseMap.put("Notification to device Status code", response.getErrorCode());
             }else
                 responseMap.put("Notification to device Status code", HCEMessageCodes.getSUCCESS());

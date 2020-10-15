@@ -58,7 +58,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
     public Map<String, Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest) {
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-        Map response= new LinkedHashMap();
+        Map<String, Object> response= new LinkedHashMap<>();
         JSONObject jsonResponse  = null;
         String request = "";
         ResponseEntity responseEntity =null;
@@ -89,7 +89,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 response = JsonUtil.jsonStringToHashMap(strResponse);
 
             }
-            if(responseEntity.getStatusCode().value()==200)
+            if(responseEntity.getStatusCode().value()==HCEConstants.REASON_CODE7)
             {
                 if (null !=jsonResponse) {
                     currentcardStatus = jsonResponse.getJSONObject("tokenInfo").getString("tokenStatus");
@@ -122,7 +122,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             }
             else
             {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -141,7 +141,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
     }
 
-    public Map<String,Object>lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest) {
+    public Map<String,Object> lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest) {
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
         String vProvisionedTokenID = lifeCycleManagementVisaRequest.getVprovisionedTokenID();
@@ -152,7 +152,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         updateReason.put("reasonDesc", lifeCycleManagementVisaRequest.getReasonDesc());
         requestJson.put("updateReason", updateReason);
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-        Map response = new LinkedHashMap();
+//        Map response = new LinkedHashMap();
         ResponseEntity responseEntity = null;
         String strResponse = null;
         String url = "";
@@ -206,7 +206,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 jsonResponse = new JSONObject(strResponse);
             }
 
-            if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
                 cardDetails.setStatus(cardStatus);
@@ -215,7 +215,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
             }
             else {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -266,10 +266,10 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             if (userDetailList != null && !userDetailList.isEmpty()) {
                 cardDetailsList = cardDetailRepository.getNCardList(userId,HCEConstants.ACTIVE,HCEConstants.ACTIVE,HCEConstants.SUSUPEND,page,size);
                 if(cardDetailsList!=null &&  !cardDetailsList.isEmpty()){
-                    responseMap = new HashMap<String ,Object>();
-                    cardDetailsMapList = new ArrayList();
+                    responseMap = new HashMap<>();
+                    cardDetailsMapList = new ArrayList<>();
                     for(int i=0;i<cardDetailsList.size();i++){
-                        cardDetailsMap = new HashMap<String ,Object>();
+                        cardDetailsMap = new HashMap<>();
                         cardDetails = cardDetailsList.get(i);
                         cardDetailsMap.put(HCEConstants.CARD_ID,cardDetails.getCardId()!=null?cardDetails.getCardId():HCEConstants.NOT_AVAILABLE);
                         cardDetailsMap.put(HCEConstants.CARD_IDENTIFIER,cardDetails.getCardIdentifier()!=null ?cardDetails.getCardIdentifier():HCEConstants.NOT_AVAILABLE);

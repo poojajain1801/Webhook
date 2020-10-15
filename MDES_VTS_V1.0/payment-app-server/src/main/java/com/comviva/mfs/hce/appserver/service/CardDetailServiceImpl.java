@@ -133,12 +133,12 @@ public class CardDetailServiceImpl implements CardDetailService {
         String url = null;
         JSONObject jsonResp = new JSONObject();
         JSONObject checkDeviceEligibilityRequest = null;
-        Optional<DeviceInfo> deviceInfoOptional = null;
+//        Optional<DeviceInfo> deviceInfoOptional = null;
         ResponseEntity responseEntity = null;
         JSONObject jsonResponse = null;
         JSONObject eligibilityResponse = null;
         Map eligibilityMap = null;
-        Map applicableCardInfoMap = null;
+//        Map applicableCardInfoMap = null;
         String response = "";
         String id = null;
         String requestId;
@@ -240,7 +240,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject digitizeReq = null;
         JSONObject cardInfo = null;
         JSONObject eligibilityReceiptValue = null;
-        JSONObject decisioningData = null;
+//        JSONObject decisioningData = null;
         JSONObject provisionRespMdes = null;
         String url = null;
         String response = null;
@@ -734,7 +734,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = null;
         JSONObject reqJson = new JSONObject();
-        String response = null;
+//        String response = null;
         JSONObject jsonResponse = null;
         Map responseMap = new HashMap();
         Map registerRespose = null;
@@ -946,8 +946,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONObject lifecycleJsonRequest = null;
         String url = "";
         JSONObject responseJson = null;
-        String statusFromMastercard = "";
-        String status = "";
+//        String statusFromMastercard = "";
+//        String status = "";
         boolean error = false;
         JSONArray tokens = null;
         JSONObject tokensJsonObj = null;

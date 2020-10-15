@@ -128,7 +128,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 LOGGER.debug("Provison Response from VTS = "+response);
                 jsonResponse = new JSONObject(response);
             }
-            if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 if (null != jsonResponse) {
@@ -146,14 +146,14 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
                 if(null != responseMap) {
-                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                    responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
+                    responseMap.put(HCEConstants.MESSAGE, hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 }
 
                 return responseMap;
             }
             else {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 /* errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
                 errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));*/
                 errorMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getFailedAtThiredParty());
@@ -215,7 +215,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 jsonResponse = new JSONObject(response);
             }
 
-            if (responseEntity.getStatusCode().value() == 200) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 //TODO:Store the vProvisonTokenID in the DB
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 cardDetails.setStatus(HCEConstants.ACTIVE);
@@ -228,8 +228,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             {
                 Map errorMap = new LinkedHashMap();
                 if (null != jsonResponse) {
-                    errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
-                    errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
+                    errorMap.put(HCEConstants.RESPONSE_CODE, jsonResponse.getJSONObject("errorResponse").get("status"));
+                    errorMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
                 }
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ConfirmProvisioning");
                 return errorMap;
@@ -259,7 +259,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject dynParams = new JSONObject();
         JSONArray tvl = new JSONArray();
         CardDetails cardDetails = null;
-        Map responseMap = new LinkedHashMap();
+        Map<String, Object> responseMap = new LinkedHashMap<>();
         List tvlData = activeAccountManagementReplenishRequest.getTvl();
         try{
             signature.put("mac",activeAccountManagementReplenishRequest.getMac());
@@ -307,7 +307,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             else
             {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -337,8 +337,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         JSONObject tokenInfo = new JSONObject();
         JSONObject hceData = new JSONObject();
         JSONObject dynParams = new JSONObject();
-        JSONArray tvl = new JSONArray();
-        Map responseMap = new LinkedHashMap();
+//        JSONArray tvl = new JSONArray();
+//        Map responseMap = new LinkedHashMap();
         try{
             dynParams.put("api",activeAccountManagementConfirmReplenishmentRequest.getApi());
             dynParams.put("sc",activeAccountManagementConfirmReplenishmentRequest.getSc());
@@ -358,7 +358,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 jsonResponse = new JSONObject(response);
 
             }
-            if (responseEntity.getStatusCode().value() == 200) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ActiveAccountManagementConfirmReplenishment");
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
@@ -366,7 +366,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             else
             {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -391,7 +391,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String response;
         String resourcePath = null;
         String url;
-        Map responseMap = new LinkedHashMap();
+        Map<String, Object> responseMap;
         HitVisaServices hitVisaServices =null;
         Date date;
         try {
@@ -409,12 +409,13 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             if(responseVts.getStatusCode().value()==HCEConstants.REASON_CODE7) {
                 responseMap = JsonUtil.jsonToMap(jsonResponse);
-                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-
+                if(null != responseMap ) {
+                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
             }
             else{
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null != jsonResponse) {
                     errorMap.put("responseCode", Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status")));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -441,7 +442,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         ResponseEntity responseVts = null;
         JSONObject jsonResponse = null;
         String statusCode = "";
-        Map responseMap= new LinkedHashMap();
+        Map<String, Object> responseMap= new LinkedHashMap<>();
         String response;
         String resourcePath = null;
         String url;
@@ -459,8 +460,10 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             }
             if (responseVts.getStatusCode().value() == HCEConstants.REASON_CODE7){
                 responseMap = JsonUtil.jsonToMap(jsonResponse);
-                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                if(null != responseMap) {
+                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
             } else {
                 if (jsonResponse !=null)
                     statusCode= Integer.toString((Integer) jsonResponse.getJSONObject("errorResponse").get("status"));
@@ -499,7 +502,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String resourcePath = null;
         String request = "";
         String url;
-        Map responseMap = new LinkedHashMap();
+        Map<String, Object> responseMap = new LinkedHashMap<>();
         try {
             resourcePath = "vts/provisionedTokens/" + vProvisionedTokenID + "/stepUpOptions";
             url = env.getProperty("visaBaseUrlSandbox") + "/" + resourcePath + "?apiKey=" + env.getProperty("apiKey");
@@ -537,7 +540,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         String request = "";
         String response = null;
         JSONObject jsonResponse = new JSONObject();
-        Map responseMap = new LinkedHashMap();
+        Map<String, Object> responseMap = new LinkedHashMap<>();
         ResponseEntity responseVts = null;
         HitVisaServices hitVisaServices = new HitVisaServices(env);
         try{
