@@ -23,23 +23,98 @@ import java.util.Map;
  * Created by Tanmay.Patel on 1/8/2017.
  */
 public interface CardDetailService {
+    /**
+     * CheckDevice Eligibility
+     * */
     Map<String, Object> checkDeviceEligibility(AddCardParm addCardParm);
+
+    /**
+     * Add Card
+     * */
     Map<String, Object>  addCard(DigitizationParam digitizationParam);
+
+    /**
+     * tokenize
+     * */
     Map<String, Object>  tokenize(TokenizeRequest tokenizeRequest);
+
+    /**
+     * GetAssetPojo
+     * */
     Map<String, Object> getAsset(GetAssetPojo assetId);
+
+    /**
+     * Activate
+     * */
     Map<String, Object> activate(ActivateReq activateReq);
+
+    /**
+     * enrollPan
+     * */
     Map<String, Object> enrollPan(EnrollPanRequest enrollPanRequest);
+
+    /**
+     * getCardMetaData
+     * */
     Map<String,Object> getCardMetadata(GetCardMetadataRequest getCardMetadataRequest);
+
+    /**
+     * getContent
+     * */
     Map<String,Object>getContent(GetContentRequest getContentRequest);
+
+    /**
+     * notifyTransactionDetails
+     * */
     Map<String, Object> notifyTransactionDetails(NotifyTransactionDetailsReq notifyTransactionDetailsReq);
+
+    /**
+     * registerWithTDS
+     * */
     Map<String, Object> registerWithTDS(TDSRegistrationReq tdsRegistrationReq);
+
+    /**
+     * performCardLifeCycleManagement
+     * */
     Map<String, Object> performCardLifeCycleManagement(LifeCycleManagementReq lifeCycleManagementReq);
+
+    /**
+     * getTokens
+     * */
     Map<String, Object> getTokens(GetTokensRequest getTokensRequest);
+
+    /**
+     * requestActivationCode
+     * */
     Map<String, Object> requestActivationCode(ActivationCodeReq activationCodeReq);
+
+    /**
+     * searchTokens
+     * */
     Map<String, Object> searchTokens(SearchTokensReq searchTokensReq);
+
+    /**
+     * unregisterTds
+     * */
     Map<String, Object> unregisterTds(UnregisterTdsReq unregisterTdsReq);
+
+    /**
+     * getSystemHealth
+     * */
     Map<String,Object> getSystemHealth();
+
+    /**
+     * getPublicKeyCertificate
+     * */
     Object getPublicKeyCertificate();
+
+    /**
+     * notifyTokenUpdated
+     * */
     Map<String,Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReqPojo);
+
+    /**
+     * getCustomerCareContact
+     * */
     Map<String,Object> getCustomerCareContact();
 }
