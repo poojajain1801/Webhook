@@ -285,17 +285,17 @@
         <dependency>
             <groupId>encryption-utilities</groupId>
             <artifactId>encryption-utilities</artifactId>
-            <version>2.40.1</version>
+            <version>2.77.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.65.2-external.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.77.1-external.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>SDK-MapUtil</groupId>
             <artifactId>SDK-MapUtil</artifactId>
-            <version>5.2.1.1</version>
+            <version>6.0.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-5.2.1.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.0.1.jar</systemPath>
         </dependency>
 
         <dependency>

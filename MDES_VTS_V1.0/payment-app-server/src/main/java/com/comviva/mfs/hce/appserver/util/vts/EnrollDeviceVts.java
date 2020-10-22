@@ -65,7 +65,7 @@ public class EnrollDeviceVts {
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
         String response="";
         try {
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID(), vClientID);
+            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), enrollDeviceRequest.getVts().getChannelSecurityContext() ,enrollDeviceRequest.getClientDeviceID(), vClientID);
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
             throw regHceActionException;
@@ -73,7 +73,7 @@ public class EnrollDeviceVts {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return encDevicePersoData(response);
+        return response;
     }
 
     //method to create encDevicePersoData

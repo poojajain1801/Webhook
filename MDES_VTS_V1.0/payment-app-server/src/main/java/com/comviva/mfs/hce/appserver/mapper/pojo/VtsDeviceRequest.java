@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,15 +11,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class VtsDeviceRequest {
 
     private VtsDeviceInfoRequest deviceInfo;
-    public VtsDeviceRequest(VtsDeviceInfoRequest deviceInfo) {
-        this.deviceInfo=deviceInfo;
-    }
-
-
-
-    public VtsDeviceRequest() {
-    }
+    private ChannelSecurityContext channelSecurityContext;
 }

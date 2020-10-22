@@ -18,6 +18,7 @@ public class EnrollDeviceRequest {
        private MdesDeviceRequest mdes;
        private VtsDeviceRequest vts;
 
+
     public EnrollDeviceRequest(String userId, String schemeType, String gcmRegistrationId, String clientDeviceID, MdesDeviceRequest mdes, VtsDeviceRequest vts) {
         this.userId = userId;
         this.schemeType = schemeType;

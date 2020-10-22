@@ -15,10 +15,12 @@ public class ChannelSecurityContext {
 
     private List<VtsCerts> vtsCerts;
     private List<DeviceCerts> deviceCerts;
+    private ChannelInfo channelInfo;
 
-    public ChannelSecurityContext(List<VtsCerts> vtsCerts,List<DeviceCerts> deviceCerts) {
+    public ChannelSecurityContext(List<VtsCerts> vtsCerts,List<DeviceCerts> deviceCerts, ChannelInfo channelInfo) {
         this.vtsCerts = (vtsCerts);
         this.deviceCerts = (deviceCerts);
+        this.channelInfo = channelInfo;
     }
 
     public ChannelSecurityContext() {

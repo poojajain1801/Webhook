@@ -13,9 +13,12 @@ public class ChannelInfo {
 
     private String  vCertificateID;
     private String certUsage;
-    public ChannelInfo(String vCertificateID,String certUsage) {
+    private String encryptionScheme;
+
+    public ChannelInfo(String vCertificateID,String certUsage, String encryptionScheme) {
         this.vCertificateID=vCertificateID;
         this.certUsage=certUsage;
+        this.encryptionScheme = encryptionScheme;
     }
     public ChannelInfo() {
     }

@@ -174,7 +174,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
                 } else {
                     vtsRespMap = JsonUtil.jsonStringToHashMap(vtsResp);
-                    //vtsRespJson = new JSONObject(vtsResp);
+                    vtsRespJson = new JSONObject(vtsResp);
                     response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
                     deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                     deviceInfo.setVClientId(vClientID);
