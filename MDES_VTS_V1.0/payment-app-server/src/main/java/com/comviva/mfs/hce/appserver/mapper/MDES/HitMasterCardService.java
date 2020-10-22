@@ -151,10 +151,9 @@ public class HitMasterCardService implements RestTemplateCustomizer
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
-            if(response!=null){
-                statusCode = response.getStatusCode().value();
 
-            } if(null !=response) {
+            if(null !=response) {
+                statusCode = response.getStatusCode().value();
                 String requestId = "";
                 if (!(null==requestBody||(requestBody.isEmpty()))) {
                     JSONObject requestJson = new JSONObject(requestBody);

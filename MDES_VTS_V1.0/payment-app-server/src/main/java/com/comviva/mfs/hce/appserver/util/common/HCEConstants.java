@@ -180,7 +180,7 @@ public class HCEConstants {
     /** The Constant MASKING_PROPERTIES. */
     private static String MASKING_PROPERTIES ;
     @Value("${masking.properties}")
-    public void setMaskingProperties(String maskingProperties){
+    public static void setMaskingProperties(String maskingProperties){
         MASKING_PROPERTIES = maskingProperties;
     }
 
@@ -191,7 +191,7 @@ public class HCEConstants {
     /** The Constant MASKING_PARAM_REGEX. */
     private static String MASKING_PARAM_REGEX;
     @Value("${masking.param.regex}")
-    public void setMaskingParamRegex(String maskingParamRegex){
+    public static void setMaskingParamRegex(String maskingParamRegex){
         MASKING_PARAM_REGEX = maskingParamRegex;
     }
 
