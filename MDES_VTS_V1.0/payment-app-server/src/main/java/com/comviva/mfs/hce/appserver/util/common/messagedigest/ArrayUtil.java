@@ -16,25 +16,13 @@ public class ArrayUtil {
 		return hexStr.toString();
 	}
 
-	public static byte[] getByteArray(String hexStr){
-	    int two = 2;
-	    int sixteen =16;
-		int length = hexStr.length()/two;
-		byte[] buffer = new byte[length];
-
-		for(int i = 0; i < length; i++){
-			buffer[i] = (byte)Integer.parseInt(hexStr.substring(two*i, two*i+two), sixteen);
-		}
-		return buffer;
-	}
-
-	public static byte[] xor(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
-	    byte[] out = new byte[length];
-        for(int i = 0; i < length; i++) {
-            out[i] = (byte)(arr1[offset1+i] ^ arr2[offset2+i]);
-        }
-        return out;
+    public static byte[] getRandom(final int length) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] random = new byte[length];
+        secureRandom.nextBytes(random);
+        return random;
     }
+
 
     public static boolean compare(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
 		for(int i = 0; i < length; i++) {
@@ -45,15 +33,8 @@ public class ArrayUtil {
 		return true;
 	}
 
-	public static byte[] getRandom(final int length) {
-		SecureRandom secureRandom = new SecureRandom();
-		byte[] random = new byte[length];
-		secureRandom.nextBytes(random);
-		return random;
-	}
-	public static String asciiToHex(String asciiValue)
 
-	{
+	public static String asciiToHex(String asciiValue) {
 
 		char[] chars = asciiValue.toCharArray();
 
@@ -68,6 +49,25 @@ public class ArrayUtil {
 		}
 
 		return hex.toString();
-
 	}
+
+    public static byte[] xor(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
+        byte[] out = new byte[length];
+        for(int i = 0; i < length; i++) {
+            out[i] = (byte)(arr1[offset1+i] ^ arr2[offset2+i]);
+        }
+        return out;
+    }
+
+    public static byte[] getByteArray(String hexStr){
+        int two = 2;
+        int sixteen =16;
+        int length = hexStr.length()/two;
+        byte[] buffer = new byte[length];
+
+        for(int i = 0; i < length; i++){
+            buffer[i] = (byte)Integer.parseInt(hexStr.substring(two*i, two*i+two), sixteen);
+        }
+        return buffer;
+    }
 }

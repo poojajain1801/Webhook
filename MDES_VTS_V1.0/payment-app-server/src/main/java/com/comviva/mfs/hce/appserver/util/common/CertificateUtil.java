@@ -21,6 +21,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 
 public class CertificateUtil {
 
+    private CertificateUtil() {}
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CertificateUtil.class);
 
     /**
