@@ -14,7 +14,7 @@ public class HCEMessageCodes {
     /** The Constant SERVICE_FAILED. */
     private static String SERVICE_FAILED;
     @Value("${SERVICE_FAILED}")
-    public static void setServiceFailed(String serviceFailed){
+    public void setServiceFailed(String serviceFailed){
         SERVICE_FAILED = serviceFailed;
     }
     public static String getServiceFailed() {
@@ -23,7 +23,7 @@ public class HCEMessageCodes {
 
     private static String INVALID_TOKEN_UNIQUE_REFERENCE;
     @Value("${INVALID_TOKEN_UNIQUE_REFERENCE}")
-    public static void setInvalidTokenUniqueReference(String invalidTokenUniqueReference){
+    public void setInvalidTokenUniqueReference(String invalidTokenUniqueReference){
         INVALID_TOKEN_UNIQUE_REFERENCE = invalidTokenUniqueReference ;
     }
     public static String getInvalidTokenUniqueReference() {
@@ -33,7 +33,7 @@ public class HCEMessageCodes {
 
     private static String TOKEN_NOT_REGISTERED;
     @Value("${TOKEN_NOT_REGISTERED}")
-    public static void setTokenNotRegistered(String tokenNotRegistered){
+    public void setTokenNotRegistered(String tokenNotRegistered){
         TOKEN_NOT_REGISTERED = tokenNotRegistered;
     }
     public static String getTokenNotRegistered() {
@@ -51,7 +51,7 @@ public class HCEMessageCodes {
 
     private static String EXPIRED_CODE;
     @Value("${EXPIRED_CODE}")
-    public static void setExpiredCode(String incorrectOTP){
+    public void setExpiredCode(String incorrectOTP){
         EXPIRED_CODE = incorrectOTP;
     }
     public static String getExpiredCode(){
@@ -60,7 +60,7 @@ public class HCEMessageCodes {
 
     private static String INCORRECT_OTP;
     @Value("${INCORRECT_OTP}")
-    public static void setIncorrectOtp(String incorrectOTP){
+    public void setIncorrectOtp(String incorrectOTP){
         INCORRECT_OTP = incorrectOTP ;
     }
 
@@ -71,7 +71,7 @@ public class HCEMessageCodes {
     /** The Constant SUCCESS. */
     private static String SUCCESS;
     @Value("${SUCCESS}")
-    public static void setSuccess(String success){
+    public void setSuccess(String success){
         SUCCESS = success;
     }
 
@@ -82,7 +82,7 @@ public class HCEMessageCodes {
     /** The Constant SUCCESS. */
     private static String INSUFFICIENT_DATA;
     @Value("${INSUFFICIENT_DATA}")
-    public static void setInsufficientData(String insufficientData){
+    public void setInsufficientData(String insufficientData){
         INSUFFICIENT_DATA = insufficientData;
     }
 
@@ -93,7 +93,7 @@ public class HCEMessageCodes {
     /** The Constant SUCCESS. */
     private static String INVALID_USER_AND_DEVICE;
     @Value("${INVALID_USER_AND_DEVICE}")
-    public static void setInvalidUserAndDevice(String invalidUserAndDevice){
+    public void setInvalidUserAndDevice(String invalidUserAndDevice){
         INVALID_USER_AND_DEVICE = invalidUserAndDevice;
     }
 
@@ -105,7 +105,7 @@ public class HCEMessageCodes {
     /** The Constant INVALID_PROPERTY. */
     private static String INVALID_PROPERTY;
     @Value("${INVALID_PROPERTY}")
-    public static void setInvalidProperty(String invalidProperty){
+    public void setInvalidProperty(String invalidProperty){
         INVALID_PROPERTY = invalidProperty;
     }
 
@@ -116,8 +116,8 @@ public class HCEMessageCodes {
     /** The Constant USER_NOT_ACTIVE. */
     private static String INVALID_USER ;
     @Value("${INVALID_USER}")
-    public static void setInvalidUser(String invalidUser) {
-         INVALID_USER = invalidUser;
+    public void setInvalidUser(String invalidUser) {
+        INVALID_USER = invalidUser;
     }
 
     public static String getInvalidUser() {
@@ -127,7 +127,7 @@ public class HCEMessageCodes {
     /** The Constant INVALID_OPERATION. */
     private static String INVALID_OPERATION;
     @Value("${INVALID_OPERATION}")
-    public static void setInvalidOperation(String invalidOperation){
+    public void setInvalidOperation(String invalidOperation){
         INVALID_OPERATION = invalidOperation;
     }
 
@@ -138,8 +138,8 @@ public class HCEMessageCodes {
     /** The Constant CLIENT_DEVICEID_EXIST. */
     private static String CLIENT_DEVICEID_EXIST;
     @Value("${CLIENT_DEVICEID_EXIST}")
-    public static void setClientDeviceidExist(String clientDeviceidExist) {
-         CLIENT_DEVICEID_EXIST = clientDeviceidExist;
+    public void setClientDeviceidExist(String clientDeviceidExist) {
+        CLIENT_DEVICEID_EXIST = clientDeviceidExist;
     }
 
     public static String getClientDeviceidExist() {
@@ -149,8 +149,8 @@ public class HCEMessageCodes {
     /** The Constant INVALID_CLIENT_DEVICE_ID. */
     private static String INVALID_CLIENT_DEVICE_ID;
     @Value("${INVALID_CLIENT_DEVICE_ID}")
-    public static void setInvalidClientDeviceId(String invalidClientDeviceId) {
-         INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
+    public void setInvalidClientDeviceId(String invalidClientDeviceId) {
+        INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
     }
 
     public static String getInvalidClientDeviceId() {
@@ -171,7 +171,7 @@ public class HCEMessageCodes {
     /** The Constant VISA_FINAL_CODE. */
     private static String DEVICE_NOT_REGISTERED;
     @Value("${DEVICE_NOT_REGISTERED}")
-    public static void setDeviceNotRegistered(String deviceNotRegistered) {
+    public void setDeviceNotRegistered(String deviceNotRegistered) {
         DEVICE_NOT_REGISTERED = deviceNotRegistered;
     }
 
@@ -182,7 +182,7 @@ public class HCEMessageCodes {
     /** The Constant VISA_FINAL_CODE. */
     private static String CARD_ALREADY_REGISTERED;
     @Value("${CARD_ALREADY_REGISTERED}")
-    public static void setCardAlreadyRegistered(String cardAlreadyRegistered) {
+    public void setCardAlreadyRegistered(String cardAlreadyRegistered) {
         CARD_ALREADY_REGISTERED = cardAlreadyRegistered;
     }
 
@@ -204,7 +204,7 @@ public class HCEMessageCodes {
     /** The Constant CARD_DETAILS_NOT_EXIST. */
     private static String CARD_DETAILS_NOT_EXIST;
     @Value("${CARD_DETAILS_NOT_EXIST}")
-    public static void setCardDetailsNotExist(String cardDetailsNotExist) {
+    public void setCardDetailsNotExist(String cardDetailsNotExist) {
         CARD_DETAILS_NOT_EXIST= cardDetailsNotExist;
     }
 
@@ -215,7 +215,7 @@ public class HCEMessageCodes {
     /** The Constant CARD_DETAILS_NOT_EXIST. */
     private static String FAILED_AT_THIRED_PARTY;
     @Value("${FAILED_AT_THIRED_PARTY}")
-    public static void setFailedAtThiredParty(String failedAtThiredParty) {
+    public void setFailedAtThiredParty(String failedAtThiredParty) {
         FAILED_AT_THIRED_PARTY= failedAtThiredParty;
     }
 
@@ -227,7 +227,7 @@ public class HCEMessageCodes {
     /** The Constant INVAILD_PAYMENTAPP_INSTANCE_ID */
     private static String INVALID_PAYMENT_APP_INSTANCE_ID;
     @Value("${INVALID_PAYMENT_APP_INSTANCE_ID}")
-    public static void setInvalidPaymentAppInstanceId(String invalidPaymentAppInstanceId) {
+    public void setInvalidPaymentAppInstanceId(String invalidPaymentAppInstanceId) {
         INVALID_PAYMENT_APP_INSTANCE_ID= invalidPaymentAppInstanceId;
     }
 
@@ -239,7 +239,7 @@ public class HCEMessageCodes {
     /** The Constant CARD_NOT_ELIGIBLE*/
     private static String CARD_NOT_ELIGIBLE;
     @Value("${CARD_NOT_ELIGIBLE}")
-    public static void setCardNotEligible(String cardNotEligible) {
+    public void setCardNotEligible(String cardNotEligible) {
         CARD_NOT_ELIGIBLE = cardNotEligible;
     }
     public static String getCardNotEligible() {
@@ -248,7 +248,7 @@ public class HCEMessageCodes {
 
     private static String DUPLICATE_REQUEST;
     @Value("${DUPLICATE_REQUEST}")
-    private static void setDuplicateRequest(String deplicateRequest){
+    private void setDuplicateRequest(String deplicateRequest){
         DUPLICATE_REQUEST = deplicateRequest;
     }
     public static String getDuplicateRequest() {
