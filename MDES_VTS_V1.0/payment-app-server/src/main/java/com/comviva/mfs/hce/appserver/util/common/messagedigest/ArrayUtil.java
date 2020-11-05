@@ -1,11 +1,11 @@
 package com.comviva.mfs.hce.appserver.util.common.messagedigest;
 
-import lombok.NoArgsConstructor;
 
 import java.security.SecureRandom;
 
-@NoArgsConstructor
 public class ArrayUtil {
+
+    private ArrayUtil(){}
 
 	public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
