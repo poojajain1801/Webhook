@@ -15,20 +15,20 @@ public class ConfigurationManagementM implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    private String requestId ;
-
-    private String userId;
-
     private String hvtLimit ;
+
+    private Timestamp modifiedOn;
 
     private String isHvtSupported ;
 
     private Timestamp createdOn;
 
-    private Timestamp modifiedOn;
-
     private String status ;
+
+    private String userId;
+
+    @Id
+    private String requestId ;
 
     public ConfigurationManagementM() {
     }

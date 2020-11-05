@@ -43,17 +43,17 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
     @Autowired
     private Environment env;
-    private final UserDetailService userDetailService;
     private final HCEControllerSupport hceControllerSupport;
-    private final UserDetailRepository userDetailRepository;
     private final CardDetailRepository cardDetailRepository;
+    private final UserDetailService userDetailService;
+    private final UserDetailRepository userDetailRepository;
 
     @Autowired
-    public TokenLifeCycleManagementServiceImpl(UserDetailService userDetailService,HCEControllerSupport hceControllerSupport,UserDetailRepository userDetailRepository,CardDetailRepository cardDetailRepository) {
+    public TokenLifeCycleManagementServiceImpl(HCEControllerSupport hceControllerSupport,UserDetailService userDetailService, UserDetailRepository userDetailRepository,CardDetailRepository cardDetailRepository) {
         this.hceControllerSupport = hceControllerSupport;
+        this.cardDetailRepository = cardDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository = userDetailRepository;
-        this.cardDetailRepository = cardDetailRepository;
     }
 
     public Map<String, Object>getTokenStatus(GetTokenStatusRequest getTokenStatusRequest) {
@@ -119,9 +119,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 response.put("responseCode", HCEMessageCodes.getSUCCESS());
                 response.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return response;
-            }
-            else
-            {
+            } else {
                 Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
@@ -141,6 +139,12 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
 
     }
 
+
+    /**
+     * lifeCycleManagementVisa - card life cycle mgmt
+     * @param lifeCycleManagementVisaRequest delete or suspend
+     * @return Map
+     * */
     public Map<String,Object> lifeCycleManagementVisa(LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest) {
         //TODO:Check vProvisonID is valid or not
         LOGGER.debug("Enter TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
@@ -213,8 +217,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                 cardDetailRepository.save(cardDetails);
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
-            }
-            else {
+            } else {
                 Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
@@ -223,8 +226,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                 LOGGER.debug("Exit TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa");
                 return errorMap;
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.debug("Exception occurred in TokenLifeCycleManagementServiceImpl->lifeCycleManagementVisa",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
@@ -257,7 +259,8 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             maxRecord = getTokenListRequest.getMaxRecord();
             if(index!=null && !index.isEmpty()){
                 int i = Integer.parseInt(index);
-                page = i/10;
+                int ten = 10;
+                page = i/ten;
             }
             if(maxRecord!=null && !maxRecord.isEmpty()){
                 size = Integer.parseInt(maxRecord);

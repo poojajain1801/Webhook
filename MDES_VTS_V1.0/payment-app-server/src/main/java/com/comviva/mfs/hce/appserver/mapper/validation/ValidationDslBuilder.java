@@ -86,9 +86,10 @@ public class ValidationDslBuilder {
     }
 
     public ValidationDslBuilder validateRequiredIf(boolean conditionSatisfies, String... fieldNames) {
-        if(conditionSatisfies) {
-            return validateRequired(fieldNames);
-        }
-        return this;
+//        if(conditionSatisfies) {
+//            return validateRequired(fieldNames);
+//        }
+//        return this;
+        return conditionSatisfies?validateRequired(fieldNames):this;
     }
 }

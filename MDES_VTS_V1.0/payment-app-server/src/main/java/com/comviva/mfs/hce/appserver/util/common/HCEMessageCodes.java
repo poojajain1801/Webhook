@@ -105,7 +105,7 @@ public class HCEMessageCodes {
     /** The Constant INVALID_PROPERTY. */
     private static String INVALID_PROPERTY;
     @Value("${INVALID_PROPERTY}")
-    public void setInvalidProperty(String invalidProperty){
+    public  void setInvalidProperty(String invalidProperty){
         INVALID_PROPERTY = invalidProperty;
     }
 
@@ -239,7 +239,7 @@ public class HCEMessageCodes {
     /** The Constant CARD_NOT_ELIGIBLE*/
     private static String CARD_NOT_ELIGIBLE;
     @Value("${CARD_NOT_ELIGIBLE}")
-    public void setCardNotEligible(String cardNotEligible) {
+    public  void setCardNotEligible(String cardNotEligible) {
         CARD_NOT_ELIGIBLE = cardNotEligible;
     }
     public static String getCardNotEligible() {
