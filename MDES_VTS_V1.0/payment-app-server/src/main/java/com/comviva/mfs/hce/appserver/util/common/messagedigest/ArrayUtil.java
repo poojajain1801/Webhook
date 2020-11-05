@@ -60,8 +60,8 @@ public class ArrayUtil {
     }
 
     public static byte[] getByteArray(String hexStr){
-        int two = 2;
-        int sixteen =16;
+        final int two = 2;
+        final int sixteen =16;
         int length = hexStr.length()/two;
         byte[] buffer = new byte[length];
 

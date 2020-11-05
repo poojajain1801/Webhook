@@ -52,7 +52,7 @@ public class ArrayUtil {
 		return random;
 	}
 	public static String getRequestId () {
-        int twentyTwo = 22;
+        final int twentyTwo = 22;
         return "COMREQID"+getHexString(getRandom(twentyTwo));
 	}
 }

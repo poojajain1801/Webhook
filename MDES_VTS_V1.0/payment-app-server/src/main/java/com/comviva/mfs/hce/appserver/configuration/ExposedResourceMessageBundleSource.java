@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  * <p/>
  * This software is the sole property of Comviva and is protected by copyright
@@ -17,7 +17,7 @@
  * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
 package com.comviva.mfs.hce.appserver.configuration;
 
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -31,7 +31,7 @@ public class ExposedResourceMessageBundleSource extends ReloadableResourceBundle
      * getMessages
      * @param locale locale
      * */
-    public Map<?, ?> getMessages(Locale locale) {
+    public Map getMessages(Locale locale) {
         return getMergedProperties(locale).getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }

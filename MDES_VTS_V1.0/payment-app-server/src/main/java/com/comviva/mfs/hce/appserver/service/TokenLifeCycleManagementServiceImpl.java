@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ * <p/>
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ * <p/>
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
@@ -237,17 +257,17 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
         Map<String, Object> responseMap = null;
         String userId = null;
         List<UserDetail> userDetailList = null;
-        UserDetail userDetail = null;
-        List<DeviceInfo> deviceInfoList = null;
-        List<DeviceInfo> activeDeviceInfoList = null;
-        DeviceInfo deviceInfo = null;
+//        UserDetail userDetail = null;
+//        List<DeviceInfo> deviceInfoList = null;
+//        List<DeviceInfo> activeDeviceInfoList = null;
+//        DeviceInfo deviceInfo = null;
         List<CardDetails> cardDetailsList = null;
         CardDetails cardDetails = null;
-        Map<String,Object> userDetailsMap = null;
-        Map<String,Object> deviceDetailsMap = null;
+//        Map<String,Object> userDetailsMap = null;
+//        Map<String,Object> deviceDetailsMap = null;
         Map<String,Object> cardDetailsMap = null;
         List<Map<String,Object>> cardDetailsMapList = null;
-        List<Map<String,Object>> deviceDetailsMapList = null;
+//        List<Map<String,Object>> deviceDetailsMapList = null;
         String index = null;
         String maxRecord = null;
         int page =0;
@@ -259,7 +279,7 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
             maxRecord = getTokenListRequest.getMaxRecord();
             if(index!=null && !index.isEmpty()){
                 int i = Integer.parseInt(index);
-                int ten = 10;
+                final int ten = 10;
                 page = i/ten;
             }
             if(maxRecord!=null && !maxRecord.isEmpty()){
@@ -274,30 +294,55 @@ public class TokenLifeCycleManagementServiceImpl implements TokenLifeCycleManage
                     for(int i=0;i<cardDetailsList.size();i++){
                         cardDetailsMap = new HashMap<>();
                         cardDetails = cardDetailsList.get(i);
-                        cardDetailsMap.put(HCEConstants.CARD_ID,cardDetails.getCardId()!=null?cardDetails.getCardId():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CARD_IDENTIFIER,cardDetails.getCardIdentifier()!=null ?cardDetails.getCardIdentifier():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CARD_SUFFIX,cardDetails.getCardSuffix()!=null ?cardDetails.getCardSuffix():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CARD_TYPE,cardDetails.getCardType()!=null ? cardDetails.getCardType():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.MODIFIED_ON,cardDetails.getModifiedOn()!=null ? cardDetails.getModifiedOn().toString():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.PAN_UNIQUE_REFERENCE,cardDetails.getPanUniqueReference()!=null ?cardDetails.getPanUniqueReference():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.VISA_PROVISION_TOKENID,cardDetails.getVisaProvisionTokenId()!=null ?cardDetails.getVisaProvisionTokenId():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.MASTER_TOKEN_UNIQUE_REFERENCE,cardDetails.getMasterTokenUniqueReference()!=null ?cardDetails.getMasterTokenUniqueReference():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.REPLENISH_ON,cardDetails.getReplenishOn()!=null ? cardDetails.getReplenishOn().toString():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.STATUS,cardDetails.getStatus()!=null ? cardDetails.getStatus():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.TOKEN_SUFFIX,cardDetails.getTokenSuffix()!=null ? cardDetails.getTokenSuffix():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CLIENT_DEVICE_ID,cardDetails.getDeviceInfo()!=null ? cardDetails.getDeviceInfo().getClientDeviceId():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CREATED_ON, cardDetails.getCreatedOn()!=null ? cardDetails.getCreatedOn().toString():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.DEVICE_MODEL,cardDetails.getDeviceInfo()!=null ? cardDetails.getDeviceInfo().getDeviceModel():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.HOST_DEVICE_ID,cardDetails.getDeviceInfo().getHostDeviceId()!=null ? cardDetails.getDeviceInfo().getHostDeviceId():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.IMEI,cardDetails.getDeviceInfo().getImei()!=null ? cardDetails.getDeviceInfo().getImei():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.IS_MASTER_CARD_ENABLED,cardDetails.getDeviceInfo().getIsMastercardEnabled()!=null ? cardDetails.getDeviceInfo().getIsMastercardEnabled():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.IS_VISA_ENABLED,cardDetails.getDeviceInfo().getIsVisaEnabled()!=null ? cardDetails.getDeviceInfo().getIsVisaEnabled():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.NFC_CAPABLE,cardDetails.getDeviceInfo().getNfcCapable()!=null ? cardDetails.getDeviceInfo().getNfcCapable():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.OS_NAME,cardDetails.getDeviceInfo().getOsName()!=null ? cardDetails.getDeviceInfo().getOsName():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.OS_VERSION,cardDetails.getDeviceInfo().getOsVersion()!=null ? cardDetails.getDeviceInfo().getOsVersion():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.USER_ID,cardDetails.getDeviceInfo().getUserDetail().getUserId()!=null ? cardDetails.getDeviceInfo().getUserDetail().getUserId():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.DEVICE_NAME,cardDetails.getDeviceInfo().getDeviceName()!=null ? cardDetails.getDeviceInfo().getDeviceName():HCEConstants.NOT_AVAILABLE);
-                        cardDetailsMap.put(HCEConstants.CLIENT_WALLET_ACCOUNT_ID,cardDetails.getDeviceInfo().getUserDetail().getClientWalletAccountId()!=null ? cardDetails.getDeviceInfo().getUserDetail().getClientWalletAccountId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CARD_ID,cardDetails.getCardId()!=null?
+                                cardDetails.getCardId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CARD_IDENTIFIER,cardDetails.getCardIdentifier()!=null ?
+                                cardDetails.getCardIdentifier():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CARD_SUFFIX,cardDetails.getCardSuffix()!=null ?
+                                cardDetails.getCardSuffix():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CARD_TYPE,cardDetails.getCardType()!=null ?
+                                cardDetails.getCardType():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.MODIFIED_ON,cardDetails.getModifiedOn()!=null ?
+                                cardDetails.getModifiedOn().toString():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.PAN_UNIQUE_REFERENCE,cardDetails.getPanUniqueReference()!=null ?
+                                cardDetails.getPanUniqueReference():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.VISA_PROVISION_TOKENID,cardDetails.getVisaProvisionTokenId()!=null ?
+                                cardDetails.getVisaProvisionTokenId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.MASTER_TOKEN_UNIQUE_REFERENCE,cardDetails.getMasterTokenUniqueReference()!=null ?
+                                cardDetails.getMasterTokenUniqueReference():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.REPLENISH_ON,cardDetails.getReplenishOn()!=null ?
+                                cardDetails.getReplenishOn().toString():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.STATUS,cardDetails.getStatus()!=null ?
+                                cardDetails.getStatus():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.TOKEN_SUFFIX,cardDetails.getTokenSuffix()!=null ?
+                                cardDetails.getTokenSuffix():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CLIENT_DEVICE_ID,cardDetails.getDeviceInfo()!=null ?
+                                cardDetails.getDeviceInfo().getClientDeviceId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CREATED_ON, cardDetails.getCreatedOn()!=null ?
+                                cardDetails.getCreatedOn().toString():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.DEVICE_MODEL,cardDetails.getDeviceInfo()!=null ?
+                                cardDetails.getDeviceInfo().getDeviceModel():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.HOST_DEVICE_ID,cardDetails.getDeviceInfo().getHostDeviceId()!=null ?
+                                cardDetails.getDeviceInfo().getHostDeviceId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.IMEI,cardDetails.getDeviceInfo().getImei()!=null ?
+                                cardDetails.getDeviceInfo().getImei():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.IS_MASTER_CARD_ENABLED,cardDetails.getDeviceInfo().getIsMastercardEnabled()!=null ?
+                                cardDetails.getDeviceInfo().getIsMastercardEnabled():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.IS_VISA_ENABLED,cardDetails.getDeviceInfo().getIsVisaEnabled()!=null ?
+                                cardDetails.getDeviceInfo().getIsVisaEnabled():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.NFC_CAPABLE,cardDetails.getDeviceInfo().getNfcCapable()!=null ?
+                                cardDetails.getDeviceInfo().getNfcCapable():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.OS_NAME,cardDetails.getDeviceInfo().getOsName()!=null ?
+                                cardDetails.getDeviceInfo().getOsName():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.OS_VERSION,cardDetails.getDeviceInfo().getOsVersion()!=null ?
+                                cardDetails.getDeviceInfo().getOsVersion():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.USER_ID,cardDetails.getDeviceInfo().getUserDetail().getUserId()!=null ?
+                                cardDetails.getDeviceInfo().getUserDetail().getUserId():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.DEVICE_NAME,cardDetails.getDeviceInfo().getDeviceName()!=null ?
+                                cardDetails.getDeviceInfo().getDeviceName():HCEConstants.NOT_AVAILABLE);
+                        cardDetailsMap.put(HCEConstants.CLIENT_WALLET_ACCOUNT_ID,
+                                cardDetails.getDeviceInfo().getUserDetail().getClientWalletAccountId()!=null ?
+                                        cardDetails.getDeviceInfo().getUserDetail().getClientWalletAccountId():HCEConstants.NOT_AVAILABLE);
                         cardDetailsMapList.add(cardDetailsMap);
                     }
 

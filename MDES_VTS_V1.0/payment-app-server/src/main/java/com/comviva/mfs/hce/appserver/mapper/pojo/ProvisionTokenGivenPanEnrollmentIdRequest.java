@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,6 +11,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProvisionTokenGivenPanEnrollmentIdRequest {
 
 private String clientAppId;
@@ -20,6 +24,7 @@ private String panEnrollmentID;
 private String clientDeviceID;
 private String termsAndConditionsID;
 
+/*
     public ProvisionTokenGivenPanEnrollmentIdRequest(String clientAppId, String clientWalletAccountId, String emailAddress, String protectionType, String presentationType, String panEnrollmentID, String clientDeviceID, String termsAndConditionsID) {
         this.clientAppId = clientAppId;
         this.clientWalletAccountId = clientWalletAccountId;
@@ -32,5 +37,5 @@ private String termsAndConditionsID;
     }
 
     public ProvisionTokenGivenPanEnrollmentIdRequest() {
-    }
+    } */
 }

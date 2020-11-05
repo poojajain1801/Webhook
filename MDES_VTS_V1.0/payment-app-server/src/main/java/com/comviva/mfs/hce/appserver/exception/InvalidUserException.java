@@ -21,15 +21,15 @@
 package com.comviva.mfs.hce.appserver.exception;
 
 /**
- * Created by sumit.das on 12/21/2016.
- * ApplicationException
+ * Created by Tanmay.Patel on 1/8/2017.
  */
-public class ApplicationException extends RuntimeException {
+public class InvalidUserException extends RuntimeException {
     /**
-     * ApplicationExcpetion
-     * @param e excpetion
+     * InvalidUserException
+     * @param message
      * */
-    public ApplicationException(Exception e) {
-        super(e);
+    public InvalidUserException(String message) {
+        super(message);
     }
+
 }
