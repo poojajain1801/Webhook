@@ -1,9 +1,6 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * ActivateUserRequest.
@@ -13,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ActivateUserRequest {
     private String userId;
     private String activationCode;

@@ -4,20 +4,17 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
 import com.comviva.mfs.hce.appserver.model.SysMessage;
-import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.SysMessageRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
-import com.google.gson.Gson;
+
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
+
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +25,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 
 @Aspect
 @Order(-1)
@@ -45,12 +42,12 @@ public class LoadSysMessageInterceptor {
     @Autowired
     private Environment env;
     @Autowired
-    public LoadSysMessageInterceptor(UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport, CardDetailRepository cardDetailRepository ,SysMessageRepository sysMessageRepository) {
+    public LoadSysMessageInterceptor(UserDetailRepository userDetailRepository, DeviceDetailRepository deviceDetailRepository, CardDetailRepository cardDetailRepository, HCEControllerSupport hceControllerSupport ,SysMessageRepository sysMessageRepository) {
         this.userDetailRepository = userDetailRepository;
-        this.deviceDetailRepository=deviceDetailRepository;
         this.hceControllerSupport = hceControllerSupport;
-        this.cardDetailRepository = cardDetailRepository;
+        this.deviceDetailRepository=deviceDetailRepository;
         this.sysMessageRepository = sysMessageRepository;
+        this.cardDetailRepository = cardDetailRepository;
     }
 
     public LoadSysMessageInterceptor() {
@@ -119,8 +116,10 @@ public class LoadSysMessageInterceptor {
                 responseMessageMap = responseData;
             }*/
         } catch (HCEValidationException resHceValidationException){
+            LOGGER.debug(resHceValidationException + "");
             responseMessageMap = hceControllerSupport.formResponse(resHceValidationException.getMessageCode(),resHceValidationException.getMessage());
         }catch (HCEActionException resHceActionException){
+            LOGGER.debug(resHceActionException+"");
             responseMessageMap = hceControllerSupport.formResponse(resHceActionException.getMessageCode());
         }catch (Exception resException) {
             LOGGER.error(" Exception Occured in LoadSysMessageInterceptor->invoke", resException);
