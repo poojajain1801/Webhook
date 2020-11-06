@@ -1,6 +1,5 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -7,7 +7,7 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.GetRegistrationCodeReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionHistoryRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionsRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.PushTransctionDetailsReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.Transactions;
+
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;

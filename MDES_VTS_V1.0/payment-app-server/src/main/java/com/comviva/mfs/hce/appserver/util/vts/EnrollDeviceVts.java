@@ -3,7 +3,6 @@ package com.comviva.mfs.hce.appserver.util.vts;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
-import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;

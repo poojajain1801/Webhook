@@ -20,7 +20,6 @@
  */
 package com.comviva.mfs.hce.appserver.constants;
 
-import lombok.NoArgsConstructor;
 
 /**
  * Constants values.

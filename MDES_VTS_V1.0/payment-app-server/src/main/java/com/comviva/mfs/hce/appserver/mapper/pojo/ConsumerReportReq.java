@@ -2,10 +2,8 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
-import oracle.sql.TIMESTAMP;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.constraints.NotNull;
+
 import java.util.Date;
 
 /**

@@ -1,18 +1,14 @@
 package com.comviva.mfs.hce.appserver.repository;
 
-import com.comviva.mfs.hce.appserver.model.CardDetails;
+
 import com.comviva.mfs.hce.appserver.model.UserDetail;
-import oracle.sql.TIMESTAMP;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.

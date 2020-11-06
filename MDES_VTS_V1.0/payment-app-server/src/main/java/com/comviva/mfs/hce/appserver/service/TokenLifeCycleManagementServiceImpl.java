@@ -27,7 +27,6 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokenStatusRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
-import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;

@@ -7,8 +7,6 @@ package com.comviva.mfs.hce.appserver.interceptors;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

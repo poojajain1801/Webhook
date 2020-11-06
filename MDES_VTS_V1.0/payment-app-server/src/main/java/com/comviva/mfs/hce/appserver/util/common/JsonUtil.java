@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.hibernate.internal.util.collections.ArrayHelper.toList;
+
 
 public class JsonUtil {
 

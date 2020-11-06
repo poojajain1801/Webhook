@@ -2,8 +2,6 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**

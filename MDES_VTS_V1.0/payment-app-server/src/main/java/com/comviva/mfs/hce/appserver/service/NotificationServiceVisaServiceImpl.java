@@ -6,15 +6,13 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokenStatusRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotificationServiceReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
-import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.VisaCardDetailRepository;
+
 import com.comviva.mfs.hce.appserver.service.contract.NotificationServiceVisaService;
 import com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
-import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;

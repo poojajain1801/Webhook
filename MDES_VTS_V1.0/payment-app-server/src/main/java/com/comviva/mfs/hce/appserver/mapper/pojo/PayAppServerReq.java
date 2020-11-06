@@ -1,6 +1,6 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.Getter;
+
 
 /**
  * Created by Tanmay.Patel on 2/2/2017.

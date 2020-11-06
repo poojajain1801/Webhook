@@ -2,7 +2,7 @@ package com.comviva.mfs.hce.appserver.repository;
 
 
 import com.comviva.mfs.hce.appserver.model.SysMessage;
-import com.comviva.mfs.hce.appserver.model.SysMessagePK;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
