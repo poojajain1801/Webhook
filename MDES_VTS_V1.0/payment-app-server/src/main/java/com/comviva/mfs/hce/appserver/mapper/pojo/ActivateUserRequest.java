@@ -1,6 +1,11 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * ActivateUserRequest.
