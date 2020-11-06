@@ -27,9 +27,15 @@ import java.lang.annotation.Target;
 
 /**
  * Created by tanmay.patel on 04-12-2017.
+ * decryptflow
+ * to decrypt encrypted request add this flow step above the controller function
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DecryptFlowStep {
+    /**
+     * value function
+     * @return string value
+     * */
     String value();
 }
