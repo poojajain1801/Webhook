@@ -1,11 +1,11 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Created by tanmay.patel on 1/31/2017.
  */
-
+@ToString
 public class AddCardParm extends PayAppServerReq{
 
     private String tokenType;
