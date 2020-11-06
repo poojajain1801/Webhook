@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
@@ -166,9 +186,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             JSONObject deviceInfo = new JSONObject(addCardParam.getDeviceInfo());
             DeviceInfoRequest deviceInfoRequest = addCardParam.getDeviceInfo();
             deviceInfo.remove("imei");
-
+            final int len =22;
             checkDeviceEligibilityRequest = new JSONObject();
-            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             checkDeviceEligibilityRequest.put("requestId", requestId);
             //checkDeviceEligibilityRequest.put("responseHost",env.getProperty("responseHost"));
             checkDeviceEligibilityRequest.put("tokenType", addCardParam.getTokenType());
@@ -186,7 +206,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, checkDeviceEligibilityRequest.toString(), "POST",id);
             LOGGER.info("Check card eligibility after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
             //Prepare Response
-            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == 200)) {
+            if ((responseEntity.hasBody()) && (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7)) {
                 if (responseEntity.hasBody()) {
                     response = String.valueOf(responseEntity.getBody());
                     jsonResp = new JSONObject(response);
@@ -333,13 +353,14 @@ public class CardDetailServiceImpl implements CardDetailService {
                         if (deviceInfoList.isPresent()) {
                             cardDetails.setDeviceInfo(deviceInfoList.get());
                         }
+                        int len = 8;
                         cardDetails.setMasterTokenUniqueReference(provisionRespMdes.getString("tokenUniqueReference"));
                         cardDetails.setPanUniqueReference(provisionRespMdes.getString("panUniqueReference"));
                         cardDetails.setMasterTokenInfo(provisionRespMdes.getJSONObject("tokenInfo").toString());
                         cardDetails.setStatus(HCEConstants.INITIATE);
                         cardDetails.setCardType(HCEConstants.MASTERCARD);
-                        cardDetails.setCardId(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
-                        cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(8)));
+                        cardDetails.setCardId(ArrayUtil.getHexString(ArrayUtil.getRandom(len)));
+                        cardDetails.setCardIdentifier(ArrayUtil.getHexString(ArrayUtil.getRandom(len)));
                         cardDetails.setCardSuffix(provisionRespMdes.getJSONObject("tokenInfo").getString("accountPanSuffix"));
                         cardDetails.setTokenSuffix(provisionRespMdes.getJSONObject("tokenInfo").getString("tokenPanSuffix"));
                         cardDetails.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
@@ -468,7 +489,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         String id = "";
         String result = "";
         try {
-            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+
+            int len = 22;
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             reqMdes  = new JSONObject();
             //reqMdes.put("responseHost", "com.mahindracomviva.payAppServer");
             reqMdes.put("requestId", requestId);
@@ -590,7 +613,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                     responseMap = JsonUtil.jsonStringToHashMap(jsonResponse.toString());
                 }
 
-                if (responseEntity.getStatusCode().value() == 200 || responseEntity.getStatusCode().value() == 201) {
+                if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 ||
+                        responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
                     if(null != jsonResponse) {
                         vPanEnrollmentId = jsonResponse.getString("vPanEnrollmentID");
                     }
@@ -754,7 +778,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                 LOGGER.debug("registration code2 ******** :"+registrationCode2);
                 transactionRegDetailsRepository.save(transactionRegDetails);
             }
-            responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            final int len = 22;
+            responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             responseMap.put("responseId" , responseId);
 
             //Register
@@ -798,7 +823,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             Gson gson = new Gson();
             String json = gson.toJson(fcmresponse);
             LOGGER.debug("CardDetailServiceImpl -> notifyTokenUpdated->Raw response from FCM server" + json);
-            if (Integer.valueOf(fcmresponse.getErrorCode()) != 200) {
+            if (Integer.valueOf(fcmresponse.getErrorCode()) != HCEConstants.REASON_CODE7) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVER_MESSAGE");
             }
@@ -952,7 +977,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         JSONArray tokens = null;
         JSONObject tokensJsonObj = null;
         try {
-            if (tokenUniqueRefList.isEmpty() || (tokenUniqueRefList.size() == 0)) {
+            if (null!=tokenUniqueRefList && tokenUniqueRefList.isEmpty()) {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
@@ -975,7 +1000,8 @@ public class CardDetailServiceImpl implements CardDetailService {
 
             //Prepare req for delete req
             lifecycleJsonRequest = new JSONObject();
-            lifecycleJsonRequest.put("requestId", ArrayUtil.getHexString(ArrayUtil.getRandom(10)));
+            final int ten = 10;
+            lifecycleJsonRequest.put("requestId", ArrayUtil.getHexString(ArrayUtil.getRandom(ten)));
             lifecycleJsonRequest.put(PAYMENT_APP_INSTANCE_ID, paymentAppInstanceID);
             lifecycleJsonRequest.put("tokenUniqueReferences", tokenUniqueRefList);
             lifecycleJsonRequest.put("causedBy", lifeCycleManagementReq.getCausedBy());
@@ -1095,8 +1121,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         String id = "";
         String urlHost = null;
         Optional<DeviceInfo> deviceDetail = null;
+        final int len =22;
         try {
-            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             reqMdes  = new JSONObject();
             //reqMdes.put("responseHost", "com.mahindracomviva.payAppServer");
             reqMdes.put("requestId", requestId);
@@ -1160,8 +1187,9 @@ public class CardDetailServiceImpl implements CardDetailService {
         }
         try {
             //call the master card searchTokens API
+            final int len = 22;
             searchTokenReq = new JSONObject();
-            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             searchTokenReq.put("requestId", requestId);
             searchTokenReq.put(PAYMENT_APP_INSTANCE_ID, searchTokensReq.getPaymentAppInstanceId());
             /*trId = this.env.getProperty("tokenrequestorid");
@@ -1211,7 +1239,8 @@ public class CardDetailServiceImpl implements CardDetailService {
 
         try {
             getTokenReq = new JSONObject();
-            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            final int len = 22;
+            requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(len));
             getTokenReq.put("requestId", requestId);
             getTokenReq.put("tokenUniqueReference", getTokensRequest.getTokenUniqueReference());
             getTokenReq.put(PAYMENT_APP_INSTANCE_ID, getTokensRequest.getPaymentAppInstanceId());
@@ -1437,7 +1466,8 @@ public class CardDetailServiceImpl implements CardDetailService {
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority", "high");
-            payloadObject.put("time_to_live", 2160000);
+            final int ttl = 2160000;
+            payloadObject.put("time_to_live", ttl);
             //Send Remote Notification
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
@@ -1446,7 +1476,7 @@ public class CardDetailServiceImpl implements CardDetailService {
             responseId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             LOGGER.debug("CardDetailServiceImpl -> notifyTokenUpdated->Raw response from FCM server" + json);
 
-            if (Integer.valueOf(response.getErrorCode()) != 200) {
+            if (Integer.valueOf(response.getErrorCode()) != HCEConstants.REASON_CODE7) {
                 return ImmutableMap.of("errorCode", "720",
                         "errorDescription", "UNABLE_TO_DELIVER_MESSAGE");
             } else {

@@ -1,6 +1,5 @@
 /*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
- * <p>
  * This software is the sole property of Comviva and is protected by copyright
  * law and international treaty provisions. Unauthorized reproduction or
  * redistribution of this program, or any portion of it may result in severe

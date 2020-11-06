@@ -28,6 +28,11 @@ public class ArrayUtil {
 
     private ArrayUtil(){}
 
+    /**
+     * getHexString
+     * @param buffer byte array
+     * @return string
+     * */
 	public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 
@@ -37,6 +42,12 @@ public class ArrayUtil {
 		return hexStr.toString();
 	}
 
+
+    /**
+     * getRandom
+     * @param length length of rand
+     * @return byte array
+     * */
     public static byte[] getRandom(final int length) {
         SecureRandom secureRandom = new SecureRandom();
         byte[] random = new byte[length];
@@ -44,7 +55,14 @@ public class ArrayUtil {
         return random;
     }
 
-
+    /**
+     * compare
+     * @param arr1 array1
+     * @param arr2 array2
+     * @param offset2 offset2
+     * @param length length
+     * @return boolean
+     * */
     public static boolean compare(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
 		for(int i = 0; i < length; i++) {
 			if(arr1[offset1+i] != arr2[offset2+i]) {
@@ -55,6 +73,12 @@ public class ArrayUtil {
 	}
 
 
+
+	/**
+     * asciiToHex
+     * @param asciiValue ascii value
+     * @return string
+     * */
 	public static String asciiToHex(String asciiValue) {
 
 		char[] chars = asciiValue.toCharArray();
@@ -72,6 +96,14 @@ public class ArrayUtil {
 		return hex.toString();
 	}
 
+	/**
+     * xor
+     * @param arr1 array1
+     * @param arr2 array2
+     * @param offset2 offset2
+     * @param length length
+     * @return byte array
+     * */
     public static byte[] xor(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
         byte[] out = new byte[length];
         for(int i = 0; i < length; i++) {
@@ -80,6 +112,12 @@ public class ArrayUtil {
         return out;
     }
 
+
+    /**
+     * getByteArray
+     * @param hexStr hex String
+     * @return byte array
+     * */
     public static byte[] getByteArray(String hexStr){
         final int two = 2;
         final int sixteen =16;

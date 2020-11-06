@@ -9,7 +9,7 @@
  * You may not reverse engineer, decompile, or disassemble the software, except
  * and only to the extent that such activity is expressly permitted by
  * applicable law notwithstanding this limitation.
- * <p/>
+ *
  * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
  * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
@@ -27,6 +27,11 @@ import java.security.SecureRandom;
 @NoArgsConstructor
 public class ArrayUtil {
 
+	/**
+	 * getHexString
+	 * @param buffer byte array
+	 * @return string
+	 * */
     public static String getHexString(byte[] buffer){
 		StringBuilder hexStr = new StringBuilder();
 
@@ -36,6 +41,12 @@ public class ArrayUtil {
 		return hexStr.toString();
 	}
 
+
+	/**
+	 * getByteArray
+	 * @param hexStr hex String
+	 * @return byte array
+	 * */
 	public static byte[] getByteArray(String hexStr){
         int two = 2;
         int length = hexStr.length()/ two;
@@ -48,6 +59,14 @@ public class ArrayUtil {
 		return buffer;
 	}
 
+	/**
+	 * xor
+	 * @param arr1 array1
+	 * @param arr2 array2
+	 * @param offset2 offset2
+	 * @param length length
+	 * @return byte array
+	 * */
 	public static byte[] xor(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
 	    byte[] out = new byte[length];
         for(int i = 0; i < length; i++) {
@@ -56,6 +75,14 @@ public class ArrayUtil {
         return out;
     }
 
+	/**
+	 * compare
+	 * @param arr1 array1
+	 * @param arr2 array2
+	 * @param offset2 offset2
+	 * @param length length
+	 * @return boolean
+	 * */
     public static boolean compare(byte[] arr1, int offset1, byte[] arr2, int offset2, int length) {
 		for(int i = 0; i < length; i++) {
 			if(arr1[offset1+i] != arr2[offset2+i]) {
@@ -65,12 +92,22 @@ public class ArrayUtil {
 		return true;
 	}
 
+	/**
+	 * getRandom
+	 * @param length length of rand
+	 * @return byte array
+	 * */
 	public static byte[] getRandom(final int length) {
 		SecureRandom secureRandom = new SecureRandom();
 		byte[] random = new byte[length];
 		secureRandom.nextBytes(random);
 		return random;
 	}
+
+	/**
+	 * getRequestId
+	 * @return string
+	 * */
 	public static String getRequestId () {
         final int twentyTwo = 22;
         return "COMREQID"+getHexString(getRandom(twentyTwo));
