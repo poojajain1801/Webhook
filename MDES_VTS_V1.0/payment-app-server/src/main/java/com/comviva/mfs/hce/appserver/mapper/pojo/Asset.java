@@ -14,9 +14,9 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class Asset {
-    private final Map response;
+    private final Map<String, Object> response;
 
-    public Asset(Map response) {
+    public Asset(Map<String, Object> response) {
         this.response = response;
     }
 }

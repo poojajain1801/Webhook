@@ -13,9 +13,9 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class UserRegistrationResponse {
-    private final Map response;
+    private final Map<String, Object> response;
 
-    public UserRegistrationResponse(Map response) {
+    public UserRegistrationResponse(Map<String, Object> response) {
         this.response = response;
     }
 }

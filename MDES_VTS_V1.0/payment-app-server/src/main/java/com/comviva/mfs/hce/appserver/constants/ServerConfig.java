@@ -27,8 +27,6 @@ package com.comviva.mfs.hce.appserver.constants;
  */
 
 public final class ServerConfig {
-    public ServerConfig() {}
-
     public static final String MDES_IP = "http://localhost";
     public static final String MDES_PORT = "3000";
     public static final String DIGITIZATION_PATH = "/mdes/digitization/1/0";
