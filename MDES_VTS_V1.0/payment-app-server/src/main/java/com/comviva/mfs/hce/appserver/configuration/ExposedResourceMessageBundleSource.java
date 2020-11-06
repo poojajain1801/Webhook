@@ -30,6 +30,7 @@ public class ExposedResourceMessageBundleSource extends ReloadableResourceBundle
     /**
      * getMessages
      * @param locale locale
+     * @return map messages
      * */
     public Map getMessages(Locale locale) {
         return getMergedProperties(locale).getProperties().entrySet().stream()
