@@ -1,6 +1,7 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class ActivateReq {
     private String paymentAppInstanceId;
     private String tokenUniqueReference;
