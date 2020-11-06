@@ -39,6 +39,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 
+/**
+ * Certificate Util
+ * used to fetch/read private and public key
+ * */
 public class CertificateUtil {
 
     private CertificateUtil() {}
@@ -49,7 +53,7 @@ public class CertificateUtil {
      * Read RSA Private Key from given file.
      * @param filename  File path.
      * @return  Private Key
-     * @throws IOException
+     * @throws IOException IO Exception
      */
     private static String readRsaPrivateKey(InputStream filename) throws IOException {
         // Read key from file
@@ -80,8 +84,8 @@ public class CertificateUtil {
      * Parses Key file and creates RSAPrivateKey.
      * @param filename  File containing Private Key
      * @return RSAPrivateKey
-     * @throws IOException
-     * @throws GeneralSecurityException
+     * @throws IOException IO exception
+     * @throws GeneralSecurityException GeneralSecurityException
      */
     public static RSAPrivateKey getRsaPrivateKey(InputStream filename) throws IOException, GeneralSecurityException {
         String privateKeyPEM = readRsaPrivateKey(filename);
@@ -95,8 +99,8 @@ public class CertificateUtil {
      * Parses Key file and creates RSAPrivateKey.
      * @param filename  File containing Public Key Certificate
      * @return RSAPublicKey
-     * @throws CertificateException
-     * @throws IOException
+     * @throws CertificateException certificate exception
+     * @throws IOException io exception
      */
     public static RSAPublicKey getRsaPublicKey(InputStream filename) throws CertificateException, IOException{
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
@@ -108,7 +112,7 @@ public class CertificateUtil {
         return rsaPublicKey;
     }
 
-    public static X509Certificate getCertificate(InputStream filename) throws IOException, CertificateException {
+    public static X509Certificate getCertificate(InputStream filename) throws CertificateException {
         CertificateFactory fact = CertificateFactory.getInstance("X.509");
         return  (X509Certificate) fact.generateCertificate(filename);
     }
