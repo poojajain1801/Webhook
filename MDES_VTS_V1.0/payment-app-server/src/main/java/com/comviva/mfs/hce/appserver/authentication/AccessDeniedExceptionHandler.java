@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  * <p/>
  * This software is the sole property of Comviva and is protected by copyright
@@ -17,7 +17,7 @@
  * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
 package com.comviva.mfs.hce.appserver.authentication;
 
 import com.comviva.mfs.hce.appserver.mapper.error.ErrorDescription;
@@ -43,6 +43,12 @@ import java.util.Arrays;
 public class AccessDeniedExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessDeniedExceptionHandler.class);
 
+    /**
+     * handleException
+     * @param accessDeniedException Access denied exception
+     * @param request Request
+     * @param response http servlet Response
+     * */
     @ExceptionHandler(AccessDeniedException.class)
     public Object handleException(AccessDeniedException accessDeniedException, HttpServletRequest request, HttpServletResponse response) throws IOException {
         LOGGER.debug("Forbidden access", accessDeniedException);
