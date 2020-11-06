@@ -26,7 +26,7 @@ package com.comviva.mfs.hce.appserver.exception;
 public class InvalidUserException extends RuntimeException {
     /**
      * InvalidUserException
-     * @param message
+     * @param message message
      * */
     public InvalidUserException(String message) {
         super(message);

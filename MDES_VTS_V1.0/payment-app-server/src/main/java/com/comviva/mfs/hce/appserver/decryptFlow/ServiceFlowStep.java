@@ -26,8 +26,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * ServiceFlowStep
+ * */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface ServiceFlowStep {
+    /**
+     * value function
+     * @return string value
+     * */
     String value();
 }
