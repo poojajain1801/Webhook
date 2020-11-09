@@ -23,6 +23,11 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * AuthenticationMethod
+ * created by Vishvakarma on 07/07/2017
+ * */
 @Getter
 @Setter
 public class AuthenticationMethod {

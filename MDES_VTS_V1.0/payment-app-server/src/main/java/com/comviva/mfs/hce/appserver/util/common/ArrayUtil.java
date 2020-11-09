@@ -48,8 +48,8 @@ public class ArrayUtil {
 	 * @return byte array
 	 * */
 	public static byte[] getByteArray(String hexStr){
-        int two = 2;
-        int length = hexStr.length()/ two;
+        final int two = 2;
+        final int length = hexStr.length()/ two;
 		byte[] buffer = new byte[length];
 
 		for(int i = 0; i < length; i++){
@@ -63,6 +63,7 @@ public class ArrayUtil {
 	 * xor
 	 * @param arr1 array1
 	 * @param arr2 array2
+	 * @param offset1 offset1
 	 * @param offset2 offset2
 	 * @param length length
 	 * @return byte array
@@ -79,6 +80,7 @@ public class ArrayUtil {
 	 * compare
 	 * @param arr1 array1
 	 * @param arr2 array2
+	 * @param offset1 offset1
 	 * @param offset2 offset2
 	 * @param length length
 	 * @return boolean

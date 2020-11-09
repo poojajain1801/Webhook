@@ -59,6 +59,7 @@ public class ArrayUtil {
      * compare
      * @param arr1 array1
      * @param arr2 array2
+     * @param offset1 offset1
      * @param offset2 offset2
      * @param length length
      * @return boolean
@@ -83,7 +84,7 @@ public class ArrayUtil {
 
 		char[] chars = asciiValue.toCharArray();
 
-		StringBuffer hex = new StringBuffer();
+		StringBuilder hex = new StringBuilder();
 
 		for (int i = 0; i < chars.length; i++)
 
@@ -100,6 +101,7 @@ public class ArrayUtil {
      * xor
      * @param arr1 array1
      * @param arr2 array2
+     * @param offset1 offset1
      * @param offset2 offset2
      * @param length length
      * @return byte array

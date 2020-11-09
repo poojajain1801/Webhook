@@ -29,5 +29,11 @@ import javax.servlet.http.HttpServletRequest;
  * onAuthentication method
  * */
 public interface AuthenticationListener {
+    /**
+     * onAuthentication
+     * @param newAuthentication newAuth
+     * @param previousAuthentication prevAuth
+     * @param request request
+     * */
     void onAuthentication(Authentication previousAuthentication, Authentication newAuthentication, HttpServletRequest request);
 }

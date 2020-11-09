@@ -28,5 +28,10 @@ import javax.servlet.http.HttpServletRequest;
  * Created by sumit.das on 12/21/2016.
  */
 public interface AuthenticationStrategy {
+    /**
+     * authenticate
+     * @param httpRequest httpRequest
+     * @return Authentication
+     * */
     Authentication authenticate(HttpServletRequest httpRequest);
 }
