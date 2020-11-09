@@ -21,6 +21,7 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -28,18 +29,19 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class GetRegistrationCodeReq {
     private String tokenUniqueReference;
     private String paymentAppInstanceId;
 
-
+    /**
+     * GetRegistrationCodeReq
+     * @param paymentAppInstanceId paymentAppInstanceId
+     * @param tokenUniqueReference tokenUniqueReference
+     * */
     public GetRegistrationCodeReq(String tokenUniqueReference, String paymentAppInstanceId) {
         this.tokenUniqueReference = tokenUniqueReference;
         this.paymentAppInstanceId = paymentAppInstanceId;
     }
 
-    public GetRegistrationCodeReq()
-    {
-
-    }
 }

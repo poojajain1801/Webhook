@@ -20,6 +20,9 @@
  */
 package com.comviva.mfs.hce.appserver.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -34,6 +37,10 @@ import java.sql.Timestamp;
  * The persistent class for the AUDIT_TRAIL database table.
  * 
  */
+@Setter
+@Getter
+@NoArgsConstructor
+
 @Entity
 @Table(name="AUDIT_TRAIL")
 public class AuditTrail implements Serializable {
@@ -66,76 +73,4 @@ public class AuditTrail implements Serializable {
 
 	@Column(name="RESPONSE_CODE")
 	private String responseCode;
-
-	public AuditTrail() {
-	}
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public void setClientDeviceId(String clientDeviceId) {
-        this.clientDeviceId = clientDeviceId;
-    }
-
-    public void setCreatedOn(Timestamp createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public void setServiceType(String serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public void setResponseCode(String responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public String getClientDeviceId() {
-        return clientDeviceId;
-    }
-
-
-    public Timestamp getCreatedOn() {
-        return createdOn;
-    }
-
-    public String getServiceType() {
-        return serviceType;
-    }
-
-    public String getResponseCode() {
-        return responseCode;
-    }
-
-    public void setRequest(byte[] request) {
-        this.request = request;
-    }
-
-    public void setResponse(byte[] response) {
-        this.response = response;
-    }
-
-    public byte[] getRequest() {
-        return request;
-    }
-
-    public byte[] getResponse() {
-        return response;
-    }
 }

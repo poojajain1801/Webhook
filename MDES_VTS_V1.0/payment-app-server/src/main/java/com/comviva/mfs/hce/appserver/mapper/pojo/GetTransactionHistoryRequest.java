@@ -28,11 +28,11 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 public class GetTransactionHistoryRequest {
     private String vProvisionedTokenID;
-    private String Count;
+    private String count;
 
     public GetTransactionHistoryRequest(String vProvisionedTokenID, String count) {
         this.vProvisionedTokenID = vProvisionedTokenID;
-        Count = count;
+        this.count = count;
     }
 
     public GetTransactionHistoryRequest() {
@@ -43,7 +43,7 @@ public class GetTransactionHistoryRequest {
     }
 
     public String getCount() {
-        return Count;
+        return count;
     }
 
     public void setvProvisionedTokenID(String vProvisionedTokenID) {
@@ -51,6 +51,6 @@ public class GetTransactionHistoryRequest {
     }
 
     public void setCount(String count) {
-        Count = count;
+        this.count = count;
     }
 }

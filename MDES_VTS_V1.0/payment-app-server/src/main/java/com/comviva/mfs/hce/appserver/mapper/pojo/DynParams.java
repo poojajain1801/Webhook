@@ -19,7 +19,9 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -28,16 +30,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DynParams {
 
     private String api;
     private String sc;
-
-   public DynParams(String api,String sc) {
-       this.api=api;
-       this.sc=sc;
-    }
-
-    public DynParams() {
-    }
 }

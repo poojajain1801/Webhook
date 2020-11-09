@@ -20,8 +20,7 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * HceData Request
@@ -29,15 +28,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public class HceData {
-
     private DynParams dynParams;
-
-
-   public HceData(DynParams dynParams) {
+    public HceData(DynParams dynParams) {
         this.dynParams=dynParams;
-    }
-
-    public HceData() {
     }
 }

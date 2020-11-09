@@ -26,6 +26,7 @@ import java.util.List;
 
 /**
  * Created by Tanmay.Patel on 5/16/2017.
+ *  private String operation;//{DELETE,SUSPEND,UNSUSPEND}
  */
 @Getter
 public class LifeCycleManagementReq {
@@ -34,7 +35,7 @@ public class LifeCycleManagementReq {
     private String causedBy;
     private String reason;
     private String reasonCode;
-    private String operation;//{DELETE,SUSPEND,UNSUSPEND}
+    private String operation;
 
     public LifeCycleManagementReq(String paymentAppInstanceId, List<String> tokenUniqueReferences, String causedBy, String reason, String reasonCode, String operation) {
         this.paymentAppInstanceId = paymentAppInstanceId;
@@ -45,8 +46,7 @@ public class LifeCycleManagementReq {
         this.operation = operation;
     }
 
-    public LifeCycleManagementReq()
-    {
+    public LifeCycleManagementReq() {
         //This is a default constructor
     }
 
