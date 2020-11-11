@@ -20,20 +20,19 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by amgoth.madan on 5/10/2017.
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 public class GetContentRequest{
 
     private String guid;
-
-    public GetContentRequest(String serviceId, String guid) {
-        this.guid = guid;
-    }
-
-    public GetContentRequest() {
-    }
 }

@@ -55,14 +55,14 @@ import com.google.gson.JsonParser;
 public class HCEUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HCEControllerSupport.class);
-    private static SecureRandom secureRandom = null;
+    private static SecureRandom secureRandom;
     private static final String ALPHA_NUMERIC_CHARACTERS= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static SecureRandom srnd = null;
+    private static SecureRandom srnd;
     @Autowired
     private SysMessageRepository sysMessageRepository;
 
 
-    protected static List<String> maskingPropertiesList = new ArrayList<String>();
+    protected static List<String> maskingPropertiesList = new ArrayList<>();
 
     static {
 
@@ -75,13 +75,13 @@ public class HCEUtil {
         }
     }
 
-    public static Map<String,Object> formResponse(String messageCode ,String message){
-
-        Map<String,Object> responseMap = null;
-
-
-        return responseMap;
-    }
+//    public static Map<String,Object> formResponse(String messageCode ,String message){
+//
+//        Map<String,Object> responseMap = null;
+//
+//
+//        return responseMap;
+//    }
 
     /**
      * Locale need to be implemented
@@ -92,12 +92,25 @@ public class HCEUtil {
         return HCEConstants.DEFAULT_LANGAUAGE_CODE;
     }
 
-
+    /**
+     * convertDateToTimeStamp
+     * @param date date
+     * @return Timestamp
+     * */
     public static Timestamp convertDateToTimestamp(Date date) {
         return new Timestamp(date.getTime());
     }
 
 
+    /**
+     * writeHCELog
+     * @param request request
+     * @param methodname methodname
+     * @param requestId requestId
+     * @param response response
+     * @param responseCode responseCode
+     * @param totalTime totalTime
+     * */
     public static void writeHCELog(long totalTime, String responseCode, String requestId,String request,
                                    String response,String methodname) {
 
@@ -141,7 +154,15 @@ public class HCEUtil {
     }
 
 
-
+    /**
+     * writeTdrLog
+     * @param request request
+     * @param methodName methodName
+     * @param requestId requestId
+     * @param response response
+     * @param responseCode responseCode
+     * @param totalTime totalTime
+     * */
     public static void writeTdrLog(long totalTime, String responseCode, String requestId,String request,
                                    String response,String methodName) {
 
@@ -198,12 +219,17 @@ public class HCEUtil {
         return response;
     }
 
-    public static String generateRandomId(String prefix) throws NoSuchAlgorithmException {
+    public static String generateRandomId(String prefix) {
+        final int twelve = 12;
         return prefix + (new SimpleDateFormat("yyMMdd").format(new Date()))+ (new SimpleDateFormat("HHmm").format(new Date()))
-                + generateAlphanumericRandomNumber(12);
+                + generateAlphanumericRandomNumber(twelve);
     }
 
-
+    /**
+     * generateAlphanumbericRandomNumber
+     * @param length length
+     * @return stirng
+     * */
     public static String generateAlphanumericRandomNumber(int length){
 
         if(srnd ==null){
@@ -237,12 +263,12 @@ public class HCEUtil {
             secureRandom.setSeed(seed);
         }
         int ramdongen = 0;
-
-        ramdongen = secureRandom.nextInt((int) Math.pow(10, power));
+        final int ten = 10;
+        ramdongen = secureRandom.nextInt((int) Math.pow(ten, power));
 
         String strRan = "" + ramdongen;
         while (strRan.length() < power) {
-            ramdongen = secureRandom.nextInt((int) Math.pow(10, power));
+            ramdongen = secureRandom.nextInt((int) Math.pow(ten, power));
             strRan = "" + ramdongen;
         }
         LOGGER.info("generateRandomValue Exit....");
@@ -254,6 +280,10 @@ public class HCEUtil {
         return sysMessageRepository;
     }
 
+    /**
+     * setSysMessageRepository
+     * @param sysMessageRepository sysMessageRepository
+     * */
     public void setSysMessageRepository(SysMessageRepository sysMessageRepository){
         this.sysMessageRepository = sysMessageRepository;
     }
@@ -401,8 +431,8 @@ public class HCEUtil {
         if (null!=p_value) {
             len = p_value.length();
         }
-        StringBuffer masked=null;
-        masked=new StringBuffer();
+        StringBuilder masked=null;
+        masked=new StringBuilder();
         int p_digit = 0;
         int maskingLengthInt = 0;
 
@@ -457,6 +487,10 @@ public class HCEUtil {
         return maskingPropertiesList;
     }
 
+    /**
+     * setMaskingPropertiesList
+     * @param maskingPropertiesList maskingPropertiesList
+     * */
     public static void setMaskingPropertiesList(
             List<String> maskingPropertiesList) {
         HCEUtil.maskingPropertiesList = maskingPropertiesList;

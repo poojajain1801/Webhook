@@ -20,21 +20,15 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GetAssetPojo {
     private String assetId;
-
-    public GetAssetPojo(String assetId) {
-        this.assetId = assetId;
-    }
-    public GetAssetPojo() {
-
-    }
-
-    public String getAssetId() {
-        return assetId;
-    }
-
-    public void setAssetId(String assetId) {
-        this.assetId = assetId;
-    }
 }

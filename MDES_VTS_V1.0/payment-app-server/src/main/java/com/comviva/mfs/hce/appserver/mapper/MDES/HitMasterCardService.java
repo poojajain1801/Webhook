@@ -100,7 +100,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
             }
             LOGGER.debug("Configuring SSL...");
             // RestTemplate restTemplate = restTemplate();
-            Map<String, Object> idMap = new HashMap();
+            Map<String, Object> idMap = new HashMap<>();
             /*if (!(id.equalsIgnoreCase("")|| id.isEmpty())) {
                 +"/{assetId}";
                 //idMap.put("id","checkEligibility");
@@ -130,21 +130,18 @@ public class HitMasterCardService implements RestTemplateCustomizer
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.debug("Response Body******************************** = " + (String)response.getBody());
-            }
-            else if ("PUT".equals(type)) {
+            } else if ("PUT".equals(type)) {
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
-            }
-            else if ("GET".equalsIgnoreCase(type)) {
+            } else if ("GET".equalsIgnoreCase(type)) {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
                 LOGGER.info("Response STATUS********************************" + response.getStatusCode());
                 LOGGER.debug("Response ******************************** = " + (String)response.getBody());
             }
-        }
-        catch (HttpClientErrorException httpClintException) {
+        } catch (HttpClientErrorException httpClintException) {
             LOGGER.error("Staus code recived from master card--->", httpClintException);
             LOGGER.error("Staus code recived from master card Messageeeee--->", httpClintException.getMessage());
             LOGGER.error("Staus code recived from master card   ResponseBodyAsString--->", httpClintException.getResponseBodyAsString());
@@ -162,8 +159,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
             //return response;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
 
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");

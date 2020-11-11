@@ -57,6 +57,12 @@ public class JsonUtil {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /**
+     * toJson
+     * @param obj object
+     * @param serializationFeatures serializtionFeatures
+     * @return String
+     * */
     public static String toJson(Object obj, SerializationFeature... serializationFeatures) {
         try {
             ObjectWriter writer = OBJECT_MAPPER.writer().withFeatures(serializationFeatures);
@@ -67,6 +73,12 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * fromJson
+     * @param string string
+     * @param valueType valueType
+     * @return T
+     * */
     public static <T> T fromJson(String string, Class<T> valueType) {
         try {
             return StringUtils.isBlank(string) ? null : OBJECT_MAPPER.readValue(string, valueType);
@@ -76,6 +88,13 @@ public class JsonUtil {
         }
     }
 
+
+    /**
+     * fromJson
+     * @param valueType valueType
+     * @param inputStream inputSteam
+     * @return T
+     * */
     public static <T> T fromJson(InputStream inputStream, Class<T> valueType) {
         try {
             return OBJECT_MAPPER.readValue(inputStream, valueType);
@@ -85,6 +104,11 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * jsonStringToHashMap
+     * @param response response
+     * @return map
+     * */
     public static Map<String,Object> jsonStringToHashMap(String response)
     {
         HashMap<String,Object> result =null;
@@ -97,6 +121,13 @@ public class JsonUtil {
         return result;
     }
 
+
+    /**
+     * jsonToMap
+     * @param object object
+     * @throws JSONException json exception
+     * @return map
+     * */
     public static Map<String, Object> jsonToMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<String, Object>();
         if (null == object){
@@ -120,15 +151,19 @@ public class JsonUtil {
         return map;
     }
 
+    /**
+     * toList
+     * @param array array
+     * @throws JSONException jsonException
+     * @return arrayList
+     * */
     public static ArrayList<Object> toList(JSONArray array) throws JSONException {
         ArrayList<Object> list = new ArrayList<Object>();
         for(int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
             if(value instanceof JSONArray) {
                 value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
+            } else if(value instanceof JSONObject) {
                 value = jsonToMap((JSONObject) value);
             }
             list.add(value);

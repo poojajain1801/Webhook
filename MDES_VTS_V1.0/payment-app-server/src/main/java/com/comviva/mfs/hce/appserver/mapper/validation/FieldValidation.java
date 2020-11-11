@@ -30,15 +30,28 @@ import java.util.List;
 
 import static com.comviva.mfs.hce.appserver.mapper.validation.DomainValidationUtils.ErrorCodes.*;
 
+/**
+ * FieldValidation
+ * */
 public class FieldValidation {
     private final ValidationDslBuilder validationDslBuilder;
     private final String lhsFieldName;
 
+    /**
+     * FieldValidation
+     * @param lhsFieldName lhsFieldname
+     * @param validationDslBuilder validationBuilder
+     * */
     public FieldValidation(ValidationDslBuilder validationDslBuilder, String lhsFieldName) {
         this.validationDslBuilder = validationDslBuilder;
         this.lhsFieldName = lhsFieldName;
     }
 
+    /**
+     * greaterThanOrEquals
+     * @param rhsFieldName rhsFieldname
+     * @return ValidationDslBuilder
+     * */
     public ValidationDslBuilder greaterThanOrEquals(String rhsFieldName) {
         Errors errors = validationDslBuilder.getErrors();
         Comparable lhs = (Comparable) errors.getFieldValue(lhsFieldName);
@@ -49,6 +62,11 @@ public class FieldValidation {
         return validationDslBuilder;
     }
 
+    /**
+     * isOneOf
+     * @param values values
+     * @return valdationDslBuilder
+     * */
     public ValidationDslBuilder isOneOf(List values) {
         Errors errors = validationDslBuilder.getErrors();
         Object fieldValue = errors.getFieldValue(lhsFieldName);
@@ -58,10 +76,21 @@ public class FieldValidation {
         return validationDslBuilder;
     }
 
+    /**
+     * isONeOf
+     * @param values values
+     * @return ValidationDslBuilder
+     * */
     public ValidationDslBuilder isOneOf(Collection values) {
         return isOneOf(new ArrayList(values));
     }
 
+
+    /**
+     * isGreaterThan
+     * @param fieldName fieldName
+     * @return ValidationDslBuilder
+     * */
     public ValidationDslBuilder isGreaterThan(String fieldName) {
         Errors errors = validationDslBuilder.getErrors();
         Object lhsValue = errors.getFieldValue(lhsFieldName);

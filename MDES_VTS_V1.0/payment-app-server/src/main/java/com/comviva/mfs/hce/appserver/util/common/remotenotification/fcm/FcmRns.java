@@ -28,6 +28,7 @@ import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -47,7 +48,14 @@ public class FcmRns implements RemoteNotification {
         this.env= env;
     }
 
-    private String convertStreamToString (InputStream inStream) throws Exception {
+
+    /**
+     * convertStreamToString
+     * @param inStream inStream
+     * @throws IOException IO exception
+     * @return string
+     * */
+    private String convertStreamToString (InputStream inStream) throws IOException {
         InputStreamReader inputStream = new InputStreamReader(inStream);
         BufferedReader bReader = new BufferedReader(inputStream);
         StringBuilder sb = new StringBuilder();
@@ -58,6 +66,12 @@ public class FcmRns implements RemoteNotification {
         return sb.toString();
     }
 
+
+    /**
+     * sendRns
+     * @param rnsPostData byte[]
+     * @return RnsResponse
+     * */
     @Override
     public RnsResponse sendRns(byte[] rnsPostData) {
         int responseCode;
@@ -66,7 +80,7 @@ public class FcmRns implements RemoteNotification {
 
         try {
             // Proxy Setting
-            if(env.getProperty("is.proxy.required").equals("Y")) {
+            if(("Y").equals(env.getProperty("is.proxy.required"))) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
                 String username = env.getProperty("username");
