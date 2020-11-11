@@ -23,6 +23,11 @@ package com.comviva.mfs.hce.appserver.util.vts;
 import lombok.Getter;
 import lombok.Setter;
 
+
+/**
+ * DeviceInitParams
+ *
+ * */
 @Getter
 @Setter
 public class DeviceInitParams {

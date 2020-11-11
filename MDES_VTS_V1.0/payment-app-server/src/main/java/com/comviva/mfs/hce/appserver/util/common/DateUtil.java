@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.util.Date;
 
+
+/**
+ * DateUtil
+ *
+ * */
 public class DateUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
@@ -38,11 +43,21 @@ public class DateUtil {
     private DateUtil(){
     }
 
-
+    /**
+     * parseISODateString
+     * @param dateString date in string fmt
+     * @return date
+     * */
     public static Date parseISODateString(String dateString) {
         return parseDate(dateString, DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.getPattern());
     }
 
+    /**
+     * parseDate
+     * @param dateString dateString
+     * @param pattern pattern
+     * @return date
+     * */
     public static Date parseDate(String dateString, String pattern) {
         if (StringUtils.isBlank(dateString)) {
             return null;
@@ -55,6 +70,11 @@ public class DateUtil {
         }
     }
 
+    /**
+     * parseDate
+     * @param dateString dateString
+     * @return date
+     * */
     public static Date parseDate(String dateString) {
         return parseISODateString(dateString);
     }

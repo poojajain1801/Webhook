@@ -37,6 +37,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
+/**
+ * DefaultExceptionHandler
+ *
+ * */
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
@@ -44,11 +49,23 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler {
 
     private MessageSource messageSource;
 
+    /**
+     * DefaultExceptionHandler
+     * @param messageSource messageSource
+     * */
     @Autowired
     public DefaultExceptionHandler(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
+    /**
+     * defaultErrorHandler
+     * @param request request
+     * @param e e
+     * @param response response
+     * @throws IOException IoException
+     * @return object
+     * */
     @ExceptionHandler(Exception.class)
     public Object defaultErrorHandler(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {
         LOGGER.error("Unhandled exception", e);

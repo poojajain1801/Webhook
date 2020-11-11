@@ -33,7 +33,7 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class DeviceRegistrationResponse {
-    private final Map response;
+    private final Map<String, Object> response;
 
     public DeviceRegistrationResponse(Map response) {
         this.response = response;

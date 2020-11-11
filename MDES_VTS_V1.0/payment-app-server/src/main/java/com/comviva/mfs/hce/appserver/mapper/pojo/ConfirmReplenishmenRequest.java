@@ -23,9 +23,11 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ConfirmReplenishmenRequest {
     private String api;
     private String sc;
@@ -59,8 +61,5 @@ public class ConfirmReplenishmenRequest {
 
     public void setSc(String sc) {
         this.sc = sc;
-    }
-
-    public ConfirmReplenishmenRequest() {
     }
 }

@@ -93,6 +93,21 @@ public class CryptoUtils {
         return ByteArrayToHexString(cipherData);
     }
 
+    /**
+     * AESEncryption
+     * @param iv iv
+     * @param mode mode
+     * @param strInputData strInputData
+     * @param strKey strKey
+     * @throws InvalidKeyException invalidKey
+     * @throws NoSuchAlgorithmException NoSuchAlgorithm
+     * @throws InvalidKeySpecException InvalidKeySpecException
+     * @throws NoSuchPaddingException NoSuchPadding
+     * @throws IllegalBlockSizeException IllegalBlockSizeException
+     * @throws BadPaddingException BadPaddingException
+     * @throws InvalidAlgorithmParameterException InvalidAlgorithmParameterException
+     * @return string
+     * */
     public static String AESEncryption(String strInputData, String strKey,
                                        int mode,String iv) throws InvalidKeyException, NoSuchAlgorithmException,
             InvalidKeySpecException, NoSuchPaddingException,
@@ -117,17 +132,32 @@ public class CryptoUtils {
         return new String(byteCipherText);
 
     }
-    private static byte[] hexStringToByteArray(String s) {
 
+    /**
+     * hexStringToByteArray
+     * @param s string
+     * @return byte[]
+     * */
+    private static byte[] hexStringToByteArray(String s) {
+        final int two = 2;
+        final int four = 4;
+        final int sixteen = 16;
+        final int one = 1;
         int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character
-                    .digit(s.charAt(i + 1), 16));
+        byte[] data = new byte[len / two];
+        for (int i = 0; i < len; i += two) {
+            data[i / two] = (byte) ((Character.digit(s.charAt(i), sixteen) << four) + Character
+                    .digit(s.charAt(i + one), sixteen));
         }
         return data;
     }
 
+
+    /**
+     * ByteArrayToHExString
+     * @param respApdu byte array
+     * @return string
+     * */
     private static String ByteArrayToHexString(byte[] respApdu) {
         StringBuilder hexString = new StringBuilder();
         for (int iTemp = 0; iTemp < respApdu.length; iTemp++) {
@@ -166,12 +196,11 @@ public class CryptoUtils {
     /**
      * Parses Key file and creates RSAPrivateKey.
      * @return RSAPrivateKey
-     * @throws IOException
-     * @throws GeneralSecurityException
+     * @throws IOException IOException
+     * @throws GeneralSecurityException GeneralSecurityException
      */
     public static RSAPrivateKey getRsaPrivateKey() throws IOException, GeneralSecurityException {
         InputStream inputStream = null;
-        InputStream fout1=null;
         ResourceLoader resourceLoader = null;
         Resource resource = null;
        // fout1=new FileInputStream(new File("D:\\Workspace\\KeyManagement\\libs\\nbkmdeswalletPkcs8.key"));
