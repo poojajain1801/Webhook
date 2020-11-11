@@ -134,8 +134,8 @@ public class PerformUserLifecycle {
 
             if(operation.equalsIgnoreCase(HCEConstants.DELETE_USER)) {
                 for (int i = 0; i < deviceInfoList.size(); i++) {
-                    deviceInfo = deviceInfoList.get(i);
-                    performDeleteUser(userId,deviceInfo.getPaymentAppInstanceId(),deviceInfo);
+//                    deviceInfo = deviceInfoList.get(i);
+                    performDeleteUser(userId,deviceInfo.getPaymentAppInstanceId());
                 }
 
             }
@@ -211,7 +211,7 @@ public class PerformUserLifecycle {
         }
     }
 
-    private void performDeleteUser(String userId,String paymentAppInstanceId, DeviceInfo deviceInfo) {
+    private void performDeleteUser(String userId,String paymentAppInstanceId) {
         //Get all the active and suspended card
         List<CardDetails> cardDetails = null;
         CardDetails cardDetailobj = null;

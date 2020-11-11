@@ -1,4 +1,8 @@
 /*
+ * Comviva, payment app server tool.
+ * Copyright (C) 2015: Comviva Technologies Pvt. Ltd.
+ * mailto:contact AT comviva DOT com
+ *
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -18,6 +22,7 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.interceptors;
 
 /**
@@ -44,9 +49,12 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
     @Autowired
     private Environment env;
 
-    //before the actual handler will be executed
-    public boolean preHandle(HttpServletRequest request,
-                             HttpServletResponse response, Object handler)
+    /**
+     * preHandle before the actual handler will be executed other parameters : HttpServletResponse response, Object handler
+     * @param request request
+     * @return boolean
+     * */
+    public boolean preHandle(HttpServletRequest request)
             throws Exception {
         long startTime = System.currentTimeMillis();
         request.setAttribute(HCEConstants.START_TIME, startTime);
@@ -54,10 +62,13 @@ public class RequestInterceptor  extends HandlerInterceptorAdapter{
         return true;
     }
 
-    //after the handler is executed
-    public void postHandle(
-            HttpServletRequest request, HttpServletResponse response,
-            Object handler, ModelAndView modelAndView)
+
+    /**
+     * postHandle after the handler is executed
+     * HttpServletResponse response, Object handler, ModelAndView modelAndView
+     * @param request request
+     * */
+    public void postHandle(HttpServletRequest request)
             throws Exception {
 
         String requestObject = (String)request.getAttribute(HCEConstants.REQUEST_OBJECT);
