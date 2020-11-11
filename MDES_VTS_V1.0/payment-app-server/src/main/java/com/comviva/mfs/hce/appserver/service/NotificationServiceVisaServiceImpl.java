@@ -1,4 +1,8 @@
 /*
+ * Comviva, payment app server tool.
+ * Copyright (C) 2015: Comviva Technologies Pvt. Ltd.
+ * mailto:contact AT comviva DOT com
+ *
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -18,6 +22,7 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
@@ -48,6 +53,10 @@ import java.util.List;
 import java.util.Map;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 
+
+/**
+ * NotificationServiceVisaServiceImpl
+ * */
 @Service
 public class NotificationServiceVisaServiceImpl implements NotificationServiceVisaService{
 
@@ -77,7 +86,13 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
     }
 
 
-
+    /**
+     * notifyLCMEvent
+     * @param apiKey apiKey
+     * @param notificationServiceReq notificationServiceReq
+     * @param eventType eventType
+     * @return map
+     * */
     public Map notifyLCMEvent(NotificationServiceReq notificationServiceReq,String apiKey,String eventType) {
         //Verify vProvisionID
         GetTokenStatusRequest getTokenStatusRequest = null;
@@ -147,15 +162,11 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyLCMEvent" );
                 return hceControllerSupport.formResponse(HCEMessageCodes.getSUCCESS());
             }
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.error("Exception occured" +e);
             LOGGER.debug("Exception Occored in  NotificationServiceVisaServiceImpl->-> notifyLCMEvent",e);
             return hceControllerSupport.formResponse(HCEMessageCodes.getServiceFailed());
         }
-
-
-
     }
     public Map notifyPanMetadataUpdate (NotificationServiceReq notificationServiceReq,String apiKey) {
         LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
@@ -178,8 +189,7 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
                     RnsGenericRequest rnsGenericRequest =  preparetNotificationRequest(vPanEnrollmentId,rnsRegID);
                     sendNotification(rnsGenericRequest);
                 }
-            }
-            else{
+            } else{
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl -> notifyPanMetadataUpdate");
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }

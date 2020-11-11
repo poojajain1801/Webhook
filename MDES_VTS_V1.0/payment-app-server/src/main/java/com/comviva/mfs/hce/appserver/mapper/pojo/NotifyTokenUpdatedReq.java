@@ -1,4 +1,8 @@
 /*
+ * Comviva, payment app server tool.
+ * Copyright (C) 2015: Comviva Technologies Pvt. Ltd.
+ * mailto:contact AT comviva DOT com
+ *
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -33,14 +37,18 @@ public class NotifyTokenUpdatedReq {
     private  String responseHost;
     private String requestId;
 
+    /**
+     * NotifyTOkenUpdatedReq
+     * @param requestId requestId
+     * @param encryptedPayload encryptedPayload
+     * @param responseHost responseHost
+     * */
     public NotifyTokenUpdatedReq(EncryptedPayload encryptedPayload, String responseHost, String requestId) {
         this.encryptedPayload = encryptedPayload;
         this.responseHost = responseHost;
         this.requestId = requestId;
     }
 
-    public NotifyTokenUpdatedReq(){
-
-    }
+    public NotifyTokenUpdatedReq(){}
 }
 

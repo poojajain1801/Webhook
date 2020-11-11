@@ -23,7 +23,9 @@ package com.comviva.mfs.hce.appserver.mapper.pojo;
 import org.springframework.stereotype.Component;
 
 
-
+/**
+ * NotificationServiceReq
+ * */
 @Component
 public class NotificationServiceReq {
     private Long date;
@@ -31,6 +33,13 @@ public class NotificationServiceReq {
     private String vProvisionedTokenID;
     private String vPanEnrollmentID;
 
+    /**
+     * NotificationServiceReq
+     * @param api api
+     * @param date date
+     * @param vPanEnrollmentID vPanEnrollmentID
+     * @param vProvisionedTokenID vProvisionedTokenId
+     * */
     public NotificationServiceReq(Long date, String api, String vProvisionedTokenID,String vPanEnrollmentID) {
         this.date = date;
         this.api = api;
@@ -38,10 +47,7 @@ public class NotificationServiceReq {
         this.vPanEnrollmentID = vPanEnrollmentID;
     }
 
-    public NotificationServiceReq()
-    {
-        //This is a default constructor
-    }
+    public NotificationServiceReq() {}
 
     public Long getDate() {
         return date;
@@ -51,6 +57,10 @@ public class NotificationServiceReq {
         return api;
     }
 
+    /**
+     * getvProvisionedTokenID
+     * @return string
+     * */
     public String getvProvisionedTokenID() {
         return vProvisionedTokenID;
     }
@@ -63,14 +73,23 @@ public class NotificationServiceReq {
         this.api = api;
     }
 
+    /**
+     * servProvisionedTokenID
+     * @param vProvisionedTokenID vProvisionedTokenId
+     * */
     public void setvProvisionedTokenID(String vProvisionedTokenID) {
         this.vProvisionedTokenID = vProvisionedTokenID;
     }
 
+    /**
+     * getvPanEnrollmentID
+     * */
     public String getvPanEnrollmentID() {
         return vPanEnrollmentID;
     }
 
+    /**
+     * setvPanEnrollmentID*/
     public void setvPanEnrollmentID(String vPanEnrollmentID) {
         this.vPanEnrollmentID = vPanEnrollmentID;
     }

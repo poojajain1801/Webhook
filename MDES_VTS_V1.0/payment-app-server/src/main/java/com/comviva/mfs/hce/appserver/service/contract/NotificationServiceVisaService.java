@@ -1,4 +1,8 @@
 /*
+ * Comviva, payment app server tool.
+ * Copyright (C) 2015: Comviva Technologies Pvt. Ltd.
+ * mailto:contact AT comviva DOT com
+ *
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -18,12 +22,16 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.service.contract;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.NotificationServiceReq;
 
 import java.util.Map;
 
+/**
+ * NotifcationServiceVisaService
+ * */
 public interface NotificationServiceVisaService {
    /**
     * notifyLCMEvent

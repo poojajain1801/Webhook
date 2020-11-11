@@ -1,4 +1,8 @@
 /*
+ * Comviva, payment app server tool.
+ * Copyright (C) 2015: Comviva Technologies Pvt. Ltd.
+ * mailto:contact AT comviva DOT com
+ *
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -37,6 +41,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+/**
+ * NotificationServiceControllerVisa
+ * */
 @RestController
 public class NotificationServiceControllerVisa {
 
@@ -47,6 +54,13 @@ public class NotificationServiceControllerVisa {
     private HCEControllerSupport hCEControllerSupport;
     private static final Logger LOGGER = LoggerFactory.getLogger(DeviceRegistrationController.class);
 
+    /**
+     * notifyLCMEvent
+     * @param apiKey apiKey
+     * @param eventType evenrType
+     * @param notificationServiceReq notificationServiceReq
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/provisionedToken", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -58,15 +72,23 @@ public class NotificationServiceControllerVisa {
             notificationServiceReqPojo = (NotificationServiceReq) hCEControllerSupport.requestFormation(notificationServiceReq, NotificationServiceReq.class);
             notifyResponse = notificationServiceVisaService.notifyLCMEvent(notificationServiceReqPojo, apiKey, eventType);
         }catch (HCEActionException notificationServiceHCEActionException){
-            LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
+            LOGGER.error("Exception in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
             throw notificationServiceHCEActionException;
         }catch (Exception notificationServiceException) {
-            LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", notificationServiceException);
+            LOGGER.error(" Exception Occurred in DeviceRegistrationController ->registerDevice", notificationServiceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notify");
         return notifyResponse;
     }
+
+
+    /**
+     * notifyCardMetadataUpdateEvent
+     * @param apiKey apiKey
+     * @param notificationServiceReq norificationServiceReq
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/panMetadata", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -78,16 +100,23 @@ public class NotificationServiceControllerVisa {
             notificationServiceReqpojo = (NotificationServiceReq) hCEControllerSupport.requestFormation(notificationServiceReq, NotificationServiceReq.class);
             notifyResponse = notificationServiceVisaService.notifyPanMetadataUpdate(notificationServiceReqpojo, apiKey);
         }catch (HCEActionException notificationServiceHCEActionException){
-            LOGGER.error("Exception Occured in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
+            LOGGER.error("Exception Occurred in DeviceRegistrationController->registerDevice",notificationServiceHCEActionException);
             throw notificationServiceHCEActionException;
         }catch (Exception notificationServiceException) {
-            LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", notificationServiceException);
+            LOGGER.error(" Exception Occurred in DeviceRegistrationController->registerDevice", notificationServiceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         LOGGER.debug("Exit DeviceRegNotificationServiceVisaistrationController->notifyCardMetadataUpdateEvent");
         return notifyResponse;
     }
 
+
+    /**
+     * notifyTxnDetailsUpdateEvent
+     * @param notificationServiceReq notifcationServiceReq
+     * @param apiKey apiKey
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/paymentTxns", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")

@@ -57,6 +57,11 @@ public class DecryptData {
 
     public DecryptData() {}
 
+    /**
+     * invoke
+     * @param originalMethod originalMethod
+     * @return Object
+     * */
     @Around("@annotation(com.comviva.mfs.hce.appserver.decryptFlow.DecryptFlowStep)")
     public Object invoke(ProceedingJoinPoint originalMethod) throws Throwable {
         String requestData = (String)originalMethod.getArgs()[0];
@@ -81,7 +86,11 @@ public class DecryptData {
         return responseData;
     }
 
-
+    /**
+     * decryptData
+     * @param requestData requestData
+     * @return string
+     * */
     private String decryptData(String requestData) throws HCEActionException{
         if(HCEConstants.ACTIVE.equals(env.getProperty("enable.end.to.end.encryption"))){
             LOGGER.debug("Encrypted request :-",requestData);

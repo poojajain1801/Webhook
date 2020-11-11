@@ -116,7 +116,6 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
         String schemeType = "";
-        //DeviceRegistrationResponse devRegRespMdes = null;
         UserDetail userDetail;
         DeviceInfo deviceInfo;
         try {
@@ -136,19 +135,15 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 }else{
                     throw new HCEActionException(HCEMessageCodes.getInvalidClientDeviceId());
                 }
-
             }else{
                 throw new HCEActionException(HCEMessageCodes.getInvalidUser());
             }
             deviceInfo.setRnsRegistrationId(enrollDeviceRequest.getGcmRegistrationId());
-
-
             // *********************MDES : Check device eligibility from MDES api.************************
             schemeType = enrollDeviceRequest.getSchemeType();
             if(null == schemeType || "".equalsIgnoreCase(schemeType)) {
                 schemeType = "ALL";
             }
-
             if (("ALL".equalsIgnoreCase(schemeType))||("MASTERCARD".equalsIgnoreCase(schemeType))) {
                 isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
             }
@@ -177,20 +172,15 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     deviceDetailRepository.save(deviceInfo);
                 }
-
             }else{
-
-                //throw error device not eligible.
-                mdesRespMap = hceControllerSupport.formResponse("207");
+                mdesRespMap = hceControllerSupport.formResponse("207"); //throw error device not eligible.
                 response.put(HCEConstants.MDES_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
                 response.put(HCEConstants.MDES_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.MDES_RESPONSE_MAP, mdesRespMap);
-
             }
             // *******************VTS : Register with VTS Start**********************
             if (("ALL".equalsIgnoreCase(schemeType))||("VISA".equalsIgnoreCase(schemeType))) {
                 String vtsResp = enrollDeviceVts.register(vClientID, enrollDeviceRequest);
-
                 JSONObject vtsJsonObject = new JSONObject(vtsResp);
                 if (!vtsJsonObject.get(HCEConstants.STATUS_CODE).equals(HCEMessageCodes.getSUCCESS())) {
                     vtsRespMap.put(HCEConstants.VTS_MESSAGE, vtsJsonObject.get(HCEConstants.STATUS_MESSAGE));
@@ -226,18 +216,17 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             }
 
             response.put("hvtThreshold", env.getProperty("hvt.limit"));
-            if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
+            if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS())
+                    || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
                 response.put("responseCode",HCEMessageCodes.getSUCCESS());
             }else {
                 response.put("responseCode",HCEMessageCodes.getDeviceRegistrationFailed());
             }
-
             //******************VTS :Register with END***********************************
             return response;
         } catch(HCEActionException regDeviceactionException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceactionException);
             throw regDeviceactionException;
-
         }catch(Exception regDeviceException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->registerDevice", regDeviceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
@@ -254,13 +243,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
 //        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         DeviceInfo deviceInfo = null;
-//        String paymentAppInstanceId = null;
-//        JSONObject requestJson = null;
-//        ResponseEntity responseMdes = null;
-//        JSONObject jsonResponse = null;
-//        String id = null;
         Map<String, Object> responseMap = null;
-//        String url = null;
         String userID = null;
         String imei = null;
         HttpStatus statusCode = null;
@@ -338,7 +321,8 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         lifeCycleManagementVisaRequest.setOperation("DELETE");
         lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
         for (int i=0 ; i<visaCardList.size() ; i++) {
-            if ((visaCardList.get(i).getVisaProvisionTokenId() != null) && ("Y").equals(visaCardList.get(i).getStatus()) ){
+            if ((visaCardList.get(i).getVisaProvisionTokenId() != null)
+                    && ("Y").equals(visaCardList.get(i).getStatus()) ){
                 lifeCycleManagementVisaRequest.setVprovisionedTokenID(visaCardList.get(i).getVisaProvisionTokenId());
                 responseMap1 = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
                 LOGGER.debug("Visa response after unregister ****************   " + responseMap1);
