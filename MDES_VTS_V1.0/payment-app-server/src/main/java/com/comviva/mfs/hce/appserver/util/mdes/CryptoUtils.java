@@ -71,8 +71,9 @@ public class CryptoUtils {
             LOGGER.error("NoSuchProviderException -> CryptoUtils :" +e);
         }
         try {
-            if (null !=cipher)
+            if (null !=cipher) {
                 cipher.init(Cipher.DECRYPT_MODE, key);
+            }
         } catch (InvalidKeyException e1) {
             // TODO Auto-generated catch block
             LOGGER.error("InvalidKeyException -> CryptoUtils :"+e1);
@@ -103,10 +104,10 @@ public class CryptoUtils {
 
         byte[] key = hexStringToByteArray(strKey);
         Cipher aesCipherForEncryption = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-        byte[] IV = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+//        byte[] IV = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+//                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+//                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+//                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
 
         final SecretKeySpec dKey = new SecretKeySpec(key, "AES");
         byte[] ivv = hexStringToByteArray(iv);

@@ -61,7 +61,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         String requestId = null;
         String hvtLimit = null;
         String isHvtSupported = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         ConfigurationManagementM configManagementM = null;
         ConfigurationManagementM configurationManagementM = new ConfigurationManagementM();
         try {
@@ -71,7 +71,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             isHvtSupported = setHvtValueRequest.getIsHvtSupported();
             if (userName == null || userName.isEmpty() || requestId == null || requestId.isEmpty() || isHvtSupported == null|| isHvtSupported.isEmpty()){
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }else if((hvtLimit == null || hvtLimit.isEmpty()) && isHvtSupported.equals("Y")){
+            }else if((null == hvtLimit || hvtLimit.isEmpty()) && "Y".equals(isHvtSupported)){
                 throw new HCEActionException((HCEMessageCodes.getInsufficientData()));
             }
             configManagementM = configurationManagementMRepository.findByRequestId(requestId);
@@ -101,7 +101,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public Map<String, Object> getPendingRequests() {
         List<ConfigurationManagementM> configurationManagementMList = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         org.json.JSONArray jsonArray = new org.json.JSONArray();
         JSONObject responseJson = new JSONObject();
         try {
@@ -120,7 +120,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             responseMap = JsonUtil.jsonToMap(responseJson);
             responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
 
-        }catch (HCEActionException getPendingRequestsHCEactionException) {
+        } catch (HCEActionException getPendingRequestsHCEactionException) {
             LOGGER.error("Exception occured in ConfigurationServiceImpl ->getPendingRequests", getPendingRequestsHCEactionException);
             throw getPendingRequestsHCEactionException;
 
@@ -138,7 +138,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         String hvtLimit = null;
         String decision = null;
         String isHvtSupported = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         ConfigurationManagementM configurationManagementM = new ConfigurationManagementM();
         ConfigurationManagement configurationManagement = new ConfigurationManagement();
         try {
@@ -165,13 +165,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 configurationManagementM.setStatus("A");
                 configurationManagementMRepository.save(configurationManagementM);
                 responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
-            }else if (decision.equals(HCEConstants.DECLINED)) {
+            } else if (decision.equals(HCEConstants.DECLINED)) {
                 configurationManagementM.setStatus("D");
                 configurationManagementMRepository.save(configurationManagementM);
                 responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
-            }else
+            } else {
                 throw new HCEActionException(HCEMessageCodes.getInvalidOperation());
-
+            }
         }catch (HCEActionException approveHvtHCEactionException) {
             LOGGER.error("Exception occured in ConfigurationServiceImpl ->approveHvt", approveHvtHCEactionException);
             throw approveHvtHCEactionException;

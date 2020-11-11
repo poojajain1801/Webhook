@@ -20,7 +20,9 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * HceData Request

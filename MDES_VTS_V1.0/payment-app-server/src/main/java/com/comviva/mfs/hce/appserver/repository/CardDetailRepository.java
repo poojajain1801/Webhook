@@ -42,40 +42,113 @@ import java.util.Optional;
 @Repository
 public interface CardDetailRepository extends JpaRepository<CardDetails, String> {
 
+
+    /**
+     * findByPanUniqueReferenceAndClientDeviceId
+     * @param clientDeviceId clientDeviceId
+     * @param panUniqueReference panUniqueReference
+     * @param initiated initiated
+     * @return list of CardDetails
+     * */
     @Query("Select vc from CardDetails vc where vc.deviceInfo.clientDeviceId=:clientDeviceId and " +
             "vc.panUniqueReference=:panUniqueReference and vc.status in (:initiated) order by vc.createdOn DESC")
     List<CardDetails> findByPanUniqueReferenceAndClientDeviceId(@Param("panUniqueReference") String panUniqueReference,
                                                                 @Param("clientDeviceId") String clientDeviceId,
                                                                 @Param("initiated") String initiated);
 
+    /**
+     * findByPanUniqueReference
+     * @param panUniqueReference panUniqueId
+     * @return list of card details
+     * */
     List<CardDetails> findByPanUniqueReference(String panUniqueReference);
 
+    /**
+     * findByStatus
+     * @param Status status
+     * @return list of card details
+     * */
     List<CardDetails> findByStatus(String Status);
 
+
+    /**
+     * findByVisaProvisionTokenId
+     * @param visaProvisionTokenId visaTokenId
+     * @return list of card details
+     * */
     List<CardDetails> findByVisaProvisionTokenId(String visaProvisionTokenId);
 
+    /**
+     * findCardDetailsByIdentifier
+     * @param cardIdentifier cardIdentifier
+     * @param clientWalletAccountId clientWalletAccountId
+     * @param clientDeviceId clientDeviceId
+     * @param active active
+     * @param suspend suspend
+     * @return list of card details
+     * */
     @Query("Select vc from CardDetails vc where vc.cardIdentifier =:cardIdentifier and vc.deviceInfo.userDetail.clientWalletAccountId=:clientWalletAccountId " +
             "and vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status in(:active,:suspend)")
     List<CardDetails> findCardDetailsByIdentifier(@Param("cardIdentifier") String cardIdentifier, @Param("clientWalletAccountId") String clientWalletAccountId,
                                                   @Param("clientDeviceId") String clientDeviceId, @Param("active") String active,
                                                   @Param("suspend") String suspend);
 
+
+    /**
+     * findByMasterTokenUniqueReference
+     * @param masterTokenUniqueReference masterTokenUniqueReference
+     * @return CardDetails
+     * */
     Optional<CardDetails> findByMasterTokenUniqueReference(String masterTokenUniqueReference);
 
+    /**
+     * findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference
+     * @param masterPaymentAppInstanceId masterPaymentAppInstanceId
+     * @param masterTokenUniqueReference masterTokenUniqueReference
+     * @return CardDetails
+     * */
     Optional<CardDetails> findByMasterPaymentAppInstanceIdAndMasterTokenUniqueReference(String masterPaymentAppInstanceId,
                                                                                         String masterTokenUniqueReference);
 
+    /**
+     * getCardList
+     * @param userId userId
+     * @param suspend suspend
+     * @param active active
+     * @param pageable pageable
+     * @param status status
+     * @return list of cardDetails
+     * */
     @Query("Select vc from CardDetails vc where vc.deviceInfo.userDetail.userId=:userId and vc.deviceInfo.status=:deviceStatus " +
             "and vc.status in (:active,:suspend) order by vc.createdOn DESC")
     List<CardDetails> getCardList(@Param("userId") String userId, @Param("deviceStatus") String status, @Param("active") String active,
                                   @Param("suspend") String suspend, Pageable pageable);
 
+
+    /**
+     * GETCARDLIST
+     * @param userId userId
+     * @param suspend suspend
+     * @param active active
+     * @param status deviceStatus
+     * @return list of cardDetails
+     * */
     @Query("Select vc from CardDetails vc where vc.deviceInfo.userDetail.userId=:userId and vc.deviceInfo.status=:deviceStatus " +
             "and vc.status in (:active,:suspend) order by vc.createdOn DESC")
     List<CardDetails> getCardList(@Param("userId") String userId, @Param("deviceStatus") String status, @Param("active") String active,
                                   @Param("suspend") String suspend);
 
 
+    /**
+     * getNCardList
+     * @param page page
+     * @param size size
+     * @param userId userId
+     * @param suspend suspend
+     * @param active active
+     * @param deviceStatus deviceStatus
+     * @return list of cardDetails
+     * */
     default List<CardDetails> getNCardList(String userId, String deviceStatus, String active, String suspend, int page, int size) {
         if (size == 0) {
             return getCardList(userId, deviceStatus, active, suspend);
@@ -85,11 +158,28 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
 
     }
 
+
+    /**
+     * updateCardDetails
+     * @param status status
+     * @param clientDeviceId clientDeviceId
+     * */
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("update CardDetails vc set vc.status =:status where vc.deviceInfo.clientDeviceId=:clientDeviceId and vc.status <> 'N'" )
     void updateCardDetails(@Param("clientDeviceId") String clientDeviceId, @Param("status") String status);
 
+
+    /**
+     * findUserDeviceCardReport
+     * @param deviceStatus deviceStatus
+     * @param fromDate fromDate
+     * @param imei imei
+     * @param toDate toDate
+     * @param userId userId
+     * @param userStatus userStatus
+     * @return list of objects
+     * */
     @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn, " +
             "c.cardSuffix, c.tokenSuffix, c.createdOn, c.status, c.replenishOn, c.masterPaymentAppInstanceId, c.cardType, " +
             "c.masterTokenUniqueReference, c.visaProvisionTokenId, u.modifiedOn FROM CardDetails c JOIN c.deviceInfo d JOIN d.userDetail u " +
@@ -101,6 +191,15 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
     List<Object[]> findUserDeviceCardReport(@Param("fromDate")Date fromDate , @Param("toDate")Date toDate, @Param("userId")String userId,
                                             @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
 
+
+    /**
+     * findUserDeviceCardReportWithoutDate
+     * @param deviceStatus deviceStatus
+     * @param imei imei
+     * @param userId userId
+     * @param userStatus userStatus
+     * @return list of objects
+     * */
     @Query("SELECT u.userId, u.createdOn, u.status, d.imei, d.deviceName, d.deviceModel, d.osVersion, d.status, d.createdOn, c.cardSuffix, " +
             "c.tokenSuffix, c.createdOn, c.status, c.replenishOn, c.masterPaymentAppInstanceId, c.cardType, c.masterTokenUniqueReference, " +
             "c.visaProvisionTokenId, u.modifiedOn FROM CardDetails c JOIN c.deviceInfo d JOIN d.userDetail u " +

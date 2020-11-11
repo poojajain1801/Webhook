@@ -55,9 +55,8 @@ public class CountManagementServiceImpl implements CountManagementService {
 
     @Override
     public Map<String, Object> getUserCount() {
-        List<UserDetail> userDetailList = null;
         long userCount = 0;
-        Map responsemap = new HashMap();
+        Map<String, Object> responsemap = new HashMap<>();
         try{
             LOGGER.info("Entering inside getUserCount *******  ");
             userCount =  userDetailRepository.count();
@@ -76,8 +75,7 @@ public class CountManagementServiceImpl implements CountManagementService {
 
     @Override
     public Map<String, Object> getDeviceCount() {
-        List<DeviceInfo> deviceInfoList = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         long deviceCount = 0;
         try {
             deviceCount = deviceDetailRepository.count();
@@ -95,8 +93,8 @@ public class CountManagementServiceImpl implements CountManagementService {
 
     @Override
     public Map<String, Object> getTokenCount() {
-        List<CardDetails> cardDetailsList = null;
-        Map responseMap = new HashMap();
+
+        Map<String, Object> responseMap = new HashMap<>();
         long tokenCount = 0;
         try {
             tokenCount = cardDetailRepository.count();
@@ -115,7 +113,7 @@ public class CountManagementServiceImpl implements CountManagementService {
     @Override
     public Map<String, Object> getActiveTokenCount() {
         List<CardDetails> cardDetailsList = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         int tokenCount = 0;
         try {
             cardDetailsList = cardDetailRepository.findByStatus(HCEConstants.ACTIVE);

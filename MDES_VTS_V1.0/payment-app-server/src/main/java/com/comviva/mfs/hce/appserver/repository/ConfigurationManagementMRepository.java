@@ -31,7 +31,17 @@ import java.util.List;
  */
 @Repository
 public interface ConfigurationManagementMRepository extends JpaRepository<ConfigurationManagementM, String> {
-
+    /**
+     * findByStatus
+     * @param Status status
+     * @return list of confmgmt
+     * */
     List<ConfigurationManagementM> findByStatus(String Status);
+
+    /**
+     * findByRequestId
+     * @param requestId requestId
+     * @return ConfigurationManagement
+     * */
     ConfigurationManagementM findByRequestId(String requestId);
 }

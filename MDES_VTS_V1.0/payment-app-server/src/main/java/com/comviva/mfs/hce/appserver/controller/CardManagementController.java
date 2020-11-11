@@ -72,6 +72,11 @@ public class CardManagementController {
         this.cardDetailService = cardDetailService;
     }
 
+    /**
+     * addCard
+     * @param addCardParm addCardRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/checkCardEligibility", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -93,6 +98,12 @@ public class CardManagementController {
         return checkEligibilityResponse;
     }
 
+
+    /**
+     * continueDigitization
+     * @param digitizationParam digitizationReq
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/continueDigitization", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -112,11 +123,17 @@ public class CardManagementController {
         return continueDigitizationResponse;
     }
 
+
+    /**
+     * tokenize
+     * @param tokenizeRequest tokenizeRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/tokenize", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
     public  Map<String, Object> tokenize(@RequestBody String tokenizeRequest) {
-       TokenizeRequest tokenizeRequestPojo= null;
+        TokenizeRequest tokenizeRequestPojo= null;
         Map <String,Object>tokenizeResponse= null;
         try{
             tokenizeRequestPojo = (TokenizeRequest) hCEControllerSupport.requestFormation(tokenizeRequest,TokenizeRequest.class);
@@ -131,6 +148,11 @@ public class CardManagementController {
         return tokenizeResponse;
     }
 
+    /**
+     * getAsset
+     * @param assetId assertId
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/mdes/asset", method = RequestMethod.POST)
     public Map<String,Object> getAsset(@RequestBody String assetId) {
@@ -149,6 +171,12 @@ public class CardManagementController {
         return getAssetResponse;
     }
 
+
+    /**
+     * activate
+     * @param activateReq activeRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/activate", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -168,6 +196,12 @@ public class CardManagementController {
         return activateResponse;
     }
 
+
+    /**
+     * requestActivationCode
+     * @param activationCodeReq activationCodeRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/requestActivationCode", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -187,6 +221,12 @@ public class CardManagementController {
         return requestActivationCodeResponse;
     }
 
+
+    /**
+     * enrollPan
+     * @param enrollPanRequest enrollPanRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/enrollPan", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -210,6 +250,11 @@ public class CardManagementController {
         return enrollPanResponse;
     }
 
+    /**
+     * getCardMetaData
+     * @param getCardMetadataRequest getCardMetadataRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/getCardMetadata",method = RequestMethod.POST)
     public Map<String,Object> getCardMetadata(@RequestBody GetCardMetadataRequest getCardMetadataRequest){
@@ -219,10 +264,14 @@ public class CardManagementController {
         LOGGER.debug("Exit CardManagementController->getCardMetadata");
         return  getCardMetadataResp;
     }
-
+    /**
+     * getContent
+     * @param getContentRequest getContentRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/getContent",method = RequestMethod.POST)
-    public Map<String,Object>getContent(@RequestBody GetContentRequest getContentRequest){
+    public Map<String,Object> getContent(@RequestBody GetContentRequest getContentRequest){
         LOGGER.debug("Enter CardManagementController->getContent");
         Map<String,Object> getContentResp = null;
         getContentResp = cardDetailService.getContent(getContentRequest);
@@ -230,6 +279,11 @@ public class CardManagementController {
       return getContentResp;
     }
 
+    /**
+     * delete
+     * @param lifeCycleManagementReq lifeCycleMgmtReq
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/lifeCycleManagement",method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -250,6 +304,12 @@ public class CardManagementController {
         return lifeCycleManagementResp;
     }
 
+
+    /**
+     * getToken
+     * @param getTokensRequest getTokenRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -269,6 +329,11 @@ public class CardManagementController {
         return  getToeknsTokensResp;
     }
 
+    /**
+     * searchTokens
+     * @param getTokensRequest getTokenRequest
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/searchTokens", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -288,7 +353,11 @@ public class CardManagementController {
         return searchTokensResp;
     }
 
-
+    /**
+     * unregisterFromTds
+     * @param unregisterTdsReq unregisterTdsReq
+     * @return map
+     * */
     @ResponseBody
     @RequestMapping(value = "/unregisterTds", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")

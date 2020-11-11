@@ -33,9 +33,9 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class AddCardResponse {
-    private final Map response;
+    private final Map<String, Object> response;
 
-    public AddCardResponse(Map mapResponse) {
+    public AddCardResponse(Map<String, Object> mapResponse) {
         this.response = mapResponse;
     }
 }
