@@ -134,7 +134,7 @@ public class PerformUserLifecycle {
 
             if(operation.equalsIgnoreCase(HCEConstants.DELETE_USER)) {
                 for (int i = 0; i < deviceInfoList.size(); i++) {
-//                    deviceInfo = deviceInfoList.get(i);
+                    deviceInfo = deviceInfoList.get(i);
                     performDeleteUser(userId,deviceInfo.getPaymentAppInstanceId());
                 }
 
