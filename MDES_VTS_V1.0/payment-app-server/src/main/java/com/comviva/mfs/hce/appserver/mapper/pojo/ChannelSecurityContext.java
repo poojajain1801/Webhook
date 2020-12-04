@@ -1,6 +1,8 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -11,18 +13,10 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelSecurityContext {
-
     private List<VtsCerts> vtsCerts;
     private List<DeviceCerts> deviceCerts;
     private ChannelInfo channelInfo;
-
-    public ChannelSecurityContext(List<VtsCerts> vtsCerts,List<DeviceCerts> deviceCerts, ChannelInfo channelInfo) {
-        this.vtsCerts = (vtsCerts);
-        this.deviceCerts = (deviceCerts);
-        this.channelInfo = channelInfo;
-    }
-
-    public ChannelSecurityContext() {
-    }
 }

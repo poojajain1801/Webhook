@@ -4,8 +4,12 @@ import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
 import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
-import com.comviva.mfs.hce.appserver.mapper.vts.CertUsage;
+
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceDasRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.VtsCerts;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -16,12 +20,18 @@ import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
 import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.*;
-import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFactory;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsResponse;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.mdes.DeviceRegistrationMdes;
 import com.comviva.mfs.hce.appserver.util.vts.EnrollDeviceVts;
 import com.google.gson.Gson;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +42,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.ws.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -62,7 +76,10 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private PerformUserLifecycle performLCMobj;
 
     @Autowired
-    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,CardDetailRepository cardDetailRepository ) {
+    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,
+                                   UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,
+                                   DeviceRegistrationMdes deviceRegistrationMdes, EnrollDeviceVts enrollDeviceVts,
+                                   CardDetailRepository cardDetailRepository ) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
@@ -80,17 +97,18 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     @Transactional
     public Map<String, Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest) {
         String vClientID = env.getProperty("vClientID");
-        Map<String, Object> response = new HashMap();
+        Map<String, Object> response = new HashMap<>();
         String isMastercardRegistrationDone = null;
         String isVisaDeviceRegistrationDone = null;
         Map mdesRespMap = new HashMap();
-        Map vtsRespMap = new HashMap();
+        Map<String, Object> vtsRespMap = new HashMap<>();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
         String schemeType = "";
         //DeviceRegistrationResponse devRegRespMdes = null;
         UserDetail userDetail;
         DeviceInfo deviceInfo;
+        Map<String, Object> dasResponse = null;
         try {
             List<UserDetail> userDetails = userDetailRepository.findByUserIdAndStatus(enrollDeviceRequest.getUserId(), HCEConstants.ACTIVE);
             if(userDetails!=null && !userDetails.isEmpty()){
@@ -174,17 +192,35 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                     response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
                 } else {
                     vtsRespMap = JsonUtil.jsonStringToHashMap(vtsResp);
-                    vtsRespJson = new JSONObject(vtsResp);
-                    response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
                     deviceInfo.setIsVisaEnabled(HCEConstants.ACTIVE);
                     deviceInfo.setVClientId(vClientID);
                     deviceInfo.setStatus(HCEConstants.ACTIVE);
                     deviceInfo.setDeviceName(enrollDeviceRequest.getVts().getDeviceInfo().getDeviceName());
                     deviceInfo.setOsVersion(enrollDeviceRequest.getVts().getDeviceInfo().getOsVersion());
                     deviceInfo.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    deviceDetailRepository.save(deviceInfo);
-                    response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getSUCCESS());
-                    response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
+                    if(enrollDeviceRequest.getVts().getChannelSecurityContext() != null) {
+                        dasResponse = enrollDeviceDas(enrollDeviceRequest.getVts().getDasRequest(),
+                                enrollDeviceRequest.getClientDeviceID());
+                        if (null != dasResponse && null == dasResponse.get("errorResponse")) {
+                            deviceDetailRepository.save(deviceInfo);
+                            response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
+                            response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
+                            response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getSUCCESS());
+                            vtsRespMap.put("dasResponse", dasResponse);
+                        } else {
+                            response.put(HCEConstants.VTS_MESSAGE, "Enroll Device for DAS failed");
+                            vtsRespMap.put("dasResponse", dasResponse);
+                            vtsRespMap.put(HCEConstants.VTS_RESPONSE_CODE,HCEMessageCodes.getInvalidOperation());
+                            response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getDeviceRegistrationFailed());
+                            response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
+                            response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
+                        }
+                    } else {
+                        deviceDetailRepository.save(deviceInfo);
+                        response.put(HCEConstants.VISA_FINAL_MESSAGE, "OK");
+                        response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
+                        response.put(HCEConstants.VISA_FINAL_CODE, HCEMessageCodes.getSUCCESS());
+                    }
                 }
             }else{
                 vtsRespMap.put(HCEConstants.VTS_MESSAGE,"INVALID OPERATION");
@@ -219,6 +255,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }
+
 
     /**
      * @param unRegisterReq
@@ -306,7 +343,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     }
 
     @Override
-    public Map<String, Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo) {
+    public Map<String, Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo, String clientDeviceId) {
         HitVisaServices hitVisaServices = new HitVisaServices(env);
         String vClientID = env.getProperty("vClientID");
         Map<String, Object> responseMap = new HashMap<>();
@@ -316,17 +353,16 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         JSONObject jsonResponse = new JSONObject();
 
         try {
-            String clientDeviceId = enrollDeviceDasReqPojo.getClientDeviceID();
-            List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdAndStatus
-                    (clientDeviceId, HCEConstants.ACTIVE);
-
-            if (deviceInfos.isEmpty()) {
-                LOGGER.error("Device is not in active state");
-                // send error message back not success
-                responseMap.put("responseCode", HCEMessageCodes.getDeviceNotRegistered());
-                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getDeviceNotRegistered()));
-                return responseMap;
-            } else {
+//            List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdAndStatus
+//                    (clientDeviceId, HCEConstants.ACTIVE);
+//
+//            if (deviceInfos.isEmpty()) {
+//                LOGGER.error("Device is not in active state");
+//                // send error message back not success
+//                responseMap.put("responseCode", HCEMessageCodes.getDeviceNotRegistered());
+//                responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getDeviceNotRegistered()));
+//                return responseMap;
+//            } else {
                 //if device is present with active state
                 JSONObject requestJson = new JSONObject();
                 JSONObject deviceInfo = new JSONObject();
@@ -379,7 +415,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                         responseMap.put(HCEConstants.MESSAGE, jsonResponse.getJSONObject("errorResponse").get("message"));
                     }
                 }
-            }
+//            }
         } catch(HCEActionException enrollDeviceForDasException){
             LOGGER.error("Exception occured in DeviceDetailServiceImpl->enrollDeviceDas",enrollDeviceForDasException);
             throw enrollDeviceForDasException;

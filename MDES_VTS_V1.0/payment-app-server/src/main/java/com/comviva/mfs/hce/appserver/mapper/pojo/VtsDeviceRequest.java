@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VtsDeviceRequest {
-
     private VtsDeviceInfoRequest deviceInfo;
     private ChannelSecurityContext channelSecurityContext;
+    private EnrollDeviceDasRequest dasRequest;
 }

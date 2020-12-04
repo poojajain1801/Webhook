@@ -13,7 +13,9 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.vts.SdkUsageType;
 import com.newrelic.agent.deps.org.apache.http.HttpStatus;
 import com.visa.cbp.encryptionutils.common.CertMetaData;
+import com.visa.cbp.encryptionutils.common.DeviceKeyPair;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
+
 import lombok.Setter;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -108,7 +110,8 @@ public class EnrollDevice{
 
 
 
-    public String enrollDevice(VtsDeviceInfoRequest deviceInfo, ChannelSecurityContext channelSecurityContextReq, String clientDeviceID, String vClientID) {
+    public String enrollDevice(VtsDeviceInfoRequest deviceInfo, ChannelSecurityContext channelSecurityContextReq, String clientDeviceID, String vClientID)
+            throws NullPointerException {
 
 
         JSONObject jsDeviceInfo = null;
@@ -128,10 +131,15 @@ public class EnrollDevice{
         String requestBody = null;
         JSONObject prepareHeaderRequest= null;
         JSONObject jsonObject = null;
+        DeviceKeyPair devSignKeyPair =null;
+        DeviceKeyPair devEncKeyPair =null;
         JSONObject jsonResponse=null;
         JSONObject jsonRequest = null;
         ResourceLoader resourceLoader = null;
         String signedDeviceCert = "";
+        byte[] b64SignCert = null;
+        byte[] b64EncCert = null;
+
 
         try {
             jsDeviceInfo = prepareDeviceInfo(deviceInfo);
@@ -176,47 +184,37 @@ public class EnrollDevice{
             certMetaData.setNotAfter(currentTimeInMilli + CERTIFICATE_EXPIRY_DURATION);
             certMetaData.setSubject(new X500Name("CN=Device Certificate"));
 
+            //if device certs is in the request
+            List<DeviceCerts> deviceCertsList = null;
+            if(null != channelSecurityContextReq) {
+                deviceCertsList = channelSecurityContextReq.getDeviceCerts();
+                deviceCerts = prepareDeviceCerts(deviceCertsList, issuerName, certMetaData, masterPrivateKey);
+            } else {
+                LOGGER.info("generate devEncKeyPair before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+                devEncKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID, issuerName, certMetaData, masterPrivateKey);
+                LOGGER.info("generate devEncKeyPair after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
 
+                LOGGER.info("generate devSignKeyPair before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+                devSignKeyPair =VisaSDKMapUtil.generateDeviceKeyPair(clientDeviceID,issuerName, certMetaData, masterPrivateKey);
+                LOGGER.info("generate devSignKeyPair after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
 
-            List<DeviceCerts> deviceCertsList = channelSecurityContextReq.getDeviceCerts();
-            deviceCerts = new JSONArray();
-            for(DeviceCerts deviceCert : deviceCertsList) {
-                try {
-                    PublicKeyDeviceCert publicKeyDeviceCert = new PublicKeyDeviceCert(deviceCert);
-                    PublicKey devicePublicKey = publicKeyDeviceCert.getPublicKey();
+                deviceCerts = new JSONArray();
+                var = new JSONObject();
+                var.put("certFormat", "X509");
+                var.put("certUsage", CertUsage.CONFIDENTIALITY);
+                b64EncCert = Base64.encodeBase64URLSafe(devEncKeyPair.getCertificate().getBytes());
+                var.put("certValue",new String(b64EncCert));
+                deviceCerts.put(0,var);
 
-                    LOGGER.info("generate device certificate before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
-                    signedDeviceCert = VisaSDKMapUtil.generateDeviceCertificate(issuerName, certMetaData, masterPrivateKey,
-                            devicePublicKey.getEncoded());
-                    LOGGER.info("generate device certificate before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
-
-                    byte[] signedDeviceCertBytes = signedDeviceCert.getBytes();
-                    byte[] signedDeviceCertBase64 = Base64.encodeBase64URLSafe(signedDeviceCertBytes);
-                    String finalSignedDeviceCert = new String(signedDeviceCertBase64);
-                    //Set the new device certificate in the request
-                    deviceCert.setCertValue(finalSignedDeviceCert);
-
-                    var = new JSONObject();
-                    var.put("certFormat", "X509");
-                    if(CertUsage.CONFIDENTIALITY.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
-                        var.put("certUsage", CertUsage.CONFIDENTIALITY);
-                        var.put("certValue", deviceCert.getCertValue());
-                        deviceCerts.put(0,var);
-                    } else if(CertUsage.INTEGRITY.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
-                        var.put("certUsage", CertUsage.INTEGRITY);
-                        var.put("certValue", deviceCert.getCertValue());
-                        deviceCerts.put(1,var);
-                    } else if(CertUsage.DEVICE_ROOT.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
-                        var.put("certUsage", CertUsage.DEVICE_ROOT);
-                        var.put("certValue", deviceCert.getCertValue());
-                        deviceCerts.put(2,var);
-                    }
-
-                } catch(CertificateException certificateException) {
-                    LOGGER.error("Exception in enroll device -> certificateException"+certificateException);
-                    throw certificateException;
-                }
+                // Device Encryption Certificate
+                var = new JSONObject();
+                var.put("certFormat", "X509");
+                var.put("certUsage", CertUsage.INTEGRITY);
+                b64SignCert = Base64.encodeBase64URLSafe(devSignKeyPair.getCertificate().getBytes());
+                var.put("certValue",new String(b64SignCert));
+                deviceCerts.put(1,var);
             }
+
 
 
             encryptionScheme=new JSONObject();
@@ -252,7 +250,28 @@ public class EnrollDevice{
 
             if (HttpStatus.SC_OK == jsonResponse.getInt(HCEConstants.STATUS_CODE) ) {
                 jsonObject = jsonResponse.getJSONObject("response");
-//                jsonResponse.put("responseBody", jsonObject);
+                if(null == channelSecurityContextReq) {
+                    jsonObject.put("devEncKeyPair", devEncKeyPair.getPrivateKeyHex());
+                    jsonObject.put("devEncCertificate", new String(b64EncCert));
+                    jsonObject.put("devSignKeyPair", devSignKeyPair.getPrivateKeyHex());
+                    jsonObject.put("devSignCertificate", new String(b64SignCert));
+
+                    jsonObject.put("vtsCerts-certUsage-confidentiality", CertUsage.CONFIDENTIALITY.name());
+                    jsonObject.put("vtsCerts-vCertificateID-confidentiality", vtsCertificateIDConf);
+
+                    jsonObject.put("vtsCerts-certUsage-integrity", CertUsage.INTEGRITY.name());
+                    jsonObject.put("vtsCerts-vCertificateID-integrity", vtsCertificateIDSign);
+
+                    jsonObject.put("deviceCerts-certFormat-confidentiality", "X509");
+                    jsonObject.put("deviceCerts-certUsage-confidentiality", CertUsage.CONFIDENTIALITY);
+                    jsonObject.put("deviceCerts-certValue-confidentiality", new String(b64EncCert));
+
+                    jsonObject.put("deviceCerts-certFormat-integrity", "X509");
+                    jsonObject.put("deviceCerts-certUsage-integrity", CertUsage.INTEGRITY);
+                    jsonObject.put("deviceCerts-certValue-integrity", new String(b64SignCert));
+                    jsonResponse.put("responseBody", jsonObject);
+                }
+                jsonResponse.put("responseBody", jsonObject);
             }
             else {
                 jsonResponse.put(HCEConstants.RESPONSE_CODE,String.valueOf(jsonResponse.getInt(HCEConstants.STATUS_CODE)));
@@ -268,4 +287,48 @@ public class EnrollDevice{
         return jsonResponse.toString();
     }
 
+    private JSONArray prepareDeviceCerts(List<DeviceCerts> deviceCertsList, X500Name issuerName, CertMetaData certMetaData,
+                                         PrivateKey masterPrivateKey) throws CertificateException {
+        JSONObject var = null;
+        String signedDeviceCert = "";
+        JSONArray deviceCerts = new JSONArray();
+        for(DeviceCerts deviceCert : deviceCertsList) {
+            try {
+                PublicKeyDeviceCert publicKeyDeviceCert = new PublicKeyDeviceCert(deviceCert);
+                PublicKey devicePublicKey = publicKeyDeviceCert.getPublicKey();
+
+                LOGGER.info("generate device certificate before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+                signedDeviceCert = VisaSDKMapUtil.generateDeviceCertificate(issuerName, certMetaData, masterPrivateKey,
+                        devicePublicKey.getEncoded());
+                LOGGER.info("generate device certificate before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+
+                byte[] signedDeviceCertBytes = signedDeviceCert.getBytes();
+                byte[] signedDeviceCertBase64 = Base64.encodeBase64URLSafe(signedDeviceCertBytes);
+                String finalSignedDeviceCert = new String(signedDeviceCertBase64);
+                //Set the new device certificate in the request
+                deviceCert.setCertValue(finalSignedDeviceCert);
+
+                var = new JSONObject();
+                var.put("certFormat", "X509");
+                if(CertUsage.CONFIDENTIALITY.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
+                    var.put("certUsage", CertUsage.CONFIDENTIALITY);
+                    var.put("certValue", deviceCert.getCertValue());
+                    deviceCerts.put(0,var);
+                } else if(CertUsage.INTEGRITY.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
+                    var.put("certUsage", CertUsage.INTEGRITY);
+                    var.put("certValue", deviceCert.getCertValue());
+                    deviceCerts.put(1,var);
+                } else if(CertUsage.DEVICE_ROOT.name().equalsIgnoreCase(deviceCert.getCertUsage())) {
+                    var.put("certUsage", CertUsage.DEVICE_ROOT);
+                    var.put("certValue", deviceCert.getCertValue());
+                    deviceCerts.put(2,var);
+                }
+
+            } catch(CertificateException certificateException) {
+                LOGGER.error("Exception in enroll device -> certificateException"+certificateException);
+                throw certificateException;
+            }
+        }
+        return deviceCerts;
+    }
 }

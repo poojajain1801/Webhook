@@ -1,7 +1,7 @@
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
 import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
@@ -20,8 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -65,7 +63,13 @@ public class EnrollDeviceVts {
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
         String response="";
         try {
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), enrollDeviceRequest.getVts().getChannelSecurityContext() ,enrollDeviceRequest.getClientDeviceID(), vClientID);
+            ChannelSecurityContext channelSecurityContext = enrollDeviceRequest.getVts().getChannelSecurityContext();
+            if(null != channelSecurityContext) {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), enrollDeviceRequest.getVts().getChannelSecurityContext(), enrollDeviceRequest.getClientDeviceID(), vClientID);
+            } else {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), null, enrollDeviceRequest.getClientDeviceID(), vClientID);
+                return encDevicePersoData(response);
+            }
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
             throw regHceActionException;

@@ -1,7 +1,6 @@
 package com.comviva.mfs.hce.appserver.service.contract;
 
 import com.comviva.mfs.hce.appserver.mapper.pojo.*;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -10,10 +9,11 @@ import java.util.Map;
  */
 public interface DeviceDetailService {
     /**
-     * @param enrollDeviceRequest
-     * @return
+     * register Device
+     * @param enrollDeviceRequest enrollDeviceRequest
+     * @return map
      */
     Map<String,Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest);
     Map<String,Object> unRegisterDevice(UnRegisterReq unRegisterReq);
-    Map<String,Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo);
+    Map<String,Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo, String clientDeviceId);
 }
