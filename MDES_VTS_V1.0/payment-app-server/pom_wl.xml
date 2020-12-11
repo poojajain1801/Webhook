@@ -317,9 +317,9 @@
         <dependency>
             <groupId>SDK-MapUtil</groupId>
             <artifactId>SDK-MapUtil</artifactId>
-            <version>6.01.</version>
+            <version>6.0.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.01.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.0.1.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -473,10 +473,10 @@
                         <configuration>
                             <tasks>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.65.2-external.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.77.1-external.jar" />
                                 </copy>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-5.2.1.1.jar" />
+                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-6.0.1.jar" />
                                 </copy>
                                 <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
                                     <fileset dir="${basedir}/src/main/lib/" includes="nimbus-jose-jwt-4.34.2.jar" />
