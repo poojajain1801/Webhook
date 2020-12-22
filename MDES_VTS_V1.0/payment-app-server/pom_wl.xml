@@ -330,6 +330,12 @@
             <systemPath>${basedir}/src/main/lib/nimbus-jose-jwt-4.34.2.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <groupId>com.comviva.mfs</groupId>
+            <artifactId>utilities</artifactId>
+            <version>1.0.7-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>payment-app</finalName>
