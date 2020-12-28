@@ -32,7 +32,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
+
 import static org.junit.Assert.assertEquals;
 
 /**

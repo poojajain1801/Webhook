@@ -21,12 +21,9 @@
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+
 @NoArgsConstructor
 public class ConfirmReplenishmenRequest {
     private String api;

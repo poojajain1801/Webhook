@@ -43,10 +43,8 @@ import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
+
 
 
 @RunWith(SpringJUnit4ClassRunner.class)

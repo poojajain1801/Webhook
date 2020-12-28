@@ -84,7 +84,7 @@ public class SendReqest {
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection)urlObj.openConnection();
 
             //Temp for testing purpose
-            //HttpURLConnection httpsURLConnection = (HttpURLConnection) urlObj.openConnection();
+//            HttpURLConnection httpsURLConnection = (HttpURLConnection) urlObj.openConnection();
 
             //set timeputs to 10 seconds
             httpsURLConnection.setConnectTimeout(10000);
