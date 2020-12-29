@@ -29,9 +29,11 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.model.HvtManagement;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.HvtManagementRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
@@ -90,7 +92,13 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private PerformUserLifecycle performLCMobj;
 
     @Autowired
-    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,CardDetailRepository cardDetailRepository ) {
+    private HvtManagementRepository hvtManagementRepository;
+
+    @Autowired
+    public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,
+                                   UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,
+                                   DeviceRegistrationMdes deviceRegistrationMdes,EnrollDeviceVts enrollDeviceVts,
+                                   CardDetailRepository cardDetailRepository ) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
@@ -209,13 +217,18 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             }
 
-            if(env.getProperty("is.hvt.supported").equals(HCEConstants.ACTIVE)){
-                response.put("isHvtSupported", true);
-            }else{
-                response.put("isHvtSupported", false);
+            HvtManagement hvtManagement = hvtManagementRepository.findByPaymentAppId(HCEConstants.PAYMENT_APP_INSTANCE_ID);
+
+            if(hvtManagement != null) {
+                if ("Y".equalsIgnoreCase(hvtManagement.getIsHvtSupported())) {
+                    response.put("isHvtSupported", true);
+                } else {
+                    response.put("isHvtSupported", false);
+                }
+
+                response.put("hvtThreshold", hvtManagement.getHvtLimit());
             }
 
-            response.put("hvtThreshold", env.getProperty("hvt.limit"));
             if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS())
                     || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
                 response.put("responseCode",HCEMessageCodes.getSUCCESS());

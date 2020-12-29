@@ -252,4 +252,7 @@ public class HCEConstants {
     public static final int REASON_CODE_234 = 234;
     public static final int REASON_CODE8 = 201;
 
+    //By Shivaranjan
+    public static final String PAYMENT_APP_INSTANCE_ID= "SBICARDS";
+
 }
