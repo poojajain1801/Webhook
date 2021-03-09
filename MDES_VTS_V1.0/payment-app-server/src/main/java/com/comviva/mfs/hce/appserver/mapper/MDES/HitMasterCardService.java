@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -109,6 +111,11 @@ public class HitMasterCardService implements RestTemplateCustomizer
             }
             RestTemplate restTemplate = restTemplate();
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
+
+            StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+            stringHttpMessageConverter.setWriteAcceptCharset(false);
+            restTemplate.getMessageConverters().add(0, stringHttpMessageConverter);
+
             LOGGER.debug("Request = " + (String)entity.getBody());
             LOGGER.debug("URL---- = " + url);
             LOGGER.info("info---- = " + url);

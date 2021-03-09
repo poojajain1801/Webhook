@@ -75,5 +75,11 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
             "(CASE when (:deviceStatus <> '-') then d.status else '-' end = :deviceStatus )")
     List<Object[]> findUserDeviceCardReportWithoutDate(@Param("userId")String userId, @Param("imei")String imei, @Param("userStatus")String userStatus, @Param("deviceStatus")String deviceStatus);
 
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("update CardDetails vc set vc.repersoStatus =:status where vc.visaProvisionTokenId=:vprovisionId")
+    void updateRepersoStatus(@Param("vprovisionId")String vprovisionId, @Param("status")String status);
+
 }
 

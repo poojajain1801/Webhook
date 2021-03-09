@@ -6,9 +6,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RePersoTokenRequest {
+    private String clientAppId;
     private String vProvisionedTokenID;
     private String clientDeviceID;
-    private String clientWalletAccountID;
+    private String clientWalletAccountId;
+    private String vNotificationID;
+    private String fullReperso;
+
+    public String getvProvisionedTokenID() {
+        return vProvisionedTokenID;
+    }
+
+    public void setvProvisionedTokenID(String vProvisionedTokenID) {
+        this.vProvisionedTokenID = vProvisionedTokenID;
+    }
+
+    public String getvNotificationID() {
+        return vNotificationID;
+    }
+
+    public void setvNotificationID(String vNotificationID) {
+        this.vNotificationID = vNotificationID;
+    }
 
     public String getVProvisionedTokenID() {
         return vProvisionedTokenID;
@@ -26,11 +45,27 @@ public class RePersoTokenRequest {
         this.clientDeviceID = clientDeviceID;
     }
 
-    public String getClientWalletAccountID() {
-        return clientWalletAccountID;
+    public String getClientWalletAccountId() {
+        return clientWalletAccountId;
     }
 
-    public void setClientWalletAccountID(String clientWalletAccountID) {
-        this.clientWalletAccountID = clientWalletAccountID;
+    public void setClientWalletAccountId(String clientWalletAccountId) {
+        this.clientWalletAccountId = clientWalletAccountId;
+    }
+
+    public String isFullReperso() {
+        return fullReperso;
+    }
+
+    public void setFullReperso(String fullReperso) {
+        this.fullReperso = fullReperso;
+    }
+
+    public String getClientAppId() {
+        return clientAppId;
+    }
+
+    public void setClientAppId(String clientAppId) {
+        this.clientAppId = clientAppId;
     }
 }

@@ -4,6 +4,7 @@ import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.InetSocketAddress;
@@ -135,10 +137,15 @@ public class HitVisaServices extends VtsRequest {
         }catch(HCEActionException hitVisaServiceExp){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",hitVisaServiceExp);
             throw hitVisaServiceExp;
-        }catch (Exception e){
-            LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
+        }catch (HttpServerErrorException e){
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa -> HttpServerErrorException(500 from server side not from MAP) \n ",e);
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa -> HttpServerErrorException \n",e.getResponseBodyAsString());
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa ->  HttpServerErrorException \n x-correlation-id {} \n\n",e.getResponseHeaders().get("X-CORRELATION-ID"));
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
-        }finally {
+        } catch(Exception e) {
+            LOGGER.debug(""+e);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        } finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;

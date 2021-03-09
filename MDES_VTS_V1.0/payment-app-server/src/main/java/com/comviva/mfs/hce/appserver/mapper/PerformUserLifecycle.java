@@ -20,6 +20,11 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 
 @Component
 public class PerformUserLifecycle {
@@ -211,7 +213,7 @@ public class PerformUserLifecycle {
         unregisterMdes(paymentAppInstanceId);
         /*if(deviceInfo!=null)
         {
-            cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceId(),HCEConstants.INACTIVE);
+            cardDetailRepository.updateCardDetails(deviceInfo.getClientDeviceID(),HCEConstants.INACTIVE);
             deviceInfo.setStatus(HCEConstants.INACTIVE);
             deviceDetailRepository.save(deviceInfo);
 

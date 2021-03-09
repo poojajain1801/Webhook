@@ -1309,12 +1309,12 @@ public class CardDetailServiceImpl implements CardDetailService {
             if(null !=userDevice && !userDevice.isEmpty()) {
                 for (int i = 0; i <userDetails.size(); i++){
                     if (!userDevice.get(i).getUserName().equals(userDetails.get(0).getUserName())) {
-                        userDevice.get(i).setClientDeviceId("CD");
+                        userDevice.get(i).setClientDeviceID("CD");
                         userDetailRepository.save(userDevice.get(i));
                     }
                 }
             }
-            userDetails.get(0).setClientDeviceId(enrollPanRequest.getClientDeviceID());
+            userDetails.get(0).setClientDeviceID(enrollPanRequest.getClientDeviceID());
             userDetailRepository.save(userDetails.get(0));
             result.put("message", "Active User");
             result.put("responseCode", "200");

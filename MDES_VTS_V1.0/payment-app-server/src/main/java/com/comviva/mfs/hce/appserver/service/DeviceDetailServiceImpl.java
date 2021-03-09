@@ -393,7 +393,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 requestJson.put("visaCertReferenceList", visaCertList);
 //                requestJson.put("profileAppID", enrollDeviceDasReqPojo.getProfileAppID());
 
-                LOGGER.debug("before hitting enroll device for das");
+                LOGGER.info("before hitting enroll device for das");
                 resourcePath = "vts/das/clients/"+vClientID+"/devices/"+clientDeviceId;
                 //https://cert.api.visa.com/vts/das/clients/{vClientID}/devices/{clientDeviceID}?apiKey=key
                 url = "https://cert.api.visa.com"+ "/vts/das/clients/" + vClientID + "/devices/"+ clientDeviceId + "?apiKey=" + env.getProperty("apiKey");

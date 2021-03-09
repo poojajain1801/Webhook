@@ -2,6 +2,7 @@ package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.decryptFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RePersoFlowRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.RePersoTokenRequest;
 import com.comviva.mfs.hce.appserver.service.contract.RePersoService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -32,6 +33,29 @@ public class RePersonalizationController {
     @Autowired
     private RePersoService rePersoService;
 
+
+    @ResponseBody
+    @RequestMapping(value="/rePersoFlow", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> rePersoFlow(@RequestBody String rePersoFlowReq) {
+        LOGGER.info("re-personaliztion flow request lands --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        Map<String, Object> rePersoFlowResponse = null;
+        RePersoFlowRequest  rePersoFlowRequestPojo = null;
+        try {
+            rePersoFlowRequestPojo = (RePersoFlowRequest) hCEControllerSupport.requestFormation(rePersoFlowReq,
+                    RePersoFlowRequest.class);
+            rePersoFlowResponse = rePersoService.rePersoFlow(rePersoFlowRequestPojo);
+        } catch (HCEActionException rePersoFlowException){
+            LOGGER.error("Exception Occured in Enter DeviceRegistrationController->rePersoFlow",rePersoFlowException);
+            throw rePersoFlowException;
+        }catch (Exception rePersoFlow) {
+            LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->rePersoFlow", rePersoFlow);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.info("re-personaliztion flow request Ends at --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        return rePersoFlowResponse;
+    }
+
     @ResponseBody
     @RequestMapping(value="/rePerso", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
@@ -50,7 +74,7 @@ public class RePersonalizationController {
             LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->rePersoToken", rePersoToken);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        LOGGER.info("Enroll device for DAS request Ends at --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        LOGGER.info("re-personaliztion request Ends at --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
         return rePersoResponse;
     }
 }
