@@ -65,6 +65,7 @@ public class CardManagementController {
 
     @Autowired
     private CardDetailService cardDetailService;
+
     @Autowired
     private HCEControllerSupport hCEControllerSupport;
 

@@ -33,7 +33,7 @@ public class CardInfo {
     private String tokenUniqueReferenceForPanInfo;
     private String publicKeyFingerprint;
     private String encryptedKey;
-    private String  OeapHashingAlgorithim;
+    private String OeapHashingAlgorithim;
     private String iv;
     private String encryptedData;
 

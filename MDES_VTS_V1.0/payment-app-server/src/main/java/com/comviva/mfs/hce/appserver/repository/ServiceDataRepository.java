@@ -26,11 +26,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by Tanmay.Patel on 2/2/2017.
  */
 @Repository
+@Transactional
 public interface ServiceDataRepository extends JpaRepository<ServiceData,String>{
 
     Optional<ServiceData> findByServiceId(String serviceId);

@@ -526,7 +526,7 @@ public class CardManagementControllerTest {
     @Test
     public void provisionWithPanEnrollmentID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/provisionWithPanEnrollmentID.json");
-        Map getContentResp = ServiceUtils.servicePOSTResponse("provision/provisionTokenWithPanEnrollmentId",request);
+        Map getContentResp = ServiceUtils.servicePOSTResponse("provisionCard/provisionTokenWithPanEnrollmentId",request);
         assertResponse(getContentResp, "707");
     }
 

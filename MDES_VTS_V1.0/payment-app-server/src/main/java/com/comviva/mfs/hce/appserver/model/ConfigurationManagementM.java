@@ -29,6 +29,7 @@ import java.sql.Timestamp;
 /**
  * Created by rishikesh.kumar on 01-04-2019.
  */
+
 @Entity
 @Table(name="CONFIGURATION_MANAGEMENT_M")
 public class ConfigurationManagementM implements Serializable {

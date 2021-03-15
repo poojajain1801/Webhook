@@ -97,10 +97,14 @@ public class UserDetailServiceImpl implements UserDetailService {
             imei = registerUserRequest.getImei();
             languageCode = registerUserRequest.getLanguageCode();
             LOGGER.debug("LanguageCode ********  "+languageCode);
+
+            // if language Id is null assign default lang code 1
             if(languageCode == null || languageCode.isEmpty() || !languageCode.equals("2")){
                 registerUserRequest.setLanguageCode("1");
                 LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }
+
+            //if the device details (with same client device ID) exists with status Y in device info
             if(isClientDeviceIdExist(registerUserRequest.getClientDeviceID())){
                 throw new HCEActionException(HCEMessageCodes.getClientDeviceidExist());
             }
@@ -130,12 +134,14 @@ public class UserDetailServiceImpl implements UserDetailService {
                     //Register Device
                 }
             }else{
+                // user details not present and why we need to check device_info table??
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
                     deactivateDevice(deviceInfo);
                     deviceInfo.setStatus(HCEConstants.INACTIVE);
                     deviceDetailRepository.save(deviceInfo);
+                    // updateUserStatusIfOneDeviceIsLinked check the function
                     updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                     userDetail = saveUserDetails(registerUserRequest);
                     userDetailRepository.saveAndFlush(userDetail);

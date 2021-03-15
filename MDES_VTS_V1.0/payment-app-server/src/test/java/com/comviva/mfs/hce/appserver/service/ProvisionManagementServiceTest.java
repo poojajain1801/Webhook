@@ -35,7 +35,7 @@ public class ProvisionManagementServiceTest {
     public void Setup(){
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
-        ServiceUtils.serviceInit("/api/provision");
+        ServiceUtils.serviceInit("/api/provisionCard");
     }
 
     @Test
