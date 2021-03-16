@@ -22,14 +22,19 @@ package com.comviva.mfs.hce.appserver;
 
 
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import java.util.concurrent.Executor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.WebApplicationInitializer;
 
 
@@ -43,8 +48,8 @@ import org.springframework.web.WebApplicationInitializer;
 @EnableAutoConfiguration
 @EntityScan(basePackages = "com.comviva.mfs.hce.appserver.*")
 @EnableAsync
+@EnableScheduling
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer{
-
 
     public static void main(String[] args) {
         System.setProperty("org.apache.catalina.connector.RECYCLE_FACADES", "true");

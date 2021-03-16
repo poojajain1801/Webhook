@@ -407,22 +407,6 @@
         <addPrimaryKey columnNames="REQUEST_ID, PAYMENT_APP_ID" constraintName="PK_HVT_MANAGEMENT" tableName="HVT_MANAGEMENT" />
     </changeSet>
 
-    <!-- FCM scheduler log table  -->
-    <changeSet author="Shivaranjan" id="202012281220">
-        <createTable tableName="FCM_SCHEDULER_LOG">
-            <column name="RNS_REGISTRATION_ID" type="VARCHAR2(1024)"/>
-            <column name="STATUS" type="VARCHAR2(255)"/>
-
-            <column name="CREATED_ON" type="Timestamp(6)">
-            <constraints nullable="true"/>
-            </column>
-            <column name="MODIFIED_ON" type="Timestamp(6)">
-            <constraints nullable="true"/>
-            </column>
-        </createTable>
-        <addPrimaryKey columnNames="RNS_REGISTRATION_ID" constraintName="PK_RNS_REGISTRATION_ID" tableName="FCM_SCHEDULER_LOG" />
-    </changeSet>
-
     <!-- Data Insertion to HVT Management  -->
     <changeSet author="shivaranjan" id="202012281750">
         <insert tableName="HVT_MANAGEMENT">
@@ -433,6 +417,25 @@
             <column name="CREATED_ON" valueDate="${now}" />
             <column name="MODIFIED_ON" valueDate="${now}" />
         </insert>
+    </changeSet>
+
+    <!-- FCM scheduler log table  -->
+    <changeSet author="Shivaranjan" id="202101021024">
+        <createTable tableName="FCM_SCHEDULER_LOG">
+            <column name="REQUEST_ID" type="VARCHAR2(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RNS_REGISTRATION_ID" type="VARCHAR2(1024)"/>
+            <column name="STATUS" type="VARCHAR2(255)"/>
+
+            <column name="CREATED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="MODIFIED_ON" type="Timestamp(6)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_REQUEST_ID" tableName="FCM_SCHEDULER_LOG" />
     </changeSet>
 
 </databaseChangeLog>

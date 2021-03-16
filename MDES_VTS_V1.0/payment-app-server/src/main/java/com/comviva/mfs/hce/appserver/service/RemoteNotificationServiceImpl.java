@@ -144,6 +144,7 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
             }
             responseMap.put("responseHost", "wallet.mahindracomviva.com");
             responseMap.put("responseId",ArrayUtil.getHexString(ArrayUtil.getRandom(16)));
+            responseMap.put("responseData",json);
         }catch (HCEActionException remoteNotificationHCEactionException) {
             LOGGER.error("Exception occured in RemoteNotificationServiceImpl->sendRemoteNotification", remoteNotificationHCEactionException);
             throw remoteNotificationHCEactionException;

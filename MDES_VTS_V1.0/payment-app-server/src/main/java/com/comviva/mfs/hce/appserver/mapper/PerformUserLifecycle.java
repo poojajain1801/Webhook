@@ -79,6 +79,7 @@ public class PerformUserLifecycle {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailRepository = userDetailRepository;
     }
+
     @Async
     public void performUserLCM(List<String> userIdList,String operation)
     {

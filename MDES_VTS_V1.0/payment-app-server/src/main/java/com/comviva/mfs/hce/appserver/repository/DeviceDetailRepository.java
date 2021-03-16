@@ -181,4 +181,38 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
 
     @Query("select distinct d.rnsRegistrationId from DeviceInfo d where d.status = 'Y'")
     List<String> fetchRnsRegistrationId();
+
+   /* select rns_registration_id, created_on from (
+            select rns_registration_id, max(created_on) as created_on
+    from device_info
+    where status = 'Y'
+    group by rns_registration_id) as foo
+    order by created_on
+    limit 10 offset 190;*/
+   @Query("select count(distinct d.rnsRegistrationId) from DeviceInfo d where d.status = 'Y'")
+   int countOfRnsIds();
+
+
+
+    /**
+     * select rns_registration_id, max(created_on) as created_on
+     * from device_info
+     * where status = 'Y' and rns_registration_id is not null
+     * group by rns_registration_id
+     * order by created_on
+     * limit 10 offset 190;
+     * Query(value = "select rnsRegistrationId, max(d.createdOn) as createdOn from DeviceInfo where status = 'Y'
+     * group by rnsRegistrationId order by createdOn limit :limit offset :offset", nativeQuery = true)
+    */
+    @Query(value = "select rns_registration_id, max(created_on) as created_on from device_info where status = 'Y' " +
+            "group by rns_registration_id order by created_on limit :limit offset :offset", nativeQuery = true)
+    List<Object[]> fetchRnsRegistrationId(@Param("limit")int limit, @Param("offset")int offset);
+
+
+    @Query(value = "rns_registration_id, max(created_on) as created_on from device_info where status = 'Y' " +
+            "group by rns_registration_id order by created_on OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY",
+            nativeQuery = true)
+    List<Object[]> fetchRnsRegistrationIdOracle(@Param("limit")int limit, @Param("offset")int offset);
+
+
 }
