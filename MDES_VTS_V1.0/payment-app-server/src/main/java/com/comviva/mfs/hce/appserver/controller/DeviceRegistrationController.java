@@ -1,33 +1,14 @@
-/*
- * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
- *
- * This software is the sole property of Comviva and is protected by copyright
- * law and international treaty provisions. Unauthorized reproduction or
- * redistribution of this program, or any portion of it may result in severe
- * civil and criminal penalties and will be prosecuted to the maximum extent
- * possible under the law. Comviva reserves all rights not expressly granted.
- * You may not reverse engineer, decompile, or disassemble the software, except
- * and only to the extent that such activity is expressly permitted by
- * applicable law notwithstanding this limitation.
- *
- * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
- * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
- * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
- * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
- * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
-
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
+import java.util.Date;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -97,6 +74,28 @@ public class DeviceRegistrationController {
         }
         return unRegisterResponse;
     }
+
+    /* @ResponseBody
+    @RequestMapping(value="/enrollDeviceDas", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public Map<String, Object> enrollDeviceForDas(@RequestBody String enrollDeviceDasReq) {
+        LOGGER.info("Enroll device for DAS request lands --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        Map<String, Object> enrollDeviceDasResponse = null;
+        EnrollDeviceDasRequest enrollDeviceDasReqPojo = null;
+        try {
+            enrollDeviceDasReqPojo = (EnrollDeviceDasRequest) hCEControllerSupport.requestFormation(enrollDeviceDasReq,
+                    EnrollDeviceDasRequest.class);
+            enrollDeviceDasResponse = deviceDetailService.enrollDeviceDas(enrollDeviceDasReqPojo);
+        } catch (HCEActionException dasRegHCEActionException){
+            LOGGER.error("Exception Occured in Enter DeviceRegistrationController->enroll Device for DAS",dasRegHCEActionException);
+            throw dasRegHCEActionException;
+        }catch (Exception dasRegException) {
+            LOGGER.error(" Exception Occured in Enter DeviceRegistrationController->enroll Device for DAS", dasRegException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        LOGGER.info("Enroll device for DAS request Ends at --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        return enrollDeviceDasResponse;
+    } */
 
 }
 

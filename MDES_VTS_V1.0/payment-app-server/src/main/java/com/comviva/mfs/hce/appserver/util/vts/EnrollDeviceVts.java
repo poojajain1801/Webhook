@@ -1,26 +1,7 @@
-/*
- * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
- *
- * This software is the sole property of Comviva and is protected by copyright
- * law and international treaty provisions. Unauthorized reproduction or
- * redistribution of this program, or any portion of it may result in severe
- * civil and criminal penalties and will be prosecuted to the maximum extent
- * possible under the law. Comviva reserves all rights not expressly granted.
- * You may not reverse engineer, decompile, or disassemble the software, except
- * and only to the extent that such activity is expressly permitted by
- * applicable law notwithstanding this limitation.
- *
- * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
- * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
- * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
- * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
- * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ChannelSecurityContext;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
@@ -31,6 +12,8 @@ import com.visa.cbp.encryptionutils.common.DevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncDevicePersoData;
 import com.visa.cbp.encryptionutils.common.EncryptionEnvironment;
 import com.visa.cbp.encryptionutils.map.VisaSDKMapUtil;
+import java.util.Calendar;
+import java.util.Date;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -38,10 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-
-import java.util.Calendar;
-import java.util.Date;
 
 /** Send enroll device request to VTS */
 // 1. Prepare Device Info
@@ -83,7 +62,13 @@ public class EnrollDeviceVts {
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
         String response="";
         try {
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID(), vClientID);
+            ChannelSecurityContext channelSecurityContext = enrollDeviceRequest.getVts().getChannelSecurityContext();
+            if(null != channelSecurityContext) {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), enrollDeviceRequest.getVts().getChannelSecurityContext(), enrollDeviceRequest.getClientDeviceID(), vClientID);
+            } else {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), null, enrollDeviceRequest.getClientDeviceID(), vClientID);
+                return encDevicePersoData(response);
+            }
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
             throw regHceActionException;
@@ -91,7 +76,7 @@ public class EnrollDeviceVts {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return encDevicePersoData(response);
+        return response;
     }
 
     //method to create encDevicePersoData

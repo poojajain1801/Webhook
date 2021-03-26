@@ -5,15 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * ChannelSecurityContext Request
- * Created by amgoth madan on 4/19/2017.
- */
-@Getter
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VtsCerts {
-    private String vCertificateID;
-    private String certUsage;
+public class DeviceProfile {
+    public String hardwareBackKeystoreSupport;
+    public String keyAttestationSupport;
 }
+

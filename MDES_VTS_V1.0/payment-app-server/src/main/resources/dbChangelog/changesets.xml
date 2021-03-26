@@ -375,9 +375,70 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="REQUEST_ID_F" tableName="CONFIGURATION_MANAGEMENT" />
     </changeSet>
 
+    <!-- HVT Management table -->
+    <!--<changeSet author="Shivaranjan" id="202012151202">-->
+    <!--<createTable tableName="HVT_MANAGEMENT">-->
+    <!--<column name="REQUEST_ID" type="VARCHAR2(255)">-->
+    <!--<constraints nullable="false" unique="true" />-->
+    <!--</column>-->
+    <!--<column name="PAYMENT_APP_ID" type="VARCHAR2(255)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--<column name="HVT_LIMIT" type="VARCHAR2(255)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--<column name="IS_HVT_SUPPORTED" type="VARCHAR2(255)">-->
+    <!--<constraints nullable="false"/>-->
+    <!--</column>-->
+    <!--<column name="CREATED_ON" type="Timestamp(6)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--<column name="MODIFIED_ON" type="Timestamp(6)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--</createTable>-->
+    <!--<addPrimaryKey columnNames="REQUEST_ID, PAYMENT_APP_ID" constraintName="PK_HVT_MANAGEMENT" tableName="HVT_MANAGEMENT" />-->
+    <!--</changeSet>-->
+
+    <!--&lt;!&ndash; Data Insertion to HVT Management  &ndash;&gt;-->
+    <!--<changeSet author="shivaranjan" id="202012281750">-->
+    <!--<insert tableName="HVT_MANAGEMENT">-->
+    <!--<column name="REQUEST_ID" value="672124b6-9894-11e5-be38-001d42e813fe"/>-->
+    <!--<column name="PAYMENT_APP_ID" value="SBICARDS"/>-->
+    <!--<column name="HVT_LIMIT" value="5000"/>-->
+    <!--<column name="IS_HVT_SUPPORTED" value="Y" />-->
+    <!--<column name="CREATED_ON" valueDate="${now}" />-->
+    <!--<column name="MODIFIED_ON" valueDate="${now}" />-->
+    <!--</insert>-->
+    <!--</changeSet>-->
+
+    <!--&lt;!&ndash; FCM scheduler log table  &ndash;&gt;-->
+    <!--<changeSet author="Shivaranjan" id="202101021024">-->
+    <!--<createTable tableName="FCM_SCHEDULER_LOG">-->
+    <!--<column name="REQUEST_ID" type="VARCHAR2(255)">-->
+    <!--<constraints nullable="false"/>-->
+    <!--</column>-->
+    <!--<column name="RNS_REGISTRATION_ID" type="VARCHAR2(1024)"/>-->
+    <!--<column name="STATUS" type="VARCHAR2(255)"/>-->
+
+    <!--<column name="CREATED_ON" type="Timestamp(6)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--<column name="MODIFIED_ON" type="Timestamp(6)">-->
+    <!--<constraints nullable="true"/>-->
+    <!--</column>-->
+    <!--</createTable>-->
+    <!--<addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_REQUEST_ID" tableName="FCM_SCHEDULER_LOG" />-->
+    <!--</changeSet>-->
+
+    <changeSet author="Shivaranjan" id="202001180917">
+        <addColumn tableName="CARD_DETAILS">
+            <column name="REPERSO_STATUS" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
     <changeSet author="tanmay.p" id="sqlFileInsert">
         <sqlFile path="dbChangelog\mdes-vts.sql"/>
     </changeSet>
 
 </databaseChangeLog>
-
