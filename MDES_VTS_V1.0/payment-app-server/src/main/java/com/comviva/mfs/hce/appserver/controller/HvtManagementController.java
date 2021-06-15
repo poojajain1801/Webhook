@@ -107,4 +107,22 @@ public class HvtManagementController {
         }
         return hvtResponse;
     }
+
+    @ResponseBody
+    @PostMapping(value = "/fetchConfiguration")
+    public Map<String, Object> fetchConfiguration() {
+        LOGGER.info("request landed inside hvt management controller {}", HCEUtil.convertDateToTimestamp(new Date()));
+        Map<String, Object> hvtResponse;
+
+        try {
+            hvtResponse = hvtManagementService.fetchConfiguration();
+        } catch (HCEActionException hvtExecption) {
+            LOGGER.error(" Exception Occured in Enter HvtManagemntController->fetchConfiguration", hvtExecption);
+            throw hvtExecption;
+        } catch (Exception hvtLimit) {
+            LOGGER.error(" Exception Occured in Enter HvtManagemntController->fetchConfiguration", hvtLimit);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return hvtResponse;
+    }
 }

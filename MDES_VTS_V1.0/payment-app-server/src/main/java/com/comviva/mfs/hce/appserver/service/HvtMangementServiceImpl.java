@@ -54,7 +54,6 @@ public class HvtMangementServiceImpl implements HvtManagementService{
     protected Environment env;
 
 
-
     //change it according to the Bank paymentAppId = SBICARDS
     private static String paymentAppId = HCEConstants.PAYMENT_APP_INSTANCE_ID;
 
@@ -70,8 +69,6 @@ public class HvtMangementServiceImpl implements HvtManagementService{
         String isSupported;
         String hvtLimit;
         Map<String, Object> responseMap = new HashMap<>();
-        HvtManagement storedRecord = null;
-        HvtManagement storedNoRecord = null;
 
         try {
             isSupported = hvtManagementRequest.getIsHvtSupported();
@@ -81,54 +78,28 @@ public class HvtMangementServiceImpl implements HvtManagementService{
 
             HvtManagement storedHvt = hvtManagementRepository.findByPaymentAppId(paymentAppId);
 
-            if("Y".equalsIgnoreCase(isSupported) && !hvtLimit.isEmpty()) {
-                //if paymentAppId is already there, just update the limit
-                if(storedHvt != null) {
-                    hvtManagementRepository.update(storedHvt.getId().getRequestId(), paymentAppId, "Y",
-                            hvtLimit);
-                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    responseMap.put("message", "Successfully Updated");
-                    sendRnsNotification();
-                    return responseMap;
-                } else  {
-                    LOGGER.info("inserting when isHvtSupported Yes *******************************");
-                    hvtManagementPK.setPaymentAppId(paymentAppId);
-                    hvtManagement.setId(hvtManagementPK);
-                    hvtManagement.setIsHvtSupported("Y");
-                    hvtManagement.setHvtLimit(hvtLimit);
-                    hvtManagement.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    hvtManagement.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    storedRecord = hvtManagementRepository.save(hvtManagement);
+            if(storedHvt == null) {
+               return insertNewHvtValue(isSupported, hvtLimit,
+                       hvtManagement, hvtManagementPK,
+                       hvtManagementRequest);
+            } else if(!storedHvt.getHvtLimit().equals(hvtLimit)) {
+                if ("Y".equalsIgnoreCase(isSupported) && !hvtLimit.isEmpty()) {
+                    //if paymentAppId is already there, just update the limit
+//                    hvtManagementRepository.update(storedHvt.getId().getRequestId(), paymentAppId,
+//                            "Y",
+//                            hvtLimit);
+                    storedHvt.setHvtLimit(hvtLimit);
+                    storedHvt.setIsHvtSupported("Y");
+                } else if ("N".equalsIgnoreCase(isSupported)) {
+//                    hvtManagement.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+//                    hvtManagementRepository.update(storedHvt.getId().getRequestId(), paymentAppId,
+//                            "N", "0");
+                    storedHvt.setHvtLimit("0");
+                    storedHvt.setIsHvtSupported("N");
                 }
-            } else if("N".equalsIgnoreCase(isSupported)) {
-                if(storedHvt != null) {
-                    hvtManagement.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    hvtManagementRepository.update(storedHvt.getId().getRequestId(), paymentAppId, "N", "0");
-                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    responseMap.put("message", "Successfully Updated");
-                    sendRnsNotification();
-                    return responseMap;
-                } else {
-                    LOGGER.info("inserting when isHvtSupported No ************************************");
-                    hvtManagementPK.setPaymentAppId(paymentAppId);
-                    hvtManagement.setId(hvtManagementPK);
-                    hvtManagement.setIsHvtSupported("N");
-                    hvtManagement.setHvtLimit("0");
-                    hvtManagement.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    hvtManagement.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
-                    storedNoRecord = hvtManagementRepository.save(hvtManagement);
-                }
+                storedHvt.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
             }
-
-            if((storedRecord != null || storedNoRecord != null)) {
-                responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
-                responseMap.put("message", "Successfully Updated");
-                sendRnsNotification();
-            } else {
-                responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getServiceFailed());
-                responseMap.put(HCEConstants.MESSAGE, "Updating Failed");
-            }
-
+            return upsertRecord(storedHvt, hvtManagementRequest);
         } catch(HCEActionException setHvtLimitException){
             LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> modifySchedulerException",setHvtLimitException);
             throw setHvtLimitException;
@@ -136,6 +107,45 @@ public class HvtMangementServiceImpl implements HvtManagementService{
             LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> modifySchedulerDbException", setHvtLimitException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+    }
+
+    private Map<String, Object> insertNewHvtValue(String isSupported, String hvtLimit, HvtManagement hvtManagement,
+                                   HvtManagementPK hvtManagementPK, HvtManagementRequest hvtManagementRequest) {
+        hvtManagementPK.setPaymentAppId(paymentAppId);
+        hvtManagement.setId(hvtManagementPK);
+        if("Y".equalsIgnoreCase(isSupported) && !hvtLimit.isEmpty()) {
+            LOGGER.info("inserting when isHvtSupported Yes *******************************");
+            hvtManagement.setIsHvtSupported("Y");
+            hvtManagement.setHvtLimit(hvtLimit);
+        } else if("N".equalsIgnoreCase(isSupported)) {
+            LOGGER.info("inserting when isHvtSupported No ************************************");
+            hvtManagement.setIsHvtSupported("N");
+            hvtManagement.setHvtLimit("0");
+        }
+        hvtManagement.setCreatedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        hvtManagement.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+        return upsertRecord(hvtManagement, hvtManagementRequest);
+    }
+
+    private Map<String, Object> upsertRecord(HvtManagement storedHvt, HvtManagementRequest hvtManagementRequest) {
+        Map<String, Object> responseMap = new HashMap<>();
+        if(null != hvtManagementRequest.getThemeColor() && !hvtManagementRequest.getThemeColor().isEmpty()) {
+            storedHvt.setColorValue(hvtManagementRequest.getThemeColor());
+        }
+
+        String transactionTime = env.getProperty("transactionTime");
+        if(null != hvtManagementRequest.getTransactionTime() && !hvtManagementRequest.getTransactionTime().isEmpty()) {
+            if(Integer.parseInt(hvtManagementRequest.getTransactionTime()) > Integer.parseInt(transactionTime)) {
+                responseMap.put("responseCode", HCEMessageCodes.getServiceFailed());
+                responseMap.put("message", "transaction time should not exceed" + transactionTime);
+                return responseMap;
+            }
+            storedHvt.setTransactionTime(hvtManagementRequest.getTransactionTime());
+        }
+        hvtManagementRepository.save(storedHvt);
+//        sendRnsNotification();
+        responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+        responseMap.put("message", "Successfully Updated");
         return responseMap;
     }
 
@@ -172,8 +182,9 @@ public class HvtMangementServiceImpl implements HvtManagementService{
         int limit = 10;
         try {
             int countOfRnsIds = deviceDetailRepository.countOfRnsIds();
+            LOGGER.info("no of rnsIds "+ countOfRnsIds);
 //            String newHvtLimit = hvtManagementRepository.findByPaymentAppId(paymentAppId).getHvtLimit();
-            int totalCount = (int)(countOfRnsIds / limit);
+            int totalCount = (countOfRnsIds / limit);
             for(int i=0;i<=totalCount+1;i++) {
                 rnsRegistrationIds = fetchRnsList(limit, limit * i);
                 if (rnsRegistrationIds != null && !rnsRegistrationIds.isEmpty()) {
@@ -185,7 +196,7 @@ public class HvtMangementServiceImpl implements HvtManagementService{
                         }
                     }
                 }
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             }
         } catch(HCEActionException exception) {
             LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification",exception);
@@ -293,6 +304,29 @@ public class HvtMangementServiceImpl implements HvtManagementService{
             responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
             responseMap.put("isHvtSupported", "Y".equalsIgnoreCase(hvtManagement.getIsHvtSupported()));
             responseMap.put("hvtLimit", Double.parseDouble(hvtManagement.getHvtLimit()));
+        } else {
+            responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getServiceFailed());
+            responseMap.put(HCEConstants.MESSAGE, "No hvt limit found");
+        }
+
+        return responseMap;
+    }
+
+    /**
+     * fetchHvtLimit - returns current hvt limit in hvt_management table
+     * @return map
+     * */
+    @Override
+    public Map<String, Object> fetchConfiguration() {
+        Map<String, Object> responseMap = new HashMap<>();
+        HvtManagement hvtManagement = hvtManagementRepository.findByPaymentAppId(paymentAppId);
+        if(hvtManagement != null) {
+            responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+            responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+            responseMap.put("isHvtSupported", "Y".equalsIgnoreCase(hvtManagement.getIsHvtSupported()));
+            responseMap.put("hvtLimit", Double.parseDouble(hvtManagement.getHvtLimit()));
+            responseMap.put("colorValue", hvtManagement.getColorValue());
+            responseMap.put("transactionDuration", hvtManagement.getTransactionTime());
         } else {
             responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getServiceFailed());
             responseMap.put(HCEConstants.MESSAGE, "No hvt limit found");

@@ -24,15 +24,6 @@ import javax.persistence.Table;
 @Table(name="HVT_MANAGEMENT")
 public class HvtManagement {
 
-//    @Id
-//    @GeneratedValue(generator = "uuid2")
-//    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-//    @Column(name="REQUEST_ID")
-//    private String requestId;
-//
-//    @Column(name="PAYMENT_APP_ID")
-//    private String paymentAppId;
-
     @EmbeddedId
     private HvtManagementPK id;
 
@@ -41,6 +32,12 @@ public class HvtManagement {
 
     @Column(name = "HVT_LIMIT")
     private String hvtLimit;
+
+    @Column(name="COLOR_VALUE")
+    private String colorValue;
+
+    @Column(name="TRANSACTION_TIME")
+    private String transactionTime;
 
     @Column(name="CREATED_ON")
     private Timestamp createdOn;

@@ -415,7 +415,7 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
         HitVisaServices hitVisaServices =null;
         Date date;
         try {
-            //check if the provision id is correct or not
+            //check if the provisionCard id is correct or not
             long unixTimestamp = Instant.now().getEpochSecond();
             reqJson.put("stepUpRequestID",stepUpRequestID);
             reqJson.put("date",unixTimestamp);

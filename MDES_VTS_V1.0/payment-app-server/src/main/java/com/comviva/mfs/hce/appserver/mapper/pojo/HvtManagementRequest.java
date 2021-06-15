@@ -14,4 +14,6 @@ public class HvtManagementRequest {
     private String paymentAppId;
     private String isHvtSupported;
     private String hvtLimit;
+    private String themeColor;
+    private String transactionTime;
 }

@@ -12,4 +12,6 @@ public interface HvtManagementService {
     void modifySchedulerDbOnAck(FcmAcknowledgementRequest fcmAcknowledgementRequestPojo);
     RnsGenericRequest preparetNotificationRequest(String rnsId);
     void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception;
+
+    Map<String, Object> fetchConfiguration();
 }
