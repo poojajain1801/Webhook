@@ -5,6 +5,7 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,9 +80,11 @@ public class HitMasterCardService implements RestTemplateCustomizer
         this.headers.add("Content-Type", "application/pkix-cert");
         this.headers.add("Accept-Encoding", "deflate");
         this.headers.add("Connection", "Keep-Alive");
-        this.headers.add("Host","services.mastercard.com");
         this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
         try {
+            URL currUrl = new URL(url);
+            LOGGER.info(currUrl.getHost());
+            this.headers.add("Host",currUrl.getHost());
             if ((type.equalsIgnoreCase("GET")) || (requestBody.equalsIgnoreCase(null)) || (requestBody.isEmpty())) {
                 entity = new HttpEntity(this.headers);
             } else {

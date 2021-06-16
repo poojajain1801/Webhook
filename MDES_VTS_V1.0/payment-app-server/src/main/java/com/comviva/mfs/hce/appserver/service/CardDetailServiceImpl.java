@@ -265,14 +265,21 @@ public class CardDetailServiceImpl implements CardDetailService {
             // String response = httpRestHandlerUtils.restfulServieceConsumer(ServerConfig.MDES_IP + ":" + ServerConfig.MDES_PORT + "/addCard", digitizeReq);
             paymentAppInstanceId = digitizationParam.getPaymentAppInstanceId();
             deviceDetail = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
-            if (deviceDetail.isPresent() && !(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")){
+            //&& !(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")
+            if (deviceDetail.isPresent()){
                 urlHost = deviceDetail.get().getNfcCapable();
             }
             if (urlHost == null) {
                 url = this.env.getProperty("mdesip") + this.env.getProperty("digitizationpath");
             }else {
-                url = "https://"+urlHost + this.env.getProperty("digitizationpath");
+                if((this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")) {
+                    url = "https://" + urlHost + "/digitization/1/0";
+                } else {
+                    url = "https://" + urlHost + this.env.getProperty("digitizationpath");
+                }
+
             }
+
             String id = "digitize";
             ResponseEntity responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, digitizeReq.toString(), "POST",id);
 
