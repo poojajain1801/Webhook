@@ -22,9 +22,9 @@
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ChannelSecurityContext;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
-import com.comviva.mfs.hce.appserver.service.UserDetailServiceImpl;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 import java.util.Calendar;
 import java.util.Date;
 
-/** Send enroll device request to VTS */
+/* Send enroll device request to VTS */
 // 1. Prepare Device Info
 // 2. Prepare VTS Certificates
 //       a) i) vCertificateID
@@ -82,7 +82,7 @@ public class EnrollDeviceVts {
     public  EnrollDevice enrollDevice;
 
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
-        String response="";
+        String response;
         try {
             ChannelSecurityContext channelSecurityContext = enrollDeviceRequest.getVts().getChannelSecurityContext();
             if(null != channelSecurityContext) {
@@ -104,9 +104,9 @@ public class EnrollDeviceVts {
     //method to create encDevicePersoData
     public String encDevicePersoData(String inputString){
 
-        DevicePersoData devicePersoData =null;
-        EncDevicePersoData encDevicePersoData = null;
-        JSONObject jsonObject=null;
+        DevicePersoData devicePersoData;
+        EncDevicePersoData encDevicePersoData;
+        JSONObject jsonObject;
 
         try {
             devicePersoData = new DevicePersoData();
