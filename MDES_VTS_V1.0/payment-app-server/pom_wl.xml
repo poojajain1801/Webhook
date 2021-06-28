@@ -472,33 +472,6 @@
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
-                <executions>
-                    <execution>
-                        <id>echodir</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <inherited>false</inherited>
-                        <configuration>
-                            <tasks>
-                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.77.1-external.jar" />
-                                </copy>
-                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-6.0.1.jar" />
-                                </copy>
-                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
-                                    <fileset dir="${basedir}/src/main/lib/" includes="nimbus-jose-jwt-4.34.2.jar" />
-                                </copy>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
