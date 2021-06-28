@@ -1,3 +1,24 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
@@ -100,7 +121,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         Map<String, Object> response = new HashMap<>();
         String isMastercardRegistrationDone = null;
         String isVisaDeviceRegistrationDone = null;
-        Map mdesRespMap = new HashMap();
+        Map<String, Object> mdesRespMap = new HashMap();
         Map<String, Object> vtsRespMap = new HashMap<>();
         boolean isMdesDevElib = false;
         String respCodeMdes = "";
@@ -141,9 +162,9 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 schemeType = "ALL";
             }
 
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("MASTERCARD")))
+            if (("ALL".equalsIgnoreCase(schemeType))||("MASTERCARD".equalsIgnoreCase(schemeType))) {
                 isMdesDevElib = deviceRegistrationMdes.checkDeviceEligibility(enrollDeviceRequest);
-
+            }
             if (isMdesDevElib) {
                 // MDES : Register with CMS-d
                 JSONObject responseJsonMdes = deviceRegistrationMdes.registerDevice(enrollDeviceRequest);
@@ -180,7 +201,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
             }
             // *******************VTS : Register with VTS Start**********************
-            if ((schemeType.equalsIgnoreCase("ALL"))||(schemeType.equalsIgnoreCase("VISA"))) {
+            if (("ALL".equalsIgnoreCase(schemeType))||("VISA".equalsIgnoreCase(schemeType))) {
                 String vtsResp = enrollDeviceVts.register(vClientID, enrollDeviceRequest);
                 JSONObject vtsRespJson = null;
                 JSONObject vtsJsonObject = new JSONObject(vtsResp);
@@ -258,26 +279,21 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
 
     /**
-     * @param unRegisterReq
-     * @return
+     * unregisterDevice
+     * @param unRegisterReq unRegisterReq
+     * @return map
      */
     @Override
     @Transactional
     public Map<String, Object> unRegisterDevice(UnRegisterReq unRegisterReq) {
-        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+//        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         DeviceInfo deviceInfo = null;
-        String paymentAppInstanceId = null;
-        JSONObject requestJson = null;
-        ResponseEntity responseMdes = null;
-        JSONObject jsonResponse = null;
-        String id = null;
-        Map responseMap = null;
-        String url = null;
+        Map<String, Object> responseMap = null;
         String userID = null;
         String imei = null;
         HttpStatus statusCode = null;
         RnsGenericRequest rnsGenericRequest;
-        HashMap rnsNotificationData = new HashMap();
+        HashMap<String, String> rnsNotificationData = new HashMap<>();
         try {
             imei = unRegisterReq.getImei();
             userID = unRegisterReq.getUserId();
@@ -289,7 +305,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             deviceInfo = deviceDetailRepository.findDeviceDetailsWithIMEI(imei,userID,HCEConstants.ACTIVE);
             if (deviceInfo == null){
                 LOGGER.error(" No Device is registered with UserID :"+userID);
-                responseMap = new HashMap();
+                responseMap = new HashMap<>();
                 responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
                 responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
                 return responseMap;
@@ -311,25 +327,26 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
             rnsGenericRequest.setIdType(UniqueIdType.ALL);
             rnsGenericRequest.setRegistrationId(rnsID);
             rnsGenericRequest.setRnsData(rnsNotificationData);
-            Map rnsData = rnsGenericRequest.getRnsData();
+            Map<String, String> rnsData = rnsGenericRequest.getRnsData();
             rnsData.put("TYPE", rnsGenericRequest.getIdType().name());
             JSONObject payloadObject = new JSONObject();
             payloadObject.put("data", new JSONObject(rnsData));
             payloadObject.put("to", rnsGenericRequest.getRegistrationId());
             LOGGER.debug("RemoteNotificationServiceImpl -> unRegisterDevice -> RNS ID "+rnsGenericRequest.getRegistrationId());
             payloadObject.put("priority","high");
-            payloadObject.put("time_to_live",2160000);
+            final int ttl = 2160000;
+            payloadObject.put("time_to_live", ttl);
             RemoteNotification rns = RnsFactory.getRnsInstance(RnsFactory.RNS_TYPE.FCM, env);
             RnsResponse response = rns.sendRns(payloadObject.toString().getBytes());
             Gson gson = new Gson();
             String json = gson.toJson(response);
             LOGGER.debug("RemoteNotificationServiceImpl -> unRegisterDevice ->Raw response from FCM server "+json);
-            responseMap = new HashMap();
+            responseMap = new HashMap<>();
             responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
             responseMap.put("message", hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
-            if (Integer.valueOf(response.getErrorCode()) != 200) {
+            if (Integer.valueOf(response.getErrorCode()) != HCEConstants.REASON_CODE7) {
                 responseMap.put("Notification to device Status code", response.getErrorCode());
-            }else {
+            } else {
                 responseMap.put("Notification to device Status code", HCEMessageCodes.getSUCCESS());
             }
         }catch(HCEActionException unRegisterDeviceHCEactionException){
@@ -341,6 +358,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         }
         return responseMap;
     }
+
 
     @Override
     public Map<String, Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo, String clientDeviceId) {
@@ -428,12 +446,13 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
     public void deleteVISACards(List<CardDetails> visaCardList) {
         LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = null;
-        Map responseMap1 = null;
+        Map<String, Object> responseMap1 = null;
         lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         lifeCycleManagementVisaRequest.setOperation("DELETE");
         lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
         for (int i=0 ; i<visaCardList.size() ; i++) {
-            if ((visaCardList.get(i).getVisaProvisionTokenId() != null && visaCardList.get(i).getStatus().equals("Y"))){
+            if ((visaCardList.get(i).getVisaProvisionTokenId() != null)
+                    && ("Y").equals(visaCardList.get(i).getStatus()) ){
                 lifeCycleManagementVisaRequest.setVprovisionedTokenID(visaCardList.get(i).getVisaProvisionTokenId());
                 responseMap1 = tokenLifeCycleManagementService.lifeCycleManagementVisa(lifeCycleManagementVisaRequest);
                 LOGGER.debug("Visa response after unregister ****************   " + responseMap1);
@@ -450,3 +469,4 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         return rnsRegID;
     }
 }
+

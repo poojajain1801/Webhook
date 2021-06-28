@@ -1,16 +1,40 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Setter;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
@@ -24,7 +48,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Map;
-import org.springframework.http.HttpHeaders;
 
 
 @Setter
@@ -159,6 +182,4 @@ public class HitVisaServices extends VtsRequest {
         }
         return response;
     }
-
-
 }

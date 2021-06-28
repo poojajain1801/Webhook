@@ -179,7 +179,5 @@ public interface DeviceDetailRepository extends JpaRepository<DeviceInfo, String
                                           @Param("deviceStatus")String deviceStatus);
 
 
-    @Query("select distinct d.rnsRegistrationId from DeviceInfo d where d.status = 'Y'")
-    List<String> fetchRnsRegistrationId();
 
 }
