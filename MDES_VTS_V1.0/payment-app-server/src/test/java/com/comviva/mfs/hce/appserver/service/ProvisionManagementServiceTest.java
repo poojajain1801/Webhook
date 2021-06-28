@@ -35,7 +35,7 @@ public class ProvisionManagementServiceTest {
     public void Setup(){
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         RestAssuredMockMvc.mockMvc(mockMvc);
-        ServiceUtils.serviceInit("/api/provision");
+        ServiceUtils.serviceInit("/api/provisionCard");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ProvisionManagementServiceTest {
     @Test
     public void confirmProvisioningNovprovisionedTokenID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/confirmProvisioningReq.json");
-        request.put("vprovisionedTokenId",null);
+//        request.put("vprovisionedTokenId",null);
         Map provisionTokenResp = ServiceUtils.servicePOSTResponse("/confirmProvisioning",request);
         assertResponse(provisionTokenResp, "500");
     }

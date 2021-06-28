@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
@@ -16,8 +36,6 @@ import com.comviva.mfs.hce.appserver.service.contract.ReportsService;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
-import org.joda.time.Days;
-import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
@@ -26,10 +44,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Created by rishikesh.kumar on 09-01-2019.

@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.util.common;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -117,7 +137,7 @@ public class HCEMessageCodes {
     private static String INVALID_USER ;
     @Value("${INVALID_USER}")
     public void setInvalidUser(String invalidUser) {
-         INVALID_USER = invalidUser;
+        INVALID_USER = invalidUser;
     }
 
     public static String getInvalidUser() {
@@ -139,7 +159,7 @@ public class HCEMessageCodes {
     private static String CLIENT_DEVICEID_EXIST;
     @Value("${CLIENT_DEVICEID_EXIST}")
     public void setClientDeviceidExist(String clientDeviceidExist) {
-         CLIENT_DEVICEID_EXIST = clientDeviceidExist;
+        CLIENT_DEVICEID_EXIST = clientDeviceidExist;
     }
 
     public static String getClientDeviceidExist() {
@@ -150,7 +170,7 @@ public class HCEMessageCodes {
     private static String INVALID_CLIENT_DEVICE_ID;
     @Value("${INVALID_CLIENT_DEVICE_ID}")
     public void setInvalidClientDeviceId(String invalidClientDeviceId) {
-         INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
+        INVALID_CLIENT_DEVICE_ID = invalidClientDeviceId;
     }
 
     public static String getInvalidClientDeviceId() {

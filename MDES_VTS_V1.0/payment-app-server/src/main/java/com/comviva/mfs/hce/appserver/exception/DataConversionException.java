@@ -27,20 +27,45 @@ import org.springframework.validation.MapBindingResult;
 
 import java.util.Map;
 
+
+/**
+ * DataConversionException
+ * extends runtime exception
+ * */
 @Getter
 public class DataConversionException extends RuntimeException {
     private final Errors errors;
 
-    public DataConversionException(Map map, String field, Class<?> aClass, Throwable throwable) {
+    /**
+     * DataConversionException
+     * @param aClass aclass
+     * @param field field
+     * @param map map
+     * @param throwable throwable
+     * */
+    public DataConversionException(Map<?, ?> map, String field, Class<?> aClass, Throwable throwable) {
         super(String.format("Error converting value: %s to %s for field: %s", map.get(field), aClass, field), throwable);
         this.errors = createErrorsFor(map, field);
     }
 
-    public DataConversionException(Map map, String field, Class<?> aClass) {
+    /**
+     * DataConversionException
+     * @param map map
+     * @param field field
+     * @param aClass aclass
+     * */
+    public DataConversionException(Map<?, ?> map, String field, Class<?> aClass) {
         this(map, field, aClass, null);
     }
 
-    private Errors createErrorsFor(final Map map, final String field) {
+
+    /**
+     * createErrorsFor
+     * @param field field
+     * @param map map
+     * @return Errors
+     * */
+    private Errors createErrorsFor(final Map<?, ?> map, final String field) {
         Errors errors = new MapBindingResult(map, "");
         Object value = map.get(field);
         errors.rejectValue(field, DomainValidationUtils.ErrorCodes.INVALID_VALUE, new Object[]{value, field}, null);

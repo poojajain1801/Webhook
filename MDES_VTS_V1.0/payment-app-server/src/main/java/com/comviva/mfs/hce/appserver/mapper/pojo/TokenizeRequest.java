@@ -1,61 +1,38 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-public class TokenizeRequest {
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class TokenizeRequest {
     private String tokenRequestorId;
     private String tokenType;
     private CardInfo cardInfo;
     private String taskId;
     private String paymentAppId;
-
-    public TokenizeRequest(String tokenRequestorId, String tokenType, CardInfo cardInfo, String taskId, String paymentAppId) {
-        this.tokenRequestorId = tokenRequestorId;
-        this.tokenType = tokenType;
-        this.cardInfo = cardInfo;
-        this.taskId = taskId;
-        this.paymentAppId = paymentAppId;
-    }
-    public TokenizeRequest() {
-
-    }
-
-    public void setTokenRequestorId(String tokenRequestorId) {
-        this.tokenRequestorId = tokenRequestorId;
-    }
-
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
-    }
-
-    public void setCardInfo(CardInfo cardInfo) {
-        this.cardInfo = cardInfo;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setPaymentAppId(String paymentAppId) {
-        this.paymentAppId = paymentAppId;
-    }
-
-    public String getTokenRequestorId() {
-        return tokenRequestorId;
-    }
-
-    public String getTokenType() {
-        return tokenType;
-    }
-
-    public CardInfo getCardInfo() {
-        return cardInfo;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public String getPaymentAppId() {
-        return paymentAppId;
-    }
 }

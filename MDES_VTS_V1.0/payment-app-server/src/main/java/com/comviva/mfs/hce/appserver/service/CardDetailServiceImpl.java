@@ -2,9 +2,30 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
+import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EncryptedPayload;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTokenUpdatedReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TDSRegistrationReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
-import com.comviva.mfs.hce.appserver.model.*;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.model.ServiceData;
+import com.comviva.mfs.hce.appserver.model.TransactionRegDetails;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.ServiceDataRepository;
@@ -18,12 +39,18 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
 import com.comviva.mfs.hce.appserver.util.common.messagedigest.MessageDigestUtil;
-import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFactory;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsResponse;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.mdes.CryptoUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.visa.dmpd.token.JWTUtility;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,8 +70,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -111,7 +136,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         String response = "";
         String id = null;
         String requestId;
-        try {
+
+            try {
            /* deviceInfoOptional = deviceDetailRepository.findByPaymentAppInstanceId(addCardParam.getPaymentAppInstanceId());
             if (!deviceInfoOptional.isPresent()) {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
@@ -222,12 +248,12 @@ public class CardDetailServiceImpl implements CardDetailService {
             /*if (!deviceInfoOptional.isPresent()) {
                 //return prepareDigitizeResponse(HCEConstants.REASON_CODE1, "Invalid Payment App Instance Id");
                 throw new HCEActionException(HCEMessageCodes.getInvaildPaymentappInstanceId());
-            }
+            }*/
 
             if (!serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).isPresent()) {
                 //return prepareDigitizeResponse(HCEConstants.REASON_CODE1, "Card is not eligible for the digitization service");
                 throw new HCEActionException(HCEMessageCodes.getCardNotEligible());
-            }*/
+            }
 
             eligibilityRequest = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getRequest());
             eligibilityResponse = new String(serviceDataRepository.findByServiceId(digitizationParam.getServiceId()).get().getResponse());
@@ -987,16 +1013,16 @@ public class CardDetailServiceImpl implements CardDetailService {
             //Check if https req is 200
             if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 //Check the status of indivisual token and update the status of the token in the DB
-                if (responseJson.has("tokens")) {
+                if (null != responseJson && responseJson.has("tokens")) {
                     tokens = responseJson.getJSONArray("tokens");
                     tokensJsonObj = (JSONObject) tokens.get(0);
                 }
 
-                if (responseJson.has("errors")) {
+                if (null != responseJson && responseJson.has("errors")) {
                     responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", responseJson.getString("errorDescription"));
-                } else if (tokensJsonObj.has("errorCode")) {
+                } else if (null != tokensJsonObj && tokensJsonObj.has("errorCode")) {
                     responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", tokensJsonObj.getString("errorDescription"));
@@ -1022,7 +1048,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Check the status of indivisual token and update the status of the token in the DB
         //Call update the card starus of the token in CMS-D
         //Send response
-        return JsonUtil.jsonStringToHashMap(responseJson.toString());
+        String responseString = (null != responseJson) ? responseJson.toString():"";
+        return JsonUtil.jsonStringToHashMap(responseString);
     }
 
     // updates the token status based on tokenUniqueReferenceId

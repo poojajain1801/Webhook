@@ -13,13 +13,23 @@ import org.springframework.stereotype.Component;
 public class AuthenticationStrategyFactory {
     private final Environment environment;
 
+    /**
+     * AuthenticationStrategyFactory
+     * constructor Injection
+     * @param environment env
+     * */
     @Autowired
     public AuthenticationStrategyFactory(Environment environment) {
         this.environment = environment;
     }
 
+
+    /**
+     * create
+     * @return AuthenticationStrategy
+     * */
     public AuthenticationStrategy create() {
-        String configuredAuthenticationMode = environment.getProperty("authentication.mode", AuthenticationMode.NONE.getAuthenticationMode());
+        String configuredAuthenticationMode = environment.getProperty("authentication.mode", AuthenticationMode.NONE.getAuthMode());
         switch (configuredAuthenticationMode) {
             case "none":
                 return new NoAuthenticationStrategy();

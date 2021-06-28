@@ -1,7 +1,26 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.controller;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
 import com.comviva.mfs.hce.appserver.mapper.pojo.ApproveHvtRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.SetHvtValueRequest;
 import com.comviva.mfs.hce.appserver.service.contract.ConfigurationService;
@@ -10,7 +29,12 @@ import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
@@ -32,7 +56,7 @@ public class ConfigurationManagementController {
     @ResponseBody
     @RequestMapping(value = "/setHvtValue", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map setHvtValue(@RequestBody String setHvtValueReq) {
+    public Map<String,Object> setHvtValue(@RequestBody String setHvtValueReq) {
         SetHvtValueRequest setHvtValueRequestpojo = null;
         Map <String,Object>setHvtValueResponse= null;
         try {
@@ -50,7 +74,7 @@ public class ConfigurationManagementController {
 
     @ResponseBody
     @RequestMapping(value = "/getPendingRequests", method = RequestMethod.GET)
-    public Map getPendingRequests() {
+    public Map<String,Object> getPendingRequests() {
         Map <String,Object>getPendingRequestsResp= null;
         try {
             getPendingRequestsResp =  configurationService.getPendingRequests();
@@ -67,7 +91,7 @@ public class ConfigurationManagementController {
     @ResponseBody
     @RequestMapping(value = "/approve", method = RequestMethod.POST)
     @ServiceFlowStep("paymentApp")
-    public Map approveHvt(@RequestBody String approveHvtRequest) {
+    public Map<String,Object> approveHvt(@RequestBody String approveHvtRequest) {
         ApproveHvtRequest approveHvtRequestPojo = null;
         Map <String,Object>approveHvtResponse= null;
         try {

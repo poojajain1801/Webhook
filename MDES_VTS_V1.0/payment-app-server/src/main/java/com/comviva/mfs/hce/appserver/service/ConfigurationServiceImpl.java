@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
@@ -12,14 +32,16 @@ import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
-import com.newrelic.agent.deps.org.json.simple.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by rishikesh.kumar on 01-04-2019.
@@ -39,7 +61,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         String requestId = null;
         String hvtLimit = null;
         String isHvtSupported = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         ConfigurationManagementM configManagementM = null;
         ConfigurationManagementM configurationManagementM = new ConfigurationManagementM();
         try {
@@ -49,7 +71,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             isHvtSupported = setHvtValueRequest.getIsHvtSupported();
             if (userName == null || userName.isEmpty() || requestId == null || requestId.isEmpty() || isHvtSupported == null|| isHvtSupported.isEmpty()){
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }else if((hvtLimit == null || hvtLimit.isEmpty()) && isHvtSupported.equals("Y")){
+            }else if((null == hvtLimit || hvtLimit.isEmpty()) && "Y".equals(isHvtSupported)){
                 throw new HCEActionException((HCEMessageCodes.getInsufficientData()));
             }
             configManagementM = configurationManagementMRepository.findByRequestId(requestId);
@@ -79,7 +101,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public Map<String, Object> getPendingRequests() {
         List<ConfigurationManagementM> configurationManagementMList = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         org.json.JSONArray jsonArray = new org.json.JSONArray();
         JSONObject responseJson = new JSONObject();
         try {
@@ -98,7 +120,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             responseMap = JsonUtil.jsonToMap(responseJson);
             responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
 
-        }catch (HCEActionException getPendingRequestsHCEactionException) {
+        } catch (HCEActionException getPendingRequestsHCEactionException) {
             LOGGER.error("Exception occured in ConfigurationServiceImpl ->getPendingRequests", getPendingRequestsHCEactionException);
             throw getPendingRequestsHCEactionException;
 
@@ -116,7 +138,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         String hvtLimit = null;
         String decision = null;
         String isHvtSupported = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
         ConfigurationManagementM configurationManagementM = new ConfigurationManagementM();
         ConfigurationManagement configurationManagement = new ConfigurationManagement();
         try {
@@ -143,13 +165,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 configurationManagementM.setStatus("A");
                 configurationManagementMRepository.save(configurationManagementM);
                 responseMap.put(HCEConstants.RESPONSE_CODE,HCEMessageCodes.getSUCCESS());
-            }else if (decision.equals(HCEConstants.DECLINED)) {
+            } else if (decision.equals(HCEConstants.DECLINED)) {
                 configurationManagementM.setStatus("D");
                 configurationManagementMRepository.save(configurationManagementM);
                 responseMap.put(HCEConstants.RESPONSE_CODE, HCEMessageCodes.getSUCCESS());
-            }else
+            } else {
                 throw new HCEActionException(HCEMessageCodes.getInvalidOperation());
-
+            }
         }catch (HCEActionException approveHvtHCEactionException) {
             LOGGER.error("Exception occured in ConfigurationServiceImpl ->approveHvt", approveHvtHCEactionException);
             throw approveHvtHCEactionException;

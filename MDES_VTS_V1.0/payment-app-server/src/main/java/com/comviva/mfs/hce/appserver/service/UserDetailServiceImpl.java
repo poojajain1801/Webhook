@@ -1,8 +1,32 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.mapper.CardDetail;
+import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.PerformUserLifecycle;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementVisaRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RegisterUserRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SetLanguageReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UserLifecycleManagementReq;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
@@ -17,16 +41,17 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Date;
-
-import com.comviva.mfs.hce.appserver.exception.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -72,10 +97,14 @@ public class UserDetailServiceImpl implements UserDetailService {
             imei = registerUserRequest.getImei();
             languageCode = registerUserRequest.getLanguageCode();
             LOGGER.debug("LanguageCode ********  "+languageCode);
+
+            // if language Id is null assign default lang code 1
             if(languageCode == null || languageCode.isEmpty() || !languageCode.equals("2")){
                 registerUserRequest.setLanguageCode("1");
                 LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }
+
+            //if the device details (with same client device ID) exists with status Y in device info
             if(isClientDeviceIdExist(registerUserRequest.getClientDeviceID())){
                 throw new HCEActionException(HCEMessageCodes.getClientDeviceidExist());
             }
@@ -105,12 +134,14 @@ public class UserDetailServiceImpl implements UserDetailService {
                     //Register Device
                 }
             }else{
+                // user details not present and why we need to check device_info table??
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
                     deactivateDevice(deviceInfo);
                     deviceInfo.setStatus(HCEConstants.INACTIVE);
                     deviceDetailRepository.save(deviceInfo);
+                    // updateUserStatusIfOneDeviceIsLinked check the function
                     updateUserStatusIfOneDeviceIsLinked(deviceInfo,userId);
                     userDetail = saveUserDetails(registerUserRequest);
                     userDetailRepository.saveAndFlush(userDetail);

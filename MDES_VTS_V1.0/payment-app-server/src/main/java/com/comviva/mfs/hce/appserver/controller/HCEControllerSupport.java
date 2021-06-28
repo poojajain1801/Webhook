@@ -1,6 +1,34 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.controller;
-import com.comviva.mfs.hce.appserver.model.*;
-import com.comviva.mfs.hce.appserver.repository.*;
+import com.comviva.mfs.hce.appserver.model.AuditTrail;
+import com.comviva.mfs.hce.appserver.model.CardDetails;
+import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.model.SysMessage;
+import com.comviva.mfs.hce.appserver.model.UserDetail;
+import com.comviva.mfs.hce.appserver.repository.AuditTrailRepository;
+import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.SysMessageRepository;
+import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
@@ -10,7 +38,6 @@ import com.comviva.mfs.hce.appserver.util.common.HCEUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +51,17 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.*;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.core.io.Resource;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -107,7 +141,6 @@ public class HCEControllerSupport {
 
     public  Object requestFormation(String requestObj ,Class<?>... groups) throws  Exception{
         Object obj = null;
-        Class requestClass = null;
         StringBuffer errorMessage = null;
         String errMsg = null;
         try{
@@ -154,7 +187,7 @@ public class HCEControllerSupport {
         userDetail = userDetailRepository.findByUserId(userId);
         if (userDetail !=null ){
             languageCode = userDetail.getLanguageCode();
-            if(languageCode == null || languageCode.isEmpty() || languageCode.equals("") || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
+            if(null == languageCode || languageCode.isEmpty() || ("").equals(languageCode) || languageCode.length()<=0 || languageCode.equalsIgnoreCase("null")){
                 languageCode = "1";
             }
         }
@@ -403,4 +436,3 @@ public class HCEControllerSupport {
 
 
 }
-

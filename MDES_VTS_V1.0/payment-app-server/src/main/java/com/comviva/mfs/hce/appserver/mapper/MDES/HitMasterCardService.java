@@ -81,6 +81,9 @@ public class HitMasterCardService implements RestTemplateCustomizer
         this.headers.add("Accept-Encoding", "deflate");
         this.headers.add("Connection", "Keep-Alive");
         this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
+
+
+        //        this.headers.add("Host","services.mastercard.com");
         try {
             URL currUrl = new URL(url);
             LOGGER.info(currUrl.getHost());

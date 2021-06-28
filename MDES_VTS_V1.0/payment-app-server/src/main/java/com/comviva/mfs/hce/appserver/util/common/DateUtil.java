@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -17,7 +17,8 @@
  * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
+
 package com.comviva.mfs.hce.appserver.util.common;
 
 import com.comviva.mfs.hce.appserver.exception.DateParseException;
@@ -30,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.text.ParseException;
 import java.util.Date;
 
+
+/**
+ * DateUtil
+ *
+ * */
 public class DateUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
@@ -37,11 +43,21 @@ public class DateUtil {
     private DateUtil(){
     }
 
-
+    /**
+     * parseISODateString
+     * @param dateString date in string fmt
+     * @return date
+     * */
     public static Date parseISODateString(String dateString) {
         return parseDate(dateString, DateFormatUtils.ISO_8601_EXTENDED_DATE_FORMAT.getPattern());
     }
 
+    /**
+     * parseDate
+     * @param dateString dateString
+     * @param pattern pattern
+     * @return date
+     * */
     public static Date parseDate(String dateString, String pattern) {
         if (StringUtils.isBlank(dateString)) {
             return null;
@@ -54,6 +70,11 @@ public class DateUtil {
         }
     }
 
+    /**
+     * parseDate
+     * @param dateString dateString
+     * @return date
+     * */
     public static Date parseDate(String dateString) {
         return parseISODateString(dateString);
     }

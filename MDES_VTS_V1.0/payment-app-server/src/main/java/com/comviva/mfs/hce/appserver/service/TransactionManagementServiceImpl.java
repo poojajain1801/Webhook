@@ -1,30 +1,49 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 
-import com.comviva.mfs.hce.appserver.constants.ServerConfig;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetRegistrationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionHistoryRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTransactionsRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.PushTransctionDetailsReq;
+
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
-import com.comviva.mfs.hce.appserver.model.ServiceData;
 import com.comviva.mfs.hce.appserver.model.TransactionRegDetails;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
-import com.comviva.mfs.hce.appserver.repository.ServiceDataRepository;
 import com.comviva.mfs.hce.appserver.repository.TransactionRegDetailsRepository;
-import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TransactionManagementService;
-import com.comviva.mfs.hce.appserver.service.contract.UserDetailService;
-import com.comviva.mfs.hce.appserver.util.common.*;
-import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
+import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
+import com.comviva.mfs.hce.appserver.util.common.HCEConstants;
+import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
+import com.comviva.mfs.hce.appserver.util.common.JsonUtil;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
 import com.visa.dmpd.token.JWTUtility;
 import org.json.JSONArray;
-import org.json.JSONException;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,14 +51,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Created by tanmay.patel on 5/10/2017.
@@ -65,7 +86,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
     public Map<String, Object> getTransactionHistoryVisa(GetTransactionHistoryRequest getTransactionHistoryRequest) {
         LOGGER.debug("Enter TransactionManagementServiceImpl->getTransactionHistory");
         HitVisaServices hitVisaServices = new HitVisaServices(env);
-        Map response = new LinkedHashMap();
+        Map<String, Object> response = new LinkedHashMap<>();
         String localTime = null;
         JSONObject jsonResponse = null;
         String request = "";
@@ -87,17 +108,17 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                 response = null;
             }
             JSONObject decryptedJsonObj = null;
-            Map decArray = null;
+            Map<String, Object> decArray = null;
             List<Map<String,Object>> decMapList =null;
             String decString = null;
-            if (responseEntity.getStatusCode().value() == 200) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
                 JSONArray txnHistory;
 
                 if (null !=jsonResponse) {
                     txnHistory = jsonResponse.getJSONArray("transactionDetails");
                     decMapList = new ArrayList();
                     for (int i = 0; i < txnHistory.length(); i++) {
-                        decArray = new LinkedHashMap();
+                        decArray = new LinkedHashMap<>();
                         decString = txnHistory.getJSONObject(i).getString("encTransactionInfo");
                         decString = JWTUtility.decryptJwe(decString, env.getProperty("sharedSecret"));
                         decryptedJsonObj = new JSONObject(decString);
@@ -117,7 +138,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
                 return response;
 
             } else {
-                Map errorMap = new LinkedHashMap();
+                Map<String, Object> errorMap = new LinkedHashMap<>();
                 if (null !=jsonResponse) {
                     errorMap.put("responseCode", jsonResponse.getJSONObject("errorResponse").get("status"));
                     errorMap.put("message", jsonResponse.getJSONObject("errorResponse").get("message"));
@@ -159,11 +180,11 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
 
     public Map<String, Object> pushTransctionDetails(PushTransctionDetailsReq pushTransctionDetailsReq) {
         String requestId = pushTransctionDetailsReq.getRequestId();
-        List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
-        String tokenUniqueReference = pushTransctionDetailsReq.getTransactions().get(0).getTokenUniqueReference();
-        HashMap rnsNotificationData = new HashMap();
-        Map responseMap = new HashMap();
-        String responseId = null;
+//        List<Transactions> transactions = pushTransctionDetailsReq.getTransactions();
+//        String tokenUniqueReference = pushTransctionDetailsReq.getTransactions().get(0).getTokenUniqueReference();
+//        HashMap rnsNotificationData = new HashMap();
+        Map<String, Object> responseMap = new HashMap<>();
+//        String responseId = null;
         LOGGER.debug("Inside TransactionManagementService---------->pushTransctionDetails");
         RnsGenericRequest rnsGenericRequest ;
         try {
@@ -246,7 +267,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = null;
-        Map responseMap = null;
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         int transactionStatus = 0;
@@ -345,7 +366,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = new JSONObject();
-        Map responseMap = null;
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         try{
@@ -391,6 +412,4 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         }
         return responseMap;
     }
-
-
 }

@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
@@ -8,7 +28,11 @@ import com.comviva.mfs.hce.appserver.model.DeviceInfo;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
-import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.*;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RemoteNotification;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsFactory;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsGenericRequest;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsResponse;
+import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import org.json.JSONObject;
@@ -18,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,12 +59,12 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
     private Environment env;
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteNotificationServiceImpl.class);
 
-    public Map sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {
-        Map responseMap = new HashMap();
+    public Map<String, Object> sendRemoteNotificationMessage(RemoteNotificationRequest remoteNotificationReq) {
+        Map<String, Object> responseMap = new HashMap<>();
         String paymentAppProviderId = remoteNotificationReq.getPaymentAppProviderId();
         String paymentAppInstanceId = remoteNotificationReq.getPaymentAppInstanceId();
         String notificationData = remoteNotificationReq.getNotificationData();
-        HashMap rnsNotificationData = new HashMap();
+        HashMap<String, String> rnsNotificationData = new HashMap<>();
         LOGGER.debug("Inside RemoteNotificationServiceImpl---------->sendRemoteNotificationMessage");
         RnsGenericRequest rnsGenericRequest ;
         try {
@@ -97,8 +120,8 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
         return responseMap;
     }
 
-    public Map sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
-        Map responseMap = new HashMap();
+    public Map<String, Object> sendRemoteNotification(RnsGenericRequest rnsGenericRequest) {
+        Map<String, Object> responseMap = new HashMap<>();
         try {
             LOGGER.debug("Inside RemoteNotificationServiceImpl -> sendRemoteNotification");
             // Create Remote Notification Data
@@ -134,14 +157,14 @@ public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appser
 
     @Override
     public Map<String, Object> getDeviceInfo(GetDeviceInfoRequest getDeviceInfoRequest) {
-        String tokenUniqueReference = null;
+//        String tokenUniqueReference = null;
         String paymentAppInstanceId = null;
-        Optional<DeviceInfo> deviceDetailList = null;
-        Map responseMap = new HashMap();
-        Map deviceInfo = new HashMap();
+        Optional<DeviceInfo> deviceDetailList;
+        Map<String, Object> responseMap = new HashMap<>();
+        Map<String, Object> deviceInfo = new HashMap();
 
         try {
-            tokenUniqueReference = getDeviceInfoRequest.getTokenUniqueReference();
+//            tokenUniqueReference = getDeviceInfoRequest.getTokenUniqueReference();
             paymentAppInstanceId = getDeviceInfoRequest.getPaymentAppInstanceId();
             deviceDetailList = deviceDetailRepository.findByPaymentAppInstanceId(paymentAppInstanceId);
             if (deviceDetailList.isPresent()){

@@ -18,23 +18,18 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.comviva.mfs.hce.appserver.repository;
-
-
-import com.comviva.mfs.hce.appserver.model.ServiceData;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-import org.springframework.transaction.annotation.Transactional;
+package com.comviva.mfs.hce.appserver.exception;
 
 /**
- * Created by Tanmay.Patel on 2/2/2017.
+ * Created by Tanmay.Patel on 1/8/2017.
  */
-@Repository
-@Transactional
-public interface ServiceDataRepository extends JpaRepository<ServiceData,String>{
-
-    Optional<ServiceData> findByServiceId(String serviceId);
+public class InvalidUserException extends RuntimeException {
+    /**
+     * InvalidUserException
+     * @param message message
+     * */
+    public InvalidUserException(String message) {
+        super(message);
+    }
 
 }

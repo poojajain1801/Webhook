@@ -2,14 +2,10 @@ package com.comviva.mfs.hce.appserver.service;
 
 import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
-import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
-import com.comviva.mfs.hce.appserver.exception.HCEActionException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +16,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
-import java.security.PrivateKey;
 import java.util.Map;
 
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
@@ -356,7 +351,7 @@ public class CardDetailServiceImplTest {
     @Test
     public void provisionWithPanEnrollmentID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/provisionWithPanEnrollmentID.json");
-        Map getContentResp = ServiceUtils.servicePOSTResponse("provision/provisionTokenWithPanEnrollmentId",request);
+        Map getContentResp = ServiceUtils.servicePOSTResponse("provisionCard/provisionTokenWithPanEnrollmentId",request);
         assertResponse(getContentResp, "707");
     }
 

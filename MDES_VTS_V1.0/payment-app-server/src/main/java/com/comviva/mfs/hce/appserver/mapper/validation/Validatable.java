@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
  * This software is the sole property of Comviva and is protected by copyright
@@ -17,12 +17,17 @@
  * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
 package com.comviva.mfs.hce.appserver.mapper.validation;
 
 
 import com.comviva.mfs.hce.appserver.mapper.error.PropertyErrors;
 
 public interface Validatable {
+    /**
+     * validate
+     * @param validationContext validationContext
+     * @return PropertyErrors
+     * */
     PropertyErrors validate(ValidationContext validationContext);
 }

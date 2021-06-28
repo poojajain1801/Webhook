@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  * <p>
  * This software is the sole property of Comviva and is protected by copyright
@@ -26,37 +26,14 @@ package com.comviva.mfs.hce.appserver.authentication;
 public enum AuthenticationMode {
     NONE("none"), JWT("jwt");
 
-    private final String authenticationMode;
+    private final String authMode;
 
     AuthenticationMode(String authenticationMode) {
-        this.authenticationMode = authenticationMode;
+        this.authMode = authenticationMode;
     }
 
-    public String getAuthenticationMode(){
-        return  authenticationMode;
+    public String getAuthMode(){
+        return authMode;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

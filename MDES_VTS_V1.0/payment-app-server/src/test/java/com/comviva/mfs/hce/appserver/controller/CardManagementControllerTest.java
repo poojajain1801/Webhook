@@ -3,9 +3,20 @@ import com.comviva.mfs.Utils.DefaultTemplateUtils;
 import com.comviva.mfs.Utils.ServiceUtils;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
-import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.json.JSONObject;
@@ -32,10 +43,8 @@ import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import static com.comviva.mfs.Utils.ServiceUtils.assertResponse;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
+
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -517,7 +526,7 @@ public class CardManagementControllerTest {
     @Test
     public void provisionWithPanEnrollmentID() throws Exception {
         Map request = DefaultTemplateUtils.buildRequest("/provisionWithPanEnrollmentID.json");
-        Map getContentResp = ServiceUtils.servicePOSTResponse("provision/provisionTokenWithPanEnrollmentId",request);
+        Map getContentResp = ServiceUtils.servicePOSTResponse("provisionCard/provisionTokenWithPanEnrollmentId",request);
         assertResponse(getContentResp, "707");
     }
 

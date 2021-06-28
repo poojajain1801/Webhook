@@ -19,9 +19,6 @@
 package com.comviva.mfs.hce.appserver.exception;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Created by girish.desai on 4/27/2016.
  * class to throw actionRelated exceptions
@@ -29,7 +26,6 @@ import org.slf4j.LoggerFactory;
  */
 public class HCEActionException extends RuntimeException {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HCEActionException.class.getName());
     private final String messageCode;
 
 

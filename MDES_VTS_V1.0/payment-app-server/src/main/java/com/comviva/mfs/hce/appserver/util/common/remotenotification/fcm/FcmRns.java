@@ -1,3 +1,23 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm;
 
 import com.comviva.mfs.hce.appserver.service.RemoteNotificationServiceImpl;
@@ -8,6 +28,7 @@ import org.springframework.core.env.Environment;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -27,7 +48,14 @@ public class FcmRns implements RemoteNotification {
         this.env= env;
     }
 
-    private String convertStreamToString (InputStream inStream) throws Exception {
+
+    /**
+     * convertStreamToString
+     * @param inStream inStream
+     * @throws IOException IO exception
+     * @return string
+     * */
+    private String convertStreamToString (InputStream inStream) throws IOException {
         InputStreamReader inputStream = new InputStreamReader(inStream);
         BufferedReader bReader = new BufferedReader(inputStream);
         StringBuilder sb = new StringBuilder();
@@ -38,6 +66,12 @@ public class FcmRns implements RemoteNotification {
         return sb.toString();
     }
 
+
+    /**
+     * sendRns
+     * @param rnsPostData byte[]
+     * @return RnsResponse
+     * */
     @Override
     public RnsResponse sendRns(byte[] rnsPostData) {
         int responseCode;
@@ -46,7 +80,7 @@ public class FcmRns implements RemoteNotification {
 
         try {
             // Proxy Setting
-            if(env.getProperty("is.proxy.required").equals("Y")) {
+            if(("Y").equals(env.getProperty("is.proxy.required"))) {
                 String proxyip = env.getProperty("proxyip");
                 String proxyport = env.getProperty("proxyport");
                 String username = env.getProperty("username");
@@ -63,10 +97,10 @@ public class FcmRns implements RemoteNotification {
 
             URL url = new URL(FCM_URL);
             HttpsURLConnection httpURLConnection = (HttpsURLConnection)url.openConnection();
-
+            final int timeOut = 10000;
             //Set timeout to 10 seconds
-            httpURLConnection.setConnectTimeout(10000);
-            httpURLConnection.setReadTimeout(10000);
+            httpURLConnection.setConnectTimeout(timeOut);
+            httpURLConnection.setReadTimeout(timeOut);
 
             httpURLConnection.setDoOutput(true);
             httpURLConnection.setUseCaches(false);

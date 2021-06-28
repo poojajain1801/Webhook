@@ -1,6 +1,28 @@
+/*
+ * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+ *
+ * This software is the sole property of Comviva and is protected by copyright
+ * law and international treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of it may result in severe
+ * civil and criminal penalties and will be prosecuted to the maximum extent
+ * possible under the law. Comviva reserves all rights not expressly granted.
+ * You may not reverse engineer, decompile, or disassemble the software, except
+ * and only to the extent that such activity is expressly permitted by
+ * applicable law notwithstanding this limitation.
+ *
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,23 +31,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class VtsDeviceInfoRequest {
 
-    public VtsDeviceInfoRequest(String osType, String osVersion, String osBuildID, String deviceType,
-                                String deviceIDType, String deviceManufacturer, String deviceBrand, String deviceModel,
-                                String deviceName, String hostDeviceID, String phoneNumber) {
-        this.osType = osType;
-        this.osVersion = osVersion;
-        this.osBuildID = osBuildID;
-        this.deviceType = deviceType;
-        this.deviceIDType = deviceIDType;
-        this.deviceManufacturer = deviceManufacturer;
-        this.deviceBrand = deviceBrand;
-        this.deviceModel = deviceModel;
-        this.deviceName = deviceName;
-        this.hostDeviceID = hostDeviceID;
-        this.phoneNumber = phoneNumber;
-    }
     private String osType;
     private String osVersion;
     private String osBuildID;
@@ -37,7 +46,4 @@ public class VtsDeviceInfoRequest {
     private String deviceName;
     private String hostDeviceID;
     private String phoneNumber;
-
-    public VtsDeviceInfoRequest() {
-    }
 }

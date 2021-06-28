@@ -1,23 +1,23 @@
-/*******************************************************************************
- * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
- *
- * This software is the sole property of Comviva and is protected by copyright
- * law and international treaty provisions. Unauthorized reproduction or
- * redistribution of this program, or any portion of it may result in severe
- * civil and criminal penalties and will be prosecuted to the maximum extent
- * possible under the law. Comviva reserves all rights not expressly granted.
- * You may not reverse engineer, decompile, or disassemble the software, except
- * and only to the extent that such activity is expressly permitted by
- * applicable law notwithstanding this limitation.
- *
- * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
- * EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
- * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
- * Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
- * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+/*
+ COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
+
+ This software is the sole property of Comviva and is protected by copyright
+ law and international treaty provisions. Unauthorized reproduction or
+ redistribution of this program, or any portion of it may result in severe
+ civil and criminal penalties and will be prosecuted to the maximum extent
+ possible under the law. Comviva reserves all rights not expressly granted.
+ You may not reverse engineer, decompile, or disassemble the software, except
+ and only to the extent that such activity is expressly permitted by
+ applicable law notwithstanding this limitation.
+
+ THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT WARRANTY OF ANY KIND,
+ EITHER EXPRESS OR IMPLIED,INCLUDING BUT NOT LIMITED TO THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY AND THE USE OF THIS SOFTWARE.
+ Comviva SHALL NOT BE LIABLE FOR ANY DAMAGES WHATSOEVER ARISING OUT OF THE
+ USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.comviva.mfs.hce.appserver.util.common;
 
 import com.comviva.mfs.hce.appserver.exception.ApplicationException;
@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.hibernate.internal.util.collections.ArrayHelper.toList;
+
 
 public class JsonUtil {
 
@@ -57,6 +57,12 @@ public class JsonUtil {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /**
+     * toJson
+     * @param obj object
+     * @param serializationFeatures serializtionFeatures
+     * @return String
+     * */
     public static String toJson(Object obj, SerializationFeature... serializationFeatures) {
         try {
             ObjectWriter writer = OBJECT_MAPPER.writer().withFeatures(serializationFeatures);
@@ -67,6 +73,12 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * fromJson
+     * @param string string
+     * @param valueType valueType
+     * @return T
+     * */
     public static <T> T fromJson(String string, Class<T> valueType) {
         try {
             return StringUtils.isBlank(string) ? null : OBJECT_MAPPER.readValue(string, valueType);
@@ -76,6 +88,13 @@ public class JsonUtil {
         }
     }
 
+
+    /**
+     * fromJson
+     * @param valueType valueType
+     * @param inputStream inputSteam
+     * @return T
+     * */
     public static <T> T fromJson(InputStream inputStream, Class<T> valueType) {
         try {
             return OBJECT_MAPPER.readValue(inputStream, valueType);
@@ -85,6 +104,11 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * jsonStringToHashMap
+     * @param response response
+     * @return map
+     * */
     public static Map<String,Object> jsonStringToHashMap(String response)
     {
         HashMap<String,Object> result =null;
@@ -97,6 +121,13 @@ public class JsonUtil {
         return result;
     }
 
+
+    /**
+     * jsonToMap
+     * @param object object
+     * @throws JSONException json exception
+     * @return map
+     * */
     public static Map<String, Object> jsonToMap(JSONObject object) throws JSONException {
         Map<String, Object> map = new HashMap<String, Object>();
         if (null == object){
@@ -120,15 +151,19 @@ public class JsonUtil {
         return map;
     }
 
+    /**
+     * toList
+     * @param array array
+     * @throws JSONException jsonException
+     * @return arrayList
+     * */
     public static ArrayList<Object> toList(JSONArray array) throws JSONException {
         ArrayList<Object> list = new ArrayList<Object>();
         for(int i = 0; i < array.length(); i++) {
             Object value = array.get(i);
             if(value instanceof JSONArray) {
                 value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
+            } else if(value instanceof JSONObject) {
                 value = jsonToMap((JSONObject) value);
             }
             list.add(value);
