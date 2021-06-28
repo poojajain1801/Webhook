@@ -18,9 +18,12 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -30,9 +33,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VtsCerts {
-
-    private String  vCertificateID;
-    private String  certUsage;
+    private String vCertificateID;
+    private String certUsage;
     public VtsCerts(String vCertificateID,String certUsage) {
 
         this.vCertificateID=vCertificateID;
@@ -40,4 +42,5 @@ public class VtsCerts {
     }
     public VtsCerts() {
     }
+
 }

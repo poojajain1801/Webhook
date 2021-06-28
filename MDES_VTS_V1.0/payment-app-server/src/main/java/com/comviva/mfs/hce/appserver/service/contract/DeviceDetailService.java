@@ -20,6 +20,7 @@
  */
 package com.comviva.mfs.hce.appserver.service.contract;
 
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceDasRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.pojo.UnRegisterReq;
 
@@ -30,17 +31,11 @@ import java.util.Map;
  */
 public interface DeviceDetailService {
     /**
-     * registerDevice
+     * register Device
      * @param enrollDeviceRequest enrollDeviceRequest
      * @return map
      */
     Map<String,Object> registerDevice(EnrollDeviceRequest enrollDeviceRequest);
-
-    /**
-     * unRegisterDevice
-     * @param unRegisterReq unRegisterRequest
-     * @return map
-     * */
     Map<String,Object> unRegisterDevice(UnRegisterReq unRegisterReq);
-
+    Map<String,Object> enrollDeviceDas(EnrollDeviceDasRequest enrollDeviceDasReqPojo, String clientDeviceId);
 }

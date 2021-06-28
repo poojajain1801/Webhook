@@ -30,6 +30,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.WebApplicationInitializer;
 
 
@@ -43,6 +44,7 @@ import org.springframework.web.WebApplicationInitializer;
 @EnableAutoConfiguration
 @EntityScan(basePackages = "com.comviva.mfs.hce.appserver.*")
 @EnableAsync
+@EnableScheduling
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer{
 
 

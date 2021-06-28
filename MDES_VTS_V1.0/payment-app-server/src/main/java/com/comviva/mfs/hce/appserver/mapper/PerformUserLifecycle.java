@@ -289,7 +289,7 @@ public class PerformUserLifecycle {
             responseEntitye = hitMasterCardService.restfulServiceConsumerMasterCard(url,requestJson.toString(),"POST",null);
             if ((responseEntitye==null) || (responseEntitye.getStatusCode().value()!=HCEConstants.REASON_CODE7))
             {
-               LOGGER.error("Mstercard Unregister failed...");
+                LOGGER.error("Mstercard Unregister failed...");
 
             }
         } catch (HCEActionException e) {

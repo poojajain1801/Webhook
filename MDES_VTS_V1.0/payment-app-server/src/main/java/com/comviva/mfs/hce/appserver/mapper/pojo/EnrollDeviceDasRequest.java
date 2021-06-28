@@ -21,21 +21,23 @@
 
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- *  EnrollDevice Request
- * Created by amgoth madan on 5/16/2017.
- */
-@Getter
+import java.util.List;
+
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class VtsDeviceRequest {
+@NoArgsConstructor
+public class EnrollDeviceDasRequest {
+    private List<String> deviceCertList;
+    private String profileAppID;
     private VtsDeviceInfoRequest deviceInfo;
-    private ChannelSecurityContext channelSecurityContext;
-    private EnrollDeviceDasRequest dasRequest;
+    private DeviceProfile deviceProfile;
+    private List<VtsCerts> visaCertReferenceList;
+    private String clientDeviceID;
 }

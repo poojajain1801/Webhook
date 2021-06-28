@@ -210,6 +210,14 @@
             <version>${commons-collections4.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/commons-dbcp/commons-dbcp -->
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
@@ -285,17 +293,23 @@
         <dependency>
             <groupId>encryption-utilities</groupId>
             <artifactId>encryption-utilities</artifactId>
-            <version>2.40.1</version>
+            <version>2.77.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.65.2-external.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/encryption-utilities-2.77.1-external.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>SDK-MapUtil</groupId>
             <artifactId>SDK-MapUtil</artifactId>
-            <version>5.2.1.1</version>
+            <version>6.0.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-5.2.1.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.0.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.comviva.mfs</groupId>
+            <artifactId>utilities</artifactId>
+            <version>1.0.7-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -312,6 +326,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
                 <configuration>
                     <mainClass>com.comviva.mfs.hce.appserver.Application</mainClass>
                     <executable>true</executable>
@@ -334,6 +349,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -403,6 +419,34 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>echodir</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <target name="copying libraries">
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="encryption-utilities-2.77.1-external.jar" />
+                                </copy>
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="SDK-MapUtil-6.0.1.jar" />
+                                </copy>
+                                <copy todir="${basedir}/target/${project.build.finalName}/WEB-INF/lib/">
+                                    <fileset dir="${basedir}/src/main/lib/" includes="nimbus-jose-jwt-4.34.2.jar" />
+                                </copy>
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

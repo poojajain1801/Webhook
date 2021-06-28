@@ -1,3 +1,4 @@
+package com.comviva.mfs.hce.appserver.model;
 /*
  * COPYRIGHT(c) 2015: Comviva Technologies Pvt. Ltd.
  *
@@ -18,7 +19,8 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.comviva.mfs.hce.appserver.model;
+
+import com.comviva.mfs.hce.appserver.model.VisaCardDetails;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -93,15 +95,16 @@ public class DeviceInfo implements Serializable {
     @Column(name="DEVICE_NAME")
     private String deviceName;
 
+
     //bi-directional many-to-one association to DeviceInfo
     @ManyToOne
     @JoinColumn(name="CLIENT_WALLET_ACCOUNT_ID")
     private UserDetail userDetail;
 
 
-
     //bi-directional many-to-one association to CardDetail
     @OneToMany(mappedBy="deviceInfo")
+
     private List<CardDetails> cardDetails;
 
 
@@ -275,4 +278,5 @@ public class DeviceInfo implements Serializable {
     public void setDeviceName(String deviceName) {
         this.deviceName = deviceName;
     }
+
 }

@@ -18,9 +18,11 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.util.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ChannelSecurityContext;
 import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollDeviceRequest;
 import com.comviva.mfs.hce.appserver.mapper.vts.EnrollDevice;
 import com.comviva.mfs.hce.appserver.util.common.ArrayUtil;
@@ -39,11 +41,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-
 import java.util.Calendar;
 import java.util.Date;
 
-/** Send enroll device request to VTS */
+/* Send enroll device request to VTS */
 // 1. Prepare Device Info
 // 2. Prepare VTS Certificates
 //       a) i) vCertificateID
@@ -81,9 +82,15 @@ public class EnrollDeviceVts {
     public  EnrollDevice enrollDevice;
 
     public String register(final String vClientID, EnrollDeviceRequest enrollDeviceRequest) {
-        String response="";
+        String response;
         try {
-            response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(),enrollDeviceRequest.getClientDeviceID(), vClientID);
+            ChannelSecurityContext channelSecurityContext = enrollDeviceRequest.getVts().getChannelSecurityContext();
+            if(null != channelSecurityContext) {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), enrollDeviceRequest.getVts().getChannelSecurityContext(), enrollDeviceRequest.getClientDeviceID(), vClientID);
+            } else {
+                response = enrollDevice.enrollDevice(enrollDeviceRequest.getVts().getDeviceInfo(), null, enrollDeviceRequest.getClientDeviceID(), vClientID);
+                return encDevicePersoData(response);
+            }
         } catch (HCEActionException regHceActionException) {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regHceActionException);
             throw regHceActionException;
@@ -91,15 +98,15 @@ public class EnrollDeviceVts {
             LOGGER.error("Exception occured in EnrollDeviceVts->register", regException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return encDevicePersoData(response);
+        return response;
     }
 
     //method to create encDevicePersoData
     public String encDevicePersoData(String inputString){
 
-        DevicePersoData devicePersoData =null;
-        EncDevicePersoData encDevicePersoData = null;
-        JSONObject jsonObject=null;
+        DevicePersoData devicePersoData;
+        EncDevicePersoData encDevicePersoData;
+        JSONObject jsonObject;
 
         try {
             devicePersoData = new DevicePersoData();

@@ -187,4 +187,50 @@ public class DeviceRegistrationControllerTest {
         Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/deRegister",unregisterReq);
         assertResponse(unregisterReaponse, "706");
     }
+
+    @Test
+    public void enrollDeviceForDAS() throws Exception {
+        registerUser();
+        registerDevice();
+        Map enrollDeviceForDASRequest = DefaultTemplateUtils.buildRequest("/enrollDasReq.json");
+        enrollDeviceForDASRequest.put("clientDeviceID",clientDeviceID);
+        Map enrollDeviceForDASResp = ServiceUtils.servicePOSTResponse("device/enrollDeviceDas",enrollDeviceForDASRequest);
+        assertResponse(enrollDeviceForDASResp, "200");
+    }
+
+    @Test
+    public void enrollDeviceForDASWithNullRequest() throws Exception {
+        Map request = DefaultTemplateUtils.buildRequest("/enrollDasReq.json");
+        Map regDeviceReaponse = ServiceUtils.servicePOSTResponse("device/enrollDeviceDas",null);
+        assertResponse(regDeviceReaponse, "500");
+    }
+
+    @Test
+    public void enrollDeviceForDASWihoutClientDeviceId() throws Exception {
+        registerUser();
+        registerDevice();
+        Map enrollDeviceForDASRequest = DefaultTemplateUtils.buildRequest("/enrollDasReq.json");
+        enrollDeviceForDASRequest.remove("clientDeviceID");
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/enrollDeviceDas",enrollDeviceForDASRequest);
+        assertResponse(unregisterReaponse, "704");
+    }
+
+    @Test
+    public void enrollDeviceForDASInvalidClientDeviceId() throws Exception {
+        registerUser();
+        registerDevice();
+        Map enrollDeviceForDASRequest = DefaultTemplateUtils.buildRequest("/enrollDasReq.json");
+        enrollDeviceForDASRequest.put("clientDeviceID", clientDeviceID + "222");
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/enrollDeviceDas",enrollDeviceForDASRequest);
+        assertResponse(unregisterReaponse, "704");
+    }
+
+    @Test
+    public void enrollDeviceForDASwithoutDeviceInfo() throws Exception {
+        Map enrollDeviceForDASRequest = DefaultTemplateUtils.buildRequest("/enrollDasReq.json");
+        enrollDeviceForDASRequest.remove("deviceInfo");
+        Map unregisterReaponse = ServiceUtils.servicePOSTResponse("device/enrollDeviceDas",enrollDeviceForDASRequest);
+        assertResponse(unregisterReaponse, "500");
+    }
+
 }

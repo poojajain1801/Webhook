@@ -18,9 +18,12 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -31,16 +34,10 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelSecurityContext {
-
     private List<VtsCerts> vtsCerts;
     private List<DeviceCerts> deviceCerts;
-
-    public ChannelSecurityContext(List<VtsCerts> vtsCerts,List<DeviceCerts> deviceCerts) {
-        this.vtsCerts = (vtsCerts);
-        this.deviceCerts = (deviceCerts);
-    }
-
-    public ChannelSecurityContext() {
-    }
+    private ChannelInfo channelInfo;
 }

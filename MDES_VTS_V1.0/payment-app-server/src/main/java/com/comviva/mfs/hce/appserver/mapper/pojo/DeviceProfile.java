@@ -26,16 +26,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- *  EnrollDevice Request
- * Created by amgoth madan on 5/16/2017.
- */
-@Getter
 @Setter
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class VtsDeviceRequest {
-    private VtsDeviceInfoRequest deviceInfo;
-    private ChannelSecurityContext channelSecurityContext;
-    private EnrollDeviceDasRequest dasRequest;
+@NoArgsConstructor
+public class DeviceProfile {
+    public String hardwareBackKeystoreSupport;
+    public String keyAttestationSupport;
 }
+

@@ -18,6 +18,7 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.mapper.vts;
 
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
@@ -37,6 +38,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.InetSocketAddress;
@@ -56,14 +58,6 @@ public class HitVisaServices extends VtsRequest {
         super(env);
     }
 
-    /**
-     * restfulServiceCOnsumerVisa
-     * @param requestBody requestBody
-     * @param resourcePath resourcePath
-     * @param type type
-     * @param url url
-     * @return ResponseEntity
-     * */
     public ResponseEntity restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
         String xRequestId = null;
         JSONObject prepareHeaderRequest= null;
@@ -74,10 +68,10 @@ public class HitVisaServices extends VtsRequest {
         HttpEntity<String> entity = null;
         RestTemplate restTemplate = null;
         String result="";
-//        JSONObject jsonObject = null;
-//        JSONObject jsonResponse=null;
+        JSONObject jsonObject = null;
+        JSONObject jsonResponse=null;
         ResponseEntity<String> response=null;
-//        String strResponse =null;
+        String strResponse =null;
         String proxyip = null;
         int proxyport = 0;
         Proxy proxy = null;
@@ -90,7 +84,7 @@ public class HitVisaServices extends VtsRequest {
             quryString = objUrl.getQuery();
             prepareHeaderRequest.put("queryString",quryString);
             prepareHeaderRequest.put("resourcePath",resourcePath);
-            if(!("null").equalsIgnoreCase(requestBody)||(requestBody.isEmpty()))
+            if(!(requestBody.equalsIgnoreCase("null"))||(requestBody.isEmpty()))
                 prepareHeaderRequest.put("requestBody",requestBody);
             prepareHeader(prepareHeaderRequest);
             if (type.equalsIgnoreCase("GET")||(requestBody.equalsIgnoreCase(null))||(requestBody.isEmpty()))
@@ -112,7 +106,8 @@ public class HitVisaServices extends VtsRequest {
             Map sdsd = entity.getHeaders();
             LOGGER.info("-------------------URL-------------------------"+url);
             LOGGER.debug("-------------------Begin Headers-------------------------");
-            for (Object name : sdsd.entrySet()) {
+            for (Object name : sdsd.entrySet())
+            {
                 // search  for value
                 Object value =  sdsd.get(name);
                 //System.out.println("Key = " + name + ", Value = " + value);
@@ -135,7 +130,9 @@ public class HitVisaServices extends VtsRequest {
                 response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
             }else if("PUT".equals(type)){
                 response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
-            } else if("GET".equalsIgnoreCase(type)) {
+            }
+            else if("GET".equalsIgnoreCase(type))
+            {
                 response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             }
             if(response!=null){
@@ -143,10 +140,10 @@ public class HitVisaServices extends VtsRequest {
                 xCorrelationId = headers.get("X-CORRELATION-ID").get(0);
             }
 
-        } catch (MalformedURLException e){
+        }catch (MalformedURLException e){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
-        } catch(HttpClientErrorException httpClientException){
+        }catch(HttpClientErrorException httpClientException){
             LOGGER.error("Exeption occured",httpClientException);
             xCorrelationId = httpClientException.getResponseHeaders().get("X-CORRELATION-ID").toString();
             HttpHeaders responseHeaders = httpClientException.getResponseHeaders();
@@ -154,19 +151,24 @@ public class HitVisaServices extends VtsRequest {
             String error = httpClientException.getResponseBodyAsString();
             if(error!=null && !error.isEmpty()){
                 response = new ResponseEntity(error, responseHeaders ,statusCode);
-            } else{
+            }else{
                 response = new ResponseEntity(error, responseHeaders ,statusCode);
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
 
             return response;
-        } catch(HCEActionException hitVisaServiceExp){
+        }catch(HCEActionException hitVisaServiceExp){
             LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",hitVisaServiceExp);
             throw hitVisaServiceExp;
-        } catch (Exception e){
-            LOGGER.debug("Exception Occurred HitVisaServices->restfulServiceConsumerVisa",e);
+        }catch (HttpServerErrorException e){
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa -> HttpServerErrorException(500 from server side not from MAP) \n ",e);
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa -> HttpServerErrorException \n",e.getResponseBodyAsString());
+            LOGGER.info("\n\n Exception Occurred HitVisaServices->restfulServiceConsumerVisa ->  HttpServerErrorException \n x-correlation-id {} \n\n",e.getResponseHeaders().get("X-CORRELATION-ID"));
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
-        }finally {
+        } catch(Exception e) {
+            LOGGER.debug(""+e);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        } finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
@@ -180,5 +182,4 @@ public class HitVisaServices extends VtsRequest {
         }
         return response;
     }
-
 }

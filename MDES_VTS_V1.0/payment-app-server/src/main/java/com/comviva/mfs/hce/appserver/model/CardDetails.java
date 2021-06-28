@@ -86,6 +86,9 @@ public class CardDetails implements Serializable {
     @JoinColumn(name="CLIENT_DEVICE_ID")
     private DeviceInfo deviceInfo;
 
+    @Column(name="REPERSO_STATUS")
+    private String repersoStatus;
+
     public CardDetails() {
     }
 

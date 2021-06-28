@@ -18,11 +18,10 @@
  * USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -31,9 +30,17 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ChannelInfo {
-    private String  vCertificateID;
+
+    private String vCertificateID;
     private String certUsage;
+    private String encryptionScheme;
+
+    public ChannelInfo(String vCertificateID,String certUsage, String encryptionScheme) {
+        this.vCertificateID=vCertificateID;
+        this.certUsage=certUsage;
+        this.encryptionScheme = encryptionScheme;
+    }
+    public ChannelInfo() {
+    }
 }
