@@ -442,11 +442,11 @@
         <addPrimaryKey columnNames="REQUEST_ID" constraintName="PK_REQUEST_ID" tableName="FCM_SCHEDULER_LOG" />
     </changeSet>
 
-<!--    <changeSet author="Shivaranjan" id="202001180917">-->
-<!--        <addColumn tableName="CARD_DETAILS">-->
-<!--            <column name="REPERSO_STATUS" type="varchar(255)"/>-->
-<!--        </addColumn>-->
-<!--    </changeSet>-->
+    <changeSet author="Shivaranjan" id="202001180917">
+        <addColumn tableName="CARD_DETAILS">
+            <column name="REPERSO_STATUS" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
 
     <changeSet author="tanmay.p" id="sqlFileInsert">
         <sqlFile path="dbChangelog\mdes-vts.sql"/>
