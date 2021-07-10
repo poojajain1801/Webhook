@@ -129,11 +129,14 @@ public class EnrollDeviceVts {
                 LOGGER.info("Encrypt device perso before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
                 if(!(this.env.getProperty("mdeshost")).equalsIgnoreCase("mtf")) {
                     if (this.env.getProperty("cemea").equalsIgnoreCase("Y")){
+                        LOGGER.info("Encryption environment is CEMA_PROD");
                         encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.CEMA_PROD, devicePersoData);
                     }else{
+                        LOGGER.info("Encryption environment is PROD");
                         encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.PROD, devicePersoData);
                     }
                 }else {
+                    LOGGER.info("Encryption environment is SBX");
                     encDevicePersoData = VisaSDKMapUtil.getEncryptedDevicePersoData(EncryptionEnvironment.SBX, devicePersoData);
                 }
                 LOGGER.info("Encrypt device perso After hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));

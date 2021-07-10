@@ -23,19 +23,7 @@ package com.comviva.mfs.hce.appserver.controller;
 import com.comviva.mfs.hce.appserver.decryptFlow.DecryptFlowStep;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.service.contract.CardDetailService;
 import com.comviva.mfs.hce.appserver.serviceFlow.ServiceFlowStep;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
@@ -425,5 +413,31 @@ public class CardManagementController {
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return getCustomerCareContactResp;
+    }
+
+
+    /**
+     * reDigitization
+     * @param reDigitizationRequest reDigitizationRequest
+     * @return map
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/reDigitization", method = RequestMethod.POST)
+    @ServiceFlowStep("paymentApp")
+    public  Map<String, Object> reDigitization(@RequestBody String reDigitizationRequest) {
+        RedigitizeReq reDigitizationRequestPojo = null;
+        Map <String,Object> reDigitizationResponse= null;
+        try{
+            reDigitizationRequestPojo = (RedigitizeReq) hCEControllerSupport.requestFormation(reDigitizationRequest,
+                    RedigitizeReq.class);
+            reDigitizationResponse = cardDetailService.reDigitize(reDigitizationRequestPojo);
+        }catch (HCEActionException reDigitizationHceActionException){
+            LOGGER.error("Exception Occurred in CardManagementController->reDigitize",reDigitizationHceActionException);
+            throw reDigitizationHceActionException;
+        }catch (Exception reDigitizationExcetption) {
+            LOGGER.error(" Exception Occurred in CardManagementController->reDigitize", reDigitizationExcetption);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return reDigitizationResponse;
     }
 }

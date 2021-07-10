@@ -369,6 +369,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         String resourcePath, strResponse;
         ResponseEntity responseEntity = null;
         JSONObject jsonResponse = new JSONObject();
+        String domainName="";
 
         try {
 //            List<DeviceInfo> deviceInfos = deviceDetailRepository.findByClientDeviceIdAndStatus
@@ -413,8 +414,16 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
 
                 LOGGER.info("before hitting enroll device for das");
                 resourcePath = "vts/das/clients/"+vClientID+"/devices/"+clientDeviceId;
-                //https://cert.api.visa.com/vts/das/clients/{vClientID}/devices/{clientDeviceID}?apiKey=key
-                url = "https://cert.api.visa.com"+ "/vts/das/clients/" + vClientID + "/devices/"+ clientDeviceId + "?apiKey=" + env.getProperty("apiKey");
+
+                String mdeshost = env.getProperty("mdeshost").trim();
+
+                if ("mtf".equalsIgnoreCase(mdeshost)) {
+                    domainName = env.getProperty("visaApiUrlSandbox").trim();
+                } else {
+                    domainName = env.getProperty("visaApiUrlLive").trim();
+                }
+
+                url = domainName + "/vts/das/clients/" + vClientID + "/devices/"+ clientDeviceId + "?apiKey=" + env.getProperty("apiKey");
 
                 responseEntity = hitVisaServices.restfulServiceConsumerVisa(url, requestJson.toString(), resourcePath, "POST");
 
