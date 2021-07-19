@@ -26,6 +26,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -53,8 +54,8 @@ public class HvtMangementServiceImpl implements HvtManagementService{
     @Autowired
     protected Environment env;
 
-    // read from property file
-    private static String paymentAppId = HCEConstants.PAYMENT_APP_INSTANCE_ID;
+    @Value("liquibase.parameters.paymentAppId")
+    private String paymentAppId;
 
     /**
      * SaveHvtLimit -> save or update hvt limit in hvt_management table
@@ -68,7 +69,6 @@ public class HvtMangementServiceImpl implements HvtManagementService{
         String isSupported;
         String hvtLimit;
         Map<String, Object> responseMap = new HashMap<>();
-
         try {
             isSupported = hvtManagementRequest.getIsHvtSupported();
             hvtLimit = hvtManagementRequest.getHvtLimit();

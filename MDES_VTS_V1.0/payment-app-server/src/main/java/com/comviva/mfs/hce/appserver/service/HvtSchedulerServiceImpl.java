@@ -16,6 +16,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -42,9 +43,8 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
     @Autowired
     protected Environment env;
 
-
-    //change it according to the Bank paymentAppId = SBICARDS
-    private static String paymentAppId = HCEConstants.PAYMENT_APP_INSTANCE_ID;
+    @Value("liquibase.parameters.paymentAppId")
+    private static String paymentAppId;
 
     /**
      * retrySendingRnsNotification

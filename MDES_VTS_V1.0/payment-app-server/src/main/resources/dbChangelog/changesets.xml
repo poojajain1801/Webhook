@@ -413,7 +413,7 @@
     <changeSet author="Shivaranjan" id="202012281750">
         <insert tableName="HVT_MANAGEMENT">
             <column name="REQUEST_ID" value="672124b6-9894-11e5-be38-001d42e813fe"/>
-            <column name="PAYMENT_APP_ID" value="ICICI"/>
+            <column name="PAYMENT_APP_ID" value="${paymentAppId}"/>
             <column name="HVT_LIMIT" value="5000"/>
             <column name="IS_HVT_SUPPORTED" value="Y" />
             <column name="COLOR_VALUE" value="#24a0ed" />
