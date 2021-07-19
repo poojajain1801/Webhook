@@ -2,25 +2,7 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
-import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EncryptedPayload;
-import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTokenUpdatedReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.TDSRegistrationReq;
-import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
-import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -46,6 +28,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsRespo
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.mdes.CryptoUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.json.Json;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.visa.dmpd.token.JWTUtility;
@@ -1478,6 +1461,75 @@ public class CardDetailServiceImpl implements CardDetailService {
             throw getCustomerCareContactHCEactionException;
         } catch (Exception getCustomerCareContactException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getCustomerCareContact", getCustomerCareContactException);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+        return responseMap;
+    }
+
+    @Override
+    public Map<String, Object> reDigitize(RedigitizeReq reDigitizationRequestPojo) {
+        JSONObject redigitizeReq;
+        Optional<CardDetails> cardDetails;
+        String tokenReference;
+        JSONObject reDigitizerequest;
+        String url = null;
+        String id = null;
+        ResponseEntity responseEntity;
+        String response=null;
+        JSONObject jsonResponse = null;
+        Map<String, Object> responseMap=null;
+
+        try {
+            tokenReference = reDigitizationRequestPojo.getTokenUniqueReference();
+            cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenReference);
+
+            if(!cardDetails.isPresent()) {
+                throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
+            }
+
+            if(HCEConstants.INACTIVE.equalsIgnoreCase(cardDetails.get().getStatus())) {
+                throw new HCEActionException("Card is Inactive");
+            }
+
+            String requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
+            CardDetails card = cardDetails.get();
+            reDigitizerequest = new JSONObject();
+            reDigitizerequest.put("tokenUniqueReference",card.getMasterTokenUniqueReference());
+            reDigitizerequest.put("requestId", requestId);
+            reDigitizerequest.put("consumerLanguage", "en");
+            reDigitizerequest.put("cardletId",this.env.getProperty("cardletId"));
+
+            url = this.env.getProperty("mdesip") +this.env.getProperty("digitizationpath");
+            id = "redigitize";
+            LOGGER.info("redigitize before hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+            responseEntity = hitMasterCardService.restfulServiceConsumerMasterCard(url, reDigitizerequest.toString(),
+                    "POST",id);
+            LOGGER.info("redigitize after hit  --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+
+            responseMap = new HashMap<String, Object>();
+            if (responseEntity.hasBody() && (responseEntity.getStatusCode().value() == 200)) {
+                response = String.valueOf(responseEntity.getBody());
+                jsonResponse = new JSONObject(response);
+
+                JSONObject tokenInfo = (JSONObject) jsonResponse.get("tokenInfo");
+
+                card.setTokenSuffix((String) tokenInfo.get("tokenPanSuffix"));
+                card.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
+                cardDetailRepository.save(card);
+
+                responseMap.put(HCEConstants.RESPONSE_CODE, "200");
+                responseMap.put(HCEConstants.MESSAGE, HCEConstants.SUCCESS);
+                responseMap.put("response", jsonResponse);
+
+            } else {
+                throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
+            }
+
+        } catch (HCEActionException reDigitizeHCEactionException) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->reDigitize", reDigitizeHCEactionException);
+            throw reDigitizeHCEactionException;
+        } catch (Exception reDigitizeException) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->reDigitize", reDigitizeException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return responseMap;

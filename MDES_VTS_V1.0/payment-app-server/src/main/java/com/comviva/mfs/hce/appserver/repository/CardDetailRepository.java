@@ -78,11 +78,5 @@ public interface CardDetailRepository extends JpaRepository<CardDetails, String>
     @Query("update CardDetails vc set vc.repersoStatus =:status where vc.visaProvisionTokenId=:vprovisionId")
     void updateRepersoStatus(@Param("vprovisionId")String vprovisionId, @Param("status")String status);
 
-
-    @Modifying(clearAutomatically = true)
-    @Transactional
-    @Query("update CardDetails vc set vc.repersoStatus =:status where vc.visaProvisionTokenId=:vprovisionId")
-    void updateRepersoStatus(@Param("vprovisionId")String vprovisionId, @Param("status")String status);
-
 }
 

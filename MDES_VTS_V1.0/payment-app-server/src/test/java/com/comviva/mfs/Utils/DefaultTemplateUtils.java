@@ -43,7 +43,7 @@ public class DefaultTemplateUtils {
             rand = new SecureRandom();
         }
 
-int i = rand.nextInt(str.length());
+        int i = rand.nextInt(str.length());
         return str.charAt(i);
     }
 

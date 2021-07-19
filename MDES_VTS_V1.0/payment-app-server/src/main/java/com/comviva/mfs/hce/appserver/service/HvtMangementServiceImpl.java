@@ -53,8 +53,7 @@ public class HvtMangementServiceImpl implements HvtManagementService{
     @Autowired
     protected Environment env;
 
-
-    //change it according to the Bank paymentAppId = SBICARDS
+    // read from property file
     private static String paymentAppId = HCEConstants.PAYMENT_APP_INSTANCE_ID;
 
     /**

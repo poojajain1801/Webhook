@@ -415,13 +415,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 LOGGER.info("before hitting enroll device for das");
                 resourcePath = "vts/das/clients/"+vClientID+"/devices/"+clientDeviceId;
 
-                String mdeshost = env.getProperty("mdeshost").trim();
-
-                if ("mtf".equalsIgnoreCase(mdeshost)) {
-                    domainName = env.getProperty("visaApiUrlSandbox").trim();
-                } else {
-                    domainName = env.getProperty("visaApiUrlLive").trim();
-                }
+                domainName = env.getProperty("visaApiUrl").trim();
 
                 url = domainName + "/vts/das/clients/" + vClientID + "/devices/"+ clientDeviceId + "?apiKey=" + env.getProperty("apiKey");
 

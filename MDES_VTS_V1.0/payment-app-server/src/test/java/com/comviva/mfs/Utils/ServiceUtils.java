@@ -32,7 +32,7 @@ public class ServiceUtils {
 
     public static void assertResponse(Map mapResponse, String value) {
         assertNotNull(value);
-       // assertNotNull(mapResponse.get("response"));
+        // assertNotNull(mapResponse.get("response"));
         assertThat(mapResponse.get("responseCode"), equalTo(value));
     }
 
@@ -47,12 +47,12 @@ public class ServiceUtils {
         return response;
     }
 
-   /* public static Map assertPOSTService(String command, Map mapRequest, Integer status) {
-        Map response = servicePOSTResponse(command, mapRequest);
-        assertStatusResponse(response, status);
-        return response;
-    }
-*/
+    /* public static Map assertPOSTService(String command, Map mapRequest, Integer status) {
+         Map response = servicePOSTResponse(command, mapRequest);
+         assertStatusResponse(response, status);
+         return response;
+     }
+ */
     public static Map assertPUTService(String command, Map mapRequest, String value) {
         Map response = servicePUTResponse(command, mapRequest);
         assertResponse(response, value);

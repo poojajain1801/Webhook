@@ -254,6 +254,6 @@ public class HCEConstants {
     public static final int REASON_CODE9 = 400;
 
     //By Shivaranjan
-    public static final String PAYMENT_APP_INSTANCE_ID= "SBICARDS";
+    public static final String PAYMENT_APP_INSTANCE_ID= "ICICI";
 
 }
