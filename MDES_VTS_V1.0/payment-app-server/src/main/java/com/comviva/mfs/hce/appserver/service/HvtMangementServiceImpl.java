@@ -54,7 +54,7 @@ public class HvtMangementServiceImpl implements HvtManagementService{
     @Autowired
     protected Environment env;
 
-    @Value("liquibase.parameters.paymentAppId")
+    @Value("${liquibase.parameters.paymentAppId}")
     private String paymentAppId;
 
     /**

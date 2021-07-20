@@ -43,7 +43,7 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
     @Autowired
     protected Environment env;
 
-    @Value("liquibase.parameters.paymentAppId")
+    @Value("${liquibase.parameters.paymentAppId}")
     private static String paymentAppId;
 
     /**
