@@ -34,9 +34,11 @@ import com.comviva.mfs.hce.appserver.mapper.pojo.VtsCerts;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
+import com.comviva.mfs.hce.appserver.model.HvtManagement;
 import com.comviva.mfs.hce.appserver.model.UserDetail;
 import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
+import com.comviva.mfs.hce.appserver.repository.HvtManagementRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
 import com.comviva.mfs.hce.appserver.service.contract.DeviceDetailService;
 import com.comviva.mfs.hce.appserver.service.contract.TokenLifeCycleManagementService;
@@ -57,6 +59,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,10 +100,17 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
     private PerformUserLifecycle performLCMobj;
 
     @Autowired
+    private HvtManagementRepository hvtManagementRepository;
+
+    @Value("${liquibase.parameters.paymentAppId}")
+    private String paymentAppId;
+
+    @Autowired
     public DeviceDetailServiceImpl(DeviceDetailRepository deviceDetailRepository, UserDetailService userDetailService,
                                    UserDetailRepository userDetailRepository,HCEControllerSupport hceControllerSupport,
                                    DeviceRegistrationMdes deviceRegistrationMdes, EnrollDeviceVts enrollDeviceVts,
-                                   CardDetailRepository cardDetailRepository ) {
+                                   CardDetailRepository cardDetailRepository,
+                                   HvtManagementRepository hvtManagementRepository) {
         this.deviceDetailRepository = deviceDetailRepository;
         this.userDetailService = userDetailService;
         this.userDetailRepository=userDetailRepository;
@@ -108,6 +118,7 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
         this.deviceRegistrationMdes = deviceRegistrationMdes;
         this.enrollDeviceVts = enrollDeviceVts;
         this.cardDetailRepository = cardDetailRepository;
+        this.hvtManagementRepository = hvtManagementRepository;
     }
 
     /**
@@ -251,13 +262,18 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             }
 
-            if(HCEConstants.ACTIVE.equals(env.getProperty("is.hvt.supported"))){
-                response.put("isHvtSupported", true);
-            }else{
-                response.put("isHvtSupported", false);
+            HvtManagement hvtManagement = hvtManagementRepository.findByPaymentAppId(paymentAppId);
+
+            if(hvtManagement != null) {
+                if ("Y".equalsIgnoreCase(hvtManagement.getIsHvtSupported())) {
+                    response.put("isHvtSupported", true);
+                } else {
+                    response.put("isHvtSupported", false);
+                }
+
+                response.put("hvtThreshold", hvtManagement.getHvtLimit());
             }
 
-            response.put("hvtThreshold", env.getProperty("hvt.limit"));
             if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
                 response.put("responseCode",HCEMessageCodes.getSUCCESS());
             }else {
