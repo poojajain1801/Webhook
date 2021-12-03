@@ -112,11 +112,11 @@ public class HitMasterCardService implements RestTemplateCustomizer {
             startTime = System.currentTimeMillis();
 
             LOGGER.debug("Request medthod  ########################################################## = " + type);
-            LOGGER.info("Request medthod  ###########################################################= " + type);
             response = fetchResponse(restTemplate, url, entity, idMap, type);
-            LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
-            LOGGER.info("Response STATUS********************************" + response.getStatusCode());
-            LOGGER.debug("Response ******************************** = " + (String)response.getBody());
+            if(response != null) {
+                LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
+                LOGGER.debug("Response ******************************** = " + (String) response.getBody());
+            }
         } catch (HttpClientErrorException httpClientException) {
             LOGGER.error("Status code received from master card--->", httpClientException);
             LOGGER.error("Status code received from master card Message--->", httpClientException.getMessage());
@@ -166,13 +166,15 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     private ResponseEntity<String> fetchResponse(RestTemplate restTemplate, String url,
                                                  HttpEntity<String> entity, Map idMap, String type) {
         ResponseEntity<String> response = null;
+
         if ("POST".equals(type)) {
-            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
+            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class, idMap);
         } else if ("PUT".equals(type)) {
-            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
+            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, idMap);
         } else if ("GET".equalsIgnoreCase(type)) {
-            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, idMap);
         }
+
         return response;
     }
 
