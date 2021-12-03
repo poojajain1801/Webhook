@@ -69,6 +69,10 @@ public class HitMasterCardService implements RestTemplateCustomizer {
         HttpEntity<String> entity = null;
         long startTime = 0;
 
+        String proxyip = null;
+        int proxyport = 0;
+        Proxy proxy = null;
+
         this.headers = new HttpHeaders();
         this.headers.add("Accept", "application/json");
         this.headers.add("Accept", "application/pkix-cert");
@@ -79,7 +83,7 @@ public class HitMasterCardService implements RestTemplateCustomizer {
         this.headers.add("User-Agent", "Apache-HttpClient/4.1.1");
 
 
-        // this.headers.add("Host","services.mastercard.com");
+        //        this.headers.add("Host","services.mastercard.com");
         try {
             URL currUrl = new URL(url);
             LOGGER.info(currUrl.getHost());
@@ -108,11 +112,11 @@ public class HitMasterCardService implements RestTemplateCustomizer {
             startTime = System.currentTimeMillis();
 
             LOGGER.debug("Request medthod  ########################################################## = " + type);
+            LOGGER.info("Request medthod  ###########################################################= " + type);
             response = fetchResponse(restTemplate, url, entity, idMap, type);
-            if(response != null) {
-                LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
-                LOGGER.debug("Response ******************************** = " + (String) response.getBody());
-            }
+            LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
+            LOGGER.info("Response STATUS********************************" + response.getStatusCode());
+            LOGGER.debug("Response ******************************** = " + (String)response.getBody());
         } catch (HttpClientErrorException httpClientException) {
             LOGGER.error("Status code received from master card--->", httpClientException);
             LOGGER.error("Status code received from master card Message--->", httpClientException.getMessage());
@@ -138,7 +142,8 @@ public class HitMasterCardService implements RestTemplateCustomizer {
         } catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
-        } finally {
+        }
+        finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
@@ -161,15 +166,13 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     private ResponseEntity<String> fetchResponse(RestTemplate restTemplate, String url,
                                                  HttpEntity<String> entity, Map idMap, String type) {
         ResponseEntity<String> response = null;
-
         if ("POST".equals(type)) {
-            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class, idMap);
+            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
         } else if ("PUT".equals(type)) {
-            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, idMap);
+            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
         } else if ("GET".equalsIgnoreCase(type)) {
-            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, idMap);
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
         }
-
         return response;
     }
 
@@ -181,19 +184,18 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     }
 
     private void setProxy(SimpleClientHttpRequestFactory requestFactory) {
-        Proxy proxy = null;
         String proxyip = null;
         int proxyport = 0;
+        Proxy proxy = null;
         try {
             if (env.getProperty("is.proxy.required").equals("Y")) {
-                proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxyip = env.getProperty("proxyip");
+                proxyport = Integer.parseInt(env.getProperty("proxyport"));
                 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
                 requestFactory.setProxy(proxy);
             }
-        } catch (NullPointerException exception) {
-            LOGGER.error("exception in hitMastercardService at setProxy method" + exception);
-            throw exception;
+        } catch (NullPointerException e) {
+            LOGGER.info("exception in hitMastercardService at proxy settings method");
         }
     }
 

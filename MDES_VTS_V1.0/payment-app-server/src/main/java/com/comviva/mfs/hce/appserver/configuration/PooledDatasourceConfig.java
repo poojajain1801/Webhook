@@ -94,7 +94,7 @@ public class PooledDatasourceConfig {
     @Bean
     public DataSource DataSource() {
         try {
-            if (null != encryptDatabasePassword && !encryptDatabasePassword.equals("")) {
+            if (null != encryptDatabasePassword || !encryptDatabasePassword.equals("")) {
 
                 keyStorePath = environment.getProperty("keystore.path");
                 keyStorePassword = environment.getProperty("keystore.password");

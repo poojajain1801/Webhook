@@ -69,6 +69,7 @@ public class HitVisaServices extends VtsRequest {
         RestTemplate restTemplate = null;
         String result="";
         ResponseEntity<String> response=null;
+        String strResponse =null;
 
         try{
             prepareHeaderRequest=new JSONObject();
@@ -193,9 +194,8 @@ public class HitVisaServices extends VtsRequest {
                 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
                 requestFactory.setProxy(proxy);
             }
-        } catch (NullPointerException exception) {
-            LOGGER.error("exception in hitVisaServices at proxy settings method" + exception);
-            throw exception;
+        } catch (NullPointerException e) {
+            LOGGER.info("exception in hitMastercardService at proxy settings method");
         }
     }
 }
