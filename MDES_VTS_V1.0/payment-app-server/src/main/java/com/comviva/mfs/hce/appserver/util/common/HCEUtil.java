@@ -369,7 +369,7 @@ public class HCEUtil {
 
 
                         temp =replaceValue[0]+ splitParam+replaceText;
-                        jsonData= jsonData.replaceAll(original, temp);
+                        jsonData= jsonData.replace(original, temp);
                     }
 
                 }

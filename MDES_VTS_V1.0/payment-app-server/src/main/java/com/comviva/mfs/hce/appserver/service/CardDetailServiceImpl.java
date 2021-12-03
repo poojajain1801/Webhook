@@ -2,7 +2,26 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
+import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EncryptedPayload;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTokenUpdatedReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RedigitizeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TDSRegistrationReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -28,7 +47,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsRespo
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.mdes.CryptoUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.json.Json;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.visa.dmpd.token.JWTUtility;
@@ -53,7 +72,13 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -110,7 +135,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String url = null;
         JSONObject jsonResp = new JSONObject();
         JSONObject checkDeviceEligibilityRequest = null;
-        Optional<DeviceInfo> deviceInfoOptional = null;
+        Optional<DeviceInfo> deviceInfoOptional;
         ResponseEntity responseEntity = null;
         JSONObject jsonResponse = null;
         JSONObject eligibilityResponse = null;

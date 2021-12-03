@@ -135,9 +135,9 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
             vPanEnrollmentID = provisionTokenGivenPanEnrollmentIdRequest.getPanEnrollmentID();
             clientDeviceID =  provisionTokenGivenPanEnrollmentIdRequest.getClientDeviceID();
             cardDetailsList = cardDetailRepository.findByPanUniqueReferenceAndClientDeviceId(vPanEnrollmentID,clientDeviceID,HCEConstants.INITIATE);
-            if(cardDetailsList!=null && !cardDetailsList.isEmpty()){
+            if(cardDetailsList!=null && !cardDetailsList.isEmpty()) {
                 cardDetails = cardDetailsList.get(0);
-            }else{
+            } else {
                 throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
             }
             String url = env.getProperty("visaBaseUrlSandbox") + "/vts/panEnrollments/" + vPanEnrollmentID + "/provisionedTokens" + "?apiKey=" + env.getProperty("apiKey");
@@ -148,7 +148,8 @@ public class ProvisionManagementServiceImpl implements ProvisionManagementServic
                 LOGGER.debug("Provison Response from VTS = "+response);
                 jsonResponse = new JSONObject(response);
             }
-            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7 || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7
+                    || responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE8) {
                 //TODO:Store the vProvisonTokenID in the DB
                 LOGGER.debug("Exit ProvisionManagementServiceImpl->ProvisionTokenGivenPanEnrollmentId");
                 if (null != jsonResponse) {

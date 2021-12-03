@@ -39,6 +39,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 
 /**
@@ -91,20 +93,24 @@ public class PooledDatasourceConfig {
 
     @Bean
     public DataSource DataSource() {
+        try {
+            if (null != encryptDatabasePassword || !encryptDatabasePassword.equals("")) {
 
-        if ( null!= encryptDatabasePassword  || !encryptDatabasePassword.equals("")) {
-
-            keyStorePath = environment.getProperty("keystore.path");
-            keyStorePassword = environment.getProperty("keystore.password");
-            keyPassword = environment.getProperty("keystore.key.password");
-            keyName = environment.getProperty("keystore.alias.name");
-            LOGGER.info("find key set path {},{},{},{}", keyStorePath, keyStorePassword, keyPassword, keyName);
-            try {
-
+                keyStorePath = environment.getProperty("keystore.path");
+                keyStorePassword = environment.getProperty("keystore.password");
+                keyPassword = environment.getProperty("keystore.key.password");
+                keyName = environment.getProperty("keystore.alias.name");
+                LOGGER.info("find key set path {},{},{},{}", keyStorePath, keyStorePassword, keyPassword, keyName);
                 plainKey = DecryptDataKeyStore.decrypt(encryptDatabasePassword, keyStorePath, keyStorePassword, keyPassword, keyName);
-            } catch (Exception gse) {
-                LOGGER.error("Error in reading  encrypted db password", gse);
             }
+        } catch(NullPointerException npe) {
+            LOGGER.error("Error in reading  encrypted db password", npe);
+        } catch (GeneralSecurityException e) {
+            LOGGER.error("Error in reading encrypted db password -> general Security exception", e);
+        } catch (IOException e) {
+            LOGGER.error("Error in reading  encrypted db password -> IOException", e);
+        } catch (Exception e) {
+            LOGGER.error("Error in reading  encrypted db password", e);
         }
 
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();

@@ -59,8 +59,8 @@ public class HitVisaServices extends VtsRequest {
     }
 
     public ResponseEntity restfulServiceConsumerVisa(String url, String requestBody,String resourcePath,String type) {
-        String xRequestId = null;
-        JSONObject prepareHeaderRequest= null;
+        String xRequestId;
+        JSONObject prepareHeaderRequest;
         URL objUrl = null;
         long startTime = 0;
         String xCorrelationId = null;
@@ -68,13 +68,9 @@ public class HitVisaServices extends VtsRequest {
         HttpEntity<String> entity = null;
         RestTemplate restTemplate = null;
         String result="";
-        JSONObject jsonObject = null;
-        JSONObject jsonResponse=null;
         ResponseEntity<String> response=null;
         String strResponse =null;
-        String proxyip = null;
-        int proxyport = 0;
-        Proxy proxy = null;
+
         try{
             prepareHeaderRequest=new JSONObject();
             xRequestId = String.format("%014X", Calendar.getInstance().getTime().getTime());
@@ -87,21 +83,12 @@ public class HitVisaServices extends VtsRequest {
             if(!(requestBody.equalsIgnoreCase("null"))||(requestBody.isEmpty()))
                 prepareHeaderRequest.put("requestBody",requestBody);
             prepareHeader(prepareHeaderRequest);
-            if (type.equalsIgnoreCase("GET")||(requestBody.equalsIgnoreCase(null))||(requestBody.isEmpty()))
-                entity = new HttpEntity<>(headers);
-            else
-                entity = new HttpEntity<>(requestBody, headers);
+
+            entity = initializeHttpEntity(type, requestBody);
 
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            if(env.getProperty("is.proxy.required").equals("Y"))
-            {
-                proxyip = env.getProperty("proxyip");
-                proxyport = Integer.parseInt(env.getProperty("proxyport"));
-                proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
-                requestFactory.setProxy(proxy);
-            }
-           // Gson msdf = new Gson(headers);
-         //   Enumeration headerNames = headers.getHeaderNames();
+            setProxy(requestFactory);
+
 
             Map sdsd = entity.getHeaders();
             LOGGER.info("-------------------URL-------------------------"+url);
@@ -126,15 +113,9 @@ public class HitVisaServices extends VtsRequest {
 
             startTime = System.currentTimeMillis();
             //url = "http://172.19.4.223:8080/test/Test";
-            if("POST".equals(type)) {
-                response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-            }else if("PUT".equals(type)){
-                response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
-            }
-            else if("GET".equalsIgnoreCase(type))
-            {
-                response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            }
+
+            response = fetchResponse(restTemplate, url, entity, type);
+
             if(response!=null){
                 HttpHeaders headers = response.getHeaders();
                 xCorrelationId = headers.get("X-CORRELATION-ID").get(0);
@@ -172,14 +153,49 @@ public class HitVisaServices extends VtsRequest {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
-            if(response!=null){
+            if(null != response) {
                 statusCode = response.getStatusCode().value();
-
-            }
-            if(null !=response) {
                 HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), xCorrelationId, requestBody, String.valueOf(response.getBody()),objUrl.getPath());
             }
         }
         return response;
+    }
+
+    private HttpEntity<String> initializeHttpEntity(String type, String requestBody) {
+        if (type.equalsIgnoreCase("GET")|| (null != requestBody && requestBody.isEmpty()))
+            return new HttpEntity<>(headers);
+        else
+            return new HttpEntity<>(requestBody, headers);
+    }
+
+    private ResponseEntity<String> fetchResponse(RestTemplate restTemplate, String url,
+                                                 HttpEntity<String> entity, String type) {
+        ResponseEntity<String> response=null;
+        if("POST".equals(type)) {
+            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        }else if("PUT".equals(type)){
+            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+        }
+        else if("GET".equalsIgnoreCase(type))
+        {
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        }
+        return response;
+    }
+
+    private void setProxy(SimpleClientHttpRequestFactory requestFactory) {
+        String proxyip = null;
+        int proxyport = 0;
+        Proxy proxy = null;
+        try {
+            if (env.getProperty("is.proxy.required").equals("Y")) {
+                proxyip = env.getProperty("proxyip");
+                proxyport = Integer.parseInt(env.getProperty("proxyport"));
+                proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
+                requestFactory.setProxy(proxy);
+            }
+        } catch (NullPointerException e) {
+            LOGGER.info("exception in hitMastercardService at proxy settings method");
+        }
     }
 }

@@ -99,7 +99,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             LOGGER.debug("LanguageCode ********  "+languageCode);
 
             // if language Id is null assign default lang code 1
-            if(languageCode == null || languageCode.isEmpty() || !languageCode.equals("2")){
+            if(null != languageCode && !languageCode.equals("2")){
                 registerUserRequest.setLanguageCode("1");
                 LOGGER.debug("setting LanguageCode ********  "+languageCode);
             }
@@ -134,7 +134,7 @@ public class UserDetailServiceImpl implements UserDetailService {
                     //Register Device
                 }
             }else{
-                // user details not present and why we need to check device_info table??
+                // user details not present
                 deviceInfos = deviceDetailRepository.findByImeiAndStatus(imei,HCEConstants.ACTIVE);
                 if(deviceInfos!=null && !deviceInfos.isEmpty()){
                     deviceInfo = deviceInfos.get(0);
