@@ -186,13 +186,13 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     }
 
     private void setProxy(SimpleClientHttpRequestFactory requestFactory) {
+        Proxy proxy = null;
         String proxyip = null;
         int proxyport = 0;
-        Proxy proxy = null;
         try {
             if (env.getProperty("is.proxy.required").equals("Y")) {
-                proxyip = env.getProperty("proxyip");
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
+                proxyip = env.getProperty("proxyip");
                 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
                 requestFactory.setProxy(proxy);
             }
