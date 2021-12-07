@@ -75,14 +75,14 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
                 }
                 Thread.sleep(10000);
             }
-        } catch (InterruptedException e) {
-            LOGGER.warn("Interrupted!", e);
+        } catch (InterruptedException exception) {
+            LOGGER.warn("Interrupted!", exception);
             Thread.currentThread().interrupt();
         } catch(HCEActionException exception) {
-            LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification",exception);
+            LOGGER.error("Exception occurred in HvtSchedulerServiceImpl -> retrySendRnsNotification",exception);
             throw exception;
         } catch (Exception exception) {
-            LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification", exception);
+            LOGGER.error("Exception occurred in HvtSchedulerServiceImpl -> retrySendRnsNotification", exception);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }

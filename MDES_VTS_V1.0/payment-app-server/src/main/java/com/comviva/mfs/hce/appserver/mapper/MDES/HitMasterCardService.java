@@ -191,8 +191,9 @@ public class HitMasterCardService implements RestTemplateCustomizer {
                 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
                 requestFactory.setProxy(proxy);
             }
-        } catch (NullPointerException e) {
-            LOGGER.info("exception in hitMastercardService at proxy settings method");
+        } catch (NullPointerException exception) {
+            LOGGER.error("exception in hitMastercardService at setProxy method" + exception);
+            throw exception;
         }
     }
 
