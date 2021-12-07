@@ -234,7 +234,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> addCard(DigitizationParam digitizationParam) {
-        Optional<DeviceInfo> deviceInfoList = null;
+        Optional<DeviceInfo> deviceInfoList;
         String eligibilityRequest = null;
         Optional<DeviceInfo> deviceDetail;
         String eligibilityResponse = null;
@@ -884,13 +884,13 @@ public class CardDetailServiceImpl implements CardDetailService {
     public Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {
         String tokenUniqueRef = tdsRegistrationReq.getTokenUniqueReference();
         String registrationHash = null;
-        Optional<TransactionRegDetails> transactionDetails = null;
+        Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = null;
         JSONObject jsonResponse = new JSONObject();
         String response = null;
         JSONObject requestJson = new JSONObject();
         ResponseEntity responseMdes = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         try {
@@ -953,16 +953,14 @@ public class CardDetailServiceImpl implements CardDetailService {
         List<String> tokenUniqueRefList = lifeCycleManagementReq.getTokenUniqueReferences();
         String tokenUniqueRef = "";
         String response = "";
-        JSONObject lifecycleJsonRequest = null;
+        JSONObject lifecycleJsonRequest;
         String url = "";
-        JSONObject responseJson = null;
-        String statusFromMastercard = "";
-        String status = "";
+        JSONObject responseJson = new JSONObject();
         boolean error = false;
         JSONArray tokens = null;
         JSONObject tokensJsonObj = null;
         try {
-            if (tokenUniqueRefList.isEmpty() || (tokenUniqueRefList.size() == 0)) {
+            if (tokenUniqueRefList.isEmpty()) {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
@@ -1043,11 +1041,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //Call update the card starus of the token in CMS-D
             }
         } catch (HCEActionException enrollPanHCEactionException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
             throw enrollPanHCEactionException;
-
-        } catch (Exception enrollPanException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanException);
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", exception);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
 
@@ -1102,7 +1099,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String paymentAppInstanceId = null;
         String id = "";
         String urlHost = null;
-        Optional<DeviceInfo> deviceDetail = null;
+        Optional<DeviceInfo> deviceDetail;
         try {
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             reqMdes  = new JSONObject();
@@ -1262,7 +1259,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String paymentAppInstanceId = unregisterTdsReq.getPaymentAppInstanceId();
         String authenticationCode = null;
         JSONObject requestJson = new JSONObject();
-        Optional<TransactionRegDetails> transactionDetails = null;
+        Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
         List<TransactionRegDetails> transactionDetailsList = null;
         int size = 0;

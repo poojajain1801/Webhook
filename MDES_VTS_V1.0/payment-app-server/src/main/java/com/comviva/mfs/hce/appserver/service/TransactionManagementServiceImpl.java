@@ -260,8 +260,8 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String paymentAppInstanceId = getTransactionsReq.getPaymentAppInstanceId();
         JSONObject reqJson = new JSONObject();
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
-        Optional<CardDetails> oCardDetails = null;
-        Optional<TransactionRegDetails> oTxnDetails = null;
+        Optional<CardDetails> oCardDetails;
+        Optional<TransactionRegDetails> oTxnDetails;
         String authorizationStatus = null;
         List<TransactionRegDetails> transactionList = null;
         String response = null;
@@ -362,7 +362,7 @@ public class TransactionManagementServiceImpl implements TransactionManagementSe
         String paymentAppInstanceId = getRegistrationCodeReq.getPaymentAppInstanceId();
         JSONObject reqJson = new JSONObject();
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
-        Optional<TransactionRegDetails> txnDetails = null;
+        Optional<TransactionRegDetails> txnDetails;
         String response = null;
         ResponseEntity responseMdes = null;
         JSONObject jsonResponse = new JSONObject();
