@@ -1065,9 +1065,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //Check the status of indivisual token and update the status of the token in the DB
                 //Call update the card starus of the token in CMS-D
             }
-        } catch (HCEActionException performLifeCycleMgmtException) {
-            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", performLifeCycleMgmtException);
-            throw performLifeCycleMgmtException;
+        } catch (HCEActionException enrollPanHCEactionException) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
+            throw enrollPanHCEactionException;
         } catch (Exception exception) {
             LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", exception);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
