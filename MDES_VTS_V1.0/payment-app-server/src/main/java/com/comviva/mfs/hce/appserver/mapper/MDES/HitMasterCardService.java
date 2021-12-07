@@ -52,6 +52,7 @@ import org.springframework.web.client.RestTemplate;
 public class HitMasterCardService implements RestTemplateCustomizer {
     @Autowired
     protected Environment env;
+
     private HttpHeaders headers;
 
     @Autowired
@@ -136,7 +137,6 @@ public class HitMasterCardService implements RestTemplateCustomizer {
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
         } catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
-
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
         } finally {
             final long endTime = System.currentTimeMillis();
@@ -181,13 +181,13 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     }
 
     private void setProxy(SimpleClientHttpRequestFactory requestFactory) {
+        Proxy proxy = null;
         String proxyip = null;
         int proxyport = 0;
-        Proxy proxy = null;
         try {
             if (env.getProperty("is.proxy.required").equals("Y")) {
-                proxyip = env.getProperty("proxyip");
                 proxyport = Integer.parseInt(env.getProperty("proxyport"));
+                proxyip = env.getProperty("proxyip");
                 proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
                 requestFactory.setProxy(proxy);
             }
