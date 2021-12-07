@@ -75,8 +75,8 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
                 }
                 Thread.sleep(10000);
             }
-        } catch (InterruptedException e) {
-            LOGGER.warn("Interrupted!", e);
+        } catch (InterruptedException exception) {
+            LOGGER.warn("Interrupted!", exception);
             Thread.currentThread().interrupt();
         } catch(HCEActionException exception) {
             LOGGER.error("Exception occurred in HvtSchedulerServiceImpl -> retrySendRnsNotification",exception);
