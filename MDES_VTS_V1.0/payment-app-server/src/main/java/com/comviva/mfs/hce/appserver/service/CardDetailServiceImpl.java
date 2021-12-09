@@ -957,7 +957,8 @@ public class CardDetailServiceImpl implements CardDetailService {
         String url = "";
         JSONObject responseJson = new JSONObject();
         boolean error = false;
-
+        JSONArray tokens = null;
+        JSONObject tokensJsonObj = null;
         try {
             checkIfTokenUniqueRefListIsEmpty(tokenUniqueRefList);
 
