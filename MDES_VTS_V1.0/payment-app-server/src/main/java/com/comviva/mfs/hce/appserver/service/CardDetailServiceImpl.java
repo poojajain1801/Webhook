@@ -1028,7 +1028,10 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Check the status of indivisual token and update the status of the token in the DB
         //Call update the card starus of the token in CMS-D
         //Send response
-        String responseString = (null != responseJson) ? responseJson.toString():"";
+        String responseString = "";
+        if(!(responseJson.length() == 0))
+            responseString = responseJson.toString();
+
         return JsonUtil.jsonStringToHashMap(responseString);
     }
 
