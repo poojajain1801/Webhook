@@ -957,12 +957,10 @@ public class CardDetailServiceImpl implements CardDetailService {
         String url = "";
         JSONObject responseJson = new JSONObject();
         boolean error = false;
-        JSONArray tokens = null;
-        JSONObject tokensJsonObj = null;
+
         try {
-            if (tokenUniqueRefList.isEmpty()) {
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
+            checkIfTokenUniqueRefListIsEmpty(tokenUniqueRefList);
+
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
                 tokenUniqueRef = tokenUniqueRefList.get(i);
                 //get card detail repository
@@ -1016,30 +1014,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 response = String.valueOf(responseEntity.getBody());
                 responseJson = new JSONObject(response);
             }
-            //Check if https req is 200
-            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
-                //Check the status of indivisual token and update the status of the token in the DB
-                if (null != responseJson && responseJson.has("tokens")) {
-                    tokens = responseJson.getJSONArray("tokens");
-                    tokensJsonObj = (JSONObject) tokens.get(0);
-                }
-
-                if (null != responseJson && responseJson.has("errors")) {
-                    responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
-                    //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
-                    responseJson.put("message", responseJson.getString("errorDescription"));
-                } else if (null != tokensJsonObj && tokensJsonObj.has("errorCode")) {
-                    responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
-                    //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
-                    responseJson.put("message", tokensJsonObj.getString("errorDescription"));
-                } else {
-                    responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    JSONArray tokensArray = responseJson.getJSONArray("tokens");
-                    updateTokenStatus(tokensArray);
-                }
-                //Check the status of indivisual token and update the status of the token in the DB
-                //Call update the card starus of the token in CMS-D
-            }
+           prepareResponse(responseEntity, responseJson);
         } catch (HCEActionException enrollPanHCEactionException) {
             LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
             throw enrollPanHCEactionException;
@@ -1055,6 +1030,56 @@ public class CardDetailServiceImpl implements CardDetailService {
         //Send response
         String responseString = (null != responseJson) ? responseJson.toString():"";
         return JsonUtil.jsonStringToHashMap(responseString);
+    }
+
+    private void prepareResponse(ResponseEntity responseEntity, JSONObject responseJson) {
+        JSONArray tokens = null;
+        JSONObject tokensJsonObj = null;
+        try {
+            //Check if https req is 200
+            if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
+                //Check the status of individual token and update the status of the token in the DB
+                if (null != responseJson && responseJson.has("tokens")) {
+                    tokens = responseJson.getJSONArray("tokens");
+                    tokensJsonObj = (JSONObject) tokens.get(0);
+                }
+
+                if (null != responseJson && responseJson.has("errors")) {
+                    responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
+                    //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
+                    responseJson.put("message", responseJson.getString("errorDescription"));
+                } else if (null != tokensJsonObj && tokensJsonObj.has("errorCode")) {
+                    responseJson.put("responseCode", HCEMessageCodes.getFailedAtThiredParty());
+                    //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
+                    responseJson.put("message", tokensJsonObj.getString("errorDescription"));
+                } else {
+                    if(null != responseJson) {
+                        responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
+                        JSONArray tokensArray = responseJson.getJSONArray("tokens");
+                        updateTokenStatus(tokensArray);
+                    }
+                }
+                //Check the status of indivisual token and update the status of the token in the DB
+                //Call update the card starus of the token in CMS-D
+            }
+        } catch (HCEActionException performLifeCycleMgmtException) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", performLifeCycleMgmtException);
+            throw performLifeCycleMgmtException;
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", exception);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+    }
+
+    private void checkIfTokenUniqueRefListIsEmpty(List<String> tokenUniqueRefList) {
+        try {
+            if (tokenUniqueRefList.isEmpty()) {
+                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
+            }
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->checkIfTokenUniqueRefListIsEmpty", exception);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
     }
 
     // updates the token status based on tokenUniqueReferenceId

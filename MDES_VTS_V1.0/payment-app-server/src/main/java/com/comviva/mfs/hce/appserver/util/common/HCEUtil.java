@@ -58,9 +58,9 @@ public class HCEUtil {
     private static SecureRandom secureRandom;
     private static final String ALPHA_NUMERIC_CHARACTERS= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static SecureRandom srnd;
+
     @Autowired
     private SysMessageRepository sysMessageRepository;
-
 
     protected static List<String> maskingPropertiesList = new ArrayList<>();
 
