@@ -193,6 +193,7 @@ public class UserDetailServiceImpl implements UserDetailService {
             if (userIdlist.size() <= 0) {
                 throw new HCEActionException(HCEMessageCodes.getInsufficientData());
             }
+
             responseMap = new LinkedHashMap();
 
             userMapList = new ArrayList<>();
