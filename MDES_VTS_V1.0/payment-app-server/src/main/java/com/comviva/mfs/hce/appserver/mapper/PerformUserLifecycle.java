@@ -84,7 +84,6 @@ public class PerformUserLifecycle {
     {
         UserDetail userDetails;
         try {
-
             for (int i = 0;i<userIdList.size();i++)
             {
                 userDetails = userDetailRepository.findByUserId(userIdList.get(i));
@@ -107,9 +106,6 @@ public class PerformUserLifecycle {
         String updatedUserStatus = null;
 //        UnRegisterReq unRegisterReq = null;
         try {
-            if (null == userId || null == operation || null == userDetails) {
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
             switch (operation) {
                 case HCEConstants.SUSUPEND_USER:
 //                    userStatus = HCEConstants.ACTIVE;
