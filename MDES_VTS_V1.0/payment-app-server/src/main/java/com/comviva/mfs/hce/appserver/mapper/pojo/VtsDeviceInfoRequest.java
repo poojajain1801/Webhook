@@ -46,4 +46,6 @@ public class VtsDeviceInfoRequest {
     private String deviceName;
     private String hostDeviceID;
     private String phoneNumber;
+    private String productCode;
+    private String productVersion;
 }

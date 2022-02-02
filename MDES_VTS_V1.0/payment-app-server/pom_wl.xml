@@ -324,9 +324,9 @@
         <dependency>
             <groupId>SDK-MapUtil</groupId>
             <artifactId>SDK-MapUtil</artifactId>
-            <version>6.0.1</version>
+            <version>6.2.1</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.0.1.jar</systemPath>
+            <systemPath>${basedir}/src/main/lib/SDK-MapUtil-6.2.1.jar</systemPath>
         </dependency>
 
         <dependency>
