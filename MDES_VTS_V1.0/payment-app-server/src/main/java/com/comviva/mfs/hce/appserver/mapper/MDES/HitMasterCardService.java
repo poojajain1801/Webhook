@@ -54,7 +54,8 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     @Autowired
     protected Environment env;
 
-    private HttpHeaders headers = new HttpHeaders();
+    @Autowired
+    private HttpHeaders headers;
 
     @Autowired
     public HitMasterCardService(Environment env)
@@ -63,6 +64,7 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
+
     private SSLContext sslContext;
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id) {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
