@@ -52,7 +52,6 @@ import org.springframework.web.client.RestTemplate;
 public class HitMasterCardService implements RestTemplateCustomizer {
     @Autowired
     protected Environment env;
-
     private HttpHeaders headers;
 
     @Autowired

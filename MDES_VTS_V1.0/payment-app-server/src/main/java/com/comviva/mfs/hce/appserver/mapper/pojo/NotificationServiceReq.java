@@ -20,6 +20,7 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
 
@@ -28,9 +29,14 @@ import org.springframework.stereotype.Component;
  * */
 @Component
 public class NotificationServiceReq {
+
+    @JsonProperty("date")
     private Long date;
+    @JsonProperty("api")
     private String api;
+    @JsonProperty("vProvisionedTokenID")
     private String vProvisionedTokenID;
+    @JsonProperty("vPanEnrollmentID")
     private String vPanEnrollmentID;
 
     /**
