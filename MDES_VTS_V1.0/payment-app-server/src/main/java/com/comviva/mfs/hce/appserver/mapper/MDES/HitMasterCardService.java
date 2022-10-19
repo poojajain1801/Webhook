@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
@@ -52,7 +53,8 @@ import org.springframework.web.client.RestTemplate;
 public class HitMasterCardService implements RestTemplateCustomizer {
     @Autowired
     protected Environment env;
-    private HttpHeaders headers;
+
+    private HttpHeaders headers = new HttpHeaders();
 
     @Autowired
     public HitMasterCardService(Environment env)
@@ -61,7 +63,7 @@ public class HitMasterCardService implements RestTemplateCustomizer {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
-    private SSLContext sslContext = null;
+    private SSLContext sslContext;
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id) {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
         ResponseEntity<String> response = null;
@@ -72,7 +74,7 @@ public class HitMasterCardService implements RestTemplateCustomizer {
         int proxyport = 0;
         Proxy proxy = null;
 
-        this.headers = new HttpHeaders();
+
         this.headers.add("Accept", "application/json");
         this.headers.add("Accept", "application/pkix-cert");
         this.headers.add("Content-Type", "application/json");

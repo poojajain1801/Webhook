@@ -71,7 +71,8 @@ public class PerformUserLifecycle {
 
     @Autowired
     private RemoteNotificationService remoteNotificationService;
-    private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
+
+    private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = null;
 
     public PerformUserLifecycle(CardDetailRepository cardDetailRepository, DeviceDetailRepository deviceDetailRepository, UserDetailRepository userDetailRepository) {
         this.cardDetailRepository = cardDetailRepository;

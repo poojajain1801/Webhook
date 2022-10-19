@@ -96,7 +96,8 @@ public class HCEControllerSupport {
     private static PrivateKey privateKey;
 
 
-    private String userId;
+
+    private String userId="";
 
     public void setUserId(String userId) {
         this.userId = userId;
