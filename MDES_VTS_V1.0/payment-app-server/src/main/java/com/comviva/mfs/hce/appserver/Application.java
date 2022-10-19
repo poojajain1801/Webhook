@@ -61,5 +61,9 @@ public class Application extends SpringBootServletInitializer implements WebAppl
         return builder.sources(Application.class);
     }
 
+    @Bean
+    public HttpHeaders getHttpHeaders(){
+        return new HttpHeaders();
+    }
 
 }
