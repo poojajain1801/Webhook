@@ -95,7 +95,7 @@ public class HCEControllerSupport {
     private Environment env;
     private static PrivateKey privateKey;
 
-    @JsonProperty("userId")
+
     private String userId;
 
     public void setUserId(String userId) {
