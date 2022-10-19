@@ -57,7 +57,7 @@ import java.util.Map;
 /**
  * Created by Tanmay.Patel on 1/8/2017.
  */
-@CrossOrigin(maxAge = 3600)
+
 @RestController
 @RequestMapping("/api/card")
 public class CardManagementController {
