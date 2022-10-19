@@ -71,7 +71,7 @@ public class UserDetailServiceImpl implements UserDetailService {
     private TokenLifeCycleManagementService tokenLifeCycleManagementService;
     @Autowired
     private PerformUserLifecycle performLCMobj;
-    private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
+
     @Autowired
     public UserDetailServiceImpl(UserDetailRepository userDetailRepository,DeviceDetailRepository deviceDetailRepository, HCEControllerSupport hceControllerSupport,CardDetailRepository cardDetailRepository) {
         this.userDetailRepository = userDetailRepository;

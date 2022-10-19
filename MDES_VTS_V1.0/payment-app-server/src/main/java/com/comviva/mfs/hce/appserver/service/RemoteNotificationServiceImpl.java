@@ -49,7 +49,6 @@ import java.util.Optional;
 @Service
 public class RemoteNotificationServiceImpl implements com.comviva.mfs.hce.appserver.service.contract.RemoteNotificationService {
     private final DeviceDetailRepository deviceDetailRepository;
-    private HCEControllerSupport hceControllerSupport;
 
     @Autowired
     public RemoteNotificationServiceImpl(DeviceDetailRepository deviceDetailRepository,HCEControllerSupport hceControllerSupport) {

@@ -20,17 +20,21 @@
  */
 package com.comviva.mfs.hce.appserver.mapper.pojo;
 
-import org.springframework.stereotype.Component;
-
 
 /**
  * NotificationServiceReq
  * */
-@Component
+//@Component
+
 public class NotificationServiceReq {
+
+
     private Long date;
+
     private String api;
+
     private String vProvisionedTokenID;
+
     private String vPanEnrollmentID;
 
     /**

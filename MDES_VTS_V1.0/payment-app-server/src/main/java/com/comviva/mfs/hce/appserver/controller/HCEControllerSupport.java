@@ -29,6 +29,7 @@ import com.comviva.mfs.hce.appserver.repository.CardDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.DeviceDetailRepository;
 import com.comviva.mfs.hce.appserver.repository.SysMessageRepository;
 import com.comviva.mfs.hce.appserver.repository.UserDetailRepository;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.codec.binary.Base64;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.exception.HCEValidationException;
@@ -93,6 +94,7 @@ public class HCEControllerSupport {
     @Autowired
     private Environment env;
     private static PrivateKey privateKey;
+
 
     private String userId;
 
