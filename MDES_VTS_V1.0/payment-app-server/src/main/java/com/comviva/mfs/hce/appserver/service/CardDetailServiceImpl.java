@@ -965,7 +965,13 @@ public class CardDetailServiceImpl implements CardDetailService {
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
                 tokenUniqueRef = tokenUniqueRefList.get(i);
                 //get card detail repository
-                CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+
+                CardDetails cardDetails = null;
+                if(cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()){
+                    cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                }
+
+
 
                 //Check if the token unique reference are valid or not
                 if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
@@ -1090,8 +1096,10 @@ public class CardDetailServiceImpl implements CardDetailService {
     private void updateTokenStatus(JSONArray tokensArray) {
         String tokenUniqueRef = "";
         String statusFromMastercard = "";
+
         String status = "";
         for (int i = 0; i < tokensArray.length(); i++) {
+            CardDetails cardDetails = null;
             JSONObject j = tokensArray.getJSONObject(i);
             if (j.has("status")) {
                 tokenUniqueRef = j.getString("tokenUniqueReference");
@@ -1108,7 +1116,8 @@ public class CardDetailServiceImpl implements CardDetailService {
                         break;
                 }
                 if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
-                    CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+
+                    cardDetails =  cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
                     cardDetails.setStatus(status);
                     cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     cardDetailRepository.save(cardDetails);
