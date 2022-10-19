@@ -967,11 +967,10 @@ public class CardDetailServiceImpl implements CardDetailService {
                 //get card detail repository
 
                 CardDetails cardDetails = null;
-                if(cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()){
-                    cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                Optional<CardDetails> byMasterTokenUniqueReference = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef);
+                if(byMasterTokenUniqueReference.isPresent()){
+                    cardDetails = byMasterTokenUniqueReference.get();
                 }
-
-
 
                 //Check if the token unique reference are valid or not
                 if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
@@ -1115,9 +1114,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                         status = HCEConstants.ACTIVE;
                         break;
                 }
-                if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
-
-                    cardDetails =  cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                Optional<CardDetails> cardDetails1 = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef);
+                if (cardDetails1.isPresent()) {
+                    cardDetails = cardDetails1.get();
                     cardDetails.setStatus(status);
                     cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     cardDetailRepository.save(cardDetails);
