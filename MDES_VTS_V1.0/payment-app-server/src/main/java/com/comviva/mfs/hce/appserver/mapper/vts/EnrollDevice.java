@@ -72,7 +72,7 @@ public class EnrollDevice{
     @Autowired
     public Environment env;
 
-    private static final long CERTIFICATE_EXPIRY_DURATION = 1 * 365 * 24 * 60 * 60 * 1000;
+    private static final long CERTIFICATE_EXPIRY_DURATION = 365 * 24 * 60 * 60 * 1000L;
 
     /**
      * Prepares device information for VTS.

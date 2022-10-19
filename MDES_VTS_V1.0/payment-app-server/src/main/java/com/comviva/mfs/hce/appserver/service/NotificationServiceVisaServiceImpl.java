@@ -268,7 +268,8 @@ public class NotificationServiceVisaServiceImpl implements NotificationServiceVi
 
             LOGGER.debug("Response Recived from ");
             if (rnsResp.containsKey("errorCode")) {
-                LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate - > remoteNotification Sending Failed");
+                LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> notifyTxnDetailsUpdate - > " +
+                        "remoteNotification Sending Failed");
                 LOGGER.debug("EXIT NotificationServiceVisaServiceImpl->-> notifyTxnDetailsUpdate" );
                 return rnsResp;
             } else {

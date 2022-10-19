@@ -2,7 +2,26 @@ package com.comviva.mfs.hce.appserver.service;
 import com.comviva.mfs.hce.appserver.controller.HCEControllerSupport;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.mapper.MDES.HitMasterCardService;
-import com.comviva.mfs.hce.appserver.mapper.pojo.*;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivateReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.ActivationCodeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.AddCardParm;
+import com.comviva.mfs.hce.appserver.mapper.pojo.CardInfo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DeviceInfoRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.DigitizationParam;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EncryptedPayload;
+import com.comviva.mfs.hce.appserver.mapper.pojo.EnrollPanRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetAssetPojo;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetCardMetadataRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetContentRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.GetTokensRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.LifeCycleManagementReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTokenUpdatedReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.NotifyTransactionDetailsReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.RedigitizeReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.SearchTokensReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TDSRegistrationReq;
+import com.comviva.mfs.hce.appserver.mapper.pojo.TokenizeRequest;
+import com.comviva.mfs.hce.appserver.mapper.pojo.UnregisterTdsReq;
 import com.comviva.mfs.hce.appserver.mapper.vts.HitVisaServices;
 import com.comviva.mfs.hce.appserver.model.CardDetails;
 import com.comviva.mfs.hce.appserver.model.DeviceInfo;
@@ -28,7 +47,7 @@ import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.RnsRespo
 import com.comviva.mfs.hce.appserver.util.common.remotenotification.fcm.UniqueIdType;
 import com.comviva.mfs.hce.appserver.util.mdes.CryptoUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.json.Json;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.visa.dmpd.token.JWTUtility;
@@ -53,7 +72,13 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -110,7 +135,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String url = null;
         JSONObject jsonResp = new JSONObject();
         JSONObject checkDeviceEligibilityRequest = null;
-        Optional<DeviceInfo> deviceInfoOptional = null;
+        Optional<DeviceInfo> deviceInfoOptional;
         ResponseEntity responseEntity = null;
         JSONObject jsonResponse = null;
         JSONObject eligibilityResponse = null;
@@ -209,7 +234,7 @@ public class CardDetailServiceImpl implements CardDetailService {
     }
 
     public Map<String, Object> addCard(DigitizationParam digitizationParam) {
-        Optional<DeviceInfo> deviceInfoList = null;
+        Optional<DeviceInfo> deviceInfoList;
         String eligibilityRequest = null;
         Optional<DeviceInfo> deviceDetail;
         String eligibilityResponse = null;
@@ -859,13 +884,13 @@ public class CardDetailServiceImpl implements CardDetailService {
     public Map registerWithTDS(TDSRegistrationReq tdsRegistrationReq ) {
         String tokenUniqueRef = tdsRegistrationReq.getTokenUniqueReference();
         String registrationHash = null;
-        Optional<TransactionRegDetails> transactionDetails = null;
+        Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = null;
         JSONObject jsonResponse = new JSONObject();
         String response = null;
         JSONObject requestJson = new JSONObject();
         ResponseEntity responseMdes = null;
-        Map responseMap = new HashMap();
+        Map<String, Object> responseMap = null;
         String url = null;
         String id = null;
         try {
@@ -928,18 +953,15 @@ public class CardDetailServiceImpl implements CardDetailService {
         List<String> tokenUniqueRefList = lifeCycleManagementReq.getTokenUniqueReferences();
         String tokenUniqueRef = "";
         String response = "";
-        JSONObject lifecycleJsonRequest = null;
+        JSONObject lifecycleJsonRequest;
         String url = "";
-        JSONObject responseJson = null;
-        String statusFromMastercard = "";
-        String status = "";
+        JSONObject responseJson = new JSONObject();
         boolean error = false;
         JSONArray tokens = null;
         JSONObject tokensJsonObj = null;
         try {
-            if (tokenUniqueRefList.isEmpty() || (tokenUniqueRefList.size() == 0)) {
-                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
-            }
+            checkIfTokenUniqueRefListIsEmpty(tokenUniqueRefList);
+
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
                 tokenUniqueRef = tokenUniqueRefList.get(i);
                 //get card detail repository
@@ -993,9 +1015,34 @@ public class CardDetailServiceImpl implements CardDetailService {
                 response = String.valueOf(responseEntity.getBody());
                 responseJson = new JSONObject(response);
             }
+           prepareResponse(responseEntity, responseJson);
+        } catch (HCEActionException enrollPanHCEactionException) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
+            throw enrollPanHCEactionException;
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", exception);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
+
+        LOGGER.debug("Exit CardDetailServiceImpl->enrollPan");
+
+        //Check the status of indivisual token and update the status of the token in the DB
+        //Call update the card starus of the token in CMS-D
+        //Send response
+        String responseString = "";
+        if(!(responseJson.length() == 0))
+            responseString = responseJson.toString();
+
+        return JsonUtil.jsonStringToHashMap(responseString);
+    }
+
+    private void prepareResponse(ResponseEntity responseEntity, JSONObject responseJson) {
+        JSONArray tokens = null;
+        JSONObject tokensJsonObj = null;
+        try {
             //Check if https req is 200
             if (responseEntity.getStatusCode().value() == HCEConstants.REASON_CODE7) {
-                //Check the status of indivisual token and update the status of the token in the DB
+                //Check the status of individual token and update the status of the token in the DB
                 if (null != responseJson && responseJson.has("tokens")) {
                     tokens = responseJson.getJSONArray("tokens");
                     tokensJsonObj = (JSONObject) tokens.get(0);
@@ -1010,29 +1057,33 @@ public class CardDetailServiceImpl implements CardDetailService {
                     //jsonResponse.put("message",jsonResponse.getJSONArray("errors").getJSONObject(0).getString("errorDescription"));errorDescription
                     responseJson.put("message", tokensJsonObj.getString("errorDescription"));
                 } else {
-                    responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
-                    JSONArray tokensArray = responseJson.getJSONArray("tokens");
-                    updateTokenStatus(tokensArray);
+                    if(null != responseJson) {
+                        responseJson.put("responseCode", HCEMessageCodes.getSUCCESS());
+                        JSONArray tokensArray = responseJson.getJSONArray("tokens");
+                        updateTokenStatus(tokensArray);
+                    }
                 }
                 //Check the status of indivisual token and update the status of the token in the DB
                 //Call update the card starus of the token in CMS-D
             }
         } catch (HCEActionException enrollPanHCEactionException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanHCEactionException);
             throw enrollPanHCEactionException;
-
-        } catch (Exception enrollPanException) {
-            LOGGER.error("Exception occured in CardDetailServiceImpl->performCardLifeCycleManagement", enrollPanException);
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->performCardLifeCycleManagement", exception);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
+    }
 
-        LOGGER.debug("Exit CardDetailServiceImpl->enrollPan");
-
-        //Check the status of indivisual token and update the status of the token in the DB
-        //Call update the card starus of the token in CMS-D
-        //Send response
-        String responseString = (null != responseJson) ? responseJson.toString():"";
-        return JsonUtil.jsonStringToHashMap(responseString);
+    private void checkIfTokenUniqueRefListIsEmpty(List<String> tokenUniqueRefList) {
+        try {
+            if (tokenUniqueRefList.isEmpty()) {
+                throw new HCEActionException(HCEMessageCodes.getInsufficientData());
+            }
+        } catch (Exception exception) {
+            LOGGER.error("Exception occurred in CardDetailServiceImpl->checkIfTokenUniqueRefListIsEmpty", exception);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
+        }
     }
 
     // updates the token status based on tokenUniqueReferenceId
@@ -1077,7 +1128,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String paymentAppInstanceId = null;
         String id = "";
         String urlHost = null;
-        Optional<DeviceInfo> deviceDetail = null;
+        Optional<DeviceInfo> deviceDetail;
         try {
             requestId = this.env.getProperty("reqestid")+ArrayUtil.getHexString(ArrayUtil.getRandom(22));
             reqMdes  = new JSONObject();
@@ -1237,7 +1288,7 @@ public class CardDetailServiceImpl implements CardDetailService {
         String paymentAppInstanceId = unregisterTdsReq.getPaymentAppInstanceId();
         String authenticationCode = null;
         JSONObject requestJson = new JSONObject();
-        Optional<TransactionRegDetails> transactionDetails = null;
+        Optional<TransactionRegDetails> transactionDetails;
         TransactionRegDetails transactionRegDetails = new TransactionRegDetails();
         List<TransactionRegDetails> transactionDetailsList = null;
         int size = 0;

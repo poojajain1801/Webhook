@@ -67,23 +67,12 @@ public class UserDetail implements Serializable {
     public UserDetail() {
     }
 
-
-
-
     public String getClientWalletAccountId() {
         return this.clientWalletAccountId;
     }
 
     public void setClientWalletAccountId(String clientWalletAccountId) {
         this.clientWalletAccountId = clientWalletAccountId;
-    }
-
-    public String getActivationCode() {
-        return this.activationCode;
-    }
-
-    public void setActivationCode(String activationCode) {
-        this.activationCode = activationCode;
     }
 
     public Timestamp getCreatedOn() {
@@ -94,16 +83,12 @@ public class UserDetail implements Serializable {
         this.createdOn = (createdOn);
     }
 
-    public Timestamp getModifiedOn() {
-        return (this.modifiedOn);
+    public String getActivationCode() {
+        return this.activationCode;
     }
 
-    public void setModifiedOn(Timestamp modifiedOn) {
-        this.modifiedOn = (modifiedOn);
-    }
-
-    public String getStatus() {
-        return this.status;
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
     }
 
     public String getLanguageCode() {
@@ -118,6 +103,10 @@ public class UserDetail implements Serializable {
         this.status = status;
     }
 
+    public String getStatus() {
+        return this.status;
+    }
+
     public String getUserId() {
         return this.userId;
     }
@@ -128,6 +117,14 @@ public class UserDetail implements Serializable {
 
     public List<DeviceInfo> getDeviceInfos() {
         return (this.deviceInfos);
+    }
+
+    public Timestamp getModifiedOn() {
+        return (this.modifiedOn);
+    }
+
+    public void setModifiedOn(Timestamp modifiedOn) {
+        this.modifiedOn = (modifiedOn);
     }
 
     public void setDeviceInfos(List<DeviceInfo> deviceInfos) {

@@ -68,14 +68,14 @@ public class SendReqest {
                 String proxyport = env.getProperty("proxyport");
                 String username = env.getProperty("username");
                 String password = env.getProperty("password");
-                System.setProperty("http.proxyHost", proxyip);
-                System.setProperty("http.proxyPort", proxyport);
-                System.setProperty("http.proxyUser", username);
-                System.setProperty("http.proxyPassword", password);
-                System.setProperty("https.proxyHost", proxyip);
-                System.setProperty("https.proxyPort", proxyport);
                 System.setProperty("https.proxyUser", username);
                 System.setProperty("https.proxyPassword",password);
+                System.setProperty("https.proxyHost", proxyip);
+                System.setProperty("https.proxyPort", proxyport);
+                System.setProperty("http.proxyUser", username);
+                System.setProperty("http.proxyPassword", password);
+                System.setProperty("http.proxyHost", proxyip);
+                System.setProperty("http.proxyPort", proxyport);
             }
 
             byte[] postData = (requestData);

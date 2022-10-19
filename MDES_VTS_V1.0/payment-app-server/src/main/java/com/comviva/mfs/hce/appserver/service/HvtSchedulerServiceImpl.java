@@ -75,11 +75,14 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
                 }
                 Thread.sleep(10000);
             }
+        } catch (InterruptedException exception) {
+            LOGGER.warn("Interrupted!", exception);
+            Thread.currentThread().interrupt();
         } catch(HCEActionException exception) {
-            LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification",exception);
+            LOGGER.error("Exception occurred in HvtSchedulerServiceImpl -> retrySendRnsNotification",exception);
             throw exception;
         } catch (Exception exception) {
-            LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification", exception);
+            LOGGER.error("Exception occurred in HvtSchedulerServiceImpl -> retrySendRnsNotification", exception);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
     }
@@ -127,7 +130,7 @@ public class HvtSchedulerServiceImpl implements HvtSchedulerService {
      * we can make use of hceManagementService.sendNotification instead of this redundant function
      * for the sake of testing scheduler, had to repeat the same function same with prepare notification request function
      * */
-    private void sendNotification(RnsGenericRequest rnsGenericRequest) throws Exception{
+    private void sendNotification(RnsGenericRequest rnsGenericRequest) {
         Map rnsResp = remoteNotificationService.sendRemoteNotification(rnsGenericRequest);
         if (rnsResp.containsKey("errorCode")) {
             LOGGER.debug("Inside NotificationServiceVisaServiceImpl -> sendNotification-> notifyPanMetadataUpdate - > remoteNotification Sending Failed");

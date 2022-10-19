@@ -197,6 +197,9 @@ public class HvtMangementServiceImpl implements HvtManagementService{
                 }
                 Thread.sleep(1000);
             }
+        } catch (InterruptedException e) {
+            LOGGER.warn("Interrupted!", e);
+            Thread.currentThread().interrupt();
         } catch(HCEActionException exception) {
             LOGGER.error("Exception occurred in HvtMgmtServiceImpl -> sendRnsNotification",exception);
             throw exception;

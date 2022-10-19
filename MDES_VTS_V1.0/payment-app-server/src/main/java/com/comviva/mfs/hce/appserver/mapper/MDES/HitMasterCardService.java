@@ -49,10 +49,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class HitMasterCardService implements RestTemplateCustomizer
-{
+public class HitMasterCardService implements RestTemplateCustomizer {
     @Autowired
     protected Environment env;
+
     private HttpHeaders headers;
 
     @Autowired
@@ -88,33 +88,17 @@ public class HitMasterCardService implements RestTemplateCustomizer
             URL currUrl = new URL(url);
             LOGGER.info(currUrl.getHost());
             this.headers.add("Host",currUrl.getHost());
-            if ((type.equalsIgnoreCase("GET")) || (requestBody.equalsIgnoreCase(null)) || (requestBody.isEmpty())) {
-                entity = new HttpEntity(this.headers);
-            } else {
-                entity = new HttpEntity(requestBody, this.headers);
-            }
+            entity = initializeHttpEntity(type, requestBody);
             LOGGER.debug("Configuring SSL...");
             // RestTemplate restTemplate = restTemplate();
             Map idMap = new HashMap();
-            /*if (!(id.equalsIgnoreCase("")|| id.isEmpty()))
-            {
-                +"/{assetId}";
-                //idMap.put("id","checkEligibility");
 
-                idMap.put("assetId","95d4cd38-36fc-4b26-8795-06a3b00acf3b");
-
-            }*/
             url =url+"/{id}";
             idMap.put("id",id);
 
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-            if(env.getProperty("is.proxy.required").equals("Y"))
-            {
-                proxyip = env.getProperty("proxyip");
-                proxyport = Integer.parseInt(env.getProperty("proxyport"));
-                proxy = new Proxy(Proxy.Type.HTTP,new InetSocketAddress(proxyip,proxyport));
-                requestFactory.setProxy(proxy);
-            }
+            setProxy(requestFactory);
+
             RestTemplate restTemplate = restTemplate();
             restTemplate.setInterceptors(Collections.singletonList(new RequestResponseLoggingInterceptor()));
 
@@ -126,85 +110,100 @@ public class HitMasterCardService implements RestTemplateCustomizer
             LOGGER.debug("URL---- = " + url);
             LOGGER.info("info---- = " + url);
             startTime = System.currentTimeMillis();
-            if ("POST".equals(type)) {
-                LOGGER.debug("Request medthod  ########################################################## = " + type);
-                LOGGER.info("Request medthod  ###########################################################= " + type);
-                response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class,idMap);
 
+            LOGGER.debug("Request medthod  ########################################################## = " + type);
+            response = fetchResponse(restTemplate, url, entity, idMap, type);
+            if(response != null) {
                 LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
-                LOGGER.debug("Response Body******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
+                LOGGER.debug("Response ******************************** = " + (String) response.getBody());
             }
-            else if ("PUT".equals(type))
-            {
-                response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class,idMap);
-                LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
-                LOGGER.info("Response STATUS********************************" + response.getStatusCode());
-                LOGGER.debug("Response ******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
-            }
-            else if ("GET".equalsIgnoreCase(type))
-            {
-                response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class,idMap);
-                LOGGER.debug("Response STATUS******************************** = " + response.getStatusCode());
-                LOGGER.info("Response STATUS********************************" + response.getStatusCode());
-                LOGGER.debug("Response ******************************** = " + (String)response.getBody());
-                // LOGGER.info("Response ********************************" + (String)response.getBody());
-            }
-        }
-        catch (HttpClientErrorException httpClintException)
-        {
-            LOGGER.error("Staus code recived from master card--->", httpClintException);
-            LOGGER.error("Staus code recived from master card Messageeeee--->", httpClintException.getMessage());
-            LOGGER.error("Staus code recived from master card   ResponseBodyAsString--->", httpClintException.getResponseBodyAsString());
+        } catch (HttpClientErrorException httpClientException) {
+            LOGGER.error("Status code received from master card--->", httpClientException);
+            LOGGER.error("Status code received from master card Message--->", httpClientException.getMessage());
+            LOGGER.error("Status code received from master card ResponseBodyAsString--->",
+                    httpClientException.getResponseBodyAsString());
+            LOGGER.error("Status code received from master card--->",
+                    Integer.valueOf(httpClientException.getRawStatusCode()));
+            LOGGER.error("Message received from master card--->", httpClientException.getCause());
+            LOGGER.error("Exception occurred", httpClientException);
 
-            LOGGER.error("Staus code recived from master card--->", Integer.valueOf(httpClintException.getRawStatusCode()));
-            LOGGER.error("Message recived from master card--->", httpClintException.getCause());
-            LOGGER.error("Exeption occured", httpClintException);
-
-            HttpHeaders responseHeaders = httpClintException.getResponseHeaders();
-            HttpStatus statusCode = httpClintException.getStatusCode();
-            String error = httpClintException.getResponseBodyAsString();
+            HttpHeaders responseHeaders = httpClientException.getResponseHeaders();
+            HttpStatus statusCode = httpClientException.getStatusCode();
+            String error = httpClientException.getResponseBodyAsString();
             if ((error != null) && (!error.isEmpty())) {
                 response = new ResponseEntity(error, responseHeaders, statusCode);
             } else {
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
             }
             //return response;
-        }
-        catch (Exception e)
-        {
+        } catch(NullPointerException npe) {
+            LOGGER.error("response is null from mastercard -> occurred in HitMasterCardService", npe);
+            LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
+        } catch (Exception e) {
             LOGGER.error("Exception occurred in HitMasterCardService", e);
-
             LOGGER.debug("Exit HitMasterCardService -> restfulServiceConsumerMasterCard");
         }
         finally {
             final long endTime = System.currentTimeMillis();
             final long totalTime = endTime - startTime;
             int statusCode = 0;
-            if(response!=null){
+            if(null !=response && !(null==requestBody||(requestBody.isEmpty()))) {
+                String requestId = "";
                 statusCode = response.getStatusCode().value();
 
-            }
-            if(null !=response) {
-                String requestId = "";
-                if (!(null==requestBody||(requestBody.isEmpty()))) {
-                    JSONObject requestJson = new JSONObject(requestBody);
+                JSONObject requestJson = new JSONObject(requestBody);
 
-                    if (requestJson.has("requestId")) {
-                        requestId = requestJson.getString("requestId");
-                    }
+                if (requestJson.has("requestId")) {
+                    requestId = requestJson.getString("requestId");
                 }
+
                 HCEUtil.writeTdrLog(totalTime, Integer.toString(statusCode), requestId, requestBody, String.valueOf(response.getBody()),id);
             }
         }
         return response;
     }
 
+    private ResponseEntity<String> fetchResponse(RestTemplate restTemplate, String url,
+                                                 HttpEntity<String> entity, Map idMap, String type) {
+        ResponseEntity<String> response = null;
+
+        if ("POST".equals(type)) {
+            response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class, idMap);
+        } else if ("PUT".equals(type)) {
+            response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, idMap);
+        } else if ("GET".equalsIgnoreCase(type)) {
+            response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, idMap);
+        }
+
+        return response;
+    }
+
+    private HttpEntity initializeHttpEntity(String type, String requestBody) {
+        if ((type.equalsIgnoreCase("GET")) || (requestBody!=null) && (requestBody.isEmpty())) {
+            return new HttpEntity(this.headers);
+        }
+        return new HttpEntity(requestBody, this.headers);
+    }
+
+    private void setProxy(SimpleClientHttpRequestFactory requestFactory) {
+        Proxy proxy = null;
+        String proxyip = null;
+        int proxyport = 0;
+        try {
+            if (env.getProperty("is.proxy.required").equals("Y")) {
+                proxyport = Integer.parseInt(env.getProperty("proxyport"));
+                proxyip = env.getProperty("proxyip");
+                proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyip, proxyport));
+                requestFactory.setProxy(proxy);
+            }
+        } catch (NullPointerException exception) {
+            LOGGER.error("exception in hitMastercardService at setProxy method" + exception);
+            throw exception;
+        }
+    }
 
 
-    private RestTemplate restTemplate() throws Exception
-    {
+    private RestTemplate restTemplate() throws Exception {
 
         String keystorepa = env.getProperty("truststorepass");
         String trustorename = "classpath:"+env.getProperty("truststoreName");
@@ -227,7 +226,7 @@ public class HitMasterCardService implements RestTemplateCustomizer
         HttpClient client = null;
         if(!env.getProperty("is.proxy.required").equals("Y")) {
             client = HttpClients.custom().setSSLContext(sslContext).build();
-        }else {
+        } else {
             HttpHost proxy = new HttpHost(proxyip,Integer.valueOf(proxyport));
             client = HttpClientBuilder.create()
                     .setRoutePlanner(new DefaultProxyRoutePlanner(proxy) {
@@ -248,4 +247,13 @@ public class HitMasterCardService implements RestTemplateCustomizer
                 new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client)));
     }
 }
+
+ /*if (!(id.equalsIgnoreCase("")|| id.isEmpty()))
+            {
+                +"/{assetId}";
+                //idMap.put("id","checkEligibility");
+
+                idMap.put("assetId","95d4cd38-36fc-4b26-8795-06a3b00acf3b");
+
+}*/
 
