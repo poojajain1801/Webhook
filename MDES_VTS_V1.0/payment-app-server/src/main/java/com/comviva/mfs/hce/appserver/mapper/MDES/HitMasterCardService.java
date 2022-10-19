@@ -3,10 +3,16 @@ package com.comviva.mfs.hce.appserver.mapper.MDES;
 import com.comviva.mfs.hce.appserver.exception.HCEActionException;
 import com.comviva.mfs.hce.appserver.util.common.HCEMessageCodes;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,7 +71,7 @@ public class HitMasterCardService implements RestTemplateCustomizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HitMasterCardService.class);
 
-    private static SSLContext sslContext;
+
 
     public ResponseEntity restfulServiceConsumerMasterCard(String url, String requestBody, String type,String id) {
         LOGGER.debug("Enter HitMasterCardService -> restfulServiceConsumerMasterCard");
@@ -208,26 +214,29 @@ public class HitMasterCardService implements RestTemplateCustomizer {
 
 
     private RestTemplate restTemplate() throws Exception {
-
-        String keystorepa = env.getProperty("truststorepass");
-        String trustorename = "classpath:"+env.getProperty("truststoreName");
-        sslContext = SSLContextBuilder.create()
-                .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
-                .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
-                .build();
         RestTemplate restTemplate= new RestTemplate();
-        customize(restTemplate);
+        try{
+            customize(restTemplate);
+        } catch (Exception e) {
+            LOGGER.info(e.getMessage());
+        }
         return restTemplate;
     }
 
     @Override
     public void customize(RestTemplate restTemplate) {
+
         String username = env.getProperty("username");
         String password = env.getProperty("password");
         String proxyip = env.getProperty("proxyip");
         String proxyport = env.getProperty("proxyport");
 
         HttpClient client = null;
+        SSLContext sslContext;
+        String keystorepa = env.getProperty("truststorepass");
+        String trustorename = "classpath:"+env.getProperty("truststoreName");
+        sslContext = getSSLcontext(keystorepa,trustorename);
+
         if(!env.getProperty("is.proxy.required").equals("Y")) {
             client = HttpClients.custom().setSSLContext(sslContext).build();
         } else {
@@ -249,6 +258,19 @@ public class HitMasterCardService implements RestTemplateCustomizer {
 
         restTemplate.setRequestFactory(
                 new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(client)));
+    }
+
+    private SSLContext getSSLcontext(String keystorepa, String trustorename) {
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContextBuilder.create()
+                    .loadKeyMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray(), keystorepa.toCharArray())
+                    .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
+                    .build();
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException | IOException | UnrecoverableKeyException e) {
+            LOGGER.info(e.getMessage());
+        }
+        return sslContext;
     }
 }
 
