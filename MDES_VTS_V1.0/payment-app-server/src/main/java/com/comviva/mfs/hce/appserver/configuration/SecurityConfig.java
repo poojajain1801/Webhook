@@ -56,8 +56,7 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
     };
 
 
-    @Value("${cors.allowed.origins}")
-    private String corsAllowedOrigins;
+
 
     private final AuthenticationStrategyFactory authenticationStrategyFactory;
     private final EntryPointUnauthorizedHandler entryPointUnauthorizedHandler;
@@ -92,17 +91,5 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
         return authenticationFilter;
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        String[] allowedOrigins= corsAllowedOrigins.split(",");
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+
 }
