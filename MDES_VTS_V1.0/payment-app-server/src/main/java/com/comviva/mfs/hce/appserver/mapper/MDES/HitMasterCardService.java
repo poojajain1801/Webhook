@@ -218,7 +218,8 @@ public class HitMasterCardService implements RestTemplateCustomizer {
         try{
             customize(restTemplate);
         } catch (Exception e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.debug("Exception Occurred in hitmastercardService->restTemplate method",e);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return restTemplate;
     }
@@ -268,7 +269,8 @@ public class HitMasterCardService implements RestTemplateCustomizer {
                     .loadTrustMaterial(ResourceUtils.getFile(trustorename), keystorepa.toCharArray())
                     .build();
         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | CertificateException | IOException | UnrecoverableKeyException e) {
-            LOGGER.info(e.getMessage());
+            LOGGER.debug("Exception Occurred in getSSLcontext",e);
+            throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
         return sslContext;
     }
