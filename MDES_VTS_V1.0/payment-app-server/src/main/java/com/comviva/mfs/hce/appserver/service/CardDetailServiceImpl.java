@@ -973,7 +973,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 }
 
                 //Check if the token unique reference are valid or not
-                if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
+                if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails != null ? cardDetails.getMasterTokenUniqueReference() : null))) {
                     // return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid token UniqueReference");
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
