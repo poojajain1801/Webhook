@@ -979,7 +979,7 @@ public class CardDetailServiceImpl implements CardDetailService {
                 }
 
                 //Check if the payment appInstance ID is valid or not
-                if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails.getMasterPaymentAppInstanceId()))) {
+                if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails != null ? cardDetails.getMasterPaymentAppInstanceId() : null))) {
                     throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
                 }
                 //Check the status of the card if it is deactivated than thwor error
