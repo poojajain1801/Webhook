@@ -965,16 +965,21 @@ public class CardDetailServiceImpl implements CardDetailService {
             for (int i = 0; i < tokenUniqueRefList.size(); i++) {
                 tokenUniqueRef = tokenUniqueRefList.get(i);
                 //get card detail repository
-                CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+
+                CardDetails cardDetails = null;
+                Optional<CardDetails> byMasterTokenUniqueReference = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef);
+                if(byMasterTokenUniqueReference.isPresent()){
+                    cardDetails = byMasterTokenUniqueReference.get();
+                }
 
                 //Check if the token unique reference are valid or not
-                if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails.getMasterTokenUniqueReference()))) {
+                if (!(tokenUniqueRef.equalsIgnoreCase(cardDetails != null ? cardDetails.getMasterTokenUniqueReference() : null))) {
                     // return ImmutableMap.of(HCEConstants.REASON_CODE, "260", "message", "Invalid token UniqueReference");
                     throw new HCEActionException(HCEMessageCodes.getCardDetailsNotExist());
                 }
 
                 //Check if the payment appInstance ID is valid or not
-                if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails.getMasterPaymentAppInstanceId()))) {
+                if (!(paymentAppInstanceID.equalsIgnoreCase(cardDetails != null ? cardDetails.getMasterPaymentAppInstanceId() : null))) {
                     throw new HCEActionException(HCEMessageCodes.getInvalidPaymentAppInstanceId());
                 }
                 //Check the status of the card if it is deactivated than thwor error
@@ -1090,8 +1095,10 @@ public class CardDetailServiceImpl implements CardDetailService {
     private void updateTokenStatus(JSONArray tokensArray) {
         String tokenUniqueRef = "";
         String statusFromMastercard = "";
+
         String status = "";
         for (int i = 0; i < tokensArray.length(); i++) {
+            CardDetails cardDetails = null;
             JSONObject j = tokensArray.getJSONObject(i);
             if (j.has("status")) {
                 tokenUniqueRef = j.getString("tokenUniqueReference");
@@ -1107,8 +1114,9 @@ public class CardDetailServiceImpl implements CardDetailService {
                         status = HCEConstants.ACTIVE;
                         break;
                 }
-                if (cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).isPresent()) {
-                    CardDetails cardDetails = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef).get();
+                Optional<CardDetails> cardDetails1 = cardDetailRepository.findByMasterTokenUniqueReference(tokenUniqueRef);
+                if (cardDetails1.isPresent()) {
+                    cardDetails = cardDetails1.get();
                     cardDetails.setStatus(status);
                     cardDetails.setModifiedOn(HCEUtil.convertDateToTimestamp(new Date()));
                     cardDetailRepository.save(cardDetails);

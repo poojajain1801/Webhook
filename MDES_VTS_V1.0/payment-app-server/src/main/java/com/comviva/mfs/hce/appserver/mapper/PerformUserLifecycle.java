@@ -71,7 +71,7 @@ public class PerformUserLifecycle {
 
     @Autowired
     private RemoteNotificationService remoteNotificationService;
-    private LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest;
+
 
     public PerformUserLifecycle(CardDetailRepository cardDetailRepository, DeviceDetailRepository deviceDetailRepository, UserDetailRepository userDetailRepository) {
         this.cardDetailRepository = cardDetailRepository;
@@ -246,7 +246,7 @@ public class PerformUserLifecycle {
     private void performVisaLifecycle(List<CardDetails> visaCardList, String operation) {
         CardDetails cardDetailobj;
         Map<String, Object> response = null;
-        lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         for (int i = 0; i < visaCardList.size(); i++) {
             cardDetailobj = visaCardList.get(i);
             lifeCycleManagementVisaRequest.setOperation(operation);
@@ -262,7 +262,7 @@ public class PerformUserLifecycle {
     @Async
     public void deleteVISACards(List<CardDetails> visaCardList) {
         Map<String, Object> responseMap1 = null;
-        lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
+        LifeCycleManagementVisaRequest lifeCycleManagementVisaRequest = new LifeCycleManagementVisaRequest();
         lifeCycleManagementVisaRequest.setOperation("DELETE");
         lifeCycleManagementVisaRequest.setReasonCode("CUSTOMER_CONFIRMED");
         for (int i=0 ; i<visaCardList.size() ; i++) {

@@ -27,6 +27,8 @@ import com.comviva.mfs.hce.appserver.authentication.listener.AuthenticationListe
 import com.comviva.mfs.hce.appserver.authentication.listener.SessionFixationProtectionListener;
 import com.comviva.mfs.hce.appserver.authentication.strategy.AuthenticationStrategyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,6 +36,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +54,9 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
     private static final String[] NO_AUTH_URLS = new String[]{
             "/error", "/", "/static/**", "/assets/**", "/stub/**", "/favicon.ico"
     };
+
+
+
 
     private final AuthenticationStrategyFactory authenticationStrategyFactory;
     private final EntryPointUnauthorizedHandler entryPointUnauthorizedHandler;
@@ -82,4 +90,6 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
         return authenticationFilter;
     }
+
+
 }
