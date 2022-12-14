@@ -261,18 +261,16 @@ public class DeviceDetailServiceImpl implements DeviceDetailService {
                 response.put(HCEConstants.VISA_FINAL_MESSAGE, "NOTOK");
                 response.put(HCEConstants.VTS_RESPONSE_MAP, vtsRespMap);
             }
-
-            HvtManagement hvtManagement = hvtManagementRepository.findByPaymentAppId(paymentAppId);
-
-            if(hvtManagement != null) {
-                if ("Y".equalsIgnoreCase(hvtManagement.getIsHvtSupported())) {
-                    response.put("isHvtSupported", true);
-                } else {
-                    response.put("isHvtSupported", false);
-                }
-
-                response.put("hvtThreshold", hvtManagement.getHvtLimit());
+             //commented this line in SBi as SBi migrating from 5.2.1->6.2.1
+             //and SBI database is old in that new column don't exist .
+            //HvtManagement hvtManagement = hvtManagementRepository.findByPaymentAppId(paymentAppId);
+            if (HCEConstants.ACTIVE.equals(env.getProperty("is.hvt.supported"))) {
+                response.put("isHvtSupported", true);
+            } else {
+                response.put("isHvtSupported", false);
             }
+
+            response.put("hvtThreshold", env.getProperty("hvt.limit"));
 
             if (response.get(HCEConstants.VISA_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) || response.get(HCEConstants.MDES_FINAL_CODE).equals(HCEMessageCodes.getSUCCESS()) ){
                 response.put("responseCode",HCEMessageCodes.getSUCCESS());

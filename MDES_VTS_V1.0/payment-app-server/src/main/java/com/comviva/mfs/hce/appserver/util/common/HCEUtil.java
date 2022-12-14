@@ -323,62 +323,63 @@ public class HCEUtil {
      * @param jsonData the json data
      * @return the string
      */
-    public static String maskJson(String jsonData){
+    public static String maskJson(String jsonData) {
+        if (jsonData.toString().contains("END CERTIFICATE")) {
+            return jsonData;
+        } else {
+            String replaceText = "";
+            String[] replaceValue = null;
+            String temp = "";
+            String original = "";
+            Matcher matcher = null;
+            String[] node = null;
+            String splitParam = null;
+            splitParam = ":";
+            String patternString = "";
+            String tempReplaceValue = "";
 
+            jsonData = formatJsonString(jsonData);
 
-        String replaceText = "";
-        String[] replaceValue = null;
-        String temp = "";
-        String original = "";
-        Matcher matcher  = null;
-        String[] node = null;
-        String splitParam = null;
-        splitParam=":";
-        String patternString = "";
-        String tempReplaceValue = "";
+            if (HCEUtil.getMaskingPropertiesList() != null && !HCEUtil.getMaskingPropertiesList().isEmpty()) {
 
-        jsonData = formatJsonString(jsonData);
+                for (String maskingProp : HCEUtil.getMaskingPropertiesList()) {
 
-        if(HCEUtil.getMaskingPropertiesList() != null && !HCEUtil.getMaskingPropertiesList().isEmpty()){
-
-            for(String maskingProp : HCEUtil.getMaskingPropertiesList()){
-
-                node = maskingProp.split(":");
-                if(jsonData.contains("\"")){
-                    patternString = "\""+node[0]+"\""+splitParam+" \""+HCEConstants.getMaskingParamRegex()+"\"";
-                }else{
-                    patternString = node[0]+splitParam+" "+HCEConstants.getMaskingParamRegex();
-                }
-
-                matcher  = Pattern.compile(patternString).matcher(jsonData);
-
-                while (matcher.find()){
-                    replaceText = matcher.group();
-                    original = replaceText;
-                    replaceValue = replaceText.split(splitParam);
-                    if(replaceValue != null && replaceValue.length>1){
-
-                        final String extValue = replaceValue[1].trim();
-                        if(extValue.startsWith("\"") && extValue.endsWith("\"")){
-                            tempReplaceValue = extValue.substring(1, extValue.length()-1);
-                            replaceText = getMaskedValue(tempReplaceValue, node[1], node[2]);
-                            replaceText = "\""+replaceText+"\"";
-                        }else{
-                            replaceText = getMaskedValue(extValue, node[1], node[2]);
-                        }
-
-
-                        temp =replaceValue[0]+ splitParam+replaceText;
-                        jsonData= jsonData.replace(original, temp);
+                    node = maskingProp.split(":");
+                    if (jsonData.contains("\"")) {
+                        patternString = "\"" + node[0] + "\"" + splitParam + " \"" + HCEConstants.getMaskingParamRegex() + "\"";
+                    } else {
+                        patternString = node[0] + splitParam + " " + HCEConstants.getMaskingParamRegex();
                     }
 
+                    matcher = Pattern.compile(patternString).matcher(jsonData);
+
+                    while (matcher.find()) {
+                        replaceText = matcher.group();
+                        original = replaceText;
+                        replaceValue = replaceText.split(splitParam);
+                        if (replaceValue != null && replaceValue.length > 1) {
+
+                            final String extValue = replaceValue[1].trim();
+                            if (extValue.startsWith("\"") && extValue.endsWith("\"")) {
+                                tempReplaceValue = extValue.substring(1, extValue.length() - 1);
+                                replaceText = getMaskedValue(tempReplaceValue, node[1], node[2]);
+                                replaceText = "\"" + replaceText + "\"";
+                            } else {
+                                replaceText = getMaskedValue(extValue, node[1], node[2]);
+                            }
+
+
+                            temp = replaceValue[0] + splitParam + replaceText;
+                            jsonData = jsonData.replace(original, temp);
+                        }
+
+                    }
                 }
             }
+
+            return jsonData;
         }
-
-        return jsonData;
     }
-
 
     /**
      * Format Json String
@@ -450,7 +451,7 @@ public class HCEUtil {
             }
 
         }
-      //  if(HCEConstants.UNMASK_TYPE_PRE.equals())
+        //  if(HCEConstants.UNMASK_TYPE_PRE.equals())
         // generate no of XXXXs
         for(int i=0;i<p_digit;i++)
             masked.append("X");

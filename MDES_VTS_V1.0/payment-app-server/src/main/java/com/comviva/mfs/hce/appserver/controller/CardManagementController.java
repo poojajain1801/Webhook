@@ -397,9 +397,9 @@ public class CardManagementController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/pkCertificate", method = RequestMethod.GET)
-    public Object getPublicKeyCertificate() {
-        Object getPublicKeyCertificateResp = null;
+    @RequestMapping(value = "/pkCertificate", method = RequestMethod.POST)
+    public Map getPublicKeyCertificate() {
+        Map getPublicKeyCertificateResp = null;
         try{
             getPublicKeyCertificateResp = cardDetailService.getPublicKeyCertificate();
         }catch (HCEActionException getPublicKeyCertificateException){
@@ -411,6 +411,7 @@ public class CardManagementController {
         }
         return getPublicKeyCertificateResp;
     }
+
 
     @ResponseBody
     @RequestMapping(value = "/customerCareContact", method = RequestMethod.GET)

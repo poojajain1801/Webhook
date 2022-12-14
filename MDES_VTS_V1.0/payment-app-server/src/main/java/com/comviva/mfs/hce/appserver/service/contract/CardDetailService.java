@@ -157,7 +157,7 @@ public interface CardDetailService {
      * getPublicKeyCertificate
      * @return object
      * */
-    Object getPublicKeyCertificate();
+    Map<String, Object> getPublicKeyCertificate();
 
     /**
      * notifyTokenUpdated

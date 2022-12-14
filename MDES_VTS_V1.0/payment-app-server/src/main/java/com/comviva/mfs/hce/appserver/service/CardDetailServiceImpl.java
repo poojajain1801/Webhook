@@ -79,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import com.comviva.mfs.hce.appserver.mapper.pojo.*;
 
 /**
  * Created by Tanmay.Patel on 1/8/2017.
@@ -583,6 +584,20 @@ public class CardDetailServiceImpl implements CardDetailService {
                 map.put("clientWalletAccountID", clientWalletAccountId);
                 map.put("locale", enrollPanRequest.getLocale());
                 map.put("panSource", enrollPanRequest.getPanSource());
+                //adding IsIdnv parameter in request
+                EncPaymentInstrument encPaymentInstrument1 = new EncPaymentInstrument();
+                InstrumentProvider instrumentProvider = new InstrumentProvider();
+                ExpirationDate expirationDate = new ExpirationDate();
+                instrumentProvider.setIsIDnV("false");
+
+                encPaymentInstrument1.setAccountNumber(enrollPanRequest.getEncPaymentInstrument().getAccountNumber());
+                expirationDate.setMonth(enrollPanRequest.getEncPaymentInstrument().getExpirationDate().getMonth());
+                expirationDate.setYear(enrollPanRequest.getEncPaymentInstrument().getExpirationDate().getYear());
+                encPaymentInstrument1.setExpirationDate(expirationDate);
+                encPaymentInstrument1.setName(enrollPanRequest.getEncPaymentInstrument().getName());
+                encPaymentInstrument1.setProvider(instrumentProvider);
+                enrollPanRequest.setEncPaymentInstrument(encPaymentInstrument1);
+
                 jsonencPaymentInstrument = new JSONObject(enrollPanRequest.getEncPaymentInstrument());
                 String apiKey = env.getProperty("apiKeyEnc") == null?this.env.getProperty("apiKey"):env.getProperty("apiKeyEnc");
                 String sharedSecret = env.getProperty("sharedSecretEnc") == null?this.env.getProperty("sharedSecret"):env.getProperty("sharedSecretEnc");
@@ -1429,17 +1444,24 @@ public class CardDetailServiceImpl implements CardDetailService {
         return responseMap;
     }
 
-    public Object getPublicKeyCertificate() {
+    public Map getPublicKeyCertificate() {
         ResponseEntity responseMdes = null;
+        Map responseMap = new HashMap();
         Object response = null;
         String url = null;
         try {
             url = env.getProperty("mdesip") + env.getProperty("mpamanagementPath");
             responseMdes = hitMasterCardService.restfulServiceConsumerMasterCard(url, null, "GET", "pkCertificate");
-            if (responseMdes == null)
+            if (responseMdes == null) {
                 throw new HCEActionException(HCEMessageCodes.getFailedAtThiredParty());
-            if (responseMdes.hasBody()) {
-                response = responseMdes.getBody();
+            } else {
+                if (responseMdes.hasBody()) {
+                    response = String.valueOf(responseMdes.getBody());
+                    responseMap.put("cmsDCertificate", response);
+                    responseMap.put("responseCode", HCEMessageCodes.getSUCCESS());
+                    responseMap.put("message", this.hceControllerSupport.prepareMessage(HCEMessageCodes.getSUCCESS()));
+                }
+                return responseMap;
             }
         } catch (HCEActionException getPublicKeyCertificateException) {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getPublicKeyCertificate", getPublicKeyCertificateException);
@@ -1449,8 +1471,9 @@ public class CardDetailServiceImpl implements CardDetailService {
             LOGGER.error("Exception occured in CardDetailServiceImpl->getPublicKeyCertificate", getPublicKeyCertificateException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        return response;
+
     }
+
 
     @Override
     public Map<String, Object> notifyTokenUpdated(NotifyTokenUpdatedReq notifyTokenUpdatedReq) {
