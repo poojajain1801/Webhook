@@ -74,7 +74,7 @@ public class DeviceRegistrationController {
             LOGGER.error(" Exception Occured in DeviceRegistrationController->registerDevice", regDeviceException);
             throw new HCEActionException(HCEMessageCodes.getServiceFailed());
         }
-        LOGGER.info("Register device response goes --> TIME " + HCEUtil.convertDateToTimestamp(new Date()));
+        LOGGER.info("Register device response goes --> TIME pooja" + HCEUtil.convertDateToTimestamp(new Date()));
         return registerDeviceResponse;
     }
 
